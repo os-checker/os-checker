@@ -1,0 +1,16 @@
+[package]
+name = "os-checker"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+argh = "0.1.12"   # cli argument parser
+eyre = "0.6.12"   # error handling
+walkdir = "2.5.0" # recursively search Cargo.toml for finding packages
+
+serde = { version = "1", features = ["derive"] }
+marked-yaml = { version = "0.7.1", features = ["serde-path"] } # parse yaml file
+cargo_metadata = "0.18.1" # parse metadata for knowing project layout
+
+[dev-dependencies]
+expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
