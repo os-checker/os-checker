@@ -2,6 +2,9 @@ use crate::Result;
 use serde::{de, Deserialize, Deserializer};
 use std::{collections::BTreeMap, fmt};
 
+#[cfg(test)]
+mod tests;
+
 /// A repo and its checker configurations.
 #[derive(Debug)]
 pub struct Config {
@@ -76,21 +79,6 @@ impl fmt::Debug for RepoConfig {
             miri => s.field("miri", val),
             lockbud => s.field("lockbud", val),
         );
-        // if let Some(val) = &self.all {
-        //     s.field("all", val);
-        // }
-        // if let Some(val) = &self.fmt {
-        //     s.field("fmt", val);
-        // }
-        // if let Some(val) = &self.clippy {
-        //     s.field("clippy", val);
-        // }
-        // if let Some(val) = &self.miri {
-        //     s.field("miri", val);
-        // }
-        // if let Some(val) = &self.lockbud {
-        //     s.field("lockbud", val);
-        // }
         s.finish()
     }
 }
@@ -206,60 +194,4 @@ impl Action {
             }
         }
     }
-}
-
-#[test]
-fn test_parse() {
-    let yaml = "
-os-checker/os-checker:
-  fmt: true
-  clippy: cargo clippy -F a,b,c
-  miri: |
-    # this is a comment line
-    cargo miri run # a comment
-    cargo miri test -- a_test_fn
-  semver-checks: false
-
-user/repo: 
-  all: true
-";
-    let parsed = Config::from_yaml(yaml).unwrap();
-    let expected = expect_test::expect![[r#"
-        [
-            Config {
-                repo: "os-checker/os-checker",
-                config: RepoConfig {
-                    fmt: Perform(
-                        true,
-                    ),
-                    clippy: Steps(
-                        [
-                            "cargo clippy -F a,b,c",
-                        ],
-                    ),
-                    miri: Steps(
-                        [
-                            "cargo miri run",
-                            "cargo miri test -- a_test_fn",
-                        ],
-                    ),
-                },
-            },
-            Config {
-                repo: "user/repo",
-                config: RepoConfig {
-                    all: Perform(
-                        true,
-                    ),
-                },
-            },
-        ]
-    "#]];
-    expected.assert_debug_eq(&parsed);
-
-    let v: Vec<_> = parsed
-        .iter()
-        .map(|c| (&c.repo, c.config.to_vec()))
-        .collect();
-    dbg!(&v);
 }
