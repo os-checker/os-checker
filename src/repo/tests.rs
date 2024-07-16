@@ -1,4 +1,5 @@
 use super::Config;
+use expect_test::expect;
 
 const YAML: &str = "
 os-checker/os-checker:
@@ -17,7 +18,7 @@ user/repo:
 #[test]
 fn parse() {
     let parsed = Config::from_yaml(YAML).unwrap();
-    let expected = expect_test::expect![[r#"
+    let expected = expect![[r#"
         [
             Config {
                 repo: "os-checker/os-checker",
@@ -54,7 +55,7 @@ fn parse() {
         .iter()
         .map(|c| (&c.repo, c.config.to_vec()))
         .collect();
-    let expected = expect_test::expect![[r#"
+    let expected = expect![[r#"
         [
             (
                 "os-checker/os-checker",
@@ -98,4 +99,16 @@ fn parse() {
         ]
     "#]];
     expected.assert_debug_eq(&v);
+}
+
+const BAD: &str = "
+user/repo: 
+  clippy: cargo miri run
+";
+
+#[test]
+fn check() {
+    let err = format!("{}", Config::from_yaml(BAD).unwrap_err());
+    let expected = expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"];
+    expected.assert_eq(&err);
 }

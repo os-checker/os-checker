@@ -24,7 +24,7 @@ impl Config {
 
     fn check_fork(self) -> Result<Config> {
         self.config.check_tool_action()?;
-        // TODO 使用 FORK 环境变量来自动 fork 代码仓库
+        // TODO 使用 FORK 环境变量来自动 fork 代码仓库；放置于 cfg(not(test)) 之后
         Ok(self)
     }
 }
@@ -165,6 +165,7 @@ impl<'de> Deserialize<'de> for Action {
                     let line = line[..pos].trim();
                     (!line.is_empty()).then(|| line.to_owned())
                 }
+
                 let value = value.trim();
                 Ok(match value {
                     "true" => Action::Perform(true),
@@ -188,7 +189,10 @@ impl Action {
             Action::Steps(steps) => {
                 let name = tool.name();
                 for step in &steps[..] {
-                    ensure!(step.contains(name), "命令 {step} 与检查工具 {name} 不匹配");
+                    ensure!(
+                        step.contains(name),
+                        "命令 `{step}` 与检查工具 `{name}` 不匹配"
+                    );
                 }
                 Ok(())
             }
