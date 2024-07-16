@@ -1,3 +1,4 @@
+use crate::Result;
 use serde::{de, Deserialize, Deserializer};
 use std::{collections::BTreeMap, fmt};
 
@@ -9,13 +10,41 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from_yaml(yaml: &str) -> crate::Result<Box<[Config]>> {
+    pub fn from_yaml(yaml: &str) -> Result<Box<[Config]>> {
         let parsed: BTreeMap<String, RepoConfig> = marked_yaml::from_yaml(0, yaml)
             .map_err(|err| eyre!("仓库配置解析错误：{err}\n请检查 yaml 格式或者内容是否正确"))?;
-        Ok(parsed
+        parsed
             .into_iter()
-            .map(|(repo, config)| Config { repo, config })
-            .collect())
+            .map(|(repo, config)| (Config { repo, config }).check_fork())
+            .collect()
+    }
+
+    fn check_fork(self) -> Result<Config> {
+        self.config.check_tool_action()?;
+        // TODO 使用 FORK 环境变量来自动 fork 代码仓库
+        Ok(self)
+    }
+}
+
+/// 检查工具
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum CheckerTool {
+    All,
+    Fmt,
+    Clippy,
+    Miri,
+    Lockbud,
+}
+
+impl CheckerTool {
+    pub fn name(self) -> &'static str {
+        match self {
+            CheckerTool::All => "all",
+            CheckerTool::Fmt => "fmt",
+            CheckerTool::Clippy => "clippy",
+            CheckerTool::Miri => "miri",
+            CheckerTool::Lockbud => "lockbud",
+        }
     }
 }
 
@@ -29,25 +58,62 @@ pub struct RepoConfig {
     lockbud: CheckerAction,
 }
 
+macro_rules! filter {
+    ($self:ident, $val:ident: $($field:ident => $s:stmt,)+) => { $(
+        if let Some($val) = &$self.$field {
+            {$s};
+        }
+    )+ };
+}
+
 impl fmt::Debug for RepoConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = f.debug_struct("RepoConfig");
-        if let Some(val) = &self.all {
-            s.field("all", val);
-        }
-        if let Some(val) = &self.fmt {
-            s.field("fmt", val);
-        }
-        if let Some(val) = &self.clippy {
-            s.field("clippy", val);
-        }
-        if let Some(val) = &self.miri {
-            s.field("miri", val);
-        }
-        if let Some(val) = &self.lockbud {
-            s.field("lockbud", val);
-        }
+        filter!(self, val:
+            all => s.field("all", val),
+            fmt => s.field("fmt", val),
+            clippy => s.field("clippy", val),
+            miri => s.field("miri", val),
+            lockbud => s.field("lockbud", val),
+        );
+        // if let Some(val) = &self.all {
+        //     s.field("all", val);
+        // }
+        // if let Some(val) = &self.fmt {
+        //     s.field("fmt", val);
+        // }
+        // if let Some(val) = &self.clippy {
+        //     s.field("clippy", val);
+        // }
+        // if let Some(val) = &self.miri {
+        //     s.field("miri", val);
+        // }
+        // if let Some(val) = &self.lockbud {
+        //     s.field("lockbud", val);
+        // }
         s.finish()
+    }
+}
+
+impl RepoConfig {
+    /// 将配置项展平
+    fn to_vec(&self) -> Vec<(CheckerTool, &Action)> {
+        use CheckerTool::*;
+        let mut v = Vec::with_capacity(8);
+        filter!(self, val:
+            all => v.push((All, val)),
+            fmt => v.push((Fmt, val)),
+            clippy => v.push((Clippy, val)),
+            miri => v.push((Miri, val)),
+            lockbud => v.push((Lockbud, val)),
+        );
+        v
+    }
+
+    fn check_tool_action(&self) -> Result<()> {
+        self.to_vec()
+            .into_iter()
+            .try_for_each(|(tool, action)| action.check(tool))
     }
 }
 
@@ -124,6 +190,24 @@ impl<'de> Deserialize<'de> for Action {
     }
 }
 
+impl Action {
+    /// 检查指定的每一条命令是否与工具匹配
+    fn check(&self, tool: CheckerTool) -> Result<()> {
+        use CheckerTool::*;
+        match self {
+            Action::Perform(_) => Ok(()),
+            Action::Steps(_) if tool == All => Ok(()),
+            Action::Steps(steps) => {
+                let name = tool.name();
+                for step in &steps[..] {
+                    ensure!(step.contains(name), "命令 {step} 与检查工具 {name} 不匹配");
+                }
+                Ok(())
+            }
+        }
+    }
+}
+
 #[test]
 fn test_parse() {
     let yaml = "
@@ -172,4 +256,10 @@ user/repo:
         ]
     "#]];
     expected.assert_debug_eq(&parsed);
+
+    let v: Vec<_> = parsed
+        .iter()
+        .map(|c| (&c.repo, c.config.to_vec()))
+        .collect();
+    dbg!(&v);
 }
