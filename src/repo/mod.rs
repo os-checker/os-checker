@@ -1,11 +1,22 @@
-#![allow(unused)]
 use serde::{de, Deserialize, Deserializer};
 use std::{collections::BTreeMap, fmt};
 
+/// A repo and its checker configurations.
 #[derive(Debug)]
 pub struct Config {
     repo: String,
     config: RepoConfig,
+}
+
+impl Config {
+    pub fn from_yaml(yaml: &str) -> crate::Result<Box<[Config]>> {
+        let parsed: BTreeMap<String, RepoConfig> = marked_yaml::from_yaml(0, yaml)
+            .map_err(|err| eyre!("仓库配置解析错误：{err}\n请检查 yaml 格式或者内容是否正确"))?;
+        Ok(parsed
+            .into_iter()
+            .map(|(repo, config)| Config { repo, config })
+            .collect())
+    }
 }
 
 /// Configuration for single repo.
@@ -128,11 +139,7 @@ os-checker/os-checker:
 user/repo: 
   all: true
 ";
-    let parsed: BTreeMap<String, RepoConfig> = marked_yaml::from_yaml(0, yaml).unwrap();
-    let parsed: Vec<_> = parsed
-        .into_iter()
-        .map(|(repo, config)| Config { repo, config })
-        .collect();
+    let parsed = Config::from_yaml(yaml).unwrap();
     let expected = expect_test::expect![[r#"
         [
             Config {
