@@ -45,6 +45,29 @@ impl fmt::Debug for RepoConfig {
 pub type CheckerAction = Option<Action>;
 
 /// Action specified for a checker.
+///
+/// 每种检查工具具有三种操作：
+/// * false 表示不运行检查工具
+/// * true 表示以某种启发式的分析来运行检查工具
+/// * 字符串表示指定检查工具的运行命令，如果是多行字符串，则意味着每行为一条完整的运行命令
+///
+/// 但是有一个特殊的 all 检查，它的 true/false 可结合其余检查工具来控制多个工具的运行，比如
+///
+/// ```yaml
+/// user1/repo:
+///   all: true # 运行除 miri 之外的检查工具（那些检查工具以 true 方式运行，除非额外指定）
+///   miri: false
+///
+/// user2/repo:
+///   all: true # 运行除 miri 之外的检查工具
+///   miri: false
+///   lockbud: cargo lockbud -k all -l crate1,crate2 # 但指定 lockbud 的运行命令
+///
+/// user3/repo:
+///   all: false # 只运行 fmt 和 clippy 检查
+///   fmt: true
+///   clippy: true
+/// ```
 #[derive(Debug)]
 pub enum Action {
     Perform(bool),
