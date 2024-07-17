@@ -10,7 +10,7 @@ fn arceos_layout() {
     expect![[r#"
         Layout {
             repo_root: "./repos/arceos",
-            pkgs: [
+            cargo_tomls: [
                 "./repos/arceos/Cargo.toml",
                 "./repos/arceos/api/arceos_api/Cargo.toml",
                 "./repos/arceos/api/arceos_posix_api/Cargo.toml",

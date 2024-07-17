@@ -10,7 +10,7 @@ use std::{collections::BTreeMap, fmt};
 #[cfg(test)]
 mod tests;
 
-/// 寻找仓库内所有 Cargo.toml 所在的路径；假设每个 Cargo.toml 位于其 package 的根目录
+/// 寻找仓库内所有 Cargo.toml 所在的路径
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
     let mut cargo_tomls: Vec<Utf8PathBuf> = walkdir::WalkDir::new(repo_root)
         .max_depth(10) // 目录递归上限
@@ -68,8 +68,11 @@ fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
 pub struct Layout {
     /// 仓库根目录的完整路径，可用于去除 Metadata 中的路径前缀，让路径看起来更清爽
     root_path: Utf8PathBuf,
-    /// 所有 Packages 的 Cargo.toml 路径
-    pkgs: Vec<Utf8PathBuf>,
+    /// 所有 Cargo.toml 的路径
+    ///
+    /// NOTE: Cargo.toml 并不意味着对应于一个 package —— virtual workspace 布局无需定义
+    ///       `[package]`，因此要获取所有 packages 的信息，应使用 [`Layout::packages`]
+    cargo_tomls: Vec<Utf8PathBuf>,
     /// 一个仓库可能有一个 Workspace，但也可能有多个，比如单独一些 Packages，那么它们是各自的 Workspace
     workspaces: Workspaces,
 }
@@ -81,6 +84,7 @@ impl fmt::Debug for Layout {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 let mut s = f.debug_struct("Workspaces");
                 for (idx, (root, meta)) in self.0.iter().enumerate() {
+                    // 为了简洁和方便在不同机器上测试，将规范路径缩短
                     let pkg_root = root
                         .strip_prefix(self.1)
                         .map(|p| Utf8PathBuf::from(".").join(p));
@@ -102,7 +106,7 @@ impl fmt::Debug for Layout {
         let root_full = canonicalize_root.as_ref().unwrap_or(root);
         f.debug_struct("Layout")
             .field("repo_root", root)
-            .field("pkgs", &self.pkgs)
+            .field("cargo_tomls", &self.cargo_tomls)
             .field("workspaces", &WorkspacesDebug(&self.workspaces, root_full))
             .finish()
     }
@@ -121,7 +125,7 @@ impl Layout {
 
         let layout = Layout {
             workspaces: parse(&cargo_tomls)?,
-            pkgs: cargo_tomls,
+            cargo_tomls,
             root_path,
         };
         debug!("layout={layout:#?}");
@@ -129,7 +133,8 @@ impl Layout {
     }
 
     pub fn packages(&self) -> Vec<Package> {
-        let mut v = Vec::with_capacity(self.pkgs.len());
+        let cargo_tomls_len = self.cargo_tomls.len();
+        let mut v = Vec::with_capacity(cargo_tomls_len);
         for (cargo_toml, ws) in &self.workspaces {
             for member in ws.workspace_packages() {
                 v.push(Package {
@@ -139,6 +144,7 @@ impl Layout {
                 });
             }
         }
+        // debug!(cargo_tomls_len, pkg_len = v.len());
         v.sort_unstable_by_key(|pkg| (pkg.name, pkg.cargo_toml));
         v
     }
