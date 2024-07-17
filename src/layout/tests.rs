@@ -1,14 +1,13 @@
 use super::Layout;
+use expect_test::expect;
 
 #[test]
 fn arceos_layout() {
-    crate::logger_init();
-
     let excluded = &["tmp"];
     assert!(Layout::new("tmp", excluded).is_err());
 
     let arceos = Layout::new("./repos/arceos", excluded).unwrap();
-    expect_test::expect![[r#"
+    expect![[r#"
         Layout {
             repo_root: "./repos/arceos",
             pkgs: [
@@ -165,4 +164,6 @@ fn arceos_layout() {
         }
     "#]]
     .assert_debug_eq(&arceos);
+
+    // expect![].assert_debug_eq(&arceos.packages());
 }

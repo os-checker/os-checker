@@ -1,8 +1,11 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
 use crate::Result;
-use cargo_metadata::{camino::Utf8PathBuf, Metadata, MetadataCommand};
-use std::{collections::BTreeMap, fmt};
+use cargo_metadata::{
+    camino::{Utf8Path, Utf8PathBuf},
+    Metadata, MetadataCommand,
+};
+use std::{cmp::Ordering, collections::BTreeMap, fmt};
 
 #[cfg(test)]
 mod tests;
@@ -95,7 +98,7 @@ impl fmt::Debug for Layout {
         }
 
         let root = &self.root_path;
-        let canonicalize_root = &root.canonicalize_utf8();
+        let canonicalize_root = root.canonicalize_utf8();
         let root_full = canonicalize_root.as_ref().unwrap_or(root);
         f.debug_struct("Layout")
             .field("repo_root", root)
@@ -124,11 +127,30 @@ impl Layout {
         debug!("layout={layout:#?}");
         Ok(layout)
     }
+
+    pub fn packages(&self) -> Vec<Package> {
+        let mut v = Vec::with_capacity(self.pkgs.len());
+        for (cargo_toml, ws) in &self.workspaces {
+            for member in ws.workspace_packages() {
+                v.push(Package {
+                    name: &member.name,
+                    cargo_toml: &member.manifest_path,
+                    workspace_root: cargo_toml,
+                });
+            }
+        }
+        v.sort_unstable_by_key(|pkg| (pkg.name, pkg.cargo_toml));
+        v
+    }
 }
 
-/// 由 Layout.workspaces 计算
-struct Package {
-    name: String,
+/// package infomation
+#[derive(Debug)]
+pub struct Package<'a> {
+    /// package name written in its Cargo.toml
+    name: &'a str,
     /// i.e. manifest_path
-    cargo_toml: Utf8PathBuf,
+    cargo_toml: &'a Utf8Path,
+    /// workspace root path without manifest_path
+    workspace_root: &'a Utf8Path,
 }
