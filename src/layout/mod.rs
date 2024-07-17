@@ -10,7 +10,6 @@ mod tests;
 /// 寻找仓库内所有 Cargo.toml 所在的路径；假设每个 Cargo.toml 位于其 package 的根目录
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
     let mut cargo_tomls: Vec<Utf8PathBuf> = walkdir::WalkDir::new(repo_root)
-        // .min_depth(1) // 别把 ./ 纳入进来
         .max_depth(10) // 目录递归上限
         .into_iter()
         .filter_entry(|entry| {
@@ -27,7 +26,6 @@ fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf
                 return None;
             }
             let filename = entry.file_name().to_str()?;
-            // println!("{}", entry.path().display());
             if filename == "Cargo.toml" {
                 entry.into_path().try_into().ok()
             } else {
@@ -80,9 +78,8 @@ impl fmt::Debug for Layout {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 let mut s = f.debug_struct("Workspaces");
                 for (idx, (root, meta)) in self.0.iter().enumerate() {
-                    let root = root
+                    let pkg_root = root
                         .strip_prefix(self.1)
-                        .ok()
                         .map(|p| Utf8PathBuf::from(".").join(p));
                     let mut members: Vec<_> = meta
                         .workspace_packages()
@@ -90,31 +87,33 @@ impl fmt::Debug for Layout {
                         .map(|p| p.name.as_str())
                         .collect();
                     members.sort();
-                    s.field(&format!("[{idx}] root"), root.as_ref().unwrap_or(self.1))
+                    s.field(&format!("[{idx}] root"), pkg_root.as_ref().unwrap_or(root))
                         .field(&format!("[{idx}] root.members"), &members);
                 }
                 s.finish()
             }
         }
 
+        let root = &self.root_path;
+        let canonicalize_root = &root.canonicalize_utf8();
+        let root_full = canonicalize_root.as_ref().unwrap_or(root);
         f.debug_struct("Layout")
+            .field("repo_root", root)
             .field("pkgs", &self.pkgs)
-            .field(
-                "workspaces",
-                &WorkspacesDebug(&self.workspaces, &self.root_path),
-            )
+            .field("workspaces", &WorkspacesDebug(&self.workspaces, root_full))
             .finish()
     }
 }
 
 impl Layout {
     pub fn new(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
-        let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
+        let root_path = Utf8PathBuf::from(repo_root);
 
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded);
         ensure!(
             !cargo_tomls.is_empty(),
-            "repo_root `{repo_root}` (路径 `{root_path}`) 不是 Rust 项目，因为不包含任何 Cargo.toml"
+            "repo_root `{repo_root}` (规范路径为 `{}`) 不是 Rust 项目，因为不包含任何 Cargo.toml",
+            root_path.canonicalize_utf8()?
         );
 
         let layout = Layout {

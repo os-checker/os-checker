@@ -10,6 +10,7 @@ fn arceos_layout() {
     let arceos = Layout::new("./repos/arceos", excluded).unwrap();
     expect_test::expect![[r#"
         Layout {
+            repo_root: "./repos/arceos",
             pkgs: [
                 "./repos/arceos/Cargo.toml",
                 "./repos/arceos/api/arceos_api/Cargo.toml",
