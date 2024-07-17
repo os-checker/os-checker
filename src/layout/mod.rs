@@ -6,8 +6,6 @@ use std::{collections::BTreeMap, fmt};
 
 /// 寻找仓库内所有 Cargo.toml 所在的路径；假设每个 Cargo.toml 位于其 package 的根目录
 fn find_all_cargo_toml_paths(repo_root: &str) -> Vec<Utf8PathBuf> {
-    // let repo_root = Utf8PathBuf::from_str(repo_root).unwrap();
-    // println!("repo_root={}", repo_root.canonicalize_utf8().unwrap());
     let mut cargo_tomls: Vec<Utf8PathBuf> = walkdir::WalkDir::new(repo_root)
         // .min_depth(1) // 别把 ./ 纳入进来
         .max_depth(10) // 目录递归上限
@@ -63,6 +61,8 @@ fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
 }
 
 pub struct Layout {
+    /// 仓库根目录的完整路径，可用于去除 Metadata 中的路径前缀，让路径看起来更清爽
+    root_path: Utf8PathBuf,
     /// 所有 Packages 的 Cargo.toml 路径
     pkgs: Vec<Utf8PathBuf>,
     /// 一个仓库可能有一个 Workspace，但也可能有多个，比如单独一些 Packages，那么它们是各自的 Workspace
@@ -71,12 +71,16 @@ pub struct Layout {
 
 impl fmt::Debug for Layout {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        struct WorkspacesDebug<'a>(&'a Workspaces);
+        struct WorkspacesDebug<'a>(&'a Workspaces, &'a Utf8PathBuf);
         impl fmt::Debug for WorkspacesDebug<'_> {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 let mut s = f.debug_struct("Workspaces");
                 for (idx, (root, meta)) in self.0.iter().enumerate() {
-                    s.field(&format!("[{idx}] root"), root).field(
+                    s.field(
+                        &format!("[{idx}] root"),
+                        &Utf8PathBuf::from(".").join(root.strip_prefix(self.1).unwrap_or(self.1)),
+                    )
+                    .field(
                         &format!("[{idx}] root.members"),
                         &meta
                             .workspace_packages()
@@ -91,21 +95,29 @@ impl fmt::Debug for Layout {
 
         f.debug_struct("Layout")
             .field("pkgs", &self.pkgs)
-            .field("workspaces", &WorkspacesDebug(&self.workspaces))
+            .field(
+                "workspaces",
+                &WorkspacesDebug(&self.workspaces, &self.root_path),
+            )
             .finish()
     }
 }
 
 impl Layout {
     pub fn new(repo_root: &str) -> Result<Layout> {
+        let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
+        // println!("repo_root_path={}", root_path);
+
         let cargo_tomls = find_all_cargo_toml_paths(repo_root);
         ensure!(
             !cargo_tomls.is_empty(),
-            "repo_root 路径 `{repo_root}` 不是 Rust 项目，因为不包含任何 Cargo.toml"
+            "repo_root `{repo_root}` (路径 `{root_path}`) 不是 Rust 项目，因为不包含任何 Cargo.toml"
         );
+
         Ok(Layout {
             workspaces: parse(&cargo_tomls)?,
             pkgs: cargo_tomls,
+            root_path,
         })
     }
 }
