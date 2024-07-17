@@ -5,7 +5,7 @@ use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
-use std::{cmp::Ordering, collections::BTreeMap, fmt};
+use std::{collections::BTreeMap, fmt};
 
 #[cfg(test)]
 mod tests;
@@ -37,7 +37,7 @@ fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf
         })
         .collect();
 
-    cargo_tomls.sort();
+    cargo_tomls.sort_unstable();
     cargo_tomls
 }
 
@@ -89,7 +89,7 @@ impl fmt::Debug for Layout {
                         .iter()
                         .map(|p| p.name.as_str())
                         .collect();
-                    members.sort();
+                    members.sort_unstable();
                     s.field(&format!("[{idx}] root"), pkg_root.as_ref().unwrap_or(root))
                         .field(&format!("[{idx}] root.members"), &members);
                 }
