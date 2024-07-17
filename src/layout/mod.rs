@@ -106,7 +106,6 @@ impl fmt::Debug for Layout {
 impl Layout {
     pub fn new(repo_root: &str) -> Result<Layout> {
         let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
-        // println!("repo_root_path={}", root_path);
 
         let cargo_tomls = find_all_cargo_toml_paths(repo_root);
         ensure!(
@@ -114,11 +113,13 @@ impl Layout {
             "repo_root `{repo_root}` (路径 `{root_path}`) 不是 Rust 项目，因为不包含任何 Cargo.toml"
         );
 
-        Ok(Layout {
+        let layout = Layout {
             workspaces: parse(&cargo_tomls)?,
             pkgs: cargo_tomls,
             root_path,
-        })
+        };
+        debug!("layout={layout:#?}");
+        Ok(layout)
     }
 }
 
@@ -131,5 +132,6 @@ struct Package {
 
 #[test]
 fn repo_layout() {
-    dbg!(Layout::new(".").unwrap());
+    crate::logger_init();
+    _ = Layout::new(".").unwrap();
 }

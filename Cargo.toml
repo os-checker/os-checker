@@ -15,5 +15,9 @@ cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 eyre = "0.6.12"
 color-eyre = "0.6.3"
 
+# logger
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+
 [dev-dependencies]
 expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
