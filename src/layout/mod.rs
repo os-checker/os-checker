@@ -65,6 +65,14 @@ fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
     Ok(map)
 }
 
+/// 去除与机器相关的根目录；为了简洁和方便在不同机器上测试，将规范路径缩短
+fn strip_base_path(target: &Utf8Path, base: &Utf8Path) -> Option<Utf8PathBuf> {
+    target
+        .strip_prefix(base)
+        .map(|p| Utf8PathBuf::from(".").join(p))
+        .ok()
+}
+
 pub struct Layout {
     /// 仓库根目录的完整路径，可用于去除 Metadata 中的路径前缀，让路径看起来更清爽
     root_path: Utf8PathBuf,
@@ -84,10 +92,7 @@ impl fmt::Debug for Layout {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 let mut s = f.debug_struct("Workspaces");
                 for (idx, (root, meta)) in self.0.iter().enumerate() {
-                    // 为了简洁和方便在不同机器上测试，将规范路径缩短
-                    let pkg_root = root
-                        .strip_prefix(self.1)
-                        .map(|p| Utf8PathBuf::from(".").join(p));
+                    let pkg_root = strip_base_path(root, self.1);
                     let mut members: Vec<_> = meta
                         .workspace_packages()
                         .iter()
@@ -151,7 +156,6 @@ impl Layout {
 }
 
 /// package infomation
-#[derive(Debug)]
 pub struct Package<'a> {
     /// package name written in its Cargo.toml
     name: &'a str,
@@ -159,4 +163,20 @@ pub struct Package<'a> {
     cargo_toml: &'a Utf8Path,
     /// workspace root path without manifest_path
     workspace_root: &'a Utf8Path,
+}
+
+impl fmt::Debug for Package<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let toml = self.cargo_toml;
+        let root = self.workspace_root;
+        let toml_stripped = strip_base_path(toml, root);
+        f.debug_struct("Package")
+            .field("name", &self.name)
+            .field("cargo_toml", &toml_stripped.as_deref().unwrap_or(toml))
+            .field(
+                "workspace_root (file name)",
+                &root.file_name().unwrap_or("unknown???"),
+            )
+            .finish()
+    }
 }

@@ -165,5 +165,343 @@ fn arceos_layout() {
     "#]]
     .assert_debug_eq(&arceos);
 
-    // expect![].assert_debug_eq(&arceos.packages());
+    expect![[r#"
+        [
+            Package {
+                name: "allocator",
+                cargo_toml: "./crates/allocator/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-bwbench",
+                cargo_toml: "./apps/net/bwbench/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-display",
+                cargo_toml: "./apps/display/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-echoserver",
+                cargo_toml: "./apps/net/echoserver/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-exception",
+                cargo_toml: "./apps/exception/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-helloworld",
+                cargo_toml: "./apps/helloworld/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-httpclient",
+                cargo_toml: "./apps/net/httpclient/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-httpserver",
+                cargo_toml: "./apps/net/httpserver/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-memtest",
+                cargo_toml: "./apps/memtest/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-parallel",
+                cargo_toml: "./apps/task/parallel/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-priority",
+                cargo_toml: "./apps/task/priority/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-shell",
+                cargo_toml: "./apps/fs/shell/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-sleep",
+                cargo_toml: "./apps/task/sleep/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-tls",
+                cargo_toml: "./apps/task/tls/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-udpserver",
+                cargo_toml: "./apps/net/udpserver/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos-yield",
+                cargo_toml: "./apps/task/yield/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos_api",
+                cargo_toml: "./api/arceos_api/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arceos_posix_api",
+                cargo_toml: "./api/arceos_posix_api/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arm_gic",
+                cargo_toml: "./crates/arm_gic/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "arm_pl011",
+                cargo_toml: "./crates/arm_pl011/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axalloc",
+                cargo_toml: "./modules/axalloc/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axconfig",
+                cargo_toml: "./modules/axconfig/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axdisplay",
+                cargo_toml: "./modules/axdisplay/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axdriver",
+                cargo_toml: "./modules/axdriver/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axerrno",
+                cargo_toml: "./crates/axerrno/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axfeat",
+                cargo_toml: "./api/axfeat/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axfs",
+                cargo_toml: "./modules/axfs/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axfs_devfs",
+                cargo_toml: "./crates/axfs_devfs/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axfs_ramfs",
+                cargo_toml: "./crates/axfs_ramfs/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axfs_vfs",
+                cargo_toml: "./crates/axfs_vfs/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axhal",
+                cargo_toml: "./modules/axhal/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axio",
+                cargo_toml: "./crates/axio/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axlibc",
+                cargo_toml: "./ulib/axlibc/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axlog",
+                cargo_toml: "./modules/axlog/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axnet",
+                cargo_toml: "./modules/axnet/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axruntime",
+                cargo_toml: "./modules/axruntime/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axstd",
+                cargo_toml: "./ulib/axstd/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axsync",
+                cargo_toml: "./modules/axsync/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "axtask",
+                cargo_toml: "./modules/axtask/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "bwbench-client",
+                cargo_toml: "./Cargo.toml",
+                workspace_root (file name): "bwbench_client",
+            },
+            Package {
+                name: "capability",
+                cargo_toml: "./crates/capability/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "crate_interface",
+                cargo_toml: "./crates/crate_interface/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "deptool",
+                cargo_toml: "./Cargo.toml",
+                workspace_root (file name): "deptool",
+            },
+            Package {
+                name: "driver_block",
+                cargo_toml: "./crates/driver_block/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "driver_common",
+                cargo_toml: "./crates/driver_common/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "driver_display",
+                cargo_toml: "./crates/driver_display/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "driver_net",
+                cargo_toml: "./crates/driver_net/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "driver_pci",
+                cargo_toml: "./crates/driver_pci/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "driver_virtio",
+                cargo_toml: "./crates/driver_virtio/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "dw_apb_uart",
+                cargo_toml: "./crates/dw_apb_uart/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "flatten_objects",
+                cargo_toml: "./crates/flatten_objects/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "handler_table",
+                cargo_toml: "./crates/handler_table/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "kernel_guard",
+                cargo_toml: "./crates/kernel_guard/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "lazy_init",
+                cargo_toml: "./crates/lazy_init/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "linked_list",
+                cargo_toml: "./crates/linked_list/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "memory_addr",
+                cargo_toml: "./crates/memory_addr/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "mingo",
+                cargo_toml: "./Cargo.toml",
+                workspace_root (file name): "chainloader",
+            },
+            Package {
+                name: "page_table",
+                cargo_toml: "./crates/page_table/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "page_table_entry",
+                cargo_toml: "./crates/page_table_entry/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "percpu",
+                cargo_toml: "./crates/percpu/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "percpu_macros",
+                cargo_toml: "./crates/percpu_macros/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "ratio",
+                cargo_toml: "./crates/ratio/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "scheduler",
+                cargo_toml: "./crates/scheduler/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "slab_allocator",
+                cargo_toml: "./crates/slab_allocator/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "spinlock",
+                cargo_toml: "./crates/spinlock/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "timer_list",
+                cargo_toml: "./crates/timer_list/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+            Package {
+                name: "tuple_for_each",
+                cargo_toml: "./crates/tuple_for_each/Cargo.toml",
+                workspace_root (file name): "arceos",
+            },
+        ]
+    "#]].assert_debug_eq(&arceos.packages());
 }
