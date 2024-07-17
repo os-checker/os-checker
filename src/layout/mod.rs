@@ -80,18 +80,17 @@ impl fmt::Debug for Layout {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 let mut s = f.debug_struct("Workspaces");
                 for (idx, (root, meta)) in self.0.iter().enumerate() {
+                    let mut members: Vec<_> = meta
+                        .workspace_packages()
+                        .iter()
+                        .map(|p| p.name.as_str())
+                        .collect();
+                    members.sort();
                     s.field(
                         &format!("[{idx}] root"),
                         &Utf8PathBuf::from(".").join(root.strip_prefix(self.1).unwrap_or(self.1)),
                     )
-                    .field(
-                        &format!("[{idx}] root.members"),
-                        &meta
-                            .workspace_packages()
-                            .iter()
-                            .map(|p| p.name.as_str())
-                            .collect::<Vec<_>>(),
-                    );
+                    .field(&format!("[{idx}] root.members"), &members);
                 }
                 s.finish()
             }
