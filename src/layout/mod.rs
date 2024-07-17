@@ -4,8 +4,11 @@ use crate::Result;
 use cargo_metadata::{camino::Utf8PathBuf, Metadata, MetadataCommand};
 use std::{collections::BTreeMap, fmt};
 
+#[cfg(test)]
+mod tests;
+
 /// 寻找仓库内所有 Cargo.toml 所在的路径；假设每个 Cargo.toml 位于其 package 的根目录
-fn find_all_cargo_toml_paths(repo_root: &str) -> Vec<Utf8PathBuf> {
+fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
     let mut cargo_tomls: Vec<Utf8PathBuf> = walkdir::WalkDir::new(repo_root)
         // .min_depth(1) // 别把 ./ 纳入进来
         .max_depth(10) // 目录递归上限
@@ -14,7 +17,8 @@ fn find_all_cargo_toml_paths(repo_root: &str) -> Vec<Utf8PathBuf> {
             // 别进入这些文件夹（适用于子目录递归）
             const NO_JUMP_IN: &[&str] = &[".git", "target"];
             let filename = entry.file_name();
-            !NO_JUMP_IN.iter().any(|&dir| dir == filename)
+            let excluded = &mut NO_JUMP_IN.iter().chain(dirs_excluded);
+            !excluded.any(|&dir| dir == filename)
         })
         .filter_map(|entry| {
             // 只搜索 Cargo.toml 文件
@@ -104,10 +108,10 @@ impl fmt::Debug for Layout {
 }
 
 impl Layout {
-    pub fn new(repo_root: &str) -> Result<Layout> {
+    pub fn new(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
         let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
 
-        let cargo_tomls = find_all_cargo_toml_paths(repo_root);
+        let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded);
         ensure!(
             !cargo_tomls.is_empty(),
             "repo_root `{repo_root}` (路径 `{root_path}`) 不是 Rust 项目，因为不包含任何 Cargo.toml"
@@ -128,10 +132,4 @@ struct Package {
     name: String,
     /// i.e. manifest_path
     cargo_toml: Utf8PathBuf,
-}
-
-#[test]
-fn repo_layout() {
-    crate::logger_init();
-    _ = Layout::new(".").unwrap();
 }
