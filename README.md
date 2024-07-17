@@ -165,3 +165,14 @@ miri = """
 cargo miri --test a
 """ # 多行字符串需要三个引号
 ```
+
+## 代码贡献
+
+关于测试的一些示例命令：
+
+* `UPDATE_EXPECT=1 cargo t` 用于更新所有快照测试 （见 [expect-test]）
+* `RUST_LOG=debug cargo t -- layout` 人工检查 layout 测试模块下的日志输出，支持更高级的环境变量条件筛选
+  `RUST_LOG=target[span{field=value}]=level` （见 [tracing_subscriber::EnvFilter]）
+
+[expect-test]: https://docs.rs/expect-test
+[tracing_subscriber::EnvFilter]: https://docs.rs/tracing-subscriber/0.3.18/tracing_subscriber/filter/struct.EnvFilter.html
