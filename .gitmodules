@@ -1,0 +1,3 @@
+[submodule "repos/arceos"]
+	path = repos/arceos
+	url = https://github.com/arceos-org/arceos.git
