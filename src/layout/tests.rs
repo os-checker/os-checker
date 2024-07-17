@@ -3,6 +3,7 @@ use expect_test::expect;
 
 #[test]
 fn arceos_layout() {
+    crate::logger_init();
     let excluded = &["tmp"];
     assert!(Layout::new("tmp", excluded).is_err());
 
@@ -503,5 +504,6 @@ fn arceos_layout() {
                 workspace_root (file name): "arceos",
             },
         ]
-    "#]].assert_debug_eq(&arceos.packages());
+    "#]]
+    .assert_debug_eq(&arceos.packages());
 }

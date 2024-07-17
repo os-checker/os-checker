@@ -149,7 +149,7 @@ impl Layout {
                 });
             }
         }
-        // debug!(cargo_tomls_len, pkg_len = v.len());
+        debug!(cargo_tomls_len, pkg_len = v.len());
         v.sort_unstable_by_key(|pkg| (pkg.name, pkg.cargo_toml));
         v
     }
