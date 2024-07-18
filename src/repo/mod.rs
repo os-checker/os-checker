@@ -36,6 +36,7 @@ pub enum CheckerTool {
     Fmt,
     Clippy,
     Miri,
+    SemverChecks,
     Lockbud,
 }
 
@@ -46,6 +47,7 @@ impl CheckerTool {
             CheckerTool::Fmt => "fmt",
             CheckerTool::Clippy => "clippy",
             CheckerTool::Miri => "miri",
+            CheckerTool::SemverChecks => "semver-checks",
             CheckerTool::Lockbud => "lockbud",
         }
     }
@@ -60,6 +62,8 @@ pub struct RepoConfig {
     fmt: CheckerAction,
     clippy: CheckerAction,
     miri: CheckerAction,
+    #[serde(rename(deserialize = "semver-checks"))]
+    semver_checks: CheckerAction,
     lockbud: CheckerAction,
 }
 
@@ -79,6 +83,7 @@ impl fmt::Debug for RepoConfig {
             fmt => s.field("fmt", val),
             clippy => s.field("clippy", val),
             miri => s.field("miri", val),
+            semver_checks => s.field("semver-checks", val),
             lockbud => s.field("lockbud", val),
         );
         s.finish()
@@ -95,6 +100,7 @@ impl RepoConfig {
             fmt => v.push((Fmt, val)),
             clippy => v.push((Clippy, val)),
             miri => v.push((Miri, val)),
+            semver_checks => v.push((SemverChecks, val)),
             lockbud => v.push((Lockbud, val)),
         );
         v

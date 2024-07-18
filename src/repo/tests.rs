@@ -9,7 +9,7 @@ os-checker/os-checker:
     # this is a comment line
     cargo miri run # a comment
     cargo miri test -- a_test_fn
-  semver-checks: false # TODO
+  semver-checks: false
   # non-existent key-value pair is ignored
   non-existent: pair
 
@@ -38,6 +38,9 @@ fn parse() {
                             "cargo miri run",
                             "cargo miri test -- a_test_fn",
                         ],
+                    ),
+                    semver-checks: Perform(
+                        false,
                     ),
                 },
             },
@@ -83,6 +86,12 @@ fn parse() {
                                 "cargo miri run",
                                 "cargo miri test -- a_test_fn",
                             ],
+                        ),
+                    ),
+                    (
+                        SemverChecks,
+                        Perform(
+                            false,
                         ),
                     ),
                 ],
