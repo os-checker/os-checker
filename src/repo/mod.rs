@@ -93,8 +93,8 @@ impl fmt::Debug for RepoConfig {
 }
 
 impl RepoConfig {
-    /// 将配置项展平
-    fn to_vec(&self) -> Vec<(CheckerTool, &Action)> {
+    /// checker 及其操作（包括 packages 字段内的 checkers）；主要用于 check_tool_action
+    fn checker_action(&self) -> Vec<(CheckerTool, &Action)> {
         use CheckerTool::*;
         let mut v = Vec::with_capacity(8);
         filter!(self, val:
@@ -104,14 +104,14 @@ impl RepoConfig {
             miri => v.push((Miri, val)),
             semver_checks => v.push((SemverChecks, val)),
             lockbud => v.push((Lockbud, val)),
-            // TODO: packages
+            packages => v.extend(val.values().flat_map(RepoConfig::checker_action)),
         );
         v
     }
 
+    /// 检查 action（尤其是自定义命令）是否与 checker 匹配
     fn check_tool_action(&self) -> Result<()> {
-        // TODO: packages
-        self.to_vec()
+        self.checker_action()
             .into_iter()
             .try_for_each(|(tool, action)| action.check(tool))
     }

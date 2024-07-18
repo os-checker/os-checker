@@ -79,7 +79,7 @@ fn parse() {
 
     let v: Vec<_> = parsed
         .iter()
-        .map(|c| (&c.repo, c.config.to_vec()))
+        .map(|c| (&c.repo, c.config.checker_action()))
         .collect();
     let expected = expect![[r#"
         [
@@ -132,6 +132,18 @@ fn parse() {
                             false,
                         ),
                     ),
+                    (
+                        Miri,
+                        Perform(
+                            false,
+                        ),
+                    ),
+                    (
+                        SemverChecks,
+                        Perform(
+                            false,
+                        ),
+                    ),
                 ],
             ),
         ]
@@ -139,14 +151,23 @@ fn parse() {
     expected.assert_debug_eq(&v);
 }
 
-const BAD: &str = "
+#[test]
+fn bad_check() {
+    let bad1 = "
 user/repo: 
   clippy: cargo miri run
 ";
+    let err = format!("{}", Config::from_yaml(bad1).unwrap_err());
+    let expected = expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"];
+    expected.assert_eq(&err);
 
-#[test]
-fn check() {
-    let err = format!("{}", Config::from_yaml(BAD).unwrap_err());
+    let bad2 = "
+user/repo: 
+  packages:
+    crate1: 
+      clippy: cargo miri run
+";
+    let err = format!("{}", Config::from_yaml(bad2).unwrap_err());
     let expected = expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"];
     expected.assert_eq(&err);
 }
