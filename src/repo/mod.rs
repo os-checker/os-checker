@@ -65,6 +65,9 @@ pub struct RepoConfig {
     #[serde(rename(deserialize = "semver-checks"))]
     semver_checks: CheckerAction,
     lockbud: CheckerAction,
+    // FIXME: 这里需要重构
+    // * 禁止嵌套：把工具放到单独的结构体 S，将 V 替换成 S 而不是现在的 RepoConfig
+    // * 支持 V 为 false 的情况？（低优先级，不确定这是否必要）
     packages: Option<BTreeMap<String, RepoConfig>>,
 }
 

@@ -168,6 +168,7 @@ user/repo:
       clippy: cargo miri run
 ";
     let err = format!("{}", Config::from_yaml(bad2).unwrap_err());
+    // FIXME: 或许可以更好的错误报告，比如在哪个仓库哪个库的命令上不匹配
     let expected = expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"];
     expected.assert_eq(&err);
 }
