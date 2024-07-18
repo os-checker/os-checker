@@ -73,7 +73,7 @@ fn strip_base_path(target: &Utf8Path, base: &Utf8Path) -> Option<Utf8PathBuf> {
         .ok()
 }
 
-pub struct Layout {
+pub struct LayoutOwner {
     /// 仓库根目录的完整路径，可用于去除 Metadata 中的路径前缀，让路径看起来更清爽
     root_path: Utf8PathBuf,
     /// 所有 Cargo.toml 的路径
@@ -85,7 +85,7 @@ pub struct Layout {
     workspaces: Workspaces,
 }
 
-impl fmt::Debug for Layout {
+impl fmt::Debug for LayoutOwner {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         struct WorkspacesDebug<'a>(&'a Workspaces, &'a Utf8PathBuf);
         impl fmt::Debug for WorkspacesDebug<'_> {
@@ -117,8 +117,8 @@ impl fmt::Debug for Layout {
     }
 }
 
-impl Layout {
-    pub fn new(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
+impl LayoutOwner {
+    fn new(repo_root: &str, dirs_excluded: &[&str]) -> Result<LayoutOwner> {
         let root_path = Utf8PathBuf::from(repo_root);
 
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded);
@@ -128,7 +128,7 @@ impl Layout {
             root_path.canonicalize_utf8()?
         );
 
-        let layout = Layout {
+        let layout = LayoutOwner {
             workspaces: parse(&cargo_tomls)?,
             cargo_tomls,
             root_path,
@@ -137,7 +137,7 @@ impl Layout {
         Ok(layout)
     }
 
-    pub fn packages(&self) -> Vec<Package> {
+    fn packages(&self) -> Packages {
         let cargo_tomls_len = self.cargo_tomls.len();
         let mut v = Vec::with_capacity(cargo_tomls_len);
         for (cargo_toml, ws) in &self.workspaces {
@@ -151,7 +151,11 @@ impl Layout {
         }
         debug!(cargo_tomls_len, pkg_len = v.len());
         v.sort_unstable_by_key(|pkg| (pkg.name, pkg.cargo_toml));
-        v
+        v.into_boxed_slice()
+    }
+
+    fn into_self_cell(self) -> Layout {
+        Layout::new(self, Self::packages)
     }
 }
 
@@ -178,5 +182,30 @@ impl fmt::Debug for Package<'_> {
                 &root.file_name().unwrap_or("unknown???"),
             )
             .finish()
+    }
+}
+
+type Packages<'a> = Box<[Package<'a>]>;
+
+self_cell::self_cell!(
+    pub struct Layout {
+        owner: LayoutOwner,
+        #[covariant]
+        dependent: Packages,
+    }
+    impl {Debug}
+);
+
+impl Layout {
+    pub fn parse(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
+        LayoutOwner::new(repo_root, dirs_excluded).map(LayoutOwner::into_self_cell)
+    }
+
+    pub fn layout(&self) -> &LayoutOwner {
+        self.borrow_owner()
+    }
+
+    pub fn packages(&self) -> &Packages {
+        self.borrow_dependent()
     }
 }

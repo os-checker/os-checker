@@ -1,13 +1,13 @@
-use super::Layout;
+use super::LayoutOwner;
 use expect_test::expect;
 
 #[test]
 fn arceos_layout() {
     crate::logger_init();
     let excluded = &["tmp"];
-    assert!(Layout::new("tmp", excluded).is_err());
+    assert!(LayoutOwner::new("tmp", excluded).is_err());
 
-    let arceos = Layout::new("./repos/arceos", excluded).unwrap();
+    let arceos = LayoutOwner::new("./repos/arceos", excluded).unwrap();
     expect![[r#"
         Layout {
             repo_root: "./repos/arceos",
