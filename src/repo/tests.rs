@@ -9,10 +9,12 @@ os-checker/os-checker:
     # this is a comment line
     cargo miri run # a comment
     cargo miri test -- a_test_fn
-  semver-checks: false
+  semver-checks: false # TODO
+  # non-existent key-value pair is ignored
+  non-existent: pair
 
 user/repo: 
-  all: true
+  all: true # comment
 ";
 
 #[test]

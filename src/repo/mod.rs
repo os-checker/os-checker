@@ -52,6 +52,8 @@ impl CheckerTool {
 }
 
 /// Configuration for single repo.
+///
+/// Invalid field key will just be ignored without error.
 #[derive(Deserialize)]
 pub struct RepoConfig {
     all: CheckerAction,
@@ -166,7 +168,7 @@ impl<'de> Deserialize<'de> for Action {
                     (!line.is_empty()).then(|| line.to_owned())
                 }
 
-                let value = value.trim();
+                let value = value.trim(); // 似乎 `true # comment` 自动去除了注释内容
                 Ok(match value {
                     "true" => Action::Perform(true),
                     "false" => Action::Perform(false),
