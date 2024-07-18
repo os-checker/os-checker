@@ -14,7 +14,13 @@ os-checker/os-checker:
   non-existent: pair
 
 user/repo: 
-  all: true # comment
+  all: true # enable all tools for all packages, but ...
+  lockbud: false # except lockbud for all packages
+  packages: # packages are the union of all members across all workspaces
+    crate1: 
+      miri: false # except miri for crate1
+    crate2:
+      semver-checks: false # except semver-checks for crate2
 ";
 
 #[test]
@@ -50,6 +56,21 @@ fn parse() {
                     all: Perform(
                         true,
                     ),
+                    lockbud: Perform(
+                        false,
+                    ),
+                    packages: {
+                        "crate1": RepoConfig {
+                            miri: Perform(
+                                false,
+                            ),
+                        },
+                        "crate2": RepoConfig {
+                            semver-checks: Perform(
+                                false,
+                            ),
+                        },
+                    },
                 },
             },
         ]
@@ -103,6 +124,12 @@ fn parse() {
                         All,
                         Perform(
                             true,
+                        ),
+                    ),
+                    (
+                        Lockbud,
+                        Perform(
+                            false,
                         ),
                     ),
                 ],

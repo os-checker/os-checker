@@ -65,6 +65,7 @@ pub struct RepoConfig {
     #[serde(rename(deserialize = "semver-checks"))]
     semver_checks: CheckerAction,
     lockbud: CheckerAction,
+    packages: Option<BTreeMap<String, RepoConfig>>,
 }
 
 macro_rules! filter {
@@ -85,6 +86,7 @@ impl fmt::Debug for RepoConfig {
             miri => s.field("miri", val),
             semver_checks => s.field("semver-checks", val),
             lockbud => s.field("lockbud", val),
+            packages => s.field("packages", val),
         );
         s.finish()
     }
@@ -102,11 +104,13 @@ impl RepoConfig {
             miri => v.push((Miri, val)),
             semver_checks => v.push((SemverChecks, val)),
             lockbud => v.push((Lockbud, val)),
+            // TODO: packages
         );
         v
     }
 
     fn check_tool_action(&self) -> Result<()> {
+        // TODO: packages
         self.to_vec()
             .into_iter()
             .try_for_each(|(tool, action)| action.check(tool))
