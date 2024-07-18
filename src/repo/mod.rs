@@ -68,9 +68,9 @@ pub struct RepoConfig {
 }
 
 macro_rules! filter {
-    ($self:ident, $val:ident: $($field:ident => $s:stmt,)+) => { $(
+    ($self:ident, $val:ident: $($field:ident => $e:expr,)+) => { $(
         if let Some($val) = &$self.$field {
-            {$s};
+            $e;
         }
     )+ };
 }
