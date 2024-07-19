@@ -1,6 +1,12 @@
 # os checker
 
-针对 Rust OS crates 的代码检查工具合集和应用，用以督促和提高代码库的质量。
+【WIP】针对 Rust crates 的代码检查工具合集和应用，用以督促和提高代码库的质量。
+
+（虽然工具名称暗示与操作系统相关，但仅仅是以它为背景而起的名字。）
+
+计划/实施步骤：
+
+![](https://github.com/user-attachments/assets/b0a02af6-e602-4fc2-9cdf-37c7ec01c41b)
 
 ## 二进制工具：`os-checker`
 
@@ -43,3 +49,7 @@
 
 [expect-test]: https://docs.rs/expect-test
 [tracing_subscriber::EnvFilter]: https://docs.rs/tracing-subscriber/0.3.18/tracing_subscriber/filter/struct.EnvFilter.html
+
+## 其他
+
+* [开发日志 1](https://docs.qq.com/slide/DTG5RWlpaU1JibmZk)
