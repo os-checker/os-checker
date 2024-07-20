@@ -160,11 +160,12 @@ impl LayoutOwner {
 }
 
 /// package infomation
+#[derive(Clone, Copy)]
 pub struct Package<'a> {
     /// package name written in its Cargo.toml
-    name: &'a str,
+    pub name: &'a str,
     /// i.e. manifest_path
-    cargo_toml: &'a Utf8Path,
+    pub cargo_toml: &'a Utf8Path,
     /// workspace root path without manifest_path
     workspace_root: &'a Utf8Path,
 }
@@ -182,6 +183,20 @@ impl fmt::Debug for Package<'_> {
                 &root.file_name().unwrap_or("unknown???"),
             )
             .finish()
+    }
+}
+
+impl Package<'_> {
+    #[cfg(test)]
+    pub fn test_new(name: &'static str) -> Package<'static> {
+        use std::sync::LazyLock;
+        static PATH: LazyLock<[Utf8PathBuf; 2]> =
+            LazyLock::new(|| [Utf8PathBuf::from("./Cargo.toml"), Utf8PathBuf::from(".")]);
+        Package {
+            name,
+            cargo_toml: &PATH[0],
+            workspace_root: &PATH[1],
+        }
     }
 }
 
@@ -205,7 +220,7 @@ impl Layout {
         self.borrow_owner()
     }
 
-    pub fn packages(&self) -> &Packages {
+    pub fn packages(&self) -> &[Package] {
         self.borrow_dependent()
     }
 }

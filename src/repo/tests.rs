@@ -1,4 +1,5 @@
 use super::Config;
+use crate::layout::Package;
 use expect_test::expect;
 
 const YAML: &str = "
@@ -149,6 +150,160 @@ fn parse() {
         ]
     "#]];
     expected.assert_debug_eq(&v);
+}
+
+#[test]
+fn pkg_checker_action() {
+    let parsed = Config::from_yaml(YAML).unwrap();
+    let v = parsed[0]
+        .config
+        .pkg_checker_action(&[Package::test_new("package1"), Package::test_new("package2")])
+        .unwrap();
+    expect![[r#"
+        [
+            (
+                Package {
+                    name: "package1",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Cmd(
+                    [
+                        "cargo",
+                        "fmt",
+                        "--check",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
+                ),
+            ),
+            (
+                Package {
+                    name: "package2",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Cmd(
+                    [
+                        "cargo",
+                        "fmt",
+                        "--check",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
+                ),
+            ),
+            (
+                Package {
+                    name: "package1",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Io(
+                    Dir(
+                        ".",
+                    ),
+                    Cmd(
+                        [
+                            "cargo",
+                            "clippy",
+                            "-F",
+                            "a,b,c",
+                        ],
+                    ),
+                ),
+            ),
+            (
+                Package {
+                    name: "package2",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Io(
+                    Dir(
+                        ".",
+                    ),
+                    Cmd(
+                        [
+                            "cargo",
+                            "clippy",
+                            "-F",
+                            "a,b,c",
+                        ],
+                    ),
+                ),
+            ),
+        ]
+    "#]]
+    .assert_debug_eq(&v);
+}
+
+#[test]
+fn pkg_checker_action_only_fmt_clippy() {
+    let yaml = r#"
+user/repo:
+  all: true # not supported yet
+  packages:
+    crate1:
+      fmt: true
+    crate2:
+      clippy: RUSTFLAGS="-cfg abc" cargo clippy
+    crate3:
+      all: true # not supported yet
+"#;
+    let v = Config::from_yaml(yaml).unwrap()[0]
+        .config
+        .pkg_checker_action(&[
+            Package::test_new("crate1"),
+            Package::test_new("crate2"),
+            Package::test_new("crate3"),
+        ])
+        .unwrap();
+    expect![[r#"
+        [
+            (
+                Package {
+                    name: "crate1",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Cmd(
+                    [
+                        "cargo",
+                        "fmt",
+                        "--check",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
+                ),
+            ),
+            (
+                Package {
+                    name: "crate2",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Io(
+                    Dir(
+                        ".",
+                    ),
+                    Io(
+                        Env(
+                            "RUSTFLAGS",
+                            "-cfg abc",
+                        ),
+                        Cmd(
+                            [
+                                "cargo",
+                                "clippy",
+                            ],
+                        ),
+                    ),
+                ),
+            ),
+        ]
+    "#]]
+    .assert_debug_eq(&v);
 }
 
 #[test]

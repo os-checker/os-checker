@@ -1,6 +1,9 @@
-use crate::Result;
+use crate::{layout::Package, Result};
+use duct::Expression;
 use serde::{de, Deserialize, Deserializer};
 use std::{collections::BTreeMap, fmt};
+
+mod cmd;
 
 #[cfg(test)]
 mod tests;
@@ -13,7 +16,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from_yaml(yaml: &str) -> Result<Box<[Config]>> {
+    pub fn from_yaml(yaml: &str) -> Result<Vec<Config>> {
         let parsed: BTreeMap<String, RepoConfig> = marked_yaml::from_yaml(0, yaml)
             .map_err(|err| eyre!("仓库配置解析错误：{err}\n请检查 yaml 格式或者内容是否正确"))?;
         parsed
@@ -68,6 +71,7 @@ pub struct RepoConfig {
     // FIXME: 这里需要重构
     // * 禁止嵌套：把工具放到单独的结构体 S，将 V 替换成 S 而不是现在的 RepoConfig
     // * 支持 V 为 false 的情况？（低优先级，不确定这是否必要）
+    // * 如何处理不同 workspaces 的同名 package name
     packages: Option<BTreeMap<String, RepoConfig>>,
 }
 
@@ -96,12 +100,83 @@ impl fmt::Debug for RepoConfig {
 }
 
 impl RepoConfig {
+    /// 每个 package 及其对应的检查命令
+    ///
+    /// FIXME: 暂时应用 fmt 和 clippy，其他工具待完成
+    pub fn pkg_checker_action<'p>(
+        &self,
+        pkgs: &[Package<'p>],
+    ) -> Result<Vec<(Package<'p>, Expression)>> {
+        use cmd::*;
+        const TOOLS: usize = 4; // 目前支持的检查工具数量
+        let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
+
+        let action = self.all.as_ref();
+        let all = action
+            .map(|act| matches!(act, Action::Perform(true)))
+            .unwrap_or(false);
+
+        match &self.packages {
+            Some(map) => {
+                // check validity of packages names
+                for (name, config) in map {
+                    let Some(&pkg) = pkgs.iter().find(|pkg| pkg.name == name) else {
+                        bail!(
+                            "yaml 配置中的 package name `{name}` 不存在；该仓库有如下 package names\n{:?}",
+                            pkgs.iter().map(|pkg| pkg.name).collect::<Vec<_>>()
+                        );
+                    };
+                    v.extend(config.pkg_checker_action(&[pkg])?);
+                }
+            }
+            None => {
+                // for all pkgs
+                match &self.fmt {
+                    &Some(Action::Perform(perform)) => {
+                        if perform || all {
+                            for &p in pkgs {
+                                v.push((p, cargo_fmt(p.cargo_toml)));
+                            }
+                        }
+                    }
+                    Some(Action::Steps(steps)) => {
+                        for &p in pkgs {
+                            for step in steps {
+                                v.push((p, custom(step, p.cargo_toml)?));
+                            }
+                        }
+                    }
+                    _ => (),
+                }
+                match &self.clippy {
+                    &Some(Action::Perform(perform)) => {
+                        if perform || all {
+                            for &p in pkgs {
+                                v.push((p, cargo_clippy(p.cargo_toml)));
+                            }
+                        }
+                    }
+                    Some(Action::Steps(steps)) => {
+                        for &p in pkgs {
+                            for step in steps {
+                                v.push((p, custom(step, p.cargo_toml)?));
+                            }
+                        }
+                    }
+                    _ => (),
+                }
+            }
+        }
+
+        Ok(v)
+    }
+
     /// checker 及其操作（包括 packages 字段内的 checkers）；主要用于 check_tool_action
     fn checker_action(&self) -> Vec<(CheckerTool, &Action)> {
         use CheckerTool::*;
         let mut v = Vec::with_capacity(8);
         filter!(self, val:
-            all => v.push((All, val)),
+            all => v.push((All, val)), // FIXME: 移除 All，并展开这些工具
             fmt => v.push((Fmt, val)),
             clippy => v.push((Clippy, val)),
             miri => v.push((Miri, val)),
@@ -200,7 +275,7 @@ impl Action {
         use CheckerTool::*;
         match self {
             Action::Perform(_) => Ok(()),
-            Action::Steps(_) if tool == All => Ok(()),
+            Action::Steps(_) if tool == All => bail!("暂不支持在 all 上指定命令"),
             Action::Steps(steps) => {
                 let name = tool.name();
                 for step in &steps[..] {

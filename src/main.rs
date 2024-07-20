@@ -12,6 +12,8 @@ mod cli;
 mod layout;
 /// parse yaml file for repo configuration
 mod repo;
+/// run checker tools based on codebase layout and configuration
+mod run_checker;
 
 fn main() {
     logger_init();
