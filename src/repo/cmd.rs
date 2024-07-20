@@ -4,15 +4,24 @@ use duct::{cmd, Expression};
 use eyre::ContextCompat;
 use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 
+/// 默认运行 cargo fmt 的命令
 pub fn cargo_fmt(toml: &Utf8Path) -> Expression {
     // e.g. cargo fmt --check --manifest-path tmp/test-fmt/Cargo.toml
     cmd!("cargo", "fmt", "--check", "--manifest-path", toml)
 }
 
+/// 默认运行 cargo clippy 的命令
 pub fn cargo_clippy(toml: &Utf8Path) -> Expression {
+    // 只分析传入 toml path 指向的 package，不分析其依赖
     cmd!("cargo", "clippy", "--no-deps", "--manifest-path", toml)
 }
 
+/// 自定义检查命令。
+///
+/// TODO: os-checker 已经检查每行检查命令必须包含对应的工具名，但这并不意味着
+/// 每行检查命令只有一个 shell command。我们可以支持 `{ prerequisite1; prerequisite2; ...; tool cmd; }`
+/// 其中 prerequisite 不包含 tool name。暂时尚未编写一行检查命令中支持多条语句的代码，如需支持，则把
+/// SimpleCommand 换成 Command。
 pub fn custom(raw: &str, toml: &Utf8Path) -> Result<Expression> {
     let input: SimpleCommand = raw.parse().map_err(|err| match err {
         Some(err) => {
