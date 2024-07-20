@@ -139,10 +139,10 @@ impl RepoConfig {
                             }
                         }
                     }
-                    Some(Action::Steps(steps)) => {
+                    Some(Action::Lines(lines)) => {
                         for &p in pkgs {
-                            for step in steps {
-                                v.push((p, custom(step, p.cargo_toml)?));
+                            for line in lines {
+                                v.push((p, custom(line, p.cargo_toml)?));
                             }
                         }
                     }
@@ -156,10 +156,10 @@ impl RepoConfig {
                             }
                         }
                     }
-                    Some(Action::Steps(steps)) => {
+                    Some(Action::Lines(lines)) => {
                         for &p in pkgs {
-                            for step in steps {
-                                v.push((p, custom(step, p.cargo_toml)?));
+                            for line in lines {
+                                v.push((p, custom(line, p.cargo_toml)?));
                             }
                         }
                     }
@@ -226,7 +226,7 @@ pub type CheckerAction = Option<Action>;
 #[derive(Debug)]
 pub enum Action {
     Perform(bool),
-    Steps(Box<[String]>),
+    Lines(Box<[String]>),
 }
 
 impl<'de> Deserialize<'de> for Action {
@@ -260,7 +260,7 @@ impl<'de> Deserialize<'de> for Action {
                 Ok(match value {
                     "true" => Action::Perform(true),
                     "false" => Action::Perform(false),
-                    value => Action::Steps(value.lines().filter_map(no_comment).collect()),
+                    value => Action::Lines(value.lines().filter_map(no_comment).collect()),
                 })
             }
         }
@@ -275,13 +275,13 @@ impl Action {
         use CheckerTool::*;
         match self {
             Action::Perform(_) => Ok(()),
-            Action::Steps(_) if tool == All => bail!("暂不支持在 all 上指定命令"),
-            Action::Steps(steps) => {
+            Action::Lines(_) if tool == All => bail!("暂不支持在 all 上指定命令"),
+            Action::Lines(lines) => {
                 let name = tool.name();
-                for step in &steps[..] {
+                for line in &lines[..] {
                     ensure!(
-                        step.contains(name),
-                        "命令 `{step}` 与检查工具 `{name}` 不匹配"
+                        line.contains(name),
+                        "命令 `{line}` 与检查工具 `{name}` 不匹配"
                     );
                 }
                 Ok(())

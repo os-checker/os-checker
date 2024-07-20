@@ -35,12 +35,12 @@ fn parse() {
                     fmt: Perform(
                         true,
                     ),
-                    clippy: Steps(
+                    clippy: Lines(
                         [
                             "cargo clippy -F a,b,c",
                         ],
                     ),
-                    miri: Steps(
+                    miri: Lines(
                         [
                             "cargo miri run",
                             "cargo miri test -- a_test_fn",
@@ -95,7 +95,7 @@ fn parse() {
                     ),
                     (
                         Clippy,
-                        Steps(
+                        Lines(
                             [
                                 "cargo clippy -F a,b,c",
                             ],
@@ -103,7 +103,7 @@ fn parse() {
                     ),
                     (
                         Miri,
-                        Steps(
+                        Lines(
                             [
                                 "cargo miri run",
                                 "cargo miri test -- a_test_fn",

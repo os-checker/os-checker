@@ -22,12 +22,12 @@ pub fn cargo_clippy(toml: &Utf8Path) -> Expression {
 /// 每行检查命令只有一个 shell command。我们可以支持 `{ prerequisite1; prerequisite2; ...; tool cmd; }`
 /// 其中 prerequisite 不包含 tool name。暂时尚未编写一行检查命令中支持多条语句的代码，如需支持，则把
 /// SimpleCommand 换成 Command。
-pub fn custom(raw: &str, toml: &Utf8Path) -> Result<Expression> {
-    let input: SimpleCommand = raw.parse().map_err(|err| match err {
+pub fn custom(line: &str, toml: &Utf8Path) -> Result<Expression> {
+    let input: SimpleCommand = line.parse().map_err(|err| match err {
         Some(err) => {
-            eyre!("解析 `{raw}` 失败：\n{err}\n请输入正确的 shell 命令（暂不支持复杂的命令）")
+            eyre!("解析 `{line}` 失败：\n{err}\n请输入正确的 shell 命令（暂不支持复杂的命令）")
         }
-        None => eyre!("解析 `{raw}` 失败，请输入正确的 shell 命令（暂不支持复杂的命令）"),
+        None => eyre!("解析 `{line}` 失败，请输入正确的 shell 命令（暂不支持复杂的命令）"),
     })?;
 
     let mut words: Vec<_> = input.words.iter().map(|word| word.unquote().0).collect();
@@ -43,7 +43,7 @@ pub fn custom(raw: &str, toml: &Utf8Path) -> Result<Expression> {
         let name = &*assgin.name;
         let val = match &assgin.value {
             Value::Scalar(word) => word.unquote().0,
-            Value::Array(_) => bail!("对于 `{raw}`，不支持设置 Array assgin 环境变量"),
+            Value::Array(_) => bail!("对于 `{line}`，不支持设置 Array assgin 环境变量"),
         };
         println!("[env] {name}={val}");
         expr = expr.env(name, val);
