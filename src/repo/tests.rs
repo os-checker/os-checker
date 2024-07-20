@@ -157,7 +157,7 @@ fn pkg_checker_action() {
     let parsed = Config::from_yaml(YAML).unwrap();
     let v = parsed[0]
         .config
-        .pkg_checker_action(&[Package::test_new("package1"), Package::test_new("package2")])
+        .pkg_checker_action(&Package::test_new(["package1", "package2"]))
         .unwrap();
     expect![[r#"
         [
@@ -242,28 +242,44 @@ fn pkg_checker_action() {
 fn pkg_checker_action_only_fmt_clippy() {
     let yaml = r#"
 user/repo:
-  all: true # not supported yet
+  all: true
   packages:
     crate1:
-      fmt: true
+      fmt: false
     crate2:
       clippy: RUSTFLAGS="-cfg abc" cargo clippy
     crate3:
-      all: true # not supported yet
+      all: false
+    crate4:
+      clippy: false
 "#;
     let v = Config::from_yaml(yaml).unwrap()[0]
         .config
-        .pkg_checker_action(&[
-            Package::test_new("crate1"),
-            Package::test_new("crate2"),
-            Package::test_new("crate3"),
-        ])
+        .pkg_checker_action(&Package::test_new([
+            "crate0", "crate1", "crate2", "crate3", "crate4",
+        ]))
         .unwrap();
     expect![[r#"
         [
             (
                 Package {
                     name: "crate1",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Cmd(
+                    [
+                        "cargo",
+                        "clippy",
+                        "--no-deps",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
+                ),
+            ),
+            (
+                Package {
+                    name: "crate2",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
@@ -299,6 +315,54 @@ user/repo:
                             ],
                         ),
                     ),
+                ),
+            ),
+            (
+                Package {
+                    name: "crate4",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Cmd(
+                    [
+                        "cargo",
+                        "fmt",
+                        "--check",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
+                ),
+            ),
+            (
+                Package {
+                    name: "crate0",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Cmd(
+                    [
+                        "cargo",
+                        "fmt",
+                        "--check",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
+                ),
+            ),
+            (
+                Package {
+                    name: "crate0",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Cmd(
+                    [
+                        "cargo",
+                        "clippy",
+                        "--no-deps",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
                 ),
             ),
         ]

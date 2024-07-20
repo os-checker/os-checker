@@ -1,9 +1,13 @@
 use crate::{layout::Package, Result};
 use duct::Expression;
 use serde::{de, Deserialize, Deserializer};
-use std::{collections::BTreeMap, fmt};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt,
+};
 
 mod cmd;
+use cmd::*;
 
 #[cfg(test)]
 mod tests;
@@ -31,6 +35,8 @@ impl Config {
         Ok(self)
     }
 }
+
+const TOOLS: usize = 4; // 目前支持的检查工具数量
 
 /// 检查工具
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -72,6 +78,7 @@ pub struct RepoConfig {
     // * 禁止嵌套：把工具放到单独的结构体 S，将 V 替换成 S 而不是现在的 RepoConfig
     // * 支持 V 为 false 的情况？（低优先级，不确定这是否必要）
     // * 如何处理不同 workspaces 的同名 package name
+    // * 如何处理无意多次指定同一个 package
     packages: Option<BTreeMap<String, RepoConfig>>,
 }
 
@@ -101,71 +108,100 @@ impl fmt::Debug for RepoConfig {
 
 impl RepoConfig {
     /// 每个 package 及其对应的检查命令
-    ///
-    /// FIXME: 暂时应用 fmt 和 clippy，其他工具待完成
     pub fn pkg_checker_action<'p>(
         &self,
         pkgs: &[Package<'p>],
     ) -> Result<Vec<(Package<'p>, Expression)>> {
-        use cmd::*;
-        const TOOLS: usize = 4; // 目前支持的检查工具数量
-        let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
+        let all = matches!(self.all, Some(Action::Perform(true)));
 
-        let action = self.all.as_ref();
-        let all = action
-            .map(|act| matches!(act, Action::Perform(true)))
-            .unwrap_or(false);
-
-        match &self.packages {
+        let v = match &self.packages {
             Some(map) => {
                 // check validity of packages names
+                let layout: BTreeSet<_> = pkgs.iter().map(|p| p.name).collect();
+                let input: BTreeSet<_> = map.keys().map(|s| s.as_str()).collect();
+                let invalid: BTreeSet<_> = input.difference(&layout).copied().collect();
+                let rest: BTreeSet<_> = layout.difference(&input).copied().collect();
+                ensure!(
+                    invalid.is_empty(),
+                    "yaml 配置中不存在如下 packages：{invalid:?}；\n\
+                     该仓库有如下 package names：{layout:?}；\n\
+                     已经设置的 packages 有：{input:?}\n；\n\
+                     你应该从剩余的 packages 中指定：{rest:?}",
+                );
+
+                let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
+                let layout: BTreeMap<_, _> = pkgs.iter().map(|&p| (p.name, p)).collect();
+
+                // 指定的 packages
                 for (name, config) in map {
-                    let Some(&pkg) = pkgs.iter().find(|pkg| pkg.name == name) else {
-                        bail!(
-                            "yaml 配置中的 package name `{name}` 不存在；该仓库有如下 package names\n{:?}",
-                            pkgs.iter().map(|pkg| pkg.name).collect::<Vec<_>>()
-                        );
+                    let pkg = *layout.get(name.as_str()).unwrap(); // already checked
+                    let inner_all = match config.all {
+                        Some(Action::Perform(false)) => false,
+                        _ => all,
                     };
-                    v.extend(config.pkg_checker_action(&[pkg])?);
+                    v.extend(config.pkg_cmd(inner_all, &[pkg])?);
+                }
+                // 未指定的 packages
+                for name in rest {
+                    let pkg = *layout.get(name).unwrap(); // already checked
+                    v.extend(self.pkg_cmd(all, &[pkg])?);
+                }
+                v
+            }
+            None => self.pkg_cmd(all, pkgs)?, // for all pkgs
+        };
+
+        // TODO: fix by package name and tool name
+        Ok(v)
+    }
+
+    /// TODO: 暂时应用 fmt 和 clippy，其他工具待完成
+    fn pkg_cmd<'p>(
+        &self,
+        all: bool,
+        pkgs: &[Package<'p>],
+    ) -> Result<Vec<(Package<'p>, Expression)>> {
+        let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
+
+        match &self.fmt {
+            Some(Action::Perform(true)) => {
+                for &p in pkgs {
+                    v.push((p, cargo_fmt(p.cargo_toml)));
                 }
             }
-            None => {
-                // for all pkgs
-                match &self.fmt {
-                    &Some(Action::Perform(perform)) => {
-                        if perform || all {
-                            for &p in pkgs {
-                                v.push((p, cargo_fmt(p.cargo_toml)));
-                            }
-                        }
-                    }
-                    Some(Action::Lines(lines)) => {
-                        for &p in pkgs {
-                            for line in lines {
-                                v.push((p, custom(line, p.cargo_toml)?));
-                            }
-                        }
-                    }
-                    _ => (),
-                }
-                match &self.clippy {
-                    &Some(Action::Perform(perform)) => {
-                        if perform || all {
-                            for &p in pkgs {
-                                v.push((p, cargo_clippy(p.cargo_toml)));
-                            }
-                        }
-                    }
-                    Some(Action::Lines(lines)) => {
-                        for &p in pkgs {
-                            for line in lines {
-                                v.push((p, custom(line, p.cargo_toml)?));
-                            }
-                        }
-                    }
-                    _ => (),
+            None if all => {
+                for &p in pkgs {
+                    v.push((p, cargo_fmt(p.cargo_toml)));
                 }
             }
+            Some(Action::Lines(lines)) => {
+                for &p in pkgs {
+                    for line in lines {
+                        v.push((p, custom(line, p.cargo_toml)?));
+                    }
+                }
+            }
+            _ => (),
+        }
+        match &self.clippy {
+            Some(Action::Perform(true)) => {
+                for &p in pkgs {
+                    v.push((p, cargo_clippy(p.cargo_toml)));
+                }
+            }
+            None if all => {
+                for &p in pkgs {
+                    v.push((p, cargo_clippy(p.cargo_toml)));
+                }
+            }
+            Some(Action::Lines(lines)) => {
+                for &p in pkgs {
+                    for line in lines {
+                        v.push((p, custom(line, p.cargo_toml)?));
+                    }
+                }
+            }
+            _ => (),
         }
 
         Ok(v)

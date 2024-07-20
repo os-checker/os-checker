@@ -188,15 +188,18 @@ impl fmt::Debug for Package<'_> {
 
 impl Package<'_> {
     #[cfg(test)]
-    pub fn test_new(name: &'static str) -> Package<'static> {
+    pub fn test_new<const N: usize>(names: [&'static str; N]) -> [Package<'static>; N] {
         use std::sync::LazyLock;
         static PATH: LazyLock<[Utf8PathBuf; 2]> =
             LazyLock::new(|| [Utf8PathBuf::from("./Cargo.toml"), Utf8PathBuf::from(".")]);
-        Package {
+
+        let cargo_toml = &PATH[0];
+        let workspace_root = &PATH[1];
+        names.map(|name| Package {
             name,
-            cargo_toml: &PATH[0],
-            workspace_root: &PATH[1],
-        }
+            cargo_toml,
+            workspace_root,
+        })
     }
 }
 
