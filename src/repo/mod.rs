@@ -39,7 +39,7 @@ impl Config {
 const TOOLS: usize = 4; // 目前支持的检查工具数量
 
 /// 检查工具
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
 pub enum CheckerTool {
     Fmt,
     Clippy,
@@ -109,10 +109,10 @@ impl RepoConfig {
     pub fn pkg_checker_action<'p>(
         &self,
         pkgs: &[Package<'p>],
-    ) -> Result<Vec<(Package<'p>, Expression)>> {
+    ) -> Result<Vec<(Package<'p>, CheckerTool, Expression)>> {
         let all = matches!(self.all, Some(Action::Perform(true)));
 
-        let v = match &self.packages {
+        let mut v = match &self.packages {
             Some(map) => {
                 // check validity of packages names
                 let layout: BTreeSet<_> = pkgs.iter().map(|p| p.name).collect();
@@ -149,7 +149,7 @@ impl RepoConfig {
             None => self.pkg_cmd(all, pkgs)?, // for all pkgs
         };
 
-        // TODO: fix by package name and tool name
+        v.sort_unstable_by_key(|val| (val.0.name, val.1));
         Ok(v)
     }
 
@@ -158,24 +158,24 @@ impl RepoConfig {
         &self,
         all: bool,
         pkgs: &[Package<'p>],
-    ) -> Result<Vec<(Package<'p>, Expression)>> {
+    ) -> Result<Vec<(Package<'p>, CheckerTool, Expression)>> {
         let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
 
         match &self.fmt {
             Some(Action::Perform(true)) => {
                 for &p in pkgs {
-                    v.push((p, cargo_fmt(p.cargo_toml)));
+                    v.push((p, CheckerTool::Fmt, cargo_fmt(p.cargo_toml)));
                 }
             }
             None if all => {
                 for &p in pkgs {
-                    v.push((p, cargo_fmt(p.cargo_toml)));
+                    v.push((p, CheckerTool::Fmt, cargo_fmt(p.cargo_toml)));
                 }
             }
             Some(Action::Lines(lines)) => {
                 for &p in pkgs {
                     for line in lines {
-                        v.push((p, custom(line, p.cargo_toml)?));
+                        v.push((p, CheckerTool::Fmt, custom(line, p.cargo_toml)?));
                     }
                 }
             }
@@ -184,18 +184,18 @@ impl RepoConfig {
         match &self.clippy {
             Some(Action::Perform(true)) => {
                 for &p in pkgs {
-                    v.push((p, cargo_clippy(p.cargo_toml)));
+                    v.push((p, CheckerTool::Clippy, cargo_clippy(p.cargo_toml)));
                 }
             }
             None if all => {
                 for &p in pkgs {
-                    v.push((p, cargo_clippy(p.cargo_toml)));
+                    v.push((p, CheckerTool::Clippy, cargo_clippy(p.cargo_toml)));
                 }
             }
             Some(Action::Lines(lines)) => {
                 for &p in pkgs {
                     for line in lines {
-                        v.push((p, custom(line, p.cargo_toml)?));
+                        v.push((p, CheckerTool::Clippy, custom(line, p.cargo_toml)?));
                     }
                 }
             }

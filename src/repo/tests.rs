@@ -161,22 +161,7 @@ fn pkg_checker_action() {
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Cmd(
-                    [
-                        "cargo",
-                        "fmt",
-                        "--check",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                    ],
-                ),
-            ),
-            (
-                Package {
-                    name: "package2",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
+                Fmt,
                 Cmd(
                     [
                         "cargo",
@@ -193,6 +178,7 @@ fn pkg_checker_action() {
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
+                Clippy,
                 Io(
                     Dir(
                         ".",
@@ -213,6 +199,24 @@ fn pkg_checker_action() {
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
+                Fmt,
+                Cmd(
+                    [
+                        "cargo",
+                        "fmt",
+                        "--check",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
+                ),
+            ),
+            (
+                Package {
+                    name: "package2",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Clippy,
                 Io(
                     Dir(
                         ".",
@@ -257,10 +261,45 @@ user/repo:
         [
             (
                 Package {
+                    name: "crate0",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Fmt,
+                Cmd(
+                    [
+                        "cargo",
+                        "fmt",
+                        "--check",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
+                ),
+            ),
+            (
+                Package {
+                    name: "crate0",
+                    cargo_toml: "./Cargo.toml",
+                    workspace_root (file name): "unknown???",
+                },
+                Clippy,
+                Cmd(
+                    [
+                        "cargo",
+                        "clippy",
+                        "--no-deps",
+                        "--manifest-path",
+                        "./Cargo.toml",
+                    ],
+                ),
+            ),
+            (
+                Package {
                     name: "crate1",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
+                Clippy,
                 Cmd(
                     [
                         "cargo",
@@ -277,6 +316,7 @@ user/repo:
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
+                Fmt,
                 Cmd(
                     [
                         "cargo",
@@ -293,6 +333,7 @@ user/repo:
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
+                Clippy,
                 Io(
                     Dir(
                         ".",
@@ -317,43 +358,12 @@ user/repo:
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
+                Fmt,
                 Cmd(
                     [
                         "cargo",
                         "fmt",
                         "--check",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                    ],
-                ),
-            ),
-            (
-                Package {
-                    name: "crate0",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                Cmd(
-                    [
-                        "cargo",
-                        "fmt",
-                        "--check",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                    ],
-                ),
-            ),
-            (
-                Package {
-                    name: "crate0",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                Cmd(
-                    [
-                        "cargo",
-                        "clippy",
-                        "--no-deps",
                         "--manifest-path",
                         "./Cargo.toml",
                     ],
