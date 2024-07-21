@@ -1,5 +1,5 @@
 use super::Config;
-use crate::layout::Package;
+use crate::{layout::Package, Result};
 use expect_test::expect;
 
 const YAML: &str = "
@@ -80,7 +80,7 @@ fn parse() {
 
     let v: Vec<_> = parsed
         .iter()
-        .map(|c| (&c.repo, c.config.checker_action()))
+        .map(|c| (&c.repo, c.config.checker_action().unwrap()))
         .collect();
     let expected = expect![[r#"
         [
@@ -121,12 +121,6 @@ fn parse() {
             (
                 "user/repo",
                 [
-                    (
-                        All,
-                        Perform(
-                            true,
-                        ),
-                    ),
                     (
                         Lockbud,
                         Perform(

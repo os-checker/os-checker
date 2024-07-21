@@ -41,7 +41,6 @@ const TOOLS: usize = 4; // 目前支持的检查工具数量
 /// 检查工具
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum CheckerTool {
-    All,
     Fmt,
     Clippy,
     Miri,
@@ -52,7 +51,6 @@ pub enum CheckerTool {
 impl CheckerTool {
     pub fn name(self) -> &'static str {
         match self {
-            CheckerTool::All => "all",
             CheckerTool::Fmt => "fmt",
             CheckerTool::Clippy => "clippy",
             CheckerTool::Miri => "miri",
@@ -208,24 +206,28 @@ impl RepoConfig {
     }
 
     /// checker 及其操作（包括 packages 字段内的 checkers）；主要用于 check_tool_action
-    fn checker_action(&self) -> Vec<(CheckerTool, &Action)> {
+    fn checker_action(&self) -> Result<Vec<(CheckerTool, &Action)>> {
         use CheckerTool::*;
         let mut v = Vec::with_capacity(8);
         filter!(self, val:
-            all => v.push((All, val)), // FIXME: 移除 All，并展开这些工具
+            all => if let Action::Lines(lines) = val {
+                bail!("暂不支持在 all 上指定任何命令，请删除 {lines:?} ");
+            },
             fmt => v.push((Fmt, val)),
             clippy => v.push((Clippy, val)),
             miri => v.push((Miri, val)),
             semver_checks => v.push((SemverChecks, val)),
             lockbud => v.push((Lockbud, val)),
-            packages => v.extend(val.values().flat_map(RepoConfig::checker_action)),
+            packages => for config in val.values() {
+                v.extend(config.checker_action()?);
+            },
         );
-        v
+        Ok(v)
     }
 
     /// 检查 action（尤其是自定义命令）是否与 checker 匹配
     fn check_tool_action(&self) -> Result<()> {
-        self.checker_action()
+        self.checker_action()?
             .into_iter()
             .try_for_each(|(tool, action)| action.check(tool))
     }
@@ -308,10 +310,8 @@ impl<'de> Deserialize<'de> for Action {
 impl Action {
     /// 检查指定的每一条命令是否与工具匹配
     fn check(&self, tool: CheckerTool) -> Result<()> {
-        use CheckerTool::*;
         match self {
             Action::Perform(_) => Ok(()),
-            Action::Lines(_) if tool == All => bail!("暂不支持在 all 上指定命令"),
             Action::Lines(lines) => {
                 let name = tool.name();
                 for line in &lines[..] {
