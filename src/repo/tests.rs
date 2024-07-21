@@ -156,14 +156,14 @@ fn pkg_checker_action() -> Result<()> {
         .pkg_checker_action(&Package::test_new(["package1", "package2"]))?;
     expect![[r#"
         [
-            (
-                Package {
+            Resolve {
+                package: Package {
                     name: "package1",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Fmt,
-                Cmd(
+                checker: Fmt,
+                expr: Cmd(
                     [
                         "cargo",
                         "fmt",
@@ -172,15 +172,15 @@ fn pkg_checker_action() -> Result<()> {
                         "./Cargo.toml",
                     ],
                 ),
-            ),
-            (
-                Package {
+            },
+            Resolve {
+                package: Package {
                     name: "package1",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Clippy,
-                Io(
+                checker: Clippy,
+                expr: Io(
                     Dir(
                         ".",
                     ),
@@ -193,15 +193,15 @@ fn pkg_checker_action() -> Result<()> {
                         ],
                     ),
                 ),
-            ),
-            (
-                Package {
+            },
+            Resolve {
+                package: Package {
                     name: "package2",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Fmt,
-                Cmd(
+                checker: Fmt,
+                expr: Cmd(
                     [
                         "cargo",
                         "fmt",
@@ -210,15 +210,15 @@ fn pkg_checker_action() -> Result<()> {
                         "./Cargo.toml",
                     ],
                 ),
-            ),
-            (
-                Package {
+            },
+            Resolve {
+                package: Package {
                     name: "package2",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Clippy,
-                Io(
+                checker: Clippy,
+                expr: Io(
                     Dir(
                         ".",
                     ),
@@ -231,7 +231,7 @@ fn pkg_checker_action() -> Result<()> {
                         ],
                     ),
                 ),
-            ),
+            },
         ]
     "#]]
     .assert_debug_eq(&v);
@@ -261,14 +261,14 @@ user/repo:
         ]))?;
     expect![[r#"
         [
-            (
-                Package {
+            Resolve {
+                package: Package {
                     name: "crate0",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Fmt,
-                Cmd(
+                checker: Fmt,
+                expr: Cmd(
                     [
                         "cargo",
                         "fmt",
@@ -277,15 +277,15 @@ user/repo:
                         "./Cargo.toml",
                     ],
                 ),
-            ),
-            (
-                Package {
+            },
+            Resolve {
+                package: Package {
                     name: "crate0",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Clippy,
-                Cmd(
+                checker: Clippy,
+                expr: Cmd(
                     [
                         "cargo",
                         "clippy",
@@ -294,15 +294,15 @@ user/repo:
                         "./Cargo.toml",
                     ],
                 ),
-            ),
-            (
-                Package {
+            },
+            Resolve {
+                package: Package {
                     name: "crate1",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Clippy,
-                Cmd(
+                checker: Clippy,
+                expr: Cmd(
                     [
                         "cargo",
                         "clippy",
@@ -311,15 +311,15 @@ user/repo:
                         "./Cargo.toml",
                     ],
                 ),
-            ),
-            (
-                Package {
+            },
+            Resolve {
+                package: Package {
                     name: "crate2",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Fmt,
-                Cmd(
+                checker: Fmt,
+                expr: Cmd(
                     [
                         "cargo",
                         "fmt",
@@ -328,15 +328,15 @@ user/repo:
                         "./Cargo.toml",
                     ],
                 ),
-            ),
-            (
-                Package {
+            },
+            Resolve {
+                package: Package {
                     name: "crate2",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Clippy,
-                Io(
+                checker: Clippy,
+                expr: Io(
                     Dir(
                         ".",
                     ),
@@ -353,15 +353,15 @@ user/repo:
                         ),
                     ),
                 ),
-            ),
-            (
-                Package {
+            },
+            Resolve {
+                package: Package {
                     name: "crate4",
                     cargo_toml: "./Cargo.toml",
                     workspace_root (file name): "unknown???",
                 },
-                Fmt,
-                Cmd(
+                checker: Fmt,
+                expr: Cmd(
                     [
                         "cargo",
                         "fmt",
@@ -370,7 +370,7 @@ user/repo:
                         "./Cargo.toml",
                     ],
                 ),
-            ),
+            },
         ]
     "#]]
     .assert_debug_eq(&v);

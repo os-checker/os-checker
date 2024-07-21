@@ -21,19 +21,28 @@ pub struct Config {
 }
 
 impl Config {
+    /// 解释 yaml 配置文件
     pub fn from_yaml(yaml: &str) -> Result<Vec<Config>> {
         let parsed: BTreeMap<String, RepoConfig> = marked_yaml::from_yaml(0, yaml)
-            .with_context(|| eyre!("仓库配置解析错误，请检查 yaml 格式或者内容是否正确"))?;
+            .with_context(|| "仓库配置解析错误，请检查 yaml 格式或者内容是否正确")?;
         parsed
             .into_iter()
             .map(|(repo, config)| (Config { repo, config }).check_fork())
             .collect()
     }
 
+    /// 检查命令与工具是否匹配；fork 仓库？
     fn check_fork(self) -> Result<Config> {
         self.config.check_tool_action()?;
         // TODO 使用 FORK 环境变量来自动 fork 代码仓库；放置于 cfg(not(test)) 之后
         Ok(self)
+    }
+
+    /// 解析该仓库所有 package 的检查执行命令
+    pub fn resolve<'p>(&self, pkgs: &[Package<'p>]) -> Result<Vec<Resolve<'p>>> {
+        self.config
+            .pkg_checker_action(pkgs)
+            .with_context(|| format!("解析 `{}` 仓库的检查命令出错", self.repo))
     }
 }
 
@@ -57,6 +66,23 @@ impl CheckerTool {
             CheckerTool::Miri => "miri",
             CheckerTool::SemverChecks => "semver-checks",
             CheckerTool::Lockbud => "lockbud",
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Resolve<'p> {
+    package: Package<'p>,
+    checker: CheckerTool,
+    expr: Expression,
+}
+
+impl<'p> Resolve<'p> {
+    pub fn new(package: Package<'p>, checker: CheckerTool, expr: Expression) -> Self {
+        Self {
+            package,
+            checker,
+            expr,
         }
     }
 }
@@ -107,10 +133,7 @@ impl fmt::Debug for RepoConfig {
 
 impl RepoConfig {
     /// 每个 package 及其对应的检查命令
-    pub fn pkg_checker_action<'p>(
-        &self,
-        pkgs: &[Package<'p>],
-    ) -> Result<Vec<(Package<'p>, CheckerTool, Expression)>> {
+    fn pkg_checker_action<'p>(&self, pkgs: &[Package<'p>]) -> Result<Vec<Resolve<'p>>> {
         let all = matches!(self.all, Some(Action::Perform(true)));
 
         let mut v = match &self.packages {
@@ -150,33 +173,33 @@ impl RepoConfig {
             None => self.pkg_cmd(all, pkgs)?, // for all pkgs
         };
 
-        v.sort_unstable_by_key(|val| (val.0.name, val.1));
+        v.sort_unstable_by_key(|resolve| (resolve.package.name, resolve.checker));
         Ok(v)
     }
 
     /// TODO: 暂时应用 fmt 和 clippy，其他工具待完成
-    fn pkg_cmd<'p>(
-        &self,
-        all: bool,
-        pkgs: &[Package<'p>],
-    ) -> Result<Vec<(Package<'p>, CheckerTool, Expression)>> {
+    fn pkg_cmd<'p>(&self, all: bool, pkgs: &[Package<'p>]) -> Result<Vec<Resolve<'p>>> {
         let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
 
         match &self.fmt {
             Some(Action::Perform(true)) => {
                 for &p in pkgs {
-                    v.push((p, CheckerTool::Fmt, cargo_fmt(p.cargo_toml)));
+                    v.push(Resolve::new(p, CheckerTool::Fmt, cargo_fmt(p.cargo_toml)));
                 }
             }
             None if all => {
                 for &p in pkgs {
-                    v.push((p, CheckerTool::Fmt, cargo_fmt(p.cargo_toml)));
+                    v.push(Resolve::new(p, CheckerTool::Fmt, cargo_fmt(p.cargo_toml)));
                 }
             }
             Some(Action::Lines(lines)) => {
                 for &p in pkgs {
                     for line in lines {
-                        v.push((p, CheckerTool::Fmt, custom(line, p.cargo_toml)?));
+                        v.push(Resolve::new(
+                            p,
+                            CheckerTool::Fmt,
+                            custom(line, p.cargo_toml)?,
+                        ));
                     }
                 }
             }
@@ -185,18 +208,30 @@ impl RepoConfig {
         match &self.clippy {
             Some(Action::Perform(true)) => {
                 for &p in pkgs {
-                    v.push((p, CheckerTool::Clippy, cargo_clippy(p.cargo_toml)));
+                    v.push(Resolve::new(
+                        p,
+                        CheckerTool::Clippy,
+                        cargo_clippy(p.cargo_toml),
+                    ));
                 }
             }
             None if all => {
                 for &p in pkgs {
-                    v.push((p, CheckerTool::Clippy, cargo_clippy(p.cargo_toml)));
+                    v.push(Resolve::new(
+                        p,
+                        CheckerTool::Clippy,
+                        cargo_clippy(p.cargo_toml),
+                    ));
                 }
             }
             Some(Action::Lines(lines)) => {
                 for &p in pkgs {
                     for line in lines {
-                        v.push((p, CheckerTool::Clippy, custom(line, p.cargo_toml)?));
+                        v.push(Resolve::new(
+                            p,
+                            CheckerTool::Clippy,
+                            custom(line, p.cargo_toml)?,
+                        ));
                     }
                 }
             }
