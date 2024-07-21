@@ -25,9 +25,9 @@ user/repo:
 ";
 
 #[test]
-fn parse() {
-    let parsed = Config::from_yaml(YAML).unwrap();
-    let expected = expect![[r#"
+fn parse() -> Result<()> {
+    let parsed = Config::from_yaml(YAML)?;
+    expect![[r#"
         [
             Config {
                 repo: "os-checker/os-checker",
@@ -75,14 +75,14 @@ fn parse() {
                 },
             },
         ]
-    "#]];
-    expected.assert_debug_eq(&parsed);
+    "#]]
+    .assert_debug_eq(&parsed);
 
     let v: Vec<_> = parsed
         .iter()
         .map(|c| (&c.repo, c.config.checker_action().unwrap()))
         .collect();
-    let expected = expect![[r#"
+    expect![[r#"
         [
             (
                 "os-checker/os-checker",
@@ -142,17 +142,18 @@ fn parse() {
                 ],
             ),
         ]
-    "#]];
-    expected.assert_debug_eq(&v);
+    "#]]
+    .assert_debug_eq(&v);
+
+    Ok(())
 }
 
 #[test]
-fn pkg_checker_action() {
-    let parsed = Config::from_yaml(YAML).unwrap();
+fn pkg_checker_action() -> Result<()> {
+    let parsed = Config::from_yaml(YAML)?;
     let v = parsed[0]
         .config
-        .pkg_checker_action(&Package::test_new(["package1", "package2"]))
-        .unwrap();
+        .pkg_checker_action(&Package::test_new(["package1", "package2"]))?;
     expect![[r#"
         [
             (
@@ -234,10 +235,12 @@ fn pkg_checker_action() {
         ]
     "#]]
     .assert_debug_eq(&v);
+
+    Ok(())
 }
 
 #[test]
-fn pkg_checker_action_only_fmt_clippy() {
+fn pkg_checker_action_only_fmt_clippy() -> Result<()> {
     let yaml = r#"
 user/repo:
   all: true
@@ -251,12 +254,11 @@ user/repo:
     crate4:
       clippy: false
 "#;
-    let v = Config::from_yaml(yaml).unwrap()[0]
+    let v = Config::from_yaml(yaml)?[0]
         .config
         .pkg_checker_action(&Package::test_new([
             "crate0", "crate1", "crate2", "crate3", "crate4",
-        ]))
-        .unwrap();
+        ]))?;
     expect![[r#"
         [
             (
@@ -372,6 +374,8 @@ user/repo:
         ]
     "#]]
     .assert_debug_eq(&v);
+
+    Ok(())
 }
 
 #[test]

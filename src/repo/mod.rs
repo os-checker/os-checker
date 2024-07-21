@@ -1,5 +1,6 @@
 use crate::{layout::Package, Result};
 use duct::Expression;
+use eyre::Context;
 use serde::{de, Deserialize, Deserializer};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -22,7 +23,7 @@ pub struct Config {
 impl Config {
     pub fn from_yaml(yaml: &str) -> Result<Vec<Config>> {
         let parsed: BTreeMap<String, RepoConfig> = marked_yaml::from_yaml(0, yaml)
-            .map_err(|err| eyre!("仓库配置解析错误：{err}\n请检查 yaml 格式或者内容是否正确"))?;
+            .with_context(|| eyre!("仓库配置解析错误，请检查 yaml 格式或者内容是否正确"))?;
         parsed
             .into_iter()
             .map(|(repo, config)| (Config { repo, config }).check_fork())
