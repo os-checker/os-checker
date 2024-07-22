@@ -7,13 +7,21 @@ use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 /// 默认运行 cargo fmt 的命令
 pub fn cargo_fmt(toml: &Utf8Path) -> Expression {
     // e.g. cargo fmt --check --manifest-path tmp/test-fmt/Cargo.toml
-    cmd!("cargo", "fmt", "--check", "--manifest-path", toml)
+    // cmd!("cargo", "fmt", "--check", "--manifest-path", toml)
+    cmd!("cargo", "fmt", "--manifest-path", toml, "--", "--emit=json")
 }
 
 /// 默认运行 cargo clippy 的命令
 pub fn cargo_clippy(toml: &Utf8Path) -> Expression {
     // 只分析传入 toml path 指向的 package，不分析其依赖
-    cmd!("cargo", "clippy", "--no-deps", "--manifest-path", toml)
+    cmd!(
+        "cargo",
+        "clippy",
+        "--no-deps",
+        "--message-format=json",
+        "--manifest-path",
+        toml
+    )
 }
 
 /// 自定义检查命令。
