@@ -1,3 +1,6 @@
 [submodule "repos/arceos"]
 	path = repos/arceos
 	url = https://github.com/arceos-org/arceos.git
+[submodule "repos/os-checker-test-suite"]
+	path = repos/os-checker-test-suite
+	url = https://github.com/os-checker/os-checker-test-suite.git
