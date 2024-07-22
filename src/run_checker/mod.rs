@@ -6,7 +6,7 @@ use crate::{
 use cargo_metadata::{camino::Utf8PathBuf, Message};
 use eyre::Context;
 use serde::Deserialize;
-use std::process::Output as RawOutput;
+use std::{process::Output as RawOutput, time::Instant};
 
 #[derive(Debug)]
 pub struct Repo {
@@ -55,6 +55,7 @@ pub struct FmtMismatch {
 
 #[test]
 fn repo() -> Result<()> {
+    crate::logger_init();
     let yaml = "
 arceos:
   all: true
@@ -69,12 +70,18 @@ arceos:
     let resolve = repo.resolve()?;
     let mut snapshot = Vec::with_capacity(resolve.len());
     for res in resolve.iter().take(4) {
+        let now = Instant::now();
         let out = res
             .expr
             .stderr_capture()
             .stdout_capture()
             .unchecked()
             .run()?;
+        let duration = now.elapsed().as_millis() as u64;
+        debug!(
+            "{} with {:?} checking in {duration}ms",
+            res.package.name, res.checker
+        );
 
         let stdout: &[_] = &out.stdout;
         let parsed = match res.checker {

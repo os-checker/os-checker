@@ -44,8 +44,11 @@
 关于测试的一些示例命令：
 
 * `UPDATE_EXPECT=1 cargo t` 用于更新所有快照测试 （见 [expect-test]）
-* `RUST_LOG=debug cargo t -- layout` 人工检查 layout 测试模块下的日志输出，支持更高级的环境变量条件筛选
+* `RUST_LOG=debug cargo t -- --nocapture layout` 人工检查 layout 测试模块下的日志输出，支持更高级的环境变量条件筛选
   `RUST_LOG=target[span{field=value}]=level` （见 [tracing_subscriber::EnvFilter]）
+* 你也可以把两者结合起来，`UPDATE_EXPECT=1 RUST_LOG=debug cargo t -- --nocapture run_checker` 更新快照并打印日志。
+  有些数据（比如检查工具的运行时间）不适合写入快照，那么可以通过写入日志来检查。
+
 
 [expect-test]: https://docs.rs/expect-test
 [tracing_subscriber::EnvFilter]: https://docs.rs/tracing-subscriber/0.3.18/tracing_subscriber/filter/struct.EnvFilter.html
