@@ -1,6 +1,6 @@
 use crate::{
-    layout::{Layout, Package},
-    repo::{Action, CheckerTool, Config},
+    layout::Layout,
+    repo::{Config, Resolve},
     Result,
 };
 use eyre::Context;
@@ -18,14 +18,9 @@ impl Repo {
         Ok(Self { layout, config })
     }
 
-    pub fn resolve(&self) -> Resolve {
-        todo!()
+    pub fn resolve(&self) -> Result<Vec<Resolve>> {
+        self.config.resolve(self.layout.packages())
     }
-}
-
-struct Resolve<'a> {
-    package: Package<'a>,
-    actions: Vec<(CheckerTool, &'a Action)>,
 }
 
 #[test]
@@ -35,10 +30,23 @@ arceos:
   all: true
   miri: false
 ";
-    dbg!(Repo::new(
-        "repos/arceos",
-        &[],
-        Config::from_yaml(yaml)?.pop().unwrap()
-    )?);
+    let repo = &Repo::new("tmp/test-fmt", &[], Config::from_yaml(yaml)?.pop().unwrap())?;
+    // let repo = &Repo::new("repos/arceos", &[], Config::from_yaml(yaml)?.pop().unwrap())?;
+    let resolve = repo.resolve()?;
+    for res in resolve.iter().take(4) {
+        let out = res
+            .expr
+            .stderr_capture()
+            .stdout_capture()
+            .unchecked()
+            .run()?;
+        let stdout = std::str::from_utf8(&out.stdout)?;
+        let stderr = std::str::from_utf8(&out.stderr)?;
+        println!(
+            "[{} with {:?} checking] exit status{}\nstdout={stdout}\nstderr={stderr}",
+            res.package.name, res.checker, out.status
+        );
+    }
+
     Ok(())
 }

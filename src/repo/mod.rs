@@ -21,7 +21,7 @@ pub struct Config {
 }
 
 impl Config {
-    /// 解释 yaml 配置文件
+    /// 解析 yaml 配置文件
     pub fn from_yaml(yaml: &str) -> Result<Vec<Config>> {
         let parsed: BTreeMap<String, RepoConfig> = marked_yaml::from_yaml(0, yaml)
             .with_context(|| "仓库配置解析错误，请检查 yaml 格式或者内容是否正确")?;
@@ -72,13 +72,13 @@ impl CheckerTool {
 
 #[derive(Debug)]
 pub struct Resolve<'p> {
-    package: Package<'p>,
-    checker: CheckerTool,
-    expr: Expression,
+    pub package: Package<'p>,
+    pub checker: CheckerTool,
+    pub expr: Expression,
 }
 
 impl<'p> Resolve<'p> {
-    pub fn new(package: Package<'p>, checker: CheckerTool, expr: Expression) -> Self {
+    fn new(package: Package<'p>, checker: CheckerTool, expr: Expression) -> Self {
         Self {
             package,
             checker,
