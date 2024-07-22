@@ -11,6 +11,7 @@ self_cell = "1.0.4" # self-referential
 serde = { version = "1", features = ["derive"] }
 marked-yaml = { version = "0.7.1", features = ["serde-path"] } # parse yaml file
 cargo_metadata = "0.18.1" # parse metadata for knowing project layout
+serde_json = "1.0.120"
 
 # error handling
 eyre = "0.6.12"
@@ -21,7 +22,7 @@ tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 # shell commands
-duct = "0.13.7"   # better subprocess, pipe, redirct
+duct = "0.13.7" # better subprocess, pipe, redirct
 yash-syntax = "0.10.0" # shell lang parsing
 
 [dev-dependencies]

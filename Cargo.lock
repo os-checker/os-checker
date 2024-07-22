@@ -428,6 +428,7 @@ dependencies = [
  "marked-yaml",
  "self_cell",
  "serde",
+ "serde_json",
  "tracing",
  "tracing-subscriber",
  "walkdir",
