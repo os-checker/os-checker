@@ -6,6 +6,8 @@ extern crate tracing;
 
 use eyre::Result;
 
+/// 分析检查工具的结果
+mod analysis;
 /// cli argument parsing
 mod cli;
 /// figure out the codebase layout
