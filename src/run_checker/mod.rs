@@ -87,7 +87,7 @@ pub struct FmtMismatch {
 
 #[test]
 fn repo() -> Result<()> {
-    crate::logger_init();
+    crate::test_logger_init("assets/run_checker.log");
     let yaml = "
 arceos:
   all: true

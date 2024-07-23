@@ -29,3 +29,17 @@ fn logger_init() {
         eprintln!("Logger already init: {err}");
     };
 }
+
+#[cfg(test)]
+#[allow(dead_code)]
+fn test_logger_init(log_file: &str) {
+    if let Err(err) = tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .with_writer(std::fs::File::create(log_file).unwrap())
+        .with_ansi(false)
+        .without_time()
+        .try_init()
+    {
+        eprintln!("Logger already init: {err}");
+    };
+}

@@ -1,0 +1,304 @@
+DEBUG os_checker::layout: layout=Layout {
+    repo_root: "repos/os-checker-test-suite",
+    cargo_tomls: [
+        "repos/os-checker-test-suite/Cargo.toml",
+    ],
+    workspaces: Workspaces {
+        [0] root: "./",
+        [0] root.members: [
+            "os-checker-test-suite",
+        ],
+    },
+}
+DEBUG os_checker::layout: cargo_tomls_len=1 pkg_len=1
+DEBUG os_checker::layout: layout=Layout {
+    repo_root: "repos/arceos",
+    cargo_tomls: [
+        "repos/arceos/Cargo.toml",
+        "repos/arceos/api/arceos_api/Cargo.toml",
+        "repos/arceos/api/arceos_posix_api/Cargo.toml",
+        "repos/arceos/api/axfeat/Cargo.toml",
+        "repos/arceos/apps/display/Cargo.toml",
+        "repos/arceos/apps/exception/Cargo.toml",
+        "repos/arceos/apps/fs/shell/Cargo.toml",
+        "repos/arceos/apps/helloworld/Cargo.toml",
+        "repos/arceos/apps/memtest/Cargo.toml",
+        "repos/arceos/apps/net/bwbench/Cargo.toml",
+        "repos/arceos/apps/net/echoserver/Cargo.toml",
+        "repos/arceos/apps/net/httpclient/Cargo.toml",
+        "repos/arceos/apps/net/httpserver/Cargo.toml",
+        "repos/arceos/apps/net/udpserver/Cargo.toml",
+        "repos/arceos/apps/task/parallel/Cargo.toml",
+        "repos/arceos/apps/task/priority/Cargo.toml",
+        "repos/arceos/apps/task/sleep/Cargo.toml",
+        "repos/arceos/apps/task/tls/Cargo.toml",
+        "repos/arceos/apps/task/yield/Cargo.toml",
+        "repos/arceos/crates/allocator/Cargo.toml",
+        "repos/arceos/crates/arm_gic/Cargo.toml",
+        "repos/arceos/crates/arm_pl011/Cargo.toml",
+        "repos/arceos/crates/axerrno/Cargo.toml",
+        "repos/arceos/crates/axfs_devfs/Cargo.toml",
+        "repos/arceos/crates/axfs_ramfs/Cargo.toml",
+        "repos/arceos/crates/axfs_vfs/Cargo.toml",
+        "repos/arceos/crates/axio/Cargo.toml",
+        "repos/arceos/crates/capability/Cargo.toml",
+        "repos/arceos/crates/crate_interface/Cargo.toml",
+        "repos/arceos/crates/driver_block/Cargo.toml",
+        "repos/arceos/crates/driver_common/Cargo.toml",
+        "repos/arceos/crates/driver_display/Cargo.toml",
+        "repos/arceos/crates/driver_net/Cargo.toml",
+        "repos/arceos/crates/driver_pci/Cargo.toml",
+        "repos/arceos/crates/driver_virtio/Cargo.toml",
+        "repos/arceos/crates/dw_apb_uart/Cargo.toml",
+        "repos/arceos/crates/flatten_objects/Cargo.toml",
+        "repos/arceos/crates/handler_table/Cargo.toml",
+        "repos/arceos/crates/kernel_guard/Cargo.toml",
+        "repos/arceos/crates/lazy_init/Cargo.toml",
+        "repos/arceos/crates/linked_list/Cargo.toml",
+        "repos/arceos/crates/memory_addr/Cargo.toml",
+        "repos/arceos/crates/page_table/Cargo.toml",
+        "repos/arceos/crates/page_table_entry/Cargo.toml",
+        "repos/arceos/crates/percpu/Cargo.toml",
+        "repos/arceos/crates/percpu_macros/Cargo.toml",
+        "repos/arceos/crates/ratio/Cargo.toml",
+        "repos/arceos/crates/scheduler/Cargo.toml",
+        "repos/arceos/crates/slab_allocator/Cargo.toml",
+        "repos/arceos/crates/spinlock/Cargo.toml",
+        "repos/arceos/crates/timer_list/Cargo.toml",
+        "repos/arceos/crates/tuple_for_each/Cargo.toml",
+        "repos/arceos/modules/axalloc/Cargo.toml",
+        "repos/arceos/modules/axconfig/Cargo.toml",
+        "repos/arceos/modules/axdisplay/Cargo.toml",
+        "repos/arceos/modules/axdriver/Cargo.toml",
+        "repos/arceos/modules/axfs/Cargo.toml",
+        "repos/arceos/modules/axhal/Cargo.toml",
+        "repos/arceos/modules/axlog/Cargo.toml",
+        "repos/arceos/modules/axnet/Cargo.toml",
+        "repos/arceos/modules/axruntime/Cargo.toml",
+        "repos/arceos/modules/axsync/Cargo.toml",
+        "repos/arceos/modules/axtask/Cargo.toml",
+        "repos/arceos/tools/bwbench_client/Cargo.toml",
+        "repos/arceos/tools/deptool/Cargo.toml",
+        "repos/arceos/tools/raspi4/chainloader/Cargo.toml",
+        "repos/arceos/ulib/axlibc/Cargo.toml",
+        "repos/arceos/ulib/axstd/Cargo.toml",
+    ],
+    workspaces: Workspaces {
+        [0] root: "./",
+        [0] root.members: [
+            "allocator",
+            "arceos-bwbench",
+            "arceos-display",
+            "arceos-echoserver",
+            "arceos-exception",
+            "arceos-helloworld",
+            "arceos-httpclient",
+            "arceos-httpserver",
+            "arceos-memtest",
+            "arceos-parallel",
+            "arceos-priority",
+            "arceos-shell",
+            "arceos-sleep",
+            "arceos-tls",
+            "arceos-udpserver",
+            "arceos-yield",
+            "arceos_api",
+            "arceos_posix_api",
+            "arm_gic",
+            "arm_pl011",
+            "axalloc",
+            "axconfig",
+            "axdisplay",
+            "axdriver",
+            "axerrno",
+            "axfeat",
+            "axfs",
+            "axfs_devfs",
+            "axfs_ramfs",
+            "axfs_vfs",
+            "axhal",
+            "axio",
+            "axlibc",
+            "axlog",
+            "axnet",
+            "axruntime",
+            "axstd",
+            "axsync",
+            "axtask",
+            "capability",
+            "crate_interface",
+            "driver_block",
+            "driver_common",
+            "driver_display",
+            "driver_net",
+            "driver_pci",
+            "driver_virtio",
+            "dw_apb_uart",
+            "flatten_objects",
+            "handler_table",
+            "kernel_guard",
+            "lazy_init",
+            "linked_list",
+            "memory_addr",
+            "page_table",
+            "page_table_entry",
+            "percpu",
+            "percpu_macros",
+            "ratio",
+            "scheduler",
+            "slab_allocator",
+            "spinlock",
+            "timer_list",
+            "tuple_for_each",
+        ],
+        [1] root: "./tools/bwbench_client",
+        [1] root.members: [
+            "bwbench-client",
+        ],
+        [2] root: "./tools/deptool",
+        [2] root.members: [
+            "deptool",
+        ],
+        [3] root: "./tools/raspi4/chainloader",
+        [3] root.members: [
+            "mingo",
+        ],
+    },
+}
+DEBUG os_checker::layout: cargo_tomls_len=68 pkg_len=67
+DEBUG os_checker::run_checker: [success=true count=0] allocator with Fmt checking in 232ms
+DEBUG os_checker::run_checker: [success=true count=3] allocator with Clippy checking in 243ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-bwbench with Fmt checking in 196ms
+DEBUG os_checker::run_checker: [success=false count=4] arceos-bwbench with Clippy checking in 462ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-display with Fmt checking in 188ms
+DEBUG os_checker::run_checker: [success=false count=3] arceos-display with Clippy checking in 359ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-echoserver with Fmt checking in 196ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-echoserver with Clippy checking in 208ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-exception with Fmt checking in 203ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-exception with Clippy checking in 207ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-helloworld with Fmt checking in 199ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-helloworld with Clippy checking in 267ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-httpclient with Fmt checking in 269ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-httpclient with Clippy checking in 252ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-httpserver with Fmt checking in 201ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-httpserver with Clippy checking in 223ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-memtest with Fmt checking in 318ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-memtest with Clippy checking in 447ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-parallel with Fmt checking in 345ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-parallel with Clippy checking in 339ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-priority with Fmt checking in 317ms
+DEBUG os_checker::run_checker: [success=true count=2] arceos-priority with Clippy checking in 313ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-shell with Fmt checking in 235ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-shell with Clippy checking in 227ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-sleep with Fmt checking in 239ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-sleep with Clippy checking in 230ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-tls with Fmt checking in 211ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-tls with Clippy checking in 239ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-udpserver with Fmt checking in 209ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-udpserver with Clippy checking in 227ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-yield with Fmt checking in 233ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos-yield with Clippy checking in 244ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos_api with Fmt checking in 216ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos_api with Clippy checking in 260ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos_posix_api with Fmt checking in 269ms
+DEBUG os_checker::run_checker: [success=true count=0] arceos_posix_api with Clippy checking in 268ms
+DEBUG os_checker::run_checker: [success=true count=0] arm_gic with Fmt checking in 189ms
+DEBUG os_checker::run_checker: [success=true count=0] arm_gic with Clippy checking in 223ms
+DEBUG os_checker::run_checker: [success=true count=0] arm_pl011 with Fmt checking in 203ms
+DEBUG os_checker::run_checker: [success=true count=0] arm_pl011 with Clippy checking in 215ms
+DEBUG os_checker::run_checker: [success=true count=0] axalloc with Fmt checking in 205ms
+DEBUG os_checker::run_checker: [success=true count=0] axalloc with Clippy checking in 239ms
+DEBUG os_checker::run_checker: [success=true count=0] axconfig with Fmt checking in 263ms
+DEBUG os_checker::run_checker: [success=true count=0] axconfig with Clippy checking in 343ms
+DEBUG os_checker::run_checker: [success=true count=0] axdisplay with Fmt checking in 192ms
+DEBUG os_checker::run_checker: [success=false count=6] axdisplay with Clippy checking in 322ms
+DEBUG os_checker::run_checker: [success=true count=0] axdriver with Fmt checking in 213ms
+DEBUG os_checker::run_checker: [success=false count=4] axdriver with Clippy checking in 332ms
+DEBUG os_checker::run_checker: [success=true count=0] axerrno with Fmt checking in 211ms
+DEBUG os_checker::run_checker: [success=true count=0] axerrno with Clippy checking in 219ms
+DEBUG os_checker::run_checker: [success=true count=0] axfeat with Fmt checking in 191ms
+DEBUG os_checker::run_checker: [success=true count=0] axfeat with Clippy checking in 233ms
+DEBUG os_checker::run_checker: [success=true count=0] axfs with Fmt checking in 239ms
+DEBUG os_checker::run_checker: [success=false count=6] axfs with Clippy checking in 321ms
+DEBUG os_checker::run_checker: [success=true count=0] axfs_devfs with Fmt checking in 192ms
+DEBUG os_checker::run_checker: [success=true count=0] axfs_devfs with Clippy checking in 210ms
+DEBUG os_checker::run_checker: [success=true count=0] axfs_ramfs with Fmt checking in 213ms
+DEBUG os_checker::run_checker: [success=true count=0] axfs_ramfs with Clippy checking in 220ms
+DEBUG os_checker::run_checker: [success=true count=0] axfs_vfs with Fmt checking in 192ms
+DEBUG os_checker::run_checker: [success=true count=0] axfs_vfs with Clippy checking in 206ms
+DEBUG os_checker::run_checker: [success=true count=0] axhal with Fmt checking in 224ms
+DEBUG os_checker::run_checker: [success=true count=0] axhal with Clippy checking in 244ms
+DEBUG os_checker::run_checker: [success=true count=0] axio with Fmt checking in 187ms
+DEBUG os_checker::run_checker: [success=true count=0] axio with Clippy checking in 204ms
+DEBUG os_checker::run_checker: [success=true count=0] axlibc with Fmt checking in 195ms
+DEBUG os_checker::run_checker: [success=true count=0] axlibc with Clippy checking in 240ms
+DEBUG os_checker::run_checker: [success=true count=0] axlog with Fmt checking in 198ms
+DEBUG os_checker::run_checker: [success=true count=0] axlog with Clippy checking in 204ms
+DEBUG os_checker::run_checker: [success=true count=0] axnet with Fmt checking in 200ms
+DEBUG os_checker::run_checker: [success=false count=6] axnet with Clippy checking in 319ms
+DEBUG os_checker::run_checker: [success=true count=0] axruntime with Fmt checking in 188ms
+DEBUG os_checker::run_checker: [success=true count=0] axruntime with Clippy checking in 235ms
+DEBUG os_checker::run_checker: [success=true count=0] axstd with Fmt checking in 207ms
+DEBUG os_checker::run_checker: [success=true count=0] axstd with Clippy checking in 222ms
+DEBUG os_checker::run_checker: [success=true count=0] axsync with Fmt checking in 184ms
+DEBUG os_checker::run_checker: [success=true count=0] axsync with Clippy checking in 228ms
+DEBUG os_checker::run_checker: [success=true count=0] axtask with Fmt checking in 329ms
+DEBUG os_checker::run_checker: [success=true count=0] axtask with Clippy checking in 621ms
+DEBUG os_checker::run_checker: [success=true count=0] bwbench-client with Fmt checking in 213ms
+DEBUG os_checker::run_checker: [success=false count=2] bwbench-client with Clippy checking in 352ms
+DEBUG os_checker::run_checker: [success=true count=0] capability with Fmt checking in 193ms
+DEBUG os_checker::run_checker: [success=true count=0] capability with Clippy checking in 220ms
+DEBUG os_checker::run_checker: [success=true count=0] crate_interface with Fmt checking in 187ms
+DEBUG os_checker::run_checker: [success=true count=0] crate_interface with Clippy checking in 204ms
+DEBUG os_checker::run_checker: [success=true count=6] deptool with Fmt checking in 172ms
+DEBUG os_checker::run_checker: [success=true count=11] deptool with Clippy checking in 145ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_block with Fmt checking in 214ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_block with Clippy checking in 204ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_common with Fmt checking in 186ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_common with Clippy checking in 203ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_display with Fmt checking in 186ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_display with Clippy checking in 216ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_net with Fmt checking in 194ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_net with Clippy checking in 204ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_pci with Fmt checking in 212ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_pci with Clippy checking in 214ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_virtio with Fmt checking in 216ms
+DEBUG os_checker::run_checker: [success=true count=0] driver_virtio with Clippy checking in 206ms
+DEBUG os_checker::run_checker: [success=true count=0] dw_apb_uart with Fmt checking in 183ms
+DEBUG os_checker::run_checker: [success=true count=0] dw_apb_uart with Clippy checking in 197ms
+DEBUG os_checker::run_checker: [success=true count=0] flatten_objects with Fmt checking in 185ms
+DEBUG os_checker::run_checker: [success=true count=0] flatten_objects with Clippy checking in 216ms
+DEBUG os_checker::run_checker: [success=true count=0] handler_table with Fmt checking in 184ms
+DEBUG os_checker::run_checker: [success=true count=0] handler_table with Clippy checking in 198ms
+DEBUG os_checker::run_checker: [success=true count=0] kernel_guard with Fmt checking in 187ms
+DEBUG os_checker::run_checker: [success=true count=0] kernel_guard with Clippy checking in 200ms
+DEBUG os_checker::run_checker: [success=true count=0] lazy_init with Fmt checking in 203ms
+DEBUG os_checker::run_checker: [success=true count=0] lazy_init with Clippy checking in 203ms
+DEBUG os_checker::run_checker: [success=true count=0] linked_list with Fmt checking in 207ms
+DEBUG os_checker::run_checker: [success=true count=3] linked_list with Clippy checking in 216ms
+DEBUG os_checker::run_checker: [success=true count=0] memory_addr with Fmt checking in 186ms
+DEBUG os_checker::run_checker: [success=true count=0] memory_addr with Clippy checking in 285ms
+DEBUG os_checker::run_checker: [success=true count=0] mingo with Fmt checking in 167ms
+DEBUG os_checker::run_checker: [success=false count=11] mingo with Clippy checking in 278ms
+DEBUG os_checker::run_checker: [success=true count=0] page_table with Fmt checking in 252ms
+DEBUG os_checker::run_checker: [success=true count=0] page_table with Clippy checking in 240ms
+DEBUG os_checker::run_checker: [success=true count=0] page_table_entry with Fmt checking in 234ms
+DEBUG os_checker::run_checker: [success=true count=0] page_table_entry with Clippy checking in 217ms
+DEBUG os_checker::run_checker: [success=true count=0] percpu with Fmt checking in 196ms
+DEBUG os_checker::run_checker: [success=true count=0] percpu with Clippy checking in 215ms
+DEBUG os_checker::run_checker: [success=true count=0] percpu_macros with Fmt checking in 206ms
+DEBUG os_checker::run_checker: [success=true count=0] percpu_macros with Clippy checking in 201ms
+DEBUG os_checker::run_checker: [success=true count=0] ratio with Fmt checking in 181ms
+DEBUG os_checker::run_checker: [success=true count=0] ratio with Clippy checking in 196ms
+DEBUG os_checker::run_checker: [success=true count=0] scheduler with Fmt checking in 192ms
+DEBUG os_checker::run_checker: [success=true count=7] scheduler with Clippy checking in 212ms
+DEBUG os_checker::run_checker: [success=true count=0] slab_allocator with Fmt checking in 192ms
+DEBUG os_checker::run_checker: [success=true count=2] slab_allocator with Clippy checking in 202ms
+DEBUG os_checker::run_checker: [success=true count=0] spinlock with Fmt checking in 188ms
+DEBUG os_checker::run_checker: [success=true count=0] spinlock with Clippy checking in 205ms
+DEBUG os_checker::run_checker: [success=true count=0] timer_list with Fmt checking in 197ms
+DEBUG os_checker::run_checker: [success=true count=0] timer_list with Clippy checking in 200ms
+DEBUG os_checker::run_checker: [success=true count=0] tuple_for_each with Fmt checking in 185ms
+DEBUG os_checker::run_checker: [success=true count=0] tuple_for_each with Clippy checking in 202ms
+DEBUG os_checker::run_checker: [success=true count=4] os-checker-test-suite with Fmt checking in 167ms
+DEBUG os_checker::run_checker: [success=false count=3] os-checker-test-suite with Clippy checking in 194ms
