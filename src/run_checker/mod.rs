@@ -65,9 +65,67 @@ impl OutputParsed {
 
     #[cfg(test)]
     fn test_diagnostics(&self) -> String {
+        use color_eyre::owo_colors::OwoColorize;
+
         let mut idx = 0;
         match self {
-            OutputParsed::Fmt(v) => format!("{v:?}"),
+            OutputParsed::Fmt(v) => {
+                let add = "+".bright_blue();
+                let minus = "-".bright_red();
+                for mes in v.iter() {
+                    for mis in &mes.mismatches {
+                        println!(
+                            "\nfile: {} (original lines from {} to {})",
+                            mes.name, mis.original_begin_line, mis.original_end_line
+                        );
+                        // println!(
+                        //     "-{}+{}",
+                        //     mis.original.replace("\n", "\n-\n").bright_blue(),
+                        //     mis.expected.replace("\n", "\n+\n").bright_red()
+                        // );
+                        for diff in prettydiff::diff_lines(&mis.original, &mis.expected).diff() {
+                            match diff {
+                                prettydiff::basic::DiffOp::Insert(s) => {
+                                    for line in s {
+                                        println!("{add}{}", line.bright_blue())
+                                    }
+                                }
+                                prettydiff::basic::DiffOp::Replace(a, b) => {
+                                    for line in a {
+                                        println!("{minus}{}", line.bright_red())
+                                    }
+                                    for line in b {
+                                        println!("{add}{}", line.bright_blue())
+                                    }
+                                    // println!("~{a:?}#{b:?}")
+                                }
+                                prettydiff::basic::DiffOp::Remove(s) => {
+                                    for line in s {
+                                        println!("{minus}{}", line.bright_red())
+                                    }
+                                }
+                                prettydiff::basic::DiffOp::Equal(s) => {
+                                    for line in s {
+                                        println!(" {line}")
+                                    }
+                                }
+                            }
+                        }
+                        // for diff in dissimilar::diff(&mis.original, &mis.expected) {
+                        //     match diff {
+                        //         dissimilar::Chunk::Equal(s) => print!("{s}"),
+                        //         dissimilar::Chunk::Delete(s) => {
+                        //             print!("{}", s.underline().bright_red())
+                        //         }
+                        //         dissimilar::Chunk::Insert(s) => {
+                        //             print!("{}", s.bright_blue())
+                        //         }
+                        //     }
+                        // }
+                    }
+                }
+                format!("{v:?}")
+            }
             OutputParsed::Clippy(v) => v
                 .iter()
                 .filter_map(|mes| {
