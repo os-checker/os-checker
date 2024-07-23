@@ -61,15 +61,16 @@ arceos:
   all: true
   miri: false
 ";
-    let repo = Repo::new(
+    let test_suite = Repo::new(
         "repos/os-checker-test-suite",
         &[],
         Config::from_yaml(yaml)?.pop().unwrap(),
     )?;
-    // let repo = Repo::new("repos/arceos", &[], Config::from_yaml(yaml)?.pop().unwrap())?;
-    let resolve = repo.resolve()?;
+    let arceos = Repo::new("repos/arceos", &[], Config::from_yaml(yaml)?.pop().unwrap())?;
+    let mut resolve = arceos.resolve()?;
+    resolve.extend(test_suite.resolve()?);
     let mut snapshot = Vec::with_capacity(resolve.len());
-    for res in resolve.iter().take(4) {
+    for res in resolve.iter() {
         let now = Instant::now();
         let out = res
             .expr
@@ -78,10 +79,6 @@ arceos:
             .unchecked()
             .run()?;
         let duration = now.elapsed().as_millis() as u64;
-        debug!(
-            "{} with {:?} checking in {duration}ms",
-            res.package.name, res.checker
-        );
 
         let stdout: &[_] = &out.stdout;
         let parsed = match res.checker {
@@ -96,13 +93,24 @@ arceos:
             CheckerTool::Lockbud => todo!(),
         };
 
-        let stdout = std::str::from_utf8(&out.stdout)?;
-        let stderr = std::str::from_utf8(&out.stderr)?;
+        // let stdout = std::str::from_utf8(&out.stdout)?;
+        // let stderr = std::str::from_utf8(&out.stderr)?;
 
+        // snapshot.push(format!(
+        //     "[{} with {:?} checking] {}\nstdout={stdout}\nstderr={stderr}\nparsed={parsed:?}",
+        //     res.package.name, res.checker, out.status
+        // ));
         snapshot.push(format!(
-            "[{} with {:?} checking] {}\nstdout={stdout}\nstderr={stderr}\nparsed={parsed:?}",
+            "[{} with {:?} checking] {} parsed={parsed:?}",
             res.package.name, res.checker, out.status
         ));
+
+        debug!(
+            "[success={}] {} with {:?} checking in {duration}ms",
+            out.status.success(),
+            res.package.name,
+            res.checker
+        );
     }
 
     let current_path = Utf8PathBuf::from(".").canonicalize_utf8()?;
