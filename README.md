@@ -12,16 +12,17 @@
 
 `os-checker` 生成最常见的 Rust 代码检查工具的运行结果报告。
 
-| 工具/命令                                    | 重要性 | 说明                                                                 | 跟踪 |
-|----------------------------------------------|--------|----------------------------------------------------------------------|------|
-| [`cargo fmt`][fmt]                           | 最高   | 代码格式化工具；良好的格式既赏心悦目，又防止无聊的提交改动或合并冲突 | [#4] |
-| [`cargo clippy`][clippy]                     | 最高   | 捕获常见的编码错误，并使 Rust 代码更加地道                           |      |
-| [`cargo miri`][miri]                         | 最高   | UB 动态检查工具；由 rustc 核心开发者维护，所以几乎不存在误报         |      |
-| [`cargo semver-checks`][cargo-semver-checks] | 高     | 检查是否违反版本语义；一个严肃的发版应该遵循语义化版本控制           | [#3] |
-| [`lockbud`][lockbud]                         | 中     | 用于常见内存和并发错误的静态检查工具；[见其论文][tse]                |      |
+| 工具/命令                                    | 重要性 | 说明                                                                 | 跟踪  |
+|----------------------------------------------|--------|----------------------------------------------------------------------|-------|
+| [`cargo fmt`][fmt]                           | 最高   | 代码格式化工具；良好的格式既赏心悦目，又防止无聊的提交改动或合并冲突 | [#4]  |
+| [`cargo clippy`][clippy]                     | 最高   | 捕获常见的编码错误，并使 Rust 代码更加地道                           |       |
+| [`cargo miri`][miri]                         | 最高   | UB 动态检查工具；由 rustc 核心开发者维护，所以几乎不存在误报         | [#12] |
+| [`cargo semver-checks`][cargo-semver-checks] | 高     | 检查是否违反版本语义；一个严肃的发版应该遵循语义化版本控制           | [#3]  |
+| [`lockbud`][lockbud]                         | 中     | 用于常见内存和并发错误的静态检查工具；[见其论文][tse]                |       |
 
 [#3]: https://github.com/os-checker/os-checker/issues/3
 [#4]: https://github.com/os-checker/os-checker/issues/4
+[#12]: https://github.com/os-checker/os-checker/issues/12
 
 注意：虽然 miri 具有最高质量的 UB 检查效果，但是并不适用于所有代码库。
 
@@ -51,7 +52,6 @@
 * 如果不写入日志文件，则使用设定 `NO_FILE`，比如 `RUST_LOG=debug NO_FILE=1 cargo t -- --nocapture run_checker`。
 
 [EnvFilter]: https://users.rust-lang.org/t/tracing-subscribers-envfilter-syntax-is-confusing/114821/2
-
 [expect-test]: https://docs.rs/expect-test
 [tracing_subscriber::EnvFilter]: https://docs.rs/tracing-subscriber/0.3.18/tracing_subscriber/filter/struct.EnvFilter.html
 
