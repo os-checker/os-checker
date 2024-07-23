@@ -1,7 +1,7 @@
 [allocator with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[allocator with Clippy checking] success=true count=3 diagnostics=
+[allocator with Clippy checking] success=true count=2 diagnostics=
 [1] warning: function `align_down` is never used
    --> crates/allocator/src/lib.rs:126:10
     |
@@ -23,7 +23,7 @@
 [arceos-bwbench with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[arceos-bwbench with Clippy checking] success=false count=4 diagnostics=
+[arceos-bwbench with Clippy checking] success=false count=2 diagnostics=
 [1] error[E0049]: method `device_name` has 1 const parameter but its trait declaration has 0 const parameters
   --> ./repos/arceos/crates/driver_common/src/lib.rs:57:1
    |
@@ -50,7 +50,7 @@
 [arceos-display with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[arceos-display with Clippy checking] success=false count=3 diagnostics=
+[arceos-display with Clippy checking] success=false count=1 diagnostics=
 [1] error[E0433]: failed to resolve: could not find `arceos` in `os`
  --> apps/display/src/display.rs:5:14
   |
@@ -107,7 +107,7 @@
 [arceos-priority with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[arceos-priority with Clippy checking] success=true count=2 diagnostics=
+[arceos-priority with Clippy checking] success=true count=1 diagnostics=
 [1] warning: unused variable: `nice`
   --> apps/task/priority/src/main.rs:80:13
    |
@@ -189,7 +189,7 @@
 [axdisplay with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[axdisplay with Clippy checking] success=false count=6 diagnostics=
+[axdisplay with Clippy checking] success=false count=4 diagnostics=
 [1] error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters
   --> ./repos/arceos/crates/driver_common/src/lib.rs:57:1
    |
@@ -234,7 +234,7 @@
 [axdriver with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[axdriver with Clippy checking] success=false count=4 diagnostics=
+[axdriver with Clippy checking] success=false count=2 diagnostics=
 [1] error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters
   --> ./repos/arceos/crates/driver_common/src/lib.rs:57:1
    |
@@ -273,7 +273,7 @@
 [axfs with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[axfs with Clippy checking] success=false count=6 diagnostics=
+[axfs with Clippy checking] success=false count=4 diagnostics=
 [1] error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters
   --> ./repos/arceos/crates/driver_common/src/lib.rs:57:1
    |
@@ -360,7 +360,7 @@
 [axnet with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[axnet with Clippy checking] success=false count=6 diagnostics=
+[axnet with Clippy checking] success=false count=4 diagnostics=
 [1] error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters
   --> ./repos/arceos/crates/driver_common/src/lib.rs:57:1
    |
@@ -429,7 +429,7 @@
 [bwbench-client with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[bwbench-client with Clippy checking] success=false count=2 diagnostics=
+[bwbench-client with Clippy checking] success=false count=1 diagnostics=
 [1] error: the loop variable `i` is used to index `mac_addr`
   --> src/device.rs:80:22
    |
@@ -657,7 +657,7 @@ help: consider using an iterator and enumerate()
 +use deptool::{parse_cmd, run};
 
 ──────────────────────────────────────────────────────────────────────────────────
-[deptool with Clippy checking] success=true count=11 diagnostics=
+[deptool with Clippy checking] success=true count=10 diagnostics=
 [1] warning: this expression creates a reference which is immediately dereferenced by the compiler
   --> src/cmd_parser.rs:82:22
    |
@@ -813,7 +813,7 @@ help: consider using an iterator and enumerate()
 [linked_list with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[linked_list with Clippy checking] success=true count=3 diagnostics=
+[linked_list with Clippy checking] success=true count=2 diagnostics=
 [1] warning: you should consider adding a `Default` implementation for `List<A>`
    --> crates/linked_list/src/unsafe_list.rs:99:5
     |
@@ -864,7 +864,7 @@ help: try adding this
 [mingo with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[mingo with Clippy checking] success=false count=11 diagnostics=
+[mingo with Clippy checking] success=false count=8 diagnostics=
 [1] error: Add the target_arch to above's check if the following code is safe to use
   --> src/panic_wait.rs:30:5
    |
@@ -953,7 +953,7 @@ help: try adding this
 [scheduler with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[scheduler with Clippy checking] success=true count=7 diagnostics=
+[scheduler with Clippy checking] success=true count=5 diagnostics=
 [1] warning: you should consider adding a `Default` implementation for `List<A>`
    --> crates/linked_list/src/unsafe_list.rs:99:5
     |
@@ -1063,7 +1063,7 @@ help: try adding this
 [slab_allocator with Fmt checking] success=true count=0 diagnostics=
 
 ──────────────────────────────────────────────────────────────────────────────────
-[slab_allocator with Clippy checking] success=true count=2 diagnostics=
+[slab_allocator with Clippy checking] success=true count=1 diagnostics=
 [1] warning: 
   --> crates/slab_allocator/src/slab.rs:93:26
    |
@@ -1123,7 +1123,7 @@ help: try
 +fn main() {}
 
 ──────────────────────────────────────────────────────────────────────────────────
-[os-checker-test-suite with Clippy checking] success=false count=3 diagnostics=
+[os-checker-test-suite with Clippy checking] success=false count=2 diagnostics=
 [1] warning: unused variable: `a`
  --> src/main.rs:2:9
   |

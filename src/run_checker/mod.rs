@@ -3,10 +3,11 @@ use crate::{
     repo::{CheckerTool, Config, Resolve},
     Result,
 };
-use cargo_metadata::{camino::Utf8PathBuf, diagnostic, Message};
+use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message};
 use eyre::Context;
+use regex::Regex;
 use serde::Deserialize;
-use std::{process::Output as RawOutput, time::Instant};
+use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
 
 #[derive(Debug)]
 pub struct Repo {
@@ -54,12 +55,44 @@ impl OutputParsed {
     // BTW bacon 采用解析 stdout 的内容而不是 JSON 来计算 count:
     // https://github.com/Canop/bacon/blob/main/src/line_analysis.rs
     fn count(&self) -> usize {
+        struct ClippySummary {
+            warnings: Regex,
+            errors: Regex,
+        }
+        static REGEX: LazyLock<ClippySummary> = LazyLock::new(|| ClippySummary {
+            warnings: Regex::new(r#"(?P<warn>\d+) warnings?"#).unwrap(),
+            errors: Regex::new(r#"(?P<error>\d+)( \w+)? errors?"#).unwrap(),
+        });
+
         match self {
             OutputParsed::Fmt(v) => v.len(),
             OutputParsed::Clippy(v) => v
                 .iter()
-                .filter(|mes| matches!(mes, Message::CompilerMessage(_)))
-                .count(),
+                .filter_map(|mes| match mes {
+                    Message::CompilerMessage(mes)
+                        if matches!(
+                            mes.message.level,
+                            DiagnosticLevel::Warning | DiagnosticLevel::Error
+                        ) =>
+                    {
+                        let warn = REGEX
+                            .warnings
+                            .captures(&mes.message.message)
+                            .and_then(|cap| cap.name("warn")?.as_str().parse::<usize>().ok());
+                        let error = REGEX
+                            .errors
+                            .captures(&mes.message.message)
+                            .and_then(|cap| cap.name("error")?.as_str().parse::<usize>().ok());
+                        match (warn, error) {
+                            (None, None) => None,
+                            (None, Some(e)) => Some(e),
+                            (Some(w), None) => Some(w),
+                            (Some(w), Some(e)) => Some(w + e),
+                        }
+                    }
+                    _ => None,
+                })
+                .sum(),
         }
     }
 

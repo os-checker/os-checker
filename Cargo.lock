@@ -427,6 +427,7 @@ dependencies = [
  "eyre",
  "marked-yaml",
  "prettydiff",
+ "regex",
  "self_cell",
  "serde",
  "serde_json",
