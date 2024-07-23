@@ -3,7 +3,7 @@ use crate::{
     repo::{CheckerTool, Config, Resolve},
     Result,
 };
-use cargo_metadata::{camino::Utf8PathBuf, Message};
+use cargo_metadata::{camino::Utf8PathBuf, diagnostic, Message};
 use eyre::Context;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, time::Instant};
@@ -35,6 +35,38 @@ pub struct Output {
 pub enum OutputParsed {
     Fmt(Box<[FmtMessage]>),
     Clippy(Box<[Message]>),
+}
+
+impl OutputParsed {
+    fn count(&self) -> usize {
+        match self {
+            OutputParsed::Fmt(v) => v.len(),
+            OutputParsed::Clippy(v) => v
+                .iter()
+                .filter(|mes| matches!(mes, Message::CompilerMessage(_)))
+                .count(),
+        }
+    }
+
+    #[cfg(test)]
+    fn test_diagnostics(&self) -> String {
+        let mut idx = 0;
+        match self {
+            OutputParsed::Fmt(v) => format!("{v:?}"),
+            OutputParsed::Clippy(v) => v
+                .iter()
+                .filter_map(|mes| {
+                    if let Message::CompilerMessage(mes) = mes {
+                        idx += 1;
+                        Some(format!("[{idx}] {}", mes.message))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(""),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -93,6 +125,10 @@ arceos:
             CheckerTool::Lockbud => todo!(),
         };
 
+        let success = out.status.success();
+        let count = parsed.count();
+        let diagnostics = parsed.test_diagnostics();
+
         // let stdout = std::str::from_utf8(&out.stdout)?;
         // let stderr = std::str::from_utf8(&out.stderr)?;
 
@@ -101,20 +137,20 @@ arceos:
         //     res.package.name, res.checker, out.status
         // ));
         snapshot.push(format!(
-            "[{} with {:?} checking] {} parsed={parsed:?}",
-            res.package.name, res.checker, out.status
+            "[{} with {:?} checking] success={success} count={count} diagnostics=\n{diagnostics}",
+            res.package.name, res.checker
         ));
 
         debug!(
-            "[success={}] {} with {:?} checking in {duration}ms",
-            out.status.success(),
-            res.package.name,
-            res.checker
+            "[success={success} count={count}] {} with {:?} checking in {duration}ms",
+            res.package.name, res.checker
         );
     }
 
     let current_path = Utf8PathBuf::from(".").canonicalize_utf8()?;
-    let join = snapshot.join("\n\n").replace(current_path.as_str(), ".");
+    let join = snapshot
+        .join("\n──────────────────────────────────────────────────────────────────────────────────\n")
+        .replace(current_path.as_str(), ".");
     expect_test::expect_file!["./tests.snapshot"].assert_eq(&join);
 
     Ok(())
