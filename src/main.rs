@@ -33,13 +33,18 @@ fn logger_init() {
 #[cfg(test)]
 #[allow(dead_code)]
 fn test_logger_init(log_file: &str) {
-    if let Err(err) = tracing_subscriber::fmt()
+    let no_file = std::env::var("NO_FILE").is_ok();
+    let fmt = tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
-        .with_writer(std::fs::File::create(log_file).unwrap())
-        .with_ansi(false)
-        .without_time()
-        .try_init()
-    {
+        .without_time();
+    let init = if no_file {
+        fmt.try_init()
+    } else {
+        fmt.with_writer(std::fs::File::create(log_file).unwrap())
+            .with_ansi(false)
+            .try_init()
+    };
+    if let Err(err) = init {
         eprintln!("Logger already init: {err}");
     };
 }
