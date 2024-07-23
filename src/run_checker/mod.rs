@@ -65,66 +65,53 @@ impl OutputParsed {
 
     #[cfg(test)]
     fn test_diagnostics(&self) -> String {
-        use color_eyre::owo_colors::OwoColorize;
+        use std::fmt::Write;
 
         let mut idx = 0;
         match self {
             OutputParsed::Fmt(v) => {
-                let add = "+".bright_blue();
-                let minus = "-".bright_red();
+                let mut buf = String::with_capacity(1024);
+                let add = "+";
+                let minus = "-";
                 for mes in v.iter() {
                     for mis in &mes.mismatches {
-                        println!(
-                            "\nfile: {} (original lines from {} to {})",
+                        idx += 1;
+                        _ = writeln!(
+                            &mut buf,
+                            "\n[{idx}] file: {} (original lines from {} to {})",
                             mes.name, mis.original_begin_line, mis.original_end_line
                         );
-                        // println!(
-                        //     "-{}+{}",
-                        //     mis.original.replace("\n", "\n-\n").bright_blue(),
-                        //     mis.expected.replace("\n", "\n+\n").bright_red()
-                        // );
                         for diff in prettydiff::diff_lines(&mis.original, &mis.expected).diff() {
                             match diff {
                                 prettydiff::basic::DiffOp::Insert(s) => {
                                     for line in s {
-                                        println!("{add}{}", line.bright_blue())
+                                        _ = writeln!(&mut buf, "{add}{line}");
                                     }
                                 }
                                 prettydiff::basic::DiffOp::Replace(a, b) => {
                                     for line in a {
-                                        println!("{minus}{}", line.bright_red())
+                                        _ = writeln!(&mut buf, "{minus}{line}");
                                     }
                                     for line in b {
-                                        println!("{add}{}", line.bright_blue())
+                                        _ = writeln!(&mut buf, "{add}{line}");
                                     }
                                     // println!("~{a:?}#{b:?}")
                                 }
                                 prettydiff::basic::DiffOp::Remove(s) => {
                                     for line in s {
-                                        println!("{minus}{}", line.bright_red())
+                                        _ = writeln!(&mut buf, "{minus}{line}");
                                     }
                                 }
                                 prettydiff::basic::DiffOp::Equal(s) => {
                                     for line in s {
-                                        println!(" {line}")
+                                        _ = writeln!(&mut buf, " {line}");
                                     }
                                 }
                             }
                         }
-                        // for diff in dissimilar::diff(&mis.original, &mis.expected) {
-                        //     match diff {
-                        //         dissimilar::Chunk::Equal(s) => print!("{s}"),
-                        //         dissimilar::Chunk::Delete(s) => {
-                        //             print!("{}", s.underline().bright_red())
-                        //         }
-                        //         dissimilar::Chunk::Insert(s) => {
-                        //             print!("{}", s.bright_blue())
-                        //         }
-                        //     }
-                        // }
                     }
                 }
-                format!("{v:?}")
+                buf
             }
             OutputParsed::Clippy(v) => v
                 .iter()
@@ -202,13 +189,6 @@ arceos:
         let count = parsed.count();
         let diagnostics = parsed.test_diagnostics();
 
-        // let stdout = std::str::from_utf8(&out.stdout)?;
-        // let stderr = std::str::from_utf8(&out.stderr)?;
-
-        // snapshot.push(format!(
-        //     "[{} with {:?} checking] {}\nstdout={stdout}\nstderr={stderr}\nparsed={parsed:?}",
-        //     res.package.name, res.checker, out.status
-        // ));
         snapshot.push(format!(
             "[{} with {:?} checking] success={success} count={count} diagnostics=\n{diagnostics}",
             res.package.name, res.checker
