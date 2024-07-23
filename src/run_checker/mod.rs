@@ -38,6 +38,21 @@ pub enum OutputParsed {
 }
 
 impl OutputParsed {
+    // FIXME: 对于 clippy 和 miri?，最后可能有汇总，这应该在计算 count 时排除, e.g.
+    // * warning: 10 warnings emitted （结尾）
+    //   有时甚至在中途：
+    //   [3] warning: 2 warnings emitted
+    //   [4] warning: you should consider adding a `Default` implementation for `CFScheduler<T>`
+    // * error: aborting due to 7 previous errors; 1 warning emitted （结尾，之后无内容）
+    //   有时却依然会追加内容：
+    //   [9] error: aborting due to 7 previous errors; 1 warning emitted
+    //   [10] Some errors have detailed explanations: E0425, E0432, E0433, E0599.
+    //   [11] For more information about an error, try `rustc --explain E0425`.
+    //
+    // 注意：如果使用正则表达式， warning 和 error 之类的名词是单复数感知的。
+    //
+    // BTW bacon 采用解析 stdout 的内容而不是 JSON 来计算 count:
+    // https://github.com/Canop/bacon/blob/main/src/line_analysis.rs
     fn count(&self) -> usize {
         match self {
             OutputParsed::Fmt(v) => v.len(),
