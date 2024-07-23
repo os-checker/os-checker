@@ -422,7 +422,6 @@ dependencies = [
  "argh",
  "cargo_metadata",
  "color-eyre",
- "dissimilar",
  "duct",
  "expect-test",
  "eyre",
