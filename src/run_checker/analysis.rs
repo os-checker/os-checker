@@ -26,11 +26,7 @@ impl Statistics {
                     // * package_name 暗含了库的根目录，因此需要把路径的根目录去掉
                     // * 如果能保证都是绝对路径，那么不需要处理路径
                     match &out.parsed {
-                        OutputParsed::Fmt(v) => {
-                            for file in v.iter() {
-                                counts.push_unformatted(&file.name, file);
-                            }
-                        }
+                        OutputParsed::Fmt(v) => counts.push_unformatted(v),
                         // FIXME: rustc 的文件路径包含了行列信息，记得去除
                         OutputParsed::Clippy(v) => counts.push_clippy(v),
                     }
@@ -44,30 +40,34 @@ impl Statistics {
 #[derive(Debug, Default)]
 pub struct Total {
     duration_ms: u64,
-    counts_on_kind: Vec<(Kind, u32)>,
-    counts_on_file: Vec<(Utf8PathBuf, u32)>,
+    counts_on_kind: Vec<(Kind, usize)>,
+    counts_on_file: Vec<(Utf8PathBuf, usize)>,
 }
 
 #[derive(Debug, Default)]
 pub struct Count {
-    inner: HashMap<CountKey, u32>,
+    inner: HashMap<CountKey, usize>,
 }
 
 impl Count {
-    fn push_unformatted(&mut self, file: &Utf8PathBuf, mes: &FmtMessage) {
-        let count = mes
-            .mismatches
-            .iter()
-            .map(|ele| ele.original_end_line + 1 - ele.original_begin_line)
-            .sum::<u32>();
-        let key_line = CountKey::unformatted_line(file);
-        *self.inner.entry(key_line).or_insert(count) += count;
+    fn push_unformatted(&mut self, v: &[FmtMessage]) {
+        for file in v {
+            let fname = &file.name;
+            let count = file
+                .mismatches
+                .iter()
+                .map(|ele| (ele.original_end_line + 1 - ele.original_begin_line) as usize)
+                .sum();
+            let key_line = CountKey::unformatted_line(fname);
+            *self.inner.entry(key_line).or_insert(count) += count;
 
-        let key_file = CountKey::unformatted_file(file);
-        *self.inner.entry(key_file).or_insert(1) += 1;
+            let key_file = CountKey::unformatted_file(fname);
+            let len = file.mismatches.len();
+            *self.inner.entry(key_file).or_insert(len) += len;
+        }
     }
 
-    fn push_clippy(&mut self, messages: &[ClippyMessage]) {
+    fn push_clippy(&mut self, v: &[ClippyMessage]) {
         todo!()
     }
 }
