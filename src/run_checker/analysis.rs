@@ -35,6 +35,11 @@ impl Statistics {
             })
             .collect()
     }
+
+    /// 无任何不良检查结果
+    pub fn check_fine(&self) -> bool {
+        self.counts.inner.is_empty()
+    }
 }
 
 #[derive(Debug, Default)]
