@@ -67,7 +67,7 @@ impl Count {
         *self.inner.entry(key_file).or_insert(1) += 1;
     }
 
-    fn push_clippy(&mut self, messages: &[Message]) {
+    fn push_clippy(&mut self, messages: &[ClippyMessage]) {
         todo!()
     }
 }

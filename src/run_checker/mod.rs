@@ -4,7 +4,7 @@ use crate::{
     repo::{CheckerTool, Config, Resolve},
     Result, XString,
 };
-use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message};
+use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message as CargoMessage};
 use eyre::Context;
 use itertools::Itertools;
 use regex::Regex;
@@ -61,8 +61,11 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
     let parsed = match resolve.checker {
         CheckerTool::Fmt => OutputParsed::Fmt(serde_json::from_slice(stdout)?),
         CheckerTool::Clippy => OutputParsed::Clippy(
-            Message::parse_stream(stdout)
-                .map(|mes| mes.with_context(|| "解析 Clippy Json 输出失败"))
+            CargoMessage::parse_stream(stdout)
+                .map(|mes| {
+                    mes.map(ClippyMessage::from)
+                        .with_context(|| "解析 Clippy Json 输出失败")
+                })
                 .collect::<Result<_>>()?,
         ),
         CheckerTool::Miri => todo!(),
@@ -81,7 +84,7 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
 #[derive(Debug)]
 pub enum OutputParsed {
     Fmt(Box<[FmtMessage]>),
-    Clippy(Box<[Message]>),
+    Clippy(Box<[ClippyMessage]>),
 }
 
 impl OutputParsed {
@@ -115,8 +118,8 @@ impl OutputParsed {
             OutputParsed::Fmt(v) => v.len(), // 需要 fmt 的文件数量
             OutputParsed::Clippy(v) => v
                 .iter()
-                .filter_map(|mes| match mes {
-                    Message::CompilerMessage(mes)
+                .filter_map(|mes| match &mes.inner {
+                    CargoMessage::CompilerMessage(mes)
                         if matches!(
                             mes.message.level,
                             DiagnosticLevel::Warning | DiagnosticLevel::Error
@@ -196,7 +199,7 @@ impl OutputParsed {
             OutputParsed::Clippy(v) => v
                 .iter()
                 .filter_map(|mes| {
-                    if let Message::CompilerMessage(mes) = mes {
+                    if let CargoMessage::CompilerMessage(mes) = &mes.inner {
                         idx += 1;
                         Some(format!("[{idx}] {}", mes.message))
                     } else {
@@ -223,6 +226,33 @@ pub struct FmtMismatch {
     expected_end_line: u32,
     original: Box<str>,
     expected: Box<str>,
+}
+
+#[derive(Debug)]
+pub struct ClippyMessage {
+    inner: CargoMessage,
+    tag: ClippyMessageTag,
+}
+
+#[derive(Debug)]
+enum ClippyMessageTag {
+    /// non-summary warn with file name and details
+    Warn,
+    /// non-summary error with file name and details
+    Error,
+    /// summary line for warn or error
+    Summary,
+    /// no useful information for further analysis
+    Others,
+}
+
+impl From<CargoMessage> for ClippyMessage {
+    fn from(inner: CargoMessage) -> Self {
+        ClippyMessage {
+            inner,
+            tag: ClippyMessageTag::Others,
+        }
+    }
 }
 
 #[test]
