@@ -1,6 +1,7 @@
 use super::*;
 use ahash::{HashMap, HashMapExt};
 
+#[derive(Debug)]
 pub struct Statistics {
     pkg: XString,
     /// 检查工具报告的不通过的数量（基于文件）
