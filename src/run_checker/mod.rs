@@ -42,6 +42,7 @@ impl Repo {
 pub struct Output {
     raw: RawOutput,
     parsed: OutputParsed,
+    count: usize,
     duration_ms: u64,
     package_name: XString,
     checker: CheckerTool,
@@ -72,9 +73,11 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
         CheckerTool::SemverChecks => todo!(),
         CheckerTool::Lockbud => todo!(),
     };
+    let count = parsed.count();
     Ok(Output {
         raw,
         parsed,
+        count,
         duration_ms,
         package_name: resolve.package.name.into(),
         checker: resolve.checker,
@@ -103,7 +106,6 @@ impl OutputParsed {
     //
     // BTW bacon 采用解析 stdout 的内容而不是 JSON 来计算 count:
     // https://github.com/Canop/bacon/blob/main/src/line_analysis.rs
-    // TODO: 把 count 变成字段，在初始化的时候就能计算
     fn count(&self) -> usize {
         match self {
             OutputParsed::Fmt(v) => v.len(), // 需要 fmt 的文件数量
@@ -296,7 +298,7 @@ arceos:
         let output = run_check(res)?;
 
         let success = output.raw.status.success();
-        let count = output.parsed.count();
+        let count = output.count;
         let diagnostics = output.parsed.test_diagnostics();
 
         snapshot.push(format!(
