@@ -5,7 +5,7 @@ use ahash::{HashMap, HashMapExt};
 pub struct Statistics {
     pkg: XString,
     /// 检查工具报告的不通过的数量（基于文件）
-    counts: Count,
+    count: Count,
     /// 总计
     total: Total,
 }
@@ -18,7 +18,7 @@ impl Statistics {
             .into_iter()
             .map(|(pkg, outputs)| {
                 // iterate over outputs from each checker
-                let mut counts = Count::default();
+                let mut count = Count::default();
                 let mut total = Total::default();
                 for out in outputs {
                     total.duration_ms += out.duration_ms;
@@ -27,34 +27,53 @@ impl Statistics {
                     // * package_name 暗含了库的根目录，因此需要把路径的根目录去掉
                     // * 如果能保证都是绝对路径，那么不需要处理路径
                     match &out.parsed {
-                        OutputParsed::Fmt(v) => counts.push_unformatted(v),
-                        OutputParsed::Clippy(v) => counts.push_clippy(v),
+                        OutputParsed::Fmt(v) => count.push_unformatted(v),
+                        OutputParsed::Clippy(v) => count.push_clippy(v),
                     }
                 }
-                Statistics { pkg, counts, total }
+                count.update_on_kind_and_file();
+                Statistics { pkg, count, total }
             })
             .collect()
     }
 
     /// 无任何不良检查结果
     pub fn check_fine(&self) -> bool {
-        self.counts.inner.is_empty()
+        self.count.inner.is_empty()
     }
 }
 
 #[derive(Debug, Default)]
 pub struct Total {
     duration_ms: u64,
-    counts_on_kind: Vec<(Kind, usize)>,
-    counts_on_file: Vec<(Utf8PathBuf, usize)>,
 }
 
 #[derive(Debug, Default)]
 pub struct Count {
     inner: HashMap<CountKey, usize>,
+    // based on inner
+    count_on_kind: HashMap<Kind, usize>,
+    // based on inner
+    count_on_file: HashMap<Utf8PathBuf, usize>,
 }
 
 impl Count {
+    fn update_on_kind_and_file(&mut self) {
+        let additional = self.inner.len();
+        self.count_on_kind.reserve(additional);
+        self.count_on_file.reserve(additional);
+
+        for (key, &count) in &self.inner {
+            *self.count_on_kind.entry(key.kind).or_insert(0) += count;
+
+            if let Some(get) = self.count_on_file.get_mut(&key.file) {
+                *get += count;
+            } else {
+                self.count_on_file.insert(key.file.clone(), count);
+            }
+        }
+    }
+
     fn push_unformatted(&mut self, v: &[FmtMessage]) {
         for file in v {
             // NOTE: 该路径似乎是绝对路径
