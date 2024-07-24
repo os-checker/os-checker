@@ -53,17 +53,17 @@ impl Count {
     fn push_unformatted(&mut self, v: &[FmtMessage]) {
         for file in v {
             let fname = &file.name;
-            let count = file
+            let count: usize = file
                 .mismatches
                 .iter()
                 .map(|ele| (ele.original_end_line + 1 - ele.original_begin_line) as usize)
                 .sum();
             let key_line = CountKey::unformatted_line(fname);
-            *self.inner.entry(key_line).or_insert(count) += count;
+            *self.inner.entry(key_line).or_insert(0) += count;
 
             let key_file = CountKey::unformatted_file(fname);
             let len = file.mismatches.len();
-            *self.inner.entry(key_file).or_insert(len) += len;
+            *self.inner.entry(key_file).or_insert(0) += len;
         }
     }
 
