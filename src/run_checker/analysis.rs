@@ -51,6 +51,7 @@ pub struct Count {
 impl Count {
     fn push_unformatted(&mut self, v: &[FmtMessage]) {
         for file in v {
+            // NOTE: 该路径似乎是绝对路径
             let fname = &file.name;
             let count: usize = file
                 .mismatches
@@ -68,14 +69,19 @@ impl Count {
 
     fn push_clippy(&mut self, v: &[ClippyMessage]) {
         for mes in v {
+            // NOTE: 该路径似乎是相对路径
             match &mes.tag {
-                ClippyTag::WarnDetailed(file) => {
-                    let key = CountKey::clippy_warning(file);
-                    *self.inner.entry(key).or_insert(0) += 1;
+                ClippyTag::WarnDetailed(paths) => {
+                    for file in paths {
+                        let key = CountKey::clippy_warning(file);
+                        *self.inner.entry(key).or_insert(0) += 1;
+                    }
                 }
-                ClippyTag::ErrorDetailed(file) => {
-                    let key = CountKey::clippy_error(file);
-                    *self.inner.entry(key).or_insert(0) += 1;
+                ClippyTag::ErrorDetailed(paths) => {
+                    for file in paths {
+                        let key = CountKey::clippy_error(file);
+                        *self.inner.entry(key).or_insert(0) += 1;
+                    }
                 }
                 _ => (),
             }

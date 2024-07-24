@@ -204,10 +204,10 @@ pub struct FmtMismatch {
 
 #[derive(Debug)]
 pub enum ClippyTag {
-    /// non-summary / detailed message with file path
-    WarnDetailed(Utf8PathBuf),
-    /// non-summary / detailed message with file path
-    ErrorDetailed(Utf8PathBuf),
+    /// non-summary / detailed message with primary span paths
+    WarnDetailed(Box<[Utf8PathBuf]>),
+    /// non-summary / detailed message with primary span paths
+    ErrorDetailed(Box<[Utf8PathBuf]>),
     /// warn count in summary
     Warn(u32),
     /// error count in summary
@@ -223,14 +223,11 @@ fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
     struct ClippySummary {
         warnings: Regex,
         errors: Regex,
-        // e.g. `  --> src/cmd_parser.rs:82:22`
-        path: Regex,
     }
 
     static REGEX: LazyLock<ClippySummary> = LazyLock::new(|| ClippySummary {
         warnings: Regex::new(r#"(?P<warn>\d+) warnings?"#).unwrap(),
         errors: Regex::new(r#"(?P<error>\d+)( \w+)? errors?"#).unwrap(),
-        path: Regex::new(r#"^  --> (?P<path>.*?):\d+:\d+$"#).unwrap(),
     });
 
     match mes {
@@ -249,18 +246,19 @@ fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
                 .errors
                 .captures(haystack)
                 .and_then(|cap| cap.name("error")?.as_str().parse::<u32>().ok());
+            // FIXME: 似乎可以不需要正则表达式来区分是否是 summary，比如 spans 为空?
             match (warn, error) {
                 (None, None) => {
-                    let path = match REGEX
-                        .path
-                        .captures(haystack)
-                        .and_then(|cap| cap.name("path"))
-                    {
-                        Some(cap) => cap.as_str().into(),
-                        None => panic!(
-                            "无法在 cargo 的诊断细节中找到文件路径！原诊断信息为：\n{haystack}"
-                        ),
-                    };
+                    let spans = mes.message.spans.iter();
+                    let path = spans
+                        .filter_map(|span| {
+                            if span.is_primary {
+                                Some(Utf8PathBuf::from(&span.file_name))
+                            } else {
+                                None
+                            }
+                        })
+                        .collect();
                     if matches!(mes.message.level, DiagnosticLevel::Warning) {
                         ClippyTag::WarnDetailed(path)
                     } else {
