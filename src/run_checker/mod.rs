@@ -25,11 +25,45 @@ impl Repo {
     pub fn resolve(&self) -> Result<Vec<Resolve>> {
         self.config.resolve(self.layout.packages())
     }
+
+    pub fn run_check(&self) -> Result<Vec<Output>> {
+        self.resolve()?.iter().map(run_check).collect()
+    }
 }
 
 pub struct Output {
     raw: RawOutput,
     parsed: OutputParsed,
+    duration_ms: u64,
+}
+
+/// 以子进程方式执行检查
+fn run_check(res: &Resolve) -> Result<Output> {
+    let now = Instant::now();
+    let raw = res
+        .expr
+        .stderr_capture()
+        .stdout_capture()
+        .unchecked()
+        .run()?;
+    let duration_ms = now.elapsed().as_millis() as u64;
+    let stdout: &[_] = &raw.stdout;
+    let parsed = match res.checker {
+        CheckerTool::Fmt => OutputParsed::Fmt(serde_json::from_slice(stdout)?),
+        CheckerTool::Clippy => OutputParsed::Clippy(
+            Message::parse_stream(stdout)
+                .map(|mes| mes.with_context(|| "解析 Clippy Json 输出失败"))
+                .collect::<Result<_>>()?,
+        ),
+        CheckerTool::Miri => todo!(),
+        CheckerTool::SemverChecks => todo!(),
+        CheckerTool::Lockbud => todo!(),
+    };
+    Ok(Output {
+        raw,
+        parsed,
+        duration_ms,
+    })
 }
 
 #[derive(Debug)]
@@ -196,31 +230,11 @@ arceos:
     resolve.extend(test_suite.resolve()?);
     let mut snapshot = Vec::with_capacity(resolve.len());
     for res in resolve.iter() {
-        let now = Instant::now();
-        let out = res
-            .expr
-            .stderr_capture()
-            .stdout_capture()
-            .unchecked()
-            .run()?;
-        let duration = now.elapsed().as_millis() as u64;
+        let output = run_check(res)?;
 
-        let stdout: &[_] = &out.stdout;
-        let parsed = match res.checker {
-            CheckerTool::Fmt => OutputParsed::Fmt(serde_json::from_slice(stdout)?),
-            CheckerTool::Clippy => OutputParsed::Clippy(
-                Message::parse_stream(stdout)
-                    .map(|mes| mes.with_context(|| "解析 Clippy Json 输出失败"))
-                    .collect::<Result<_>>()?,
-            ),
-            CheckerTool::Miri => todo!(),
-            CheckerTool::SemverChecks => todo!(),
-            CheckerTool::Lockbud => todo!(),
-        };
-
-        let success = out.status.success();
-        let count = parsed.count();
-        let diagnostics = parsed.test_diagnostics();
+        let success = output.raw.status.success();
+        let count = output.parsed.count();
+        let diagnostics = output.parsed.test_diagnostics();
 
         snapshot.push(format!(
             "[{} with {:?} checking] success={success} count={count} diagnostics=\n{diagnostics}",
@@ -228,8 +242,8 @@ arceos:
         ));
 
         debug!(
-            "[success={success} count={count}] {} with {:?} checking in {duration}ms",
-            res.package.name, res.checker
+            "[success={success} count={count}] {} with {:?} checking in {}ms",
+            res.package.name, res.checker, output.duration_ms
         );
     }
 
