@@ -105,41 +105,13 @@ impl OutputParsed {
     // https://github.com/Canop/bacon/blob/main/src/line_analysis.rs
     // TODO: 把 count 变成字段，在初始化的时候就能计算
     fn count(&self) -> usize {
-        struct ClippySummary {
-            warnings: Regex,
-            errors: Regex,
-        }
-        static REGEX: LazyLock<ClippySummary> = LazyLock::new(|| ClippySummary {
-            warnings: Regex::new(r#"(?P<warn>\d+) warnings?"#).unwrap(),
-            errors: Regex::new(r#"(?P<error>\d+)( \w+)? errors?"#).unwrap(),
-        });
-
         match self {
             OutputParsed::Fmt(v) => v.len(), // 需要 fmt 的文件数量
             OutputParsed::Clippy(v) => v
                 .iter()
-                .filter_map(|mes| match &mes.inner {
-                    CargoMessage::CompilerMessage(mes)
-                        if matches!(
-                            mes.message.level,
-                            DiagnosticLevel::Warning | DiagnosticLevel::Error
-                        ) =>
-                    {
-                        let warn = REGEX
-                            .warnings
-                            .captures(&mes.message.message)
-                            .and_then(|cap| cap.name("warn")?.as_str().parse::<usize>().ok());
-                        let error = REGEX
-                            .errors
-                            .captures(&mes.message.message)
-                            .and_then(|cap| cap.name("error")?.as_str().parse::<usize>().ok());
-                        match (warn, error) {
-                            (None, None) => None,
-                            (None, Some(e)) => Some(e),
-                            (Some(w), None) => Some(w),
-                            (Some(w), Some(e)) => Some(w + e),
-                        }
-                    }
+                .filter_map(|mes| match mes.tag {
+                    ClippyTag::Error(n) | ClippyTag::Warn(n) => Some(n as usize),
+                    ClippyTag::WarnAndError(w, e) => Some(w as usize + e as usize),
                     _ => None,
                 })
                 .sum(),
@@ -228,29 +200,77 @@ pub struct FmtMismatch {
     expected: Box<str>,
 }
 
-#[derive(Debug)]
-pub struct ClippyMessage {
-    inner: CargoMessage,
-    tag: ClippyMessageTag,
+#[derive(Debug, Clone, Copy)]
+pub enum ClippyTag {
+    /// non-summary / detailed message
+    WarnDetailed,
+    /// non-summary / detailed message
+    ErrorDetailed,
+    /// warn count in summary
+    Warn(u32),
+    /// error count in summary
+    Error(u32),
+    /// warn and error counts in summary
+    WarnAndError(u32, u32),
+    /// not interested
+    None,
+}
+
+/// 提取/分类 clippy 的有效信息
+fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
+    struct ClippySummary {
+        warnings: Regex,
+        errors: Regex,
+    }
+
+    static REGEX: LazyLock<ClippySummary> = LazyLock::new(|| ClippySummary {
+        warnings: Regex::new(r#"(?P<warn>\d+) warnings?"#).unwrap(),
+        errors: Regex::new(r#"(?P<error>\d+)( \w+)? errors?"#).unwrap(),
+    });
+
+    match mes {
+        CargoMessage::CompilerMessage(mes)
+            if matches!(
+                mes.message.level,
+                DiagnosticLevel::Warning | DiagnosticLevel::Error
+            ) =>
+        {
+            let warn = REGEX
+                .warnings
+                .captures(&mes.message.message)
+                .and_then(|cap| cap.name("warn")?.as_str().parse::<u32>().ok());
+            let error = REGEX
+                .errors
+                .captures(&mes.message.message)
+                .and_then(|cap| cap.name("error")?.as_str().parse::<u32>().ok());
+            match (warn, error) {
+                (None, None) => {
+                    if matches!(mes.message.level, DiagnosticLevel::Warning) {
+                        ClippyTag::WarnDetailed
+                    } else {
+                        ClippyTag::ErrorDetailed
+                    }
+                }
+                (None, Some(e)) => ClippyTag::Error(e),
+                (Some(w), None) => ClippyTag::Warn(w),
+                (Some(w), Some(e)) => ClippyTag::WarnAndError(w, e),
+            }
+        }
+        _ => ClippyTag::None,
+    }
 }
 
 #[derive(Debug)]
-enum ClippyMessageTag {
-    /// non-summary warn with file name and details
-    Warn,
-    /// non-summary error with file name and details
-    Error,
-    /// summary line for warn or error
-    Summary,
-    /// no useful information for further analysis
-    Others,
+pub struct ClippyMessage {
+    inner: CargoMessage,
+    tag: ClippyTag,
 }
 
 impl From<CargoMessage> for ClippyMessage {
     fn from(inner: CargoMessage) -> Self {
         ClippyMessage {
+            tag: extract_cargo_message(&inner),
             inner,
-            tag: ClippyMessageTag::Others,
         }
     }
 }
