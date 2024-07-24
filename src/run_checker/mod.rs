@@ -202,12 +202,12 @@ pub struct FmtMismatch {
     expected: Box<str>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub enum ClippyTag {
-    /// non-summary / detailed message
-    WarnDetailed,
-    /// non-summary / detailed message
-    ErrorDetailed,
+    /// non-summary / detailed message with file path
+    WarnDetailed(Utf8PathBuf),
+    /// non-summary / detailed message with file path
+    ErrorDetailed(Utf8PathBuf),
     /// warn count in summary
     Warn(u32),
     /// error count in summary
@@ -223,11 +223,14 @@ fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
     struct ClippySummary {
         warnings: Regex,
         errors: Regex,
+        // e.g. `  --> src/cmd_parser.rs:82:22`
+        path: Regex,
     }
 
     static REGEX: LazyLock<ClippySummary> = LazyLock::new(|| ClippySummary {
         warnings: Regex::new(r#"(?P<warn>\d+) warnings?"#).unwrap(),
         errors: Regex::new(r#"(?P<error>\d+)( \w+)? errors?"#).unwrap(),
+        path: Regex::new(r#"^  --> (?P<path>.*?):\d+:\d+$"#).unwrap(),
     });
 
     match mes {
@@ -237,20 +240,31 @@ fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
                 DiagnosticLevel::Warning | DiagnosticLevel::Error
             ) =>
         {
+            let haystack = &mes.message.message;
             let warn = REGEX
                 .warnings
-                .captures(&mes.message.message)
+                .captures(haystack)
                 .and_then(|cap| cap.name("warn")?.as_str().parse::<u32>().ok());
             let error = REGEX
                 .errors
-                .captures(&mes.message.message)
+                .captures(haystack)
                 .and_then(|cap| cap.name("error")?.as_str().parse::<u32>().ok());
             match (warn, error) {
                 (None, None) => {
+                    let path = match REGEX
+                        .path
+                        .captures(haystack)
+                        .and_then(|cap| cap.name("path"))
+                    {
+                        Some(cap) => cap.as_str().into(),
+                        None => panic!(
+                            "无法在 cargo 的诊断细节中找到文件路径！原诊断信息为：\n{haystack}"
+                        ),
+                    };
                     if matches!(mes.message.level, DiagnosticLevel::Warning) {
-                        ClippyTag::WarnDetailed
+                        ClippyTag::WarnDetailed(path)
                     } else {
-                        ClippyTag::ErrorDetailed
+                        ClippyTag::ErrorDetailed(path)
                     }
                 }
                 (None, Some(e)) => ClippyTag::Error(e),

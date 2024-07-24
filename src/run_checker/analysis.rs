@@ -27,7 +27,6 @@ impl Statistics {
                     // * 如果能保证都是绝对路径，那么不需要处理路径
                     match &out.parsed {
                         OutputParsed::Fmt(v) => counts.push_unformatted(v),
-                        // FIXME: rustc 的文件路径包含了行列信息，记得去除
                         OutputParsed::Clippy(v) => counts.push_clippy(v),
                     }
                 }
@@ -68,7 +67,19 @@ impl Count {
     }
 
     fn push_clippy(&mut self, v: &[ClippyMessage]) {
-        todo!()
+        for mes in v {
+            match &mes.tag {
+                ClippyTag::WarnDetailed(file) => {
+                    let key = CountKey::clippy_warning(file);
+                    *self.inner.entry(key).or_insert(0) += 1;
+                }
+                ClippyTag::ErrorDetailed(file) => {
+                    let key = CountKey::clippy_error(file);
+                    *self.inner.entry(key).or_insert(0) += 1;
+                }
+                _ => (),
+            }
+        }
     }
 }
 
@@ -92,6 +103,20 @@ impl CountKey {
         Self {
             file: file.clone(),
             kind: Kind::Unformatted(Unformatted::Line),
+        }
+    }
+
+    fn clippy_warning(file: &Utf8PathBuf) -> Self {
+        Self {
+            file: file.clone(),
+            kind: Kind::Clippy(Rustc::Warn),
+        }
+    }
+
+    fn clippy_error(file: &Utf8PathBuf) -> Self {
+        Self {
+            file: file.clone(),
+            kind: Kind::Clippy(Rustc::Error),
         }
     }
 }
