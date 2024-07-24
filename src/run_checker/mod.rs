@@ -14,6 +14,9 @@ use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
 /// 分析检查工具的结果
 mod analysis;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Debug)]
 pub struct Repo {
     layout: Layout,
@@ -287,48 +290,4 @@ impl From<CargoMessage> for ClippyMessage {
             inner,
         }
     }
-}
-
-#[test]
-fn repo() -> Result<()> {
-    crate::test_logger_init("assets/run_checker.log");
-    let yaml = "
-arceos:
-  all: true
-  miri: false
-";
-    let test_suite = Repo::new(
-        "repos/os-checker-test-suite",
-        &[],
-        Config::from_yaml(yaml)?.pop().unwrap(),
-    )?;
-    let arceos = Repo::new("repos/arceos", &[], Config::from_yaml(yaml)?.pop().unwrap())?;
-    let mut resolve = arceos.resolve()?;
-    resolve.extend(test_suite.resolve()?);
-    let mut snapshot = Vec::with_capacity(resolve.len());
-    for res in resolve.iter() {
-        let output = run_check(res)?;
-
-        let success = output.raw.status.success();
-        let count = output.count;
-        let diagnostics = output.parsed.test_diagnostics();
-
-        snapshot.push(format!(
-            "[{} with {:?} checking] success={success} count={count} diagnostics=\n{diagnostics}",
-            res.package.name, res.checker
-        ));
-
-        debug!(
-            "[success={success} count={count}] {} with {:?} checking in {}ms",
-            res.package.name, res.checker, output.duration_ms
-        );
-    }
-
-    let current_path = Utf8PathBuf::from(".").canonicalize_utf8()?;
-    let join = snapshot
-        .join("\n──────────────────────────────────────────────────────────────────────────────────\n")
-        .replace(current_path.as_str(), ".");
-    expect_test::expect_file!["./tests.snapshot"].assert_eq(&join);
-
-    Ok(())
 }
