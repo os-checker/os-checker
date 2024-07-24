@@ -4,10 +4,9 @@ extern crate eyre;
 #[macro_use]
 extern crate tracing;
 
+use compact_str::CompactString as XString;
 use eyre::Result;
 
-/// 分析检查工具的结果
-mod analysis;
 /// cli argument parsing
 mod cli;
 /// figure out the codebase layout

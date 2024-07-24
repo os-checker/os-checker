@@ -1,13 +1,18 @@
+#![allow(unused)]
 use crate::{
     layout::Layout,
     repo::{CheckerTool, Config, Resolve},
-    Result,
+    Result, XString,
 };
 use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message};
 use eyre::Context;
+use itertools::Itertools;
 use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
+
+/// 分析检查工具的结果
+mod analysis;
 
 #[derive(Debug)]
 pub struct Repo {
@@ -27,7 +32,10 @@ impl Repo {
     }
 
     pub fn run_check(&self) -> Result<Vec<Output>> {
-        self.resolve()?.iter().map(run_check).collect()
+        let v: Vec<_> = self.resolve()?.iter().map(run_check).try_collect()?;
+        // 由于已经按顺序执行，这里其实无需排序；如果以后引入并发，则需要排序
+        // v.sort_unstable_by(|a, b| (&a.package_name, a.checker).cmp(&(&b.package_name, b.checker)));
+        Ok(v)
     }
 }
 
@@ -35,12 +43,14 @@ pub struct Output {
     raw: RawOutput,
     parsed: OutputParsed,
     duration_ms: u64,
+    package_name: XString,
+    checker: CheckerTool,
 }
 
 /// 以子进程方式执行检查
-fn run_check(res: &Resolve) -> Result<Output> {
+fn run_check(resolve: &Resolve) -> Result<Output> {
     let now = Instant::now();
-    let raw = res
+    let raw = resolve
         .expr
         .stderr_capture()
         .stdout_capture()
@@ -48,7 +58,7 @@ fn run_check(res: &Resolve) -> Result<Output> {
         .run()?;
     let duration_ms = now.elapsed().as_millis() as u64;
     let stdout: &[_] = &raw.stdout;
-    let parsed = match res.checker {
+    let parsed = match resolve.checker {
         CheckerTool::Fmt => OutputParsed::Fmt(serde_json::from_slice(stdout)?),
         CheckerTool::Clippy => OutputParsed::Clippy(
             Message::parse_stream(stdout)
@@ -63,6 +73,8 @@ fn run_check(res: &Resolve) -> Result<Output> {
         raw,
         parsed,
         duration_ms,
+        package_name: resolve.package.name.into(),
+        checker: resolve.checker,
     })
 }
 
@@ -73,7 +85,7 @@ pub enum OutputParsed {
 }
 
 impl OutputParsed {
-    // FIXME: 对于 clippy 和 miri?，最后可能有汇总，这应该在计算 count 时排除, e.g.
+    // 对于 clippy 和 miri?，最后可能有汇总，这应该在计算 count 时排除, e.g.
     // * warning: 10 warnings emitted （结尾）
     //   有时甚至在中途：
     //   [3] warning: 2 warnings emitted
@@ -88,6 +100,7 @@ impl OutputParsed {
     //
     // BTW bacon 采用解析 stdout 的内容而不是 JSON 来计算 count:
     // https://github.com/Canop/bacon/blob/main/src/line_analysis.rs
+    // TODO: 把 count 变成字段，在初始化的时候就能计算
     fn count(&self) -> usize {
         struct ClippySummary {
             warnings: Regex,
@@ -99,7 +112,7 @@ impl OutputParsed {
         });
 
         match self {
-            OutputParsed::Fmt(v) => v.len(),
+            OutputParsed::Fmt(v) => v.len(), // 需要 fmt 的文件数量
             OutputParsed::Clippy(v) => v
                 .iter()
                 .filter_map(|mes| match mes {
