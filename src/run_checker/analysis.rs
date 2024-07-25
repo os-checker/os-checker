@@ -69,21 +69,21 @@ impl Statistics {
 
     pub fn table_of_count_of_file(&self) -> String {
         // outer 时出现依赖机器的绝对路径，应该在测试情况下想办法消除
-        #[cfg(test)]
         fn outer_path(path: &Utf8Path) -> String {
-            let paths = path.components().collect_vec();
-            let len = paths.len();
-            if len < 3 {
-                path.to_string()
-            } else {
-                once(Utf8Component::Normal("OUTER"))
-                    .chain(paths[len - 3..].iter().copied())
-                    .collect::<Utf8PathBuf>()
-                    .to_string()
+            #[cfg(test)]
+            {
+                let paths = path.components().collect_vec();
+                let len = paths.len();
+                if len < 3 {
+                    path.to_string()
+                } else {
+                    once(Utf8Component::Normal("OUTER"))
+                        .chain(paths[len - 3..].iter().copied())
+                        .collect::<Utf8PathBuf>()
+                        .to_string()
+                }
             }
-        }
-        #[cfg(not(test))]
-        fn outer_path(path: &Utf8Path) -> String {
+            #[cfg(not(test))]
             path.to_string()
         }
 
