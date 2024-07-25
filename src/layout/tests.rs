@@ -3,7 +3,7 @@ use expect_test::expect;
 
 #[test]
 fn arceos_layout() {
-    crate::logger_init();
+    crate::logger::init();
     let excluded = &["tmp"];
     assert!(LayoutOwner::new("tmp", excluded).is_err());
 

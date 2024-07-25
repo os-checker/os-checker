@@ -27,7 +27,7 @@ fn test_suite() -> Result<()> {
 
 #[test]
 fn arceos() -> Result<()> {
-    crate::test_logger_init("assets/run_checker.log");
+    crate::logger::test_init("assets/run_checker.log");
 
     let arceos = Repo::new("repos/arceos", &[], config())?;
     let resolve = arceos.resolve()?;
