@@ -42,7 +42,7 @@ fn arceos() -> Result<()> {
     Ok(())
 }
 
-/// 对不良统计结果进行快照（由于目前功能不太完善，先记录到日志文件）
+/// 对不良统计结果进行快照
 fn stat_tables(outputs: &[Output]) -> String {
     Statistics::new(outputs)
         .iter()
@@ -72,6 +72,5 @@ fn snapshot_outputs(outputs: &[Output]) -> Result<String> {
         })
         .join(sep);
     let current_path = Utf8PathBuf::from(".").canonicalize_utf8()?;
-    let stripped_path = snapshot.replace(current_path.as_str(), ".");
-    Ok(stripped_path)
+    Ok(snapshot.replace(current_path.as_str(), "."))
 }
