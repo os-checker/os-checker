@@ -16,11 +16,11 @@ fn test_suite() -> Result<()> {
     let test_suite = Repo::new("repos/os-checker-test-suite", &[], config())?;
     let outputs = test_suite.run_check()?;
 
-    let tables = stat_tables(&outputs);
-    expect_file!["./snapshots/statistics-test-suite.txt"].assert_eq(&tables);
-
     let snapshot = snapshot_outputs(&outputs)?;
     expect_file!["./snapshots/outputs-test-suite.txt"].assert_eq(&snapshot);
+
+    let tables = stat_tables(outputs);
+    expect_file!["./snapshots/statistics-test-suite.txt"].assert_eq(&tables);
 
     Ok(())
 }
@@ -33,17 +33,17 @@ fn arceos() -> Result<()> {
     let resolve = arceos.resolve()?;
     let outputs: Vec<_> = resolve.iter().map(run_check).try_collect()?;
 
-    let tables = stat_tables(&outputs);
-    expect_file!["./snapshots/statistics-arceos.txt"].assert_eq(&tables);
-
     let snapshot = snapshot_outputs(&outputs)?;
     expect_file!["./snapshots/outputs-arceos.txt"].assert_eq(&snapshot);
+
+    let tables = stat_tables(outputs);
+    expect_file!["./snapshots/statistics-arceos.txt"].assert_eq(&tables);
 
     Ok(())
 }
 
 /// 对不良统计结果进行快照
-fn stat_tables(outputs: &[Output]) -> String {
+fn stat_tables(outputs: Vec<Output>) -> String {
     Statistics::new(outputs)
         .iter()
         .filter(|s| !s.check_fine())

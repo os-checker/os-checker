@@ -8,9 +8,11 @@ use tabled::{
     settings::{object::Rows, Alignment, Modify, Style},
 };
 
-#[derive(Debug)]
 pub struct Statistics {
-    pkg: XString,
+    /// package name
+    pkg_name: XString,
+    /// 所有检查工具的输出结果
+    outputs: Box<[Output]>,
     /// 检查工具报告的不通过的数量（基于文件）
     count: Count,
     /// 总计
@@ -18,16 +20,17 @@ pub struct Statistics {
 }
 
 impl Statistics {
-    pub fn new(outputs: &[Output]) -> Vec<Statistics> {
+    pub fn new(outputs: Vec<Output>) -> Vec<Statistics> {
         outputs
-            .iter()
+            .into_iter()
             .chunk_by(|out| out.package_name.clone())
             .into_iter()
-            .map(|(pkg, outputs)| {
-                // iterate over outputs from each checker
+            .map(|(pkg_name, outputs)| {
+                //  outputs from each checker
+                let outputs: Box<[_]> = outputs.collect();
                 let mut count = Count::default();
                 let mut total = Total::default();
-                for out in outputs {
+                for out in &outputs {
                     total.duration_ms += out.duration_ms;
 
                     // 由于路径的唯一性在这变得重要，需要提前归一化路径；两条思路：
@@ -40,7 +43,12 @@ impl Statistics {
                     }
                 }
                 count.update_on_kind_and_file();
-                Statistics { pkg, count, total }
+                Statistics {
+                    pkg_name,
+                    outputs,
+                    count,
+                    total,
+                }
             })
             .collect()
     }
@@ -57,7 +65,7 @@ impl Statistics {
         let header = once([String::new(), "kind".into(), "count".into()]);
         let builder: Builder = header.chain(row).collect();
 
-        let header = &self.pkg;
+        let header = &self.pkg_name;
         #[cfg(not(test))]
         let header = header.bold().black().on_bright_yellow().to_string();
 
@@ -107,7 +115,7 @@ impl Statistics {
         ]);
         let builder: Builder = header.chain(row).collect();
 
-        let header = &self.pkg;
+        let header = &self.pkg_name;
         #[cfg(not(test))]
         let header = header.bold().black().on_bright_yellow().to_string();
 

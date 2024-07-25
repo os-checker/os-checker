@@ -13,6 +13,7 @@ use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
 
 /// 分析检查工具的结果
 mod analysis;
+use analysis::Statistics;
 
 #[cfg(test)]
 mod tests;
@@ -39,6 +40,10 @@ impl Repo {
         // 由于已经按顺序执行，这里其实无需排序；如果以后引入并发，则需要排序
         // v.sort_unstable_by(|a, b| (&a.package_name, a.checker).cmp(&(&b.package_name, b.checker)));
         Ok(v)
+    }
+
+    pub fn outputs_and_statistics(&self) -> Result<Vec<Statistics>> {
+        self.run_check().map(Statistics::new)
     }
 }
 
