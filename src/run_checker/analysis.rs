@@ -68,23 +68,44 @@ impl Statistics {
     }
 
     pub fn table_of_count_of_file(&self) -> String {
+        let mut outer = 0;
         let iter = self.count.count_on_file.iter();
         let sorted = iter.sorted_by_key(|a| a.0).enumerate();
-        let row = sorted.map(|(i, (k, v))| [(i + 1).to_string(), k.to_string(), v.to_string()]);
-        let header = std::iter::once([String::new(), "file".into(), "count".into()]);
+        let row = sorted.map(|(i, (k, v))| {
+            let inside = if k.is_relative() {
+                String::from("true")
+            } else {
+                outer += 1;
+                String::from("false")
+            };
+            [(i + 1).to_string(), k.to_string(), inside, v.to_string()]
+        });
+        let header = std::iter::once([
+            String::new(),
+            "file".into(),
+            "inside".into(),
+            "count".into(),
+        ]);
         let builder: Builder = header.chain(row).collect();
 
         let header = &self.pkg;
         #[cfg(not(test))]
         let header = header.bold().black().on_bright_yellow().to_string();
 
+        let outside = if outer == 0 {
+            String::new()
+        } else {
+            let ratio = outer as f32 / self.count.count_on_file.len() as f32 * 100.0;
+            format!(" ({outer} outside files: {ratio:.0}%)")
+        };
         format!(
-            "{header} counts on file\n{}",
+            "{header} counts on file{outside}\n{}",
             builder.build().with(Style::modern_rounded())
         )
     }
 }
 
+/// 如果可能地话，缩短绝对路径到相对路径。
 fn strip_prefix<'f>(file: &'f Utf8Path, root: &Path) -> &'f Utf8Path {
     file.strip_prefix(root).unwrap_or(file)
 }
@@ -140,7 +161,10 @@ impl Count {
 
     fn push_clippy(&mut self, v: &[ClippyMessage], root: &Path) {
         for mes in v {
-            // NOTE: 该路径似乎是相对路径，但为了防止意外的绝对路径，统一去除前缀
+            // NOTE: 该路径似乎是相对路径，但为了防止意外的绝对路径，统一去除前缀。
+            // 虽然指定了 --no-deps，但如果错误发生在依赖中，那么这个路径为绝对路径，并且可能无法缩短，
+            // 因为它们不处于同一个前缀。因此，我们需要根据处理后的路径是绝对还是相对路径来判断该文件位于
+            // package 内部还是外部。
             match &mes.tag {
                 ClippyTag::WarnDetailed(paths) => {
                     for file in paths {
