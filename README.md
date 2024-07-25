@@ -58,4 +58,4 @@
 
 ## 其他
 
-* [开发日志 1](https://docs.qq.com/slide/DTG5RWlpaU1JibmZk)
+* [开发日志](./assets/development-logs.md)
