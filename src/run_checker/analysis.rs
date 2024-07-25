@@ -1,8 +1,8 @@
 use super::*;
 use ahash::{HashMap, HashMapExt};
-use cargo_metadata::camino::Utf8Path;
+use cargo_metadata::camino::{Utf8Component, Utf8Path};
 use color_eyre::owo_colors::OwoColorize;
-use std::path::Path;
+use std::{iter::once, path::Path};
 use tabled::{
     builder::Builder,
     settings::{object::Rows, Alignment, Modify, Style},
@@ -54,7 +54,7 @@ impl Statistics {
         let iter = self.count.count_on_kind.iter();
         let sorted = iter.sorted_by_key(|a| a.0).enumerate();
         let row = sorted.map(|(i, (k, v))| [(i + 1).to_string(), format!("{k:?}"), v.to_string()]);
-        let header = std::iter::once([String::new(), "kind".into(), "count".into()]);
+        let header = once([String::new(), "kind".into(), "count".into()]);
         let builder: Builder = header.chain(row).collect();
 
         let header = &self.pkg;
@@ -68,19 +68,38 @@ impl Statistics {
     }
 
     pub fn table_of_count_of_file(&self) -> String {
+        // outer 时出现依赖机器的绝对路径，应该在测试情况下想办法消除
+        #[cfg(test)]
+        fn outer_path(path: &Utf8Path) -> String {
+            let paths = path.components().collect_vec();
+            let len = paths.len();
+            if len < 3 {
+                path.to_string()
+            } else {
+                once(Utf8Component::Normal("OUTER"))
+                    .chain(paths[len - 3..].iter().copied())
+                    .collect::<Utf8PathBuf>()
+                    .to_string()
+            }
+        }
+        #[cfg(not(test))]
+        fn outer_path(path: &Utf8Path) -> String {
+            path.to_string()
+        }
+
         let mut outer = 0;
         let iter = self.count.count_on_file.iter();
         let sorted = iter.sorted_by_key(|a| a.0).enumerate();
         let row = sorted.map(|(i, (k, v))| {
-            let inside = if k.is_relative() {
-                String::from("true")
+            let (path, inside) = if k.is_relative() {
+                (k.to_string(), String::from("true"))
             } else {
                 outer += 1;
-                String::from("false")
+                (outer_path(k), String::from("false"))
             };
-            [(i + 1).to_string(), k.to_string(), inside, v.to_string()]
+            [(i + 1).to_string(), path, inside, v.to_string()]
         });
-        let header = std::iter::once([
+        let header = once([
             String::new(),
             "file".into(),
             "inside".into(),
@@ -96,7 +115,10 @@ impl Statistics {
             String::new()
         } else {
             let ratio = outer as f32 / self.count.count_on_file.len() as f32 * 100.0;
-            format!(" ({outer} outside files: {ratio:.0}%)")
+            format!(
+                " ({outer} outer file{}: {ratio:.0}%)",
+                if outer == 1 { "" } else { "s" }
+            )
         };
         format!(
             "{header} counts on file{outside}\n{}",
