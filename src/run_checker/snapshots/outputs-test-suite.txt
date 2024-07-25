@@ -1,0 +1,43 @@
+[os-checker-test-suite with Fmt checking] success=true count=4 diagnostics=
+
+[1] file: ./repos/os-checker-test-suite/examples/need-clippy-fix.rs (original lines from 2 to 2)
+-    _ = (123); 
++    _ = (123);
+
+[2] file: ./repos/os-checker-test-suite/examples/need-fmt.rs (original lines from 1 to 1)
+-fn main() {    println!("from example");
++fn main() {
++    println!("from example");
+
+[3] file: ./repos/os-checker-test-suite/src/main.rs (original lines from 4 to 5)
+- 
+-println!("Hello, world!");
++    println!("Hello, world!");
+
+[4] file: ./repos/os-checker-test-suite/tests/need-fmt.rs (original lines from 1 to 2)
+-fn main () {
+-  }
++fn main() {}
+
+──────────────────────────────────────────────────────────────────────────────────
+[os-checker-test-suite with Clippy checking] success=false count=2 diagnostics=
+[1] warning: unused variable: `a`
+ --> src/main.rs:2:9
+  |
+2 |     let a = 3.14;
+  |         ^ help: if this is intentional, prefix it with an underscore: `_a`
+  |
+  = note: `#[warn(unused_variables)]` on by default
+
+[2] error: approximate value of `f{32, 64}::consts::PI` found
+ --> src/main.rs:2:13
+  |
+2 |     let a = 3.14;
+  |             ^^^^
+  |
+  = help: consider using the constant directly
+  = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#approx_constant
+  = note: `#[deny(clippy::approx_constant)]` on by default
+
+[3] error: aborting due to 1 previous error; 1 warning emitted
+
