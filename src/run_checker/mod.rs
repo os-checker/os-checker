@@ -5,7 +5,7 @@ use crate::{
     Result, XString,
 };
 use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message as CargoMessage};
-use eyre::Context;
+use eyre::{Context, ContextCompat};
 use itertools::Itertools;
 use regex::Regex;
 use serde::Deserialize;
@@ -47,6 +47,7 @@ pub struct Output {
     parsed: OutputParsed,
     count: usize,
     duration_ms: u64,
+    package_root: Utf8PathBuf,
     package_name: XString,
     checker: CheckerTool,
 }
@@ -77,11 +78,18 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
         CheckerTool::Lockbud => todo!(),
     };
     let count = parsed.count();
+    let package_root = resolve
+        .package
+        .cargo_toml
+        .parent()
+        .map(Into::into)
+        .with_context(|| format!("{} 无父目录", resolve.package.cargo_toml))?;
     Ok(Output {
         raw,
         parsed,
         count,
         duration_ms,
+        package_root,
         package_name: resolve.package.name.into(),
         checker: resolve.checker,
     })

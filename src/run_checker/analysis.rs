@@ -1,6 +1,8 @@
 use super::*;
 use ahash::{HashMap, HashMapExt};
+use cargo_metadata::camino::Utf8Path;
 use color_eyre::owo_colors::OwoColorize;
+use std::path::Path;
 use tabled::{
     builder::Builder,
     settings::{object::Rows, Alignment, Modify, Style},
@@ -28,12 +30,13 @@ impl Statistics {
                 for out in outputs {
                     total.duration_ms += out.duration_ms;
 
-                    // FIXME: 由于路径的唯一性在这变得重要，需要提前归一化路径；两条思路：
-                    // * package_name 暗含了库的根目录，因此需要把路径的根目录去掉
+                    // 由于路径的唯一性在这变得重要，需要提前归一化路径；两条思路：
+                    // * package_name 暗含了库的根目录，因此需要把路径的根目录去掉（选择了这条）
                     // * 如果能保证都是绝对路径，那么不需要处理路径
+                    let root = out.package_root.as_std_path();
                     match &out.parsed {
-                        OutputParsed::Fmt(v) => count.push_unformatted(v),
-                        OutputParsed::Clippy(v) => count.push_clippy(v),
+                        OutputParsed::Fmt(v) => count.push_unformatted(v, root),
+                        OutputParsed::Clippy(v) => count.push_clippy(v, root),
                     }
                 }
                 count.update_on_kind_and_file();
@@ -82,6 +85,10 @@ impl Statistics {
     }
 }
 
+fn strip_prefix<'f>(file: &'f Utf8Path, root: &Path) -> &'f Utf8Path {
+    file.strip_prefix(root).unwrap_or(file)
+}
+
 #[derive(Debug, Default)]
 pub struct Total {
     duration_ms: u64,
@@ -113,37 +120,39 @@ impl Count {
         }
     }
 
-    fn push_unformatted(&mut self, v: &[FmtMessage]) {
+    fn push_unformatted(&mut self, v: &[FmtMessage], root: &Path) {
         for file in v {
             // NOTE: 该路径似乎是绝对路径
-            let fname = &file.name;
+            let fpath = strip_prefix(&file.name, root);
             let count: usize = file
                 .mismatches
                 .iter()
                 .map(|ele| (ele.original_end_line + 1 - ele.original_begin_line) as usize)
                 .sum();
-            let key_line = CountKey::unformatted_line(fname);
+            let key_line = CountKey::unformatted_line(fpath);
             *self.inner.entry(key_line).or_insert(0) += count;
 
-            let key_file = CountKey::unformatted_file(fname);
+            let key_file = CountKey::unformatted_file(fpath);
             let len = file.mismatches.len();
             *self.inner.entry(key_file).or_insert(0) += len;
         }
     }
 
-    fn push_clippy(&mut self, v: &[ClippyMessage]) {
+    fn push_clippy(&mut self, v: &[ClippyMessage], root: &Path) {
         for mes in v {
-            // NOTE: 该路径似乎是相对路径
+            // NOTE: 该路径似乎是相对路径，但为了防止意外的绝对路径，统一去除前缀
             match &mes.tag {
                 ClippyTag::WarnDetailed(paths) => {
                     for file in paths {
-                        let key = CountKey::clippy_warning(file);
+                        let fpath = strip_prefix(file, root);
+                        let key = CountKey::clippy_warning(fpath);
                         *self.inner.entry(key).or_insert(0) += 1;
                     }
                 }
                 ClippyTag::ErrorDetailed(paths) => {
                     for file in paths {
-                        let key = CountKey::clippy_error(file);
+                        let fpath = strip_prefix(file, root);
+                        let key = CountKey::clippy_error(fpath);
                         *self.inner.entry(key).or_insert(0) += 1;
                     }
                 }
@@ -161,31 +170,31 @@ struct CountKey {
 
 impl CountKey {
     /// 表明一个文件中未格式化的地点数量
-    fn unformatted_file(file: &Utf8PathBuf) -> Self {
+    fn unformatted_file(file: &Utf8Path) -> Self {
         Self {
-            file: file.clone(),
+            file: file.into(),
             kind: Kind::Unformatted(Unformatted::File),
         }
     }
 
     /// 表明一个文件中未格式化的总行数
-    fn unformatted_line(file: &Utf8PathBuf) -> Self {
+    fn unformatted_line(file: &Utf8Path) -> Self {
         Self {
-            file: file.clone(),
+            file: file.into(),
             kind: Kind::Unformatted(Unformatted::Line),
         }
     }
 
-    fn clippy_warning(file: &Utf8PathBuf) -> Self {
+    fn clippy_warning(file: &Utf8Path) -> Self {
         Self {
-            file: file.clone(),
+            file: file.into(),
             kind: Kind::Clippy(Rustc::Warn),
         }
     }
 
-    fn clippy_error(file: &Utf8PathBuf) -> Self {
+    fn clippy_error(file: &Utf8Path) -> Self {
         Self {
-            file: file.clone(),
+            file: file.into(),
             kind: Kind::Clippy(Rustc::Error),
         }
     }
