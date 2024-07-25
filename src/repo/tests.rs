@@ -399,3 +399,12 @@ user/repo:
     let expected = expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"];
     expected.assert_eq(&err);
 }
+
+#[test]
+fn parse_repos() -> Result<()> {
+    let yaml = std::fs::read_to_string("assets/repos.yaml")?;
+    let parsed = Config::from_yaml(&yaml)?;
+    dbg!(&parsed);
+
+    Ok(())
+}
