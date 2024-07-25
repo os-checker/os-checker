@@ -20,7 +20,6 @@ fn statistics() -> Result<()> {
     let tables = stats
         .iter()
         .flat_map(|s| [s.table_of_count_of_kind(), s.table_of_count_of_file()])
-        .collect_vec()
         .join("\n\n");
 
     expect_file!["./snapshots/statistics.txt"].assert_eq(&tables);
@@ -59,13 +58,11 @@ fn repo() -> Result<()> {
         format!(
             "[{package_name} with {checker:?} checking] success={success} count={count} diagnostics=\n{diagnostics}",
         )
-    }).collect_vec();
+    }).join("\n──────────────────────────────────────────────────────────────────────────────────\n");
 
     let current_path = Utf8PathBuf::from(".").canonicalize_utf8()?;
-    let join = snapshot
-        .join("\n──────────────────────────────────────────────────────────────────────────────────\n")
-        .replace(current_path.as_str(), ".");
-    expect_file!["./snapshots/outputs.txt"].assert_eq(&join);
+    let stripped_path = snapshot.replace(current_path.as_str(), ".");
+    expect_file!["./snapshots/outputs.txt"].assert_eq(&stripped_path);
 
     Ok(())
 }
