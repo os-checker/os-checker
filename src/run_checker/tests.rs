@@ -1,4 +1,5 @@
 use super::*;
+use analysis::Statistics;
 use expect_test::expect_file;
 
 fn config() -> Config {
@@ -8,6 +9,23 @@ arceos:
   miri: false
 ";
     Config::from_yaml(yaml).unwrap().pop().unwrap()
+}
+
+#[test]
+fn statistics() -> Result<()> {
+    let test_suite = Repo::new("repos/os-checker-test-suite", &[], config())?;
+
+    let outputs = test_suite.run_check()?;
+    let stats = Statistics::new(&outputs);
+    let tables = stats
+        .iter()
+        .flat_map(|s| [s.table_of_count_of_kind(), s.table_of_count_of_file()])
+        .collect_vec()
+        .join("\n\n");
+
+    expect_file!["./snapshots/statistics.txt"].assert_eq(&tables);
+
+    Ok(())
 }
 
 #[test]
@@ -21,7 +39,7 @@ fn repo() -> Result<()> {
     let outputs: Vec<_> = resolve.iter().map(run_check).try_collect()?;
 
     // 对不良统计结果进行快照（由于目前功能不太完善，先记录到日志文件）
-    let stats = analysis::Statistics::new(&outputs);
+    let stats = Statistics::new(&outputs);
     let bad = stats.iter().filter(|s| !s.check_fine()).collect_vec();
     info!("bad={bad:#?}");
 

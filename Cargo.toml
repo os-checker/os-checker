@@ -17,6 +17,8 @@ regex = "1.10.5"
 compact_str = "0.8.0"
 itertools = "0.13.0"
 ahash = "0.8.11"
+tabled = { version = "0.15.0", features = ["ansi"] }
+owo-colors = { version = "4.0.0", features = ["supports-colors"] }
 
 # error handling
 eyre = "0.6.12"

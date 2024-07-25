@@ -1,5 +1,10 @@
 use super::*;
 use ahash::{HashMap, HashMapExt};
+use color_eyre::owo_colors::OwoColorize;
+use tabled::{
+    builder::Builder,
+    settings::{object::Rows, Alignment, Modify, Style},
+};
 
 #[derive(Debug)]
 pub struct Statistics {
@@ -40,6 +45,40 @@ impl Statistics {
     /// 无任何不良检查结果
     pub fn check_fine(&self) -> bool {
         self.count.inner.is_empty()
+    }
+
+    pub fn table_of_count_of_kind(&self) -> String {
+        let iter = self.count.count_on_kind.iter();
+        let sorted = iter.sorted_by_key(|a| a.0).enumerate();
+        let row = sorted.map(|(i, (k, v))| [(i + 1).to_string(), format!("{k:?}"), v.to_string()]);
+        let header = std::iter::once([String::new(), "kind".into(), "count".into()]);
+        let builder: Builder = header.chain(row).collect();
+
+        let header = &self.pkg;
+        #[cfg(not(test))]
+        let header = header.bold().black().on_bright_yellow().to_string();
+
+        format!(
+            "{header} counts on kind\n{}",
+            builder.build().with(Style::modern_rounded())
+        )
+    }
+
+    pub fn table_of_count_of_file(&self) -> String {
+        let iter = self.count.count_on_file.iter();
+        let sorted = iter.sorted_by_key(|a| a.0).enumerate();
+        let row = sorted.map(|(i, (k, v))| [(i + 1).to_string(), k.to_string(), v.to_string()]);
+        let header = std::iter::once([String::new(), "file".into(), "count".into()]);
+        let builder: Builder = header.chain(row).collect();
+
+        let header = &self.pkg;
+        #[cfg(not(test))]
+        let header = header.bold().black().on_bright_yellow().to_string();
+
+        format!(
+            "{header} counts on file\n{}",
+            builder.build().with(Style::modern_rounded())
+        )
     }
 }
 
@@ -153,7 +192,7 @@ impl CountKey {
 }
 
 /// The kind a checker reports.
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
 pub enum Kind {
     /// fmt
     Unformatted(Unformatted),
@@ -167,13 +206,13 @@ pub enum Kind {
     Lockbud,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
 pub enum Unformatted {
     File,
     Line,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
 pub enum Rustc {
     Warn,
     Error,
