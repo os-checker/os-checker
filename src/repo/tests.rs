@@ -1,6 +1,6 @@
 use super::Config;
 use crate::{layout::Package, Result};
-use expect_test::expect;
+use expect_test::{expect, expect_file};
 
 const YAML: &str = "
 os-checker/os-checker:
@@ -25,133 +25,15 @@ user/repo:
 ";
 
 #[test]
-fn parse() -> Result<()> {
+fn parse_basic() -> Result<()> {
     let parsed = Config::from_yaml(YAML)?;
-    expect![[r#"
-        [
-            Config {
-                uri: Github(
-                    "os-checker/os-checker",
-                ),
-                config: RepoConfig {
-                    fmt: Perform(
-                        true,
-                    ),
-                    clippy: Lines(
-                        [
-                            "cargo clippy -F a,b,c",
-                        ],
-                    ),
-                    miri: Lines(
-                        [
-                            "cargo miri run",
-                            "cargo miri test -- a_test_fn",
-                        ],
-                    ),
-                    semver-checks: Perform(
-                        false,
-                    ),
-                },
-            },
-            Config {
-                uri: Github(
-                    "user/repo",
-                ),
-                config: RepoConfig {
-                    all: Perform(
-                        true,
-                    ),
-                    lockbud: Perform(
-                        false,
-                    ),
-                    packages: {
-                        "crate1": RepoConfig {
-                            miri: Perform(
-                                false,
-                            ),
-                        },
-                        "crate2": RepoConfig {
-                            semver-checks: Perform(
-                                false,
-                            ),
-                        },
-                    },
-                },
-            },
-        ]
-    "#]]
-    .assert_debug_eq(&parsed);
+    expect_file!["./snapshots/basic-config.txt"].assert_debug_eq(&parsed);
 
     let v: Vec<_> = parsed
         .iter()
         .map(|c| (&c.uri, c.config.checker_action().unwrap()))
         .collect();
-    expect![[r#"
-        [
-            (
-                Github(
-                    "os-checker/os-checker",
-                ),
-                [
-                    (
-                        Fmt,
-                        Perform(
-                            true,
-                        ),
-                    ),
-                    (
-                        Clippy,
-                        Lines(
-                            [
-                                "cargo clippy -F a,b,c",
-                            ],
-                        ),
-                    ),
-                    (
-                        Miri,
-                        Lines(
-                            [
-                                "cargo miri run",
-                                "cargo miri test -- a_test_fn",
-                            ],
-                        ),
-                    ),
-                    (
-                        SemverChecks,
-                        Perform(
-                            false,
-                        ),
-                    ),
-                ],
-            ),
-            (
-                Github(
-                    "user/repo",
-                ),
-                [
-                    (
-                        Lockbud,
-                        Perform(
-                            false,
-                        ),
-                    ),
-                    (
-                        Miri,
-                        Perform(
-                            false,
-                        ),
-                    ),
-                    (
-                        SemverChecks,
-                        Perform(
-                            false,
-                        ),
-                    ),
-                ],
-            ),
-        ]
-    "#]]
-    .assert_debug_eq(&v);
+    expect_file!["./snapshots/basic-config-checker_action.txt"].assert_debug_eq(&v);
 
     Ok(())
 }
@@ -162,89 +44,7 @@ fn pkg_checker_action() -> Result<()> {
     let v = parsed[0]
         .config
         .pkg_checker_action(&Package::test_new(["package1", "package2"]))?;
-    expect![[r#"
-        [
-            Resolve {
-                package: Package {
-                    name: "package1",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Fmt,
-                expr: Cmd(
-                    [
-                        "cargo",
-                        "fmt",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                        "--",
-                        "--emit=json",
-                    ],
-                ),
-            },
-            Resolve {
-                package: Package {
-                    name: "package1",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Clippy,
-                expr: Io(
-                    Dir(
-                        ".",
-                    ),
-                    Cmd(
-                        [
-                            "cargo",
-                            "clippy",
-                            "-F",
-                            "a,b,c",
-                        ],
-                    ),
-                ),
-            },
-            Resolve {
-                package: Package {
-                    name: "package2",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Fmt,
-                expr: Cmd(
-                    [
-                        "cargo",
-                        "fmt",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                        "--",
-                        "--emit=json",
-                    ],
-                ),
-            },
-            Resolve {
-                package: Package {
-                    name: "package2",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Clippy,
-                expr: Io(
-                    Dir(
-                        ".",
-                    ),
-                    Cmd(
-                        [
-                            "cargo",
-                            "clippy",
-                            "-F",
-                            "a,b,c",
-                        ],
-                    ),
-                ),
-            },
-        ]
-    "#]]
-    .assert_debug_eq(&v);
+    expect_file!["./snapshots/pkg_checker_action-basic.txt"].assert_debug_eq(&v);
 
     Ok(())
 }
@@ -269,126 +69,7 @@ user/repo:
         .pkg_checker_action(&Package::test_new([
             "crate0", "crate1", "crate2", "crate3", "crate4",
         ]))?;
-    expect![[r#"
-        [
-            Resolve {
-                package: Package {
-                    name: "crate0",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Fmt,
-                expr: Cmd(
-                    [
-                        "cargo",
-                        "fmt",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                        "--",
-                        "--emit=json",
-                    ],
-                ),
-            },
-            Resolve {
-                package: Package {
-                    name: "crate0",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Clippy,
-                expr: Cmd(
-                    [
-                        "cargo",
-                        "clippy",
-                        "--no-deps",
-                        "--message-format=json",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                    ],
-                ),
-            },
-            Resolve {
-                package: Package {
-                    name: "crate1",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Clippy,
-                expr: Cmd(
-                    [
-                        "cargo",
-                        "clippy",
-                        "--no-deps",
-                        "--message-format=json",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                    ],
-                ),
-            },
-            Resolve {
-                package: Package {
-                    name: "crate2",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Fmt,
-                expr: Cmd(
-                    [
-                        "cargo",
-                        "fmt",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                        "--",
-                        "--emit=json",
-                    ],
-                ),
-            },
-            Resolve {
-                package: Package {
-                    name: "crate2",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Clippy,
-                expr: Io(
-                    Dir(
-                        ".",
-                    ),
-                    Io(
-                        Env(
-                            "RUSTFLAGS",
-                            "-cfg abc",
-                        ),
-                        Cmd(
-                            [
-                                "cargo",
-                                "clippy",
-                            ],
-                        ),
-                    ),
-                ),
-            },
-            Resolve {
-                package: Package {
-                    name: "crate4",
-                    cargo_toml: "./Cargo.toml",
-                    workspace_root (file name): "unknown???",
-                },
-                checker: Fmt,
-                expr: Cmd(
-                    [
-                        "cargo",
-                        "fmt",
-                        "--manifest-path",
-                        "./Cargo.toml",
-                        "--",
-                        "--emit=json",
-                    ],
-                ),
-            },
-        ]
-    "#]]
-    .assert_debug_eq(&v);
+    expect_file!["./snapshots/pkg_checker_action-fmt_clippy_only.txt"].assert_debug_eq(&v);
 
     Ok(())
 }

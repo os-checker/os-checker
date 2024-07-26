@@ -1,0 +1,63 @@
+[
+    (
+        Github(
+            "os-checker/os-checker",
+        ),
+        [
+            (
+                Fmt,
+                Perform(
+                    true,
+                ),
+            ),
+            (
+                Clippy,
+                Lines(
+                    [
+                        "cargo clippy -F a,b,c",
+                    ],
+                ),
+            ),
+            (
+                Miri,
+                Lines(
+                    [
+                        "cargo miri run",
+                        "cargo miri test -- a_test_fn",
+                    ],
+                ),
+            ),
+            (
+                SemverChecks,
+                Perform(
+                    false,
+                ),
+            ),
+        ],
+    ),
+    (
+        Github(
+            "user/repo",
+        ),
+        [
+            (
+                Lockbud,
+                Perform(
+                    false,
+                ),
+            ),
+            (
+                Miri,
+                Perform(
+                    false,
+                ),
+            ),
+            (
+                SemverChecks,
+                Perform(
+                    false,
+                ),
+            ),
+        ],
+    ),
+]

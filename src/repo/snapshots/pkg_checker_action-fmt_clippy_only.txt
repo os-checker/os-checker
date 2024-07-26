@@ -1,0 +1,117 @@
+[
+    Resolve {
+        package: Package {
+            name: "crate0",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Fmt,
+        expr: Cmd(
+            [
+                "cargo",
+                "fmt",
+                "--manifest-path",
+                "./Cargo.toml",
+                "--",
+                "--emit=json",
+            ],
+        ),
+    },
+    Resolve {
+        package: Package {
+            name: "crate0",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Clippy,
+        expr: Cmd(
+            [
+                "cargo",
+                "clippy",
+                "--no-deps",
+                "--message-format=json",
+                "--manifest-path",
+                "./Cargo.toml",
+            ],
+        ),
+    },
+    Resolve {
+        package: Package {
+            name: "crate1",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Clippy,
+        expr: Cmd(
+            [
+                "cargo",
+                "clippy",
+                "--no-deps",
+                "--message-format=json",
+                "--manifest-path",
+                "./Cargo.toml",
+            ],
+        ),
+    },
+    Resolve {
+        package: Package {
+            name: "crate2",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Fmt,
+        expr: Cmd(
+            [
+                "cargo",
+                "fmt",
+                "--manifest-path",
+                "./Cargo.toml",
+                "--",
+                "--emit=json",
+            ],
+        ),
+    },
+    Resolve {
+        package: Package {
+            name: "crate2",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Clippy,
+        expr: Io(
+            Dir(
+                ".",
+            ),
+            Io(
+                Env(
+                    "RUSTFLAGS",
+                    "-cfg abc",
+                ),
+                Cmd(
+                    [
+                        "cargo",
+                        "clippy",
+                    ],
+                ),
+            ),
+        ),
+    },
+    Resolve {
+        package: Package {
+            name: "crate4",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Fmt,
+        expr: Cmd(
+            [
+                "cargo",
+                "fmt",
+                "--manifest-path",
+                "./Cargo.toml",
+                "--",
+                "--emit=json",
+            ],
+        ),
+    },
+]

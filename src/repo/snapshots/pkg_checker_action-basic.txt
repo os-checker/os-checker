@@ -1,0 +1,80 @@
+[
+    Resolve {
+        package: Package {
+            name: "package1",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Fmt,
+        expr: Cmd(
+            [
+                "cargo",
+                "fmt",
+                "--manifest-path",
+                "./Cargo.toml",
+                "--",
+                "--emit=json",
+            ],
+        ),
+    },
+    Resolve {
+        package: Package {
+            name: "package1",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Clippy,
+        expr: Io(
+            Dir(
+                ".",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "clippy",
+                    "-F",
+                    "a,b,c",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        package: Package {
+            name: "package2",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Fmt,
+        expr: Cmd(
+            [
+                "cargo",
+                "fmt",
+                "--manifest-path",
+                "./Cargo.toml",
+                "--",
+                "--emit=json",
+            ],
+        ),
+    },
+    Resolve {
+        package: Package {
+            name: "package2",
+            cargo_toml: "./Cargo.toml",
+            workspace_root (file name): "unknown???",
+        },
+        checker: Clippy,
+        expr: Io(
+            Dir(
+                ".",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "clippy",
+                    "-F",
+                    "a,b,c",
+                ],
+            ),
+        ),
+    },
+]
