@@ -47,7 +47,7 @@ impl Config {
     }
 
     /// 获取该代码库的本地路径：如果指定 Github 或者 Url，则调用 git 命令下载
-    pub fn local_root_path(&self) -> Result<Utf8PathBuf> {
+    pub fn local_root_path(&mut self) -> Result<Utf8PathBuf> {
         self.uri.local_root_path()
     }
 

@@ -47,6 +47,15 @@ impl Repo {
     }
 }
 
+impl TryFrom<Config> for Repo {
+    type Error = color_eyre::eyre::Error;
+
+    fn try_from(mut config: Config) -> Result<Repo> {
+        let repo_root = config.local_root_path()?;
+        Repo::new(repo_root.as_str(), &[], config)
+    }
+}
+
 pub struct Output {
     raw: RawOutput,
     parsed: OutputParsed,

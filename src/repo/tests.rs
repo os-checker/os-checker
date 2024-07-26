@@ -81,8 +81,7 @@ user/repo:
   clippy: cargo miri run
 ";
     let err = format!("{}", Config::from_yaml(bad1).unwrap_err());
-    let expected = expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"];
-    expected.assert_eq(&err);
+    expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"].assert_eq(&err);
 
     let bad2 = "
 user/repo: 
@@ -92,15 +91,5 @@ user/repo:
 ";
     let err = format!("{}", Config::from_yaml(bad2).unwrap_err());
     // FIXME: 或许可以更好的错误报告，比如在哪个仓库哪个库的命令上不匹配
-    let expected = expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"];
-    expected.assert_eq(&err);
-}
-
-#[test]
-fn parse_repos() -> Result<()> {
-    let yaml = std::fs::read_to_string("assets/repos.yaml")?;
-    let parsed = Config::from_yaml(&yaml)?;
-    dbg!(&parsed);
-
-    Ok(())
+    expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"].assert_eq(&err);
 }

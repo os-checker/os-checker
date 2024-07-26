@@ -74,3 +74,35 @@ fn snapshot_outputs(outputs: &[Output]) -> Result<String> {
     let current_path = Utf8PathBuf::from(".").canonicalize_utf8()?;
     Ok(snapshot.replace(current_path.as_str(), "."))
 }
+
+#[test]
+fn local_and_github() -> Result<()> {
+    // 该测试只写入日志文件
+    fn logging(configs: Vec<Config>) -> Result<(), eyre::Error> {
+        debug!(?configs);
+        let repos: Vec<_> = configs.into_iter().map(Repo::try_from).try_collect()?;
+        for repo in &repos {
+            debug!(?repo);
+            let stat = repo.outputs_and_statistics()?;
+            for s in stat.iter().filter(|s| !s.check_fine()) {
+                let count_on_file = s.table_of_count_of_file();
+                let count_on_kind = s.table_of_count_of_kind();
+                info!("\n{count_on_file}\n{count_on_kind}");
+            }
+        }
+        Ok(())
+    }
+
+    crate::logger::test_init("assets/run_checker-github.log");
+
+    let yaml = std::fs::read_to_string("assets/repos.yaml")?;
+    logging(Config::from_yaml(&yaml)?)?;
+
+    let yaml = "
+os-checker/os-checker-test-suite:
+  all: true
+";
+    logging(Config::from_yaml(yaml)?)?;
+
+    Ok(())
+}
