@@ -19,13 +19,13 @@ mod tests;
 #[derive(Debug)]
 pub struct Config {
     uri: uri::Uri,
-    config: RepoConfig,
+    config: Box<RepoConfig>,
 }
 
 impl Config {
     /// 解析 yaml 配置文件
     pub fn from_yaml(yaml: &str) -> Result<Vec<Config>> {
-        let parsed: BTreeMap<String, RepoConfig> = marked_yaml::from_yaml(0, yaml)
+        let parsed: BTreeMap<String, Box<RepoConfig>> = marked_yaml::from_yaml(0, yaml)
             .with_context(|| "仓库配置解析错误，请检查 yaml 格式或者内容是否正确")?;
         parsed
             .into_iter()
