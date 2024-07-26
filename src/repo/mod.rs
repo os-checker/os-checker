@@ -1,4 +1,5 @@
 use crate::{layout::Package, Result};
+use cargo_metadata::camino::Utf8PathBuf;
 use duct::Expression;
 use eyre::Context;
 use serde::{de, Deserialize, Deserializer};
@@ -29,21 +30,25 @@ impl Config {
             .with_context(|| "仓库配置解析错误，请检查 yaml 格式或者内容是否正确")?;
         parsed
             .into_iter()
-            .map(|(s, config)| {
+            .map(|(key, config)| {
                 (Config {
-                    uri: uri::uri(&s)?,
+                    uri: uri::uri(key)?,
                     config,
                 })
-                .check_fork()
+                .check()
             })
             .collect()
     }
 
     /// 检查命令与工具是否匹配；fork 仓库？
-    fn check_fork(self) -> Result<Config> {
+    fn check(self) -> Result<Config> {
         self.config.check_tool_action()?;
-        // TODO 使用 FORK 环境变量来自动 fork 代码仓库；放置于 cfg(not(test)) 之后
         Ok(self)
+    }
+
+    /// 获取该代码库的本地路径：如果指定 Github 或者 Url，则调用 git 命令下载
+    pub fn local_root_path(&self) -> Result<Utf8PathBuf> {
+        self.uri.local_root_path()
     }
 
     /// 解析该仓库所有 package 的检查执行命令
