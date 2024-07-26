@@ -12,9 +12,14 @@ pub enum UriTag {
 
 #[derive(Debug)]
 pub struct Uri {
+    /// 代码库的来源
     tag: UriTag,
+    /// 代码库的名字（解析自 key）
     local: Utf8PathBuf,
-    local_tmp_dir: Option<tempfile::TempDir>,
+    /// 暂时用于临时测试存放需要下载的代码库
+    #[cfg(test)]
+    _local_tmp_dir: Option<tempfile::TempDir>,
+    /// yaml config 中表示代码库来源的键
     key: String,
 }
 
@@ -27,17 +32,19 @@ impl Uri {
             UriTag::Local(p) => return Ok(p.clone()),
         };
 
+        // NOTE: 测试需要 git clone 的代码库时采用临时目录，非测试则直接放入当前目录下
         #[cfg(test)]
         let target_dir = {
             use cargo_metadata::camino::Utf8Path;
             let dir = tempfile::tempdir()?;
             let target = Utf8Path::from_path(dir.path()).unwrap().join(&self.local);
-            self.local_tmp_dir = Some(dir);
+            self._local_tmp_dir = Some(dir);
             target
         };
         #[cfg(not(test))]
         let target_dir = self.local.clone();
 
+        // FIXME: 如何处理目标目录已经存在的错误？
         debug!(self.key, "git clone {url} {target_dir}");
         let now = std::time::Instant::now();
         let output = cmd!("git", "clone", "--recursive", url, &target_dir).run()?;
@@ -85,6 +92,6 @@ pub fn uri(key: String) -> Result<Uri> {
         tag,
         local,
         key,
-        local_tmp_dir: None,
+        _local_tmp_dir: None,
     })
 }
