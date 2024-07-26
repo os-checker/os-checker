@@ -1,6 +1,7 @@
 use super::Config;
 use crate::{layout::Package, Result};
 use expect_test::{expect, expect_file};
+use itertools::Itertools;
 
 const YAML: &str = "
 os-checker/os-checker:
@@ -92,4 +93,33 @@ user/repo:
     let err = format!("{}", Config::from_yaml(bad2).unwrap_err());
     // FIXME: 或许可以更好的错误报告，比如在哪个仓库哪个库的命令上不匹配
     expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"].assert_eq(&err);
+}
+
+#[test]
+fn uri() -> Result<()> {
+    let yaml = "
+# 本地路径以 file:// 开头，支持绝对路径和相对路径
+file:///path/to/os-checker-test-suite:
+  all: true
+file://repos/arceos:
+  all: true
+
+# 任何 git repo url
+https://github.com/os-checker/os-checker.git:
+  all: true
+
+# 对于 github git repo url，简化成 user/repo
+os-checker/os-checker:
+  all: true
+";
+    let configs = Config::from_yaml(yaml)?;
+    let join = configs.iter().map(|c| format!("{:?}", c.uri)).join("\n");
+    let expected = expect![[r#"
+        Uri { tag: Local("/path/to/os-checker-test-suite"), local: "os-checker-test-suite", _local_tmp_dir: None, key: "file:///path/to/os-checker-test-suite" }
+        Uri { tag: Local("repos/arceos"), local: "arceos", _local_tmp_dir: None, key: "file://repos/arceos" }
+        Uri { tag: Url("https://github.com/os-checker/os-checker.git"), local: "os-checker", _local_tmp_dir: None, key: "https://github.com/os-checker/os-checker.git" }
+        Uri { tag: Github("os-checker/os-checker"), local: "os-checker", _local_tmp_dir: None, key: "os-checker/os-checker" }"#]];
+    expected.assert_eq(&join);
+
+    Ok(())
 }

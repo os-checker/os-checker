@@ -92,6 +92,7 @@ pub fn uri(key: String) -> Result<Uri> {
         tag,
         local,
         key,
+        #[cfg(test)]
         _local_tmp_dir: None,
     })
 }
