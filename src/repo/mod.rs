@@ -10,13 +10,15 @@ use std::{
 mod cmd;
 use cmd::*;
 
+mod uri;
+
 #[cfg(test)]
 mod tests;
 
 /// A repo and its checker configurations.
 #[derive(Debug)]
 pub struct Config {
-    repo: String,
+    uri: uri::Uri,
     config: RepoConfig,
 }
 
@@ -27,7 +29,13 @@ impl Config {
             .with_context(|| "仓库配置解析错误，请检查 yaml 格式或者内容是否正确")?;
         parsed
             .into_iter()
-            .map(|(repo, config)| (Config { repo, config }).check_fork())
+            .map(|(s, config)| {
+                (Config {
+                    uri: uri::uri(&s)?,
+                    config,
+                })
+                .check_fork()
+            })
             .collect()
     }
 
@@ -42,7 +50,7 @@ impl Config {
     pub fn resolve<'p>(&self, pkgs: &[Package<'p>]) -> Result<Vec<Resolve<'p>>> {
         self.config
             .pkg_checker_action(pkgs)
-            .with_context(|| format!("解析 `{}` 仓库的检查命令出错", self.repo))
+            .with_context(|| format!("解析 `{:?}` 仓库的检查命令出错", self.uri))
     }
 }
 

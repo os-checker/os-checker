@@ -30,7 +30,9 @@ fn parse() -> Result<()> {
     expect![[r#"
         [
             Config {
-                repo: "os-checker/os-checker",
+                uri: Github(
+                    "os-checker/os-checker",
+                ),
                 config: RepoConfig {
                     fmt: Perform(
                         true,
@@ -52,7 +54,9 @@ fn parse() -> Result<()> {
                 },
             },
             Config {
-                repo: "user/repo",
+                uri: Github(
+                    "user/repo",
+                ),
                 config: RepoConfig {
                     all: Perform(
                         true,
@@ -80,12 +84,14 @@ fn parse() -> Result<()> {
 
     let v: Vec<_> = parsed
         .iter()
-        .map(|c| (&c.repo, c.config.checker_action().unwrap()))
+        .map(|c| (&c.uri, c.config.checker_action().unwrap()))
         .collect();
     expect![[r#"
         [
             (
-                "os-checker/os-checker",
+                Github(
+                    "os-checker/os-checker",
+                ),
                 [
                     (
                         Fmt,
@@ -119,7 +125,9 @@ fn parse() -> Result<()> {
                 ],
             ),
             (
-                "user/repo",
+                Github(
+                    "user/repo",
+                ),
                 [
                     (
                         Lockbud,
@@ -167,9 +175,10 @@ fn pkg_checker_action() -> Result<()> {
                     [
                         "cargo",
                         "fmt",
-                        "--check",
                         "--manifest-path",
                         "./Cargo.toml",
+                        "--",
+                        "--emit=json",
                     ],
                 ),
             },
@@ -205,9 +214,10 @@ fn pkg_checker_action() -> Result<()> {
                     [
                         "cargo",
                         "fmt",
-                        "--check",
                         "--manifest-path",
                         "./Cargo.toml",
+                        "--",
+                        "--emit=json",
                     ],
                 ),
             },
@@ -272,9 +282,10 @@ user/repo:
                     [
                         "cargo",
                         "fmt",
-                        "--check",
                         "--manifest-path",
                         "./Cargo.toml",
+                        "--",
+                        "--emit=json",
                     ],
                 ),
             },
@@ -290,6 +301,7 @@ user/repo:
                         "cargo",
                         "clippy",
                         "--no-deps",
+                        "--message-format=json",
                         "--manifest-path",
                         "./Cargo.toml",
                     ],
@@ -307,6 +319,7 @@ user/repo:
                         "cargo",
                         "clippy",
                         "--no-deps",
+                        "--message-format=json",
                         "--manifest-path",
                         "./Cargo.toml",
                     ],
@@ -323,9 +336,10 @@ user/repo:
                     [
                         "cargo",
                         "fmt",
-                        "--check",
                         "--manifest-path",
                         "./Cargo.toml",
+                        "--",
+                        "--emit=json",
                     ],
                 ),
             },
@@ -365,9 +379,10 @@ user/repo:
                     [
                         "cargo",
                         "fmt",
-                        "--check",
                         "--manifest-path",
                         "./Cargo.toml",
+                        "--",
+                        "--emit=json",
                     ],
                 ),
             },
