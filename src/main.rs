@@ -20,4 +20,7 @@ mod run_checker;
 
 fn main() {
     logger::init();
+
+    let args = cli::args();
+    trace!(?args);
 }
