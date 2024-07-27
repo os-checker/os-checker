@@ -226,4 +226,8 @@ impl Layout {
     pub fn packages(&self) -> &[Package] {
         self.borrow_dependent()
     }
+
+    pub fn root_path(&self) -> &Utf8Path {
+        &self.layout().root_path
+    }
 }

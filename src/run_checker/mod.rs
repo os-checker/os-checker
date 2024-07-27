@@ -7,6 +7,7 @@ use crate::{
 use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message as CargoMessage};
 use eyre::{Context, ContextCompat};
 use itertools::Itertools;
+use owo_colors::OwoColorize;
 use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
@@ -21,6 +22,25 @@ mod tests;
 pub struct RepoStat {
     repo: Repo,
     stat: Vec<Statistics>,
+}
+
+impl RepoStat {
+    pub fn print(&self) {
+        let repo_path = self.repo.layout.root_path();
+        let repo_name = self.repo.config.repo_name();
+        println!(
+            "The result of checking {} | src: {repo_path}",
+            repo_name.bold().black().on_bright_blue()
+        );
+
+        for stat in self.stat.iter().filter(|s| !s.check_fine()) {
+            println!(
+                "{}\n{}",
+                stat.table_of_count_of_kind(),
+                stat.table_of_count_of_file()
+            );
+        }
+    }
 }
 
 impl TryFrom<Config> for RepoStat {

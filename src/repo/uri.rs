@@ -15,7 +15,7 @@ pub struct Uri {
     /// 代码库的来源
     tag: UriTag,
     /// 代码库的名字（解析自 key）
-    local: Utf8PathBuf,
+    name: Utf8PathBuf,
     /// 暂时用于临时测试存放需要下载的代码库
     #[cfg(test)]
     _local_tmp_dir: Option<tempfile::TempDir>,
@@ -37,12 +37,12 @@ impl Uri {
         let target_dir = {
             use cargo_metadata::camino::Utf8Path;
             let dir = tempfile::tempdir()?;
-            let target = Utf8Path::from_path(dir.path()).unwrap().join(&self.local);
+            let target = Utf8Path::from_path(dir.path()).unwrap().join(&self.name);
             self._local_tmp_dir = Some(dir);
             target
         };
         #[cfg(not(test))]
-        let target_dir = self.local.clone();
+        let target_dir = self.name.clone();
 
         // FIXME: 如何处理目标目录已经存在的错误？
         debug!(self.key, "git clone {url} {target_dir}");
@@ -59,6 +59,10 @@ impl Uri {
         );
 
         Ok(target_dir)
+    }
+
+    pub fn repo_name(&self) -> &str {
+        self.name.as_str()
     }
 }
 
@@ -90,7 +94,7 @@ pub fn uri(key: String) -> Result<Uri> {
     };
     Ok(Uri {
         tag,
-        local,
+        name: local,
         key,
         #[cfg(test)]
         _local_tmp_dir: None,

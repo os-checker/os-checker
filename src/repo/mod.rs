@@ -54,8 +54,13 @@ impl Config {
     }
 
     /// 获取该代码库的本地路径：如果指定 Github 或者 Url，则调用 git 命令下载
+    // FIXME: 重命名此函数，因为这不仅仅是计算本地路径，还包括潜在的克隆仓库操作
     pub fn local_root_path(&mut self) -> Result<Utf8PathBuf> {
         self.uri.local_root_path()
+    }
+
+    pub fn repo_name(&self) -> &str {
+        self.uri.repo_name()
     }
 
     /// 解析该仓库所有 package 的检查执行命令

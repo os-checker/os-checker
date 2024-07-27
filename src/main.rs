@@ -25,7 +25,7 @@ fn main() -> Result<()> {
     let stats = args.statistics()?;
 
     for stat in &stats {
-        // stat.repo.
+        stat.print();
     }
 
     Ok(())
