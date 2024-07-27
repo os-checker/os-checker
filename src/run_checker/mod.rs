@@ -13,10 +13,38 @@ use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
 
 /// 分析检查工具的结果
 mod analysis;
-use analysis::Statistics;
+pub use analysis::Statistics;
 
 #[cfg(test)]
 mod tests;
+
+pub struct RepoStat {
+    repo: Repo,
+    stat: Vec<Statistics>,
+}
+
+impl TryFrom<Config> for RepoStat {
+    type Error = eyre::Error;
+
+    fn try_from(config: Config) -> Result<Self> {
+        let repo = Repo::try_from(config)?;
+        Ok(RepoStat {
+            stat: repo.outputs_and_statistics()?,
+            repo,
+        })
+    }
+}
+
+impl TryFrom<Repo> for RepoStat {
+    type Error = eyre::Error;
+
+    fn try_from(repo: Repo) -> Result<Self> {
+        Ok(RepoStat {
+            stat: repo.outputs_and_statistics()?,
+            repo,
+        })
+    }
+}
 
 #[derive(Debug)]
 pub struct Repo {
@@ -48,7 +76,7 @@ impl Repo {
 }
 
 impl TryFrom<Config> for Repo {
-    type Error = color_eyre::eyre::Error;
+    type Error = eyre::Error;
 
     fn try_from(mut config: Config) -> Result<Repo> {
         let repo_root = config.local_root_path()?;
