@@ -80,7 +80,7 @@ fn local_and_github() -> Result<()> {
     use rayon::prelude::*;
 
     // 该测试只写入日志文件
-    fn logging(configs: Vec<Config>) -> Result<(), eyre::Error> {
+    fn logging(configs: Vec<Config>) -> Result<()> {
         debug!(?configs);
         let repos: Vec<_> = configs
             .into_par_iter()

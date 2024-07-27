@@ -1,5 +1,5 @@
 use crate::{layout::Package, Result};
-use cargo_metadata::camino::Utf8PathBuf;
+use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::Expression;
 use eyre::Context;
 use serde::{de, Deserialize, Deserializer};
@@ -38,6 +38,13 @@ impl Config {
                 .check()
             })
             .collect()
+    }
+
+    pub fn from_path<'a>(path: impl Into<&'a Utf8Path>) -> Result<Vec<Config>> {
+        let path = path.into();
+        let yaml = std::fs::read_to_string(path)
+            .with_context(|| format!("从 `{path}` 读取配置内容失败！请输入正确的 yaml 路径。"))?;
+        Config::from_yaml(&yaml)
     }
 
     /// 检查命令与工具是否匹配；fork 仓库？

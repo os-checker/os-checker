@@ -18,9 +18,15 @@ mod repo;
 /// run checker tools based on codebase layout and configuration
 mod run_checker;
 
-fn main() {
+fn main() -> Result<()> {
     logger::init();
 
     let args = cli::args();
-    trace!(?args);
+    let stats = args.statistics()?;
+
+    for stat in &stats {
+        // stat.repo.
+    }
+
+    Ok(())
 }
