@@ -14,9 +14,11 @@ pub fn args() -> Args {
 }
 
 #[derive(FromArgs, Debug)]
-/// Reach new heights.
+/// Run a collection of checkers targeting Rust crates, and report
+/// bad checking results and statistics.
 pub struct Args {
-    /// an optional height
+    /// A yaml configuration file. Refer to https://github.com/os-checker/os-checker/issues/5
+    /// for the defined format.
     #[argh(option, default = r#"Utf8PathBuf::from("repos.yaml")"#)]
     config: Utf8PathBuf,
 }
