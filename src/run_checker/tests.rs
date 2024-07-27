@@ -77,12 +77,17 @@ fn snapshot_outputs(outputs: &[Output]) -> Result<String> {
 
 #[test]
 fn local_and_github() -> Result<()> {
+    use rayon::prelude::*;
+
     // 该测试只写入日志文件
     fn logging(configs: Vec<Config>) -> Result<(), eyre::Error> {
         debug!(?configs);
-        let repos: Vec<_> = configs.into_iter().map(Repo::try_from).try_collect()?;
+        let repos: Vec<_> = configs
+            .into_par_iter()
+            .map(Repo::try_from)
+            .collect::<Result<_>>()?;
         for repo in &repos {
-            debug!(?repo);
+            trace!(?repo);
             let stat = repo.outputs_and_statistics()?;
             for s in stat.iter().filter(|s| !s.check_fine()) {
                 let count_on_file = s.table_of_count_of_file();

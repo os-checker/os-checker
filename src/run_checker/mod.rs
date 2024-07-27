@@ -99,7 +99,7 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
         .map(Into::into)
         .with_context(|| format!("{} 无父目录", resolve.package.cargo_toml))?;
     let package_name = XString::from(resolve.package.name);
-    debug!(%package_root, %package_name);
+    trace!(%package_root, %package_name);
     Ok(Output {
         raw,
         parsed,
