@@ -2,6 +2,7 @@
 name = "os-checker"
 version = "0.1.0"
 edition = "2021"
+exclude = ["assets", ".github"]
 
 [dependencies]
 argh = "0.1.12"   # cli argument parser
