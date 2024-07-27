@@ -2,8 +2,10 @@
 name = "os-checker"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 exclude = ["assets", ".github"]
 repository = "https://github.com/os-checker/os-checker"
+description = "Run a collection of checkers targeting Rust crates, and report bad checking results and statistics."
 
 [dependencies]
 argh = "0.1.12"   # cli argument parser
