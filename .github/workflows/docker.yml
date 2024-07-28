@@ -1,0 +1,18 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/os-checker:latest
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # - uses: actions/checkout@v4
+
+      - name: Run the Docker image
+        run: docker run -e DEBUG=1 ${{ env.IMAGE }}
