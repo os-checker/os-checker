@@ -8,20 +8,24 @@ use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 pub fn cargo_fmt(toml: &Utf8Path) -> Expression {
     // e.g. cargo fmt --check --manifest-path tmp/test-fmt/Cargo.toml
     // cmd!("cargo", "fmt", "--check", "--manifest-path", toml)
-    cmd!("cargo", "fmt", "--manifest-path", toml, "--", "--emit=json")
+    let expr = cmd!("cargo", "fmt", "--manifest-path", toml, "--", "--emit=json");
+    debug!(?expr);
+    expr
 }
 
 /// 默认运行 cargo clippy 的命令
 pub fn cargo_clippy(toml: &Utf8Path) -> Expression {
     // 只分析传入 toml path 指向的 package，不分析其依赖
-    cmd!(
+    let expr = cmd!(
         "cargo",
         "clippy",
         "--no-deps",
         "--message-format=json",
         "--manifest-path",
         toml
-    )
+    );
+    debug!(?expr);
+    expr
 }
 
 /// 自定义检查命令。
@@ -65,6 +69,7 @@ pub fn custom(line: &str, toml: &Utf8Path) -> Result<Expression> {
 
     // 暂不处理重定向
 
+    debug!(?expr);
     Ok(expr)
 }
 
