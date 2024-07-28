@@ -124,21 +124,21 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
         .unchecked()
         .run()?;
     let duration_ms = now.elapsed().as_millis() as u64;
+
+    if !raw.status.success() {
+        let stderr = String::from_utf8_lossy(&raw.stderr);
+        bail!("运行检查工具失败：stderr={stderr:?}\nresolv={resolve:?}")
+    }
+
     let stdout: &[_] = &raw.stdout;
-    let stderr: &[_] = &raw.stderr;
     let parsed = match resolve.checker {
         CheckerTool::Fmt => {
-            let fmt = if raw.status.success() {
-                Box::default()
-            } else {
-                serde_json::from_slice(stdout).with_context(|| {
-                    format!(
-                        "无法解析 rustfmt 的标准输出：stdout=\n{:?}\nstderr={}\nresolve=\n{resolve:?}",
-                        String::from_utf8_lossy(stdout),
-                        String::from_utf8_lossy(stderr),
-                    )
-                })?
-            };
+            let fmt = serde_json::from_slice(stdout).with_context(|| {
+                format!(
+                    "无法解析 rustfmt 的标准输出：stdout={:?}",
+                    String::from_utf8_lossy(stdout),
+                )
+            })?;
             OutputParsed::Fmt(fmt)
         }
         CheckerTool::Clippy => OutputParsed::Clippy(
@@ -146,9 +146,8 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
                 .map(|mes| {
                     mes.map(ClippyMessage::from).with_context(|| {
                         format!(
-                            "解析 Clippy Json 输出失败：stdout=\n{:?}\nstderr={}\nresolve=\n{resolve:?}",
+                            "解析 Clippy Json 输出失败：stdout={:?}",
                             String::from_utf8_lossy(stdout),
-                            String::from_utf8_lossy(stderr),
                         )
                     })
                 })
