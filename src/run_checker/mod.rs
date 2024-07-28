@@ -127,12 +127,17 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
     let stdout: &[_] = &raw.stdout;
     let parsed = match resolve.checker {
         CheckerTool::Fmt => {
-            OutputParsed::Fmt(serde_json::from_slice(stdout).with_context(|| {
-                format!(
-                    "无法解析 rustfmt 的标准输出：stdout=\n{}",
-                    String::from_utf8_lossy(stdout)
-                )
-            })?)
+            let fmt = if raw.status.success() {
+                Box::default()
+            } else {
+                serde_json::from_slice(stdout).with_context(|| {
+                    format!(
+                        "无法解析 rustfmt 的标准输出：stdout=\n{}",
+                        String::from_utf8_lossy(stdout)
+                    )
+                })?
+            };
+            OutputParsed::Fmt(fmt)
         }
         CheckerTool::Clippy => OutputParsed::Clippy(
             CargoMessage::parse_stream(stdout)
