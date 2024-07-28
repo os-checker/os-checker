@@ -126,12 +126,23 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
     let duration_ms = now.elapsed().as_millis() as u64;
     let stdout: &[_] = &raw.stdout;
     let parsed = match resolve.checker {
-        CheckerTool::Fmt => OutputParsed::Fmt(serde_json::from_slice(stdout)?),
+        CheckerTool::Fmt => {
+            OutputParsed::Fmt(serde_json::from_slice(stdout).with_context(|| {
+                format!(
+                    "无法解析 rustfmt 的标准输出：stdout=\n{}",
+                    String::from_utf8_lossy(stdout)
+                )
+            })?)
+        }
         CheckerTool::Clippy => OutputParsed::Clippy(
             CargoMessage::parse_stream(stdout)
                 .map(|mes| {
-                    mes.map(ClippyMessage::from)
-                        .with_context(|| "解析 Clippy Json 输出失败")
+                    mes.map(ClippyMessage::from).with_context(|| {
+                        format!(
+                            "解析 Clippy Json 输出失败：stdout=\n{}",
+                            String::from_utf8_lossy(stdout)
+                        )
+                    })
                 })
                 .collect::<Result<_>>()?,
         ),
