@@ -132,7 +132,7 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
             } else {
                 serde_json::from_slice(stdout).with_context(|| {
                     format!(
-                        "无法解析 rustfmt 的标准输出：stdout=\n{}",
+                        "无法解析 rustfmt 的标准输出：stdout=\n{:?}",
                         String::from_utf8_lossy(stdout)
                     )
                 })?
@@ -144,7 +144,7 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
                 .map(|mes| {
                     mes.map(ClippyMessage::from).with_context(|| {
                         format!(
-                            "解析 Clippy Json 输出失败：stdout=\n{}",
+                            "解析 Clippy Json 输出失败：stdout=\n{:?}",
                             String::from_utf8_lossy(stdout)
                         )
                     })
