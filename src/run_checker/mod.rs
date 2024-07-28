@@ -125,10 +125,11 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
         .run()?;
     let duration_ms = now.elapsed().as_millis() as u64;
 
-    if !raw.status.success() {
-        let stderr = String::from_utf8_lossy(&raw.stderr);
-        bail!("运行检查工具失败：stderr={stderr:?}\nresolv={resolve:?}")
-    }
+    trace!(
+        ?resolve,
+        success = raw.status.success(),
+        stderr = %String::from_utf8_lossy(&raw.stderr),
+    );
 
     let stdout: &[_] = &raw.stdout;
     let parsed = match resolve.checker {
