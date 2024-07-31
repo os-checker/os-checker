@@ -1,10 +1,11 @@
 use super::*;
 use analysis::Statistics;
 use expect_test::expect_file;
+use serde_json::to_string_pretty;
 
 fn config() -> Config {
     let yaml = "
-arceos:
+file://repos/os-checker-test-suite:
   all: true
   miri: false
 ";
@@ -19,8 +20,17 @@ fn test_suite() -> Result<()> {
     let snapshot = snapshot_outputs(&outputs)?;
     expect_file!["./snapshots/outputs-test-suite.txt"].assert_eq(&snapshot);
 
-    let tables = stat_tables(outputs);
+    let stats = Statistics::new(outputs);
+    let tables = stat_tables(&stats);
     expect_file!["./snapshots/statistics-test-suite.txt"].assert_eq(&tables);
+
+    let repo_stat = RepoStat {
+        repo: test_suite,
+        stat: stats,
+    };
+
+    expect_file!["./snapshots/statistics-test-suite.json"]
+        .assert_eq(&to_string_pretty(&repo_stat.json(&mut 0))?);
 
     Ok(())
 }
@@ -36,15 +46,24 @@ fn arceos() -> Result<()> {
     let snapshot = snapshot_outputs(&outputs)?;
     expect_file!["./snapshots/outputs-arceos.txt"].assert_eq(&snapshot);
 
-    let tables = stat_tables(outputs);
+    let stats = Statistics::new(outputs);
+    let tables = stat_tables(&stats);
     expect_file!["./snapshots/statistics-arceos.txt"].assert_eq(&tables);
+
+    let repo_stat = RepoStat {
+        repo: arceos,
+        stat: stats,
+    };
+
+    expect_file!["./snapshots/statistics-arceos.json"]
+        .assert_eq(&to_string_pretty(&repo_stat.json(&mut 0))?);
 
     Ok(())
 }
 
 /// 对不良统计结果进行快照
-fn stat_tables(outputs: Vec<Output>) -> String {
-    Statistics::new(outputs)
+fn stat_tables(stats: &[Statistics]) -> String {
+    stats
         .iter()
         .filter(|s| !s.check_fine())
         .flat_map(|s| [s.table_of_count_of_kind(), s.table_of_count_of_file()])
