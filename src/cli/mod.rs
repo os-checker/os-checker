@@ -17,10 +17,34 @@ pub fn args() -> Args {
 /// Run a collection of checkers targeting Rust crates, and report
 /// bad checking results and statistics.
 pub struct Args {
-    /// A yaml configuration file. Refer to https://github.com/os-checker/os-checker/issues/5
+    /// A path to yaml configuration file. Refer to https://github.com/os-checker/os-checker/issues/5
     /// for the defined format.
     #[argh(option, default = r#"Utf8PathBuf::from("repos.yaml")"#)]
     config: Utf8PathBuf,
+
+    #[argh(option, default = "Emit::AnsiTable")]
+    /// emit a format containing the checking reports
+    emit: Emit,
+}
+
+#[derive(Debug)]
+pub enum Emit {
+    /// Colorful table printed on terminal.
+    AnsiTable,
+    /// Used in SSG with PrimeVue and Nuxt.
+    Json,
+}
+
+impl std::str::FromStr for Emit {
+    type Err = eyre::Error;
+
+    fn from_str(s: &str) -> Result<Emit> {
+        match s.trim() {
+            "ansi-table" => Ok(Emit::AnsiTable),
+            "json" => Ok(Emit::Json),
+            _ => bail!("`{s}` is not supported; please specify one of these：ansi-table, json."),
+        }
+    }
 }
 
 impl Args {
