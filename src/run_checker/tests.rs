@@ -3,18 +3,19 @@ use analysis::Statistics;
 use expect_test::expect_file;
 use serde_json::to_string_pretty;
 
-fn config() -> Config {
-    let yaml = "
-file://repos/os-checker-test-suite:
-  all: true
-  miri: false
-";
+fn config(yaml: &str) -> Config {
     Config::from_yaml(yaml).unwrap().pop().unwrap()
 }
 
 #[test]
 fn test_suite() -> Result<()> {
-    let test_suite = Repo::new("repos/os-checker-test-suite", &[], config())?;
+    let config = config(
+        "
+file://repos/os-checker-test-suite:
+  all: true
+",
+    );
+    let test_suite = Repo::new("repos/os-checker-test-suite", &[], config)?;
     let outputs = test_suite.run_check()?;
 
     let snapshot = snapshot_outputs(&outputs)?;
@@ -39,7 +40,14 @@ fn test_suite() -> Result<()> {
 fn arceos() -> Result<()> {
     crate::logger::test_init("assets/run_checker.log");
 
-    let arceos = Repo::new("repos/arceos", &[], config())?;
+    let config = config(
+        "
+file://repos/arceos:
+  all: true
+  miri: false
+",
+    );
+    let arceos = Repo::new("repos/arceos", &[], config)?;
     let resolve = arceos.resolve()?;
     let outputs: Vec<_> = resolve.iter().map(run_check).try_collect()?;
 

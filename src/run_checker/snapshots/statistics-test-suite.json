@@ -2,7 +2,7 @@
   "key": "0",
   "data": {
     "user": "repos",
-    "repo": "repos",
+    "repo": "os-checker-test-suite",
     "package": "",
     "total_count": 12,
     "Unformatted(File)": 4,
@@ -15,7 +15,7 @@
       "key": "1",
       "data": {
         "user": "repos",
-        "repo": "repos",
+        "repo": "os-checker-test-suite",
         "package": "os-checker-test-suite",
         "total_count": 12,
         "Unformatted(File)": 4,
