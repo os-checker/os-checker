@@ -43,22 +43,6 @@
 [cargo-semver-checks]: https://github.com/obi1kenobi/cargo-semver-checks
 [checker-list]: https://burtonqin.github.io/posts/2024/07/rustcheckers/
 
-## 代码贡献
-
-关于测试的一些示例命令：
-
-* `UPDATE_EXPECT=1 cargo t` 用于更新所有快照测试 （见 [expect-test]）
-* `RUST_LOG=debug cargo t -- --nocapture layout` 输出 layout 测试模块下到日志文件，支持更高级的环境变量条件筛选
-  `RUST_LOG=target[span{field=value}]=level` （见 [tracing_subscriber::EnvFilter]，但目前该功能已经[损坏][EnvFilter]）
-* 你也可以把两者结合起来，`UPDATE_EXPECT=1 RUST_LOG=debug cargo t -- --nocapture run_checker` 更新快照并打印日志。
-  有些数据（比如检查工具的运行时间）不适合写入快照，那么可以通过日志来检查。
-* 支持 `LOG_FILE=1` 来将测试日志写到文件，比如 `RUST_LOG=debug LOG_FILE=1 cargo t -- --nocapture run_checker`。
-  但除非特别必要，并不建议像更新快照那样，频繁更新日志。
-
-[EnvFilter]: https://users.rust-lang.org/t/tracing-subscribers-envfilter-syntax-is-confusing/114821/2
-[expect-test]: https://docs.rs/expect-test
-[tracing_subscriber::EnvFilter]: https://docs.rs/tracing-subscriber/0.3.18/tracing_subscriber/filter/struct.EnvFilter.html
-
 ## 其他
 
 * [开发日志](./assets/development-logs.md)
