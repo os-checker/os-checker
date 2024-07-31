@@ -14,5 +14,5 @@ jobs:
     steps:
       # - uses: actions/checkout@v4
 
-      - name: Run the Docker image
-        run: docker run -e DEBUG=1 ${{ env.IMAGE }}
+      # - name: Run the Docker image
+      #   run: docker run -e DEBUG=1 ${{ env.IMAGE }}
