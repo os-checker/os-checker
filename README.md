@@ -1,5 +1,8 @@
 # os checker
 
+[<img alt="github" src="https://img.shields.io/github/license/os-checker/os-checker" height="20">](https://github.com/os-checker/os-checker)
+[<img alt="github" src="https://img.shields.io/crates/v/os-checker" height="20">](https://crates.io/crates/os-checker)
+
 【WIP】针对 Rust crates 的代码检查工具合集和应用，用以督促和提高代码库的质量。
 
 （虽然工具名称暗示与操作系统相关，但仅仅是以它为背景而起的名字。）
