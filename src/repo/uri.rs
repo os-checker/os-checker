@@ -112,6 +112,6 @@ fn user_repo(key: &str) -> Result<(XString, XString)> {
     let f = || format!("无法从 `{key}` 中解析 user/repo");
     let cap = USER_REPO.captures(key).with_context(f)?;
     let user = cap.name("user").with_context(f)?.as_str().into();
-    let repo = cap.name("user").with_context(f)?.as_str().into();
+    let repo = cap.name("repo").with_context(f)?.as_str().into();
     Ok((user, repo))
 }
