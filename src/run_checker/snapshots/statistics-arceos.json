@@ -5,24 +5,10 @@
     "repo": "repos",
     "package": "",
     "total_count": 126,
-    "kinds": [
-      {
-        "kind": "Unformatted(File)",
-        "count": 35
-      },
-      {
-        "kind": "Unformatted(Line)",
-        "count": 45
-      },
-      {
-        "kind": "Clippy(Warn)",
-        "count": 22
-      },
-      {
-        "kind": "Clippy(Error)",
-        "count": 24
-      }
-    ]
+    "Unformatted(File)": 35,
+    "Unformatted(Line)": 45,
+    "Clippy(Warn)": 22,
+    "Clippy(Error)": 24
   },
   "children": [
     {
@@ -32,12 +18,7 @@
         "repo": "repos",
         "package": "allocator",
         "total_count": 2,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 2
-          }
-        ]
+        "Clippy(Warn)": 2
       },
       "children": null
     },
@@ -48,12 +29,7 @@
         "repo": "repos",
         "package": "arceos-bwbench",
         "total_count": 2,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 2
-          }
-        ]
+        "Clippy(Error)": 2
       },
       "children": null
     },
@@ -64,12 +40,7 @@
         "repo": "repos",
         "package": "arceos-display",
         "total_count": 1,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 1
-          }
-        ]
+        "Clippy(Error)": 1
       },
       "children": null
     },
@@ -79,8 +50,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-echoserver",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -90,8 +60,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-exception",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -101,8 +70,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-helloworld",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -112,8 +80,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-httpclient",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -123,8 +90,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-httpserver",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -134,8 +100,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-memtest",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -145,8 +110,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-parallel",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -157,12 +121,7 @@
         "repo": "repos",
         "package": "arceos-priority",
         "total_count": 1,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 1
-          }
-        ]
+        "Clippy(Warn)": 1
       },
       "children": null
     },
@@ -172,8 +131,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-shell",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -183,8 +141,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-sleep",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -194,8 +151,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-tls",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -205,8 +161,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-udpserver",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -216,8 +171,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos-yield",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -227,8 +181,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos_api",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -238,8 +191,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arceos_posix_api",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -249,8 +201,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arm_gic",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -260,8 +211,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "arm_pl011",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -271,8 +221,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axalloc",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -282,8 +231,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axconfig",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -294,12 +242,7 @@
         "repo": "repos",
         "package": "axdisplay",
         "total_count": 4,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 4
-          }
-        ]
+        "Clippy(Error)": 4
       },
       "children": null
     },
@@ -310,12 +253,7 @@
         "repo": "repos",
         "package": "axdriver",
         "total_count": 2,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 2
-          }
-        ]
+        "Clippy(Error)": 2
       },
       "children": null
     },
@@ -325,8 +263,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axerrno",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -336,8 +273,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axfeat",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -348,12 +284,7 @@
         "repo": "repos",
         "package": "axfs",
         "total_count": 4,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 4
-          }
-        ]
+        "Clippy(Error)": 4
       },
       "children": null
     },
@@ -363,8 +294,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axfs_devfs",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -374,8 +304,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axfs_ramfs",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -385,8 +314,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axfs_vfs",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -396,8 +324,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axhal",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -407,8 +334,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axio",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -418,8 +344,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axlibc",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -429,8 +354,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axlog",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -441,12 +365,7 @@
         "repo": "repos",
         "package": "axnet",
         "total_count": 4,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 4
-          }
-        ]
+        "Clippy(Error)": 4
       },
       "children": null
     },
@@ -456,8 +375,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axruntime",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -467,8 +385,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axstd",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -478,8 +395,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axsync",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -489,8 +405,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "axtask",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -501,12 +416,7 @@
         "repo": "repos",
         "package": "bwbench-client",
         "total_count": 1,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 1
-          }
-        ]
+        "Clippy(Error)": 1
       },
       "children": null
     },
@@ -516,8 +426,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "capability",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -527,8 +436,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "crate_interface",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -539,20 +447,9 @@
         "repo": "repos",
         "package": "deptool",
         "total_count": 90,
-        "kinds": [
-          {
-            "kind": "Unformatted(File)",
-            "count": 35
-          },
-          {
-            "kind": "Unformatted(Line)",
-            "count": 45
-          },
-          {
-            "kind": "Clippy(Warn)",
-            "count": 10
-          }
-        ]
+        "Unformatted(File)": 35,
+        "Unformatted(Line)": 45,
+        "Clippy(Warn)": 10
       },
       "children": null
     },
@@ -562,8 +459,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "driver_block",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -573,8 +469,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "driver_common",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -584,8 +479,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "driver_display",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -595,8 +489,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "driver_net",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -606,8 +499,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "driver_pci",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -617,8 +509,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "driver_virtio",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -628,8 +519,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "dw_apb_uart",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -639,8 +529,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "flatten_objects",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -650,8 +539,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "handler_table",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -661,8 +549,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "kernel_guard",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -672,8 +559,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "lazy_init",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -684,12 +570,7 @@
         "repo": "repos",
         "package": "linked_list",
         "total_count": 2,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 2
-          }
-        ]
+        "Clippy(Warn)": 2
       },
       "children": null
     },
@@ -699,8 +580,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "memory_addr",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -711,16 +591,8 @@
         "repo": "repos",
         "package": "mingo",
         "total_count": 7,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 1
-          },
-          {
-            "kind": "Clippy(Error)",
-            "count": 6
-          }
-        ]
+        "Clippy(Warn)": 1,
+        "Clippy(Error)": 6
       },
       "children": null
     },
@@ -730,8 +602,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "page_table",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -741,8 +612,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "page_table_entry",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -752,8 +622,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "percpu",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -763,8 +632,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "percpu_macros",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -774,8 +642,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "ratio",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -786,12 +653,7 @@
         "repo": "repos",
         "package": "scheduler",
         "total_count": 5,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 5
-          }
-        ]
+        "Clippy(Warn)": 5
       },
       "children": null
     },
@@ -802,12 +664,7 @@
         "repo": "repos",
         "package": "slab_allocator",
         "total_count": 1,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 1
-          }
-        ]
+        "Clippy(Warn)": 1
       },
       "children": null
     },
@@ -817,8 +674,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "spinlock",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -828,8 +684,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "timer_list",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     },
@@ -839,8 +694,7 @@
         "user": "repos",
         "repo": "repos",
         "package": "tuple_for_each",
-        "total_count": 0,
-        "kinds": []
+        "total_count": 0
       },
       "children": null
     }

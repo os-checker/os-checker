@@ -5,24 +5,10 @@
     "repo": "repos",
     "package": "",
     "total_count": 12,
-    "kinds": [
-      {
-        "kind": "Unformatted(File)",
-        "count": 4
-      },
-      {
-        "kind": "Unformatted(Line)",
-        "count": 6
-      },
-      {
-        "kind": "Clippy(Warn)",
-        "count": 1
-      },
-      {
-        "kind": "Clippy(Error)",
-        "count": 1
-      }
-    ]
+    "Unformatted(File)": 4,
+    "Unformatted(Line)": 6,
+    "Clippy(Warn)": 1,
+    "Clippy(Error)": 1
   },
   "children": [
     {
@@ -32,24 +18,10 @@
         "repo": "repos",
         "package": "os-checker-test-suite",
         "total_count": 12,
-        "kinds": [
-          {
-            "kind": "Unformatted(File)",
-            "count": 4
-          },
-          {
-            "kind": "Unformatted(Line)",
-            "count": 6
-          },
-          {
-            "kind": "Clippy(Warn)",
-            "count": 1
-          },
-          {
-            "kind": "Clippy(Error)",
-            "count": 1
-          }
-        ]
+        "Unformatted(File)": 4,
+        "Unformatted(Line)": 6,
+        "Clippy(Warn)": 1,
+        "Clippy(Error)": 1
       },
       "children": null
     }

@@ -1,5 +1,5 @@
 use super::*;
-use ahash::{HashMap, HashMapExt};
+use ahash::{HashMap, HashMapExt, RandomState};
 use cargo_metadata::camino::{Utf8Component, Utf8Path};
 use color_eyre::owo_colors::OwoColorize;
 use compact_str::{format_compact, ToCompactString};
@@ -9,6 +9,8 @@ use tabled::{
     builder::Builder,
     settings::{object::Rows, Alignment, Modify, Style},
 };
+
+type IndexMap<K, V> = indexmap::map::IndexMap<K, V, RandomState>;
 
 pub struct Statistics {
     /// package name
@@ -81,10 +83,7 @@ impl Statistics {
                 kinds: self
                     .vec_of_count_on_kind()
                     .into_iter()
-                    .map(|(kind, count)| KindCount {
-                        kind: format_compact!("{kind:?}"),
-                        count,
-                    })
+                    .map(|(kind, count)| (format_compact!("{kind:?}"), count))
                     .collect(),
             },
             children: None,
@@ -318,18 +317,13 @@ pub enum Rustc {
 }
 
 #[derive(Serialize)]
-pub struct KindCount {
-    kind: XString,
-    count: usize,
-}
-
-#[derive(Serialize)]
 pub struct Data {
     user: XString,
     repo: XString,
     package: XString,
     total_count: usize,
-    kinds: Vec<KindCount>,
+    #[serde(flatten)]
+    kinds: IndexMap<XString, usize>,
 }
 
 #[derive(Serialize)]
@@ -360,13 +354,10 @@ impl TreeNode {
         {
             kinds.entry(k).and_modify(|val| *val += c).or_insert(c);
         }
-        let kinds = kinds
+        let kinds: IndexMap<_, _> = kinds
             .into_iter()
             .sorted_by_key(|k| k.0)
-            .map(|(kind, count)| KindCount {
-                kind: format_compact!("{kind:?}"),
-                count,
-            })
+            .map(|(kind, count)| (format_compact!("{kind:?}"), count))
             .collect();
         let total_count = children.iter().map(|c| c.data.total_count).sum();
         TreeNode {
