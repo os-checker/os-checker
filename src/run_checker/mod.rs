@@ -9,12 +9,17 @@ use eyre::{Context, ContextCompat};
 use itertools::Itertools;
 use owo_colors::OwoColorize;
 use regex::Regex;
-use serde::Deserialize;
-use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
+use serde::{Deserialize, Serialize};
+use std::{
+    io::{self, Write},
+    process::Output as RawOutput,
+    sync::LazyLock,
+    time::Instant,
+};
 
 /// 分析检查工具的结果
 mod analysis;
-pub use analysis::Statistics;
+pub use analysis::{Statistics, TreeNode};
 
 #[cfg(test)]
 mod tests;
@@ -25,22 +30,39 @@ pub struct RepoStat {
 }
 
 impl RepoStat {
-    pub fn print(&self) {
+    pub fn ansi_table(&self) -> Result<()> {
+        let stdout = io::stdout();
         let repo_path = self.repo.layout.root_path();
         let repo_name = self.repo.config.repo_name();
-        println!(
+        writeln!(
+            &stdout,
             "The result of checking {} | src: {repo_path}",
             repo_name.bold().black().on_bright_blue()
-        );
+        )?;
 
         for stat in self.stat.iter().filter(|s| !s.check_fine()) {
-            println!(
+            writeln!(
+                &stdout,
                 "{}\n{}",
                 stat.table_of_count_of_kind(),
                 stat.table_of_count_of_file()
-            );
+            )?;
         }
+
+        Ok(())
     }
+
+    /// Node = { key: string, data: any, children: Node[] }
+    pub fn json(&self, key: &mut usize) -> TreeNode {
+        let user = XString::new(self.repo.config.user_name());
+        let repo = XString::new(self.repo.config.repo_name());
+        TreeNode::json_node(&self.stat, key, user, repo)
+    }
+}
+
+pub fn json_treenode(stats: &[RepoStat]) -> Vec<TreeNode> {
+    let key = &mut 0;
+    stats.iter().map(|s| s.json(key)).collect()
 }
 
 impl TryFrom<Config> for RepoStat {

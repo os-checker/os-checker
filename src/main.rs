@@ -20,13 +20,5 @@ mod run_checker;
 
 fn main() -> Result<()> {
     logger::init();
-
-    let args = cli::args();
-    let stats = args.statistics()?;
-
-    for stat in &stats {
-        stat.print();
-    }
-
-    Ok(())
+    cli::args().run()
 }

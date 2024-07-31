@@ -2,6 +2,8 @@ use super::*;
 use ahash::{HashMap, HashMapExt};
 use cargo_metadata::camino::{Utf8Component, Utf8Path};
 use color_eyre::owo_colors::OwoColorize;
+use compact_str::ToCompactString;
+use serde::Serialize;
 use std::{iter::once, path::Path};
 use tabled::{
     builder::Builder,
@@ -42,7 +44,7 @@ impl Statistics {
                         OutputParsed::Clippy(v) => count.push_clippy(v, root),
                     }
                 }
-                count.update_on_kind_and_file();
+                total.count = count.update_on_kind_and_file();
                 Statistics {
                     pkg_name,
                     outputs,
@@ -58,9 +60,36 @@ impl Statistics {
         self.count.inner.is_empty()
     }
 
+    fn vec_of_count_on_kind(&self) -> Vec<(Kind, usize)> {
+        self.count
+            .count_on_kind
+            .iter()
+            .map(|(&k, &c)| (k, c))
+            .sorted_by_key(|val| val.0)
+            .collect()
+    }
+
+    pub fn json_node_children(&self, key: &mut usize, user: &XString, repo: &XString) -> TreeNode {
+        *key += 1;
+        TreeNode {
+            key: key.to_compact_string(),
+            data: Data {
+                user: user.clone(),
+                repo: repo.clone(),
+                package: self.pkg_name.clone(),
+                total_count: self.total.count,
+                kinds: self
+                    .vec_of_count_on_kind()
+                    .into_iter()
+                    .map(|(kind, count)| KindCount { kind, count })
+                    .collect(),
+            },
+            children: None,
+        }
+    }
+
     pub fn table_of_count_of_kind(&self) -> String {
-        let iter = self.count.count_on_kind.iter();
-        let sorted = iter.sorted_by_key(|a| a.0).enumerate();
+        let sorted = self.vec_of_count_on_kind().into_iter().enumerate();
         let row = sorted.map(|(i, (k, v))| [(i + 1).to_string(), format!("{k:?}"), v.to_string()]);
         let header = once([String::new(), "kind".into(), "count".into()]);
         let builder: Builder = header.chain(row).collect();
@@ -143,6 +172,7 @@ fn strip_prefix<'f>(file: &'f Utf8Path, root: &Path) -> &'f Utf8Path {
 #[derive(Debug, Default)]
 pub struct Total {
     duration_ms: u64,
+    count: usize,
 }
 
 #[derive(Debug, Default)]
@@ -155,12 +185,14 @@ pub struct Count {
 }
 
 impl Count {
-    fn update_on_kind_and_file(&mut self) {
+    fn update_on_kind_and_file(&mut self) -> usize {
         let additional = self.inner.len();
         self.count_on_kind.reserve(additional);
         self.count_on_file.reserve(additional);
 
+        let mut total_count = 0;
         for (key, &count) in &self.inner {
+            total_count += count;
             *self.count_on_kind.entry(key.kind).or_insert(0) += count;
 
             if let Some(get) = self.count_on_file.get_mut(&key.file) {
@@ -169,6 +201,7 @@ impl Count {
                 self.count_on_file.insert(key.file.clone(), count);
             }
         }
+        total_count
     }
 
     fn push_unformatted(&mut self, v: &[FmtMessage], root: &Path) {
@@ -255,7 +288,7 @@ impl CountKey {
 }
 
 /// The kind a checker reports.
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord, Serialize)]
 pub enum Kind {
     /// fmt
     Unformatted(Unformatted),
@@ -269,14 +302,77 @@ pub enum Kind {
     Lockbud,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord, Serialize)]
 pub enum Unformatted {
     File,
     Line,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord, Serialize)]
 pub enum Rustc {
     Warn,
     Error,
+}
+
+#[derive(Serialize)]
+pub struct KindCount {
+    kind: Kind,
+    count: usize,
+}
+
+#[derive(Serialize)]
+pub struct Data {
+    user: XString,
+    repo: XString,
+    package: XString,
+    total_count: usize,
+    kinds: Vec<KindCount>,
+}
+
+#[derive(Serialize)]
+pub struct TreeNode {
+    key: XString,
+    data: Data,
+    children: Option<Vec<TreeNode>>,
+}
+
+impl TreeNode {
+    /// Unlike [`Statistics::json_node_children`], this will compute a complete NodeTree with
+    /// children.
+    pub fn json_node(
+        stat: &[Statistics],
+        key: &mut usize,
+        user: XString,
+        repo: XString,
+    ) -> TreeNode {
+        let key_str = key.to_compact_string();
+        let children = stat
+            .iter()
+            .map(|s| s.json_node_children(key, &user, &repo))
+            .collect_vec();
+        let mut kinds = HashMap::with_capacity(8);
+        for (k, c) in stat
+            .iter()
+            .flat_map(|s| s.count.count_on_kind.iter().map(|(&k, &c)| (k, c)))
+        {
+            kinds.entry(k).and_modify(|val| *val += c).or_insert(c);
+        }
+        let kinds = kinds
+            .into_iter()
+            .map(|(kind, count)| KindCount { kind, count })
+            .sorted_by_key(|k| k.kind)
+            .collect();
+        let total_count = children.iter().map(|c| c.data.total_count).sum();
+        TreeNode {
+            key: key_str,
+            data: Data {
+                user,
+                repo,
+                package: XString::default(),
+                total_count,
+                kinds,
+            },
+            children: Some(children),
+        }
+    }
 }

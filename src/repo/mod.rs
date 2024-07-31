@@ -63,6 +63,10 @@ impl Config {
         self.uri.repo_name()
     }
 
+    pub fn user_name(&self) -> &str {
+        self.uri.user_name()
+    }
+
     /// 解析该仓库所有 package 的检查执行命令
     pub fn resolve<'p>(&self, pkgs: &[Package<'p>]) -> Result<Vec<Resolve<'p>>> {
         self.config

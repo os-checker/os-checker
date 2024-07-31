@@ -1,6 +1,6 @@
 use crate::{
     repo::Config,
-    run_checker::{Repo, RepoStat},
+    run_checker::{json_treenode, Repo, RepoStat},
     Result,
 };
 use argh::FromArgs;
@@ -56,7 +56,23 @@ impl Args {
         Ok(self.configurations()?.into_par_iter().map(Repo::try_from))
     }
 
-    pub fn statistics(&self) -> Result<Vec<RepoStat>> {
+    fn statistics(&self) -> Result<Vec<RepoStat>> {
         self.repos()?.map(|repo| repo?.try_into()).collect()
+    }
+
+    pub fn run(self) -> Result<()> {
+        let stats = self.statistics()?;
+        match self.emit {
+            Emit::AnsiTable => {
+                for stat in &stats {
+                    stat.ansi_table()?;
+                }
+            }
+            Emit::Json => {
+                let json = json_treenode(&stats);
+                serde_json::to_writer(std::io::stdout(), &json)?;
+            }
+        }
+        Ok(())
     }
 }

@@ -18,7 +18,7 @@ marked-yaml = { version = "0.7.1", features = ["serde-path"] } # parse yaml file
 cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 serde_json = "1.0.120"
 regex = "1.10.5"
-compact_str = "0.8.0"
+compact_str = { version = "0.8.0", features = ["serde"] }
 itertools = "0.13.0"
 ahash = "0.8.11"
 rayon = "1.10.0"

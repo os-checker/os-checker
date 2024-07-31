@@ -1,7 +1,9 @@
-use crate::Result;
+use crate::{Result, XString};
 use cargo_metadata::camino::Utf8PathBuf;
 use duct::cmd;
 use eyre::ContextCompat;
+use regex::Regex;
+use std::sync::LazyLock;
 
 #[derive(Debug)]
 pub enum UriTag {
@@ -14,8 +16,10 @@ pub enum UriTag {
 pub struct Uri {
     /// 代码库的来源
     tag: UriTag,
+    /// 代码库的作者（解析自 key）
+    user: XString,
     /// 代码库的名字（解析自 key）
-    name: Utf8PathBuf,
+    repo: XString,
     /// 暂时用于临时测试存放需要下载的代码库
     #[cfg(test)]
     _local_tmp_dir: Option<tempfile::TempDir>,
@@ -37,12 +41,12 @@ impl Uri {
         let target_dir = {
             use cargo_metadata::camino::Utf8Path;
             let dir = tempfile::tempdir()?;
-            let target = Utf8Path::from_path(dir.path()).unwrap().join(&self.name);
+            let target = Utf8Path::from_path(dir.path()).unwrap().join(&*self.repo);
             self._local_tmp_dir = Some(dir);
             target
         };
         #[cfg(not(test))]
-        let target_dir = self.name.clone();
+        let target_dir = self.repo.as_str().into();
 
         // FIXME: 如何处理目标目录已经存在的错误？
         debug!(self.key, "git clone {url} {target_dir}");
@@ -62,41 +66,52 @@ impl Uri {
     }
 
     pub fn repo_name(&self) -> &str {
-        self.name.as_str()
+        &self.repo
+    }
+
+    pub fn user_name(&self) -> &str {
+        &self.user
     }
 }
 
+static USER_REPO: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"(.*/)*(?P<user>.*?)/(?P<repo>.*?)(\.git)?$"#).unwrap());
+
 pub fn uri(key: String) -> Result<Uri> {
-    let (local, tag) = match key.strip_prefix("file://") {
+    let ((user, repo), tag) = match key.strip_prefix("file://") {
         Some(path) => {
             let path = Utf8PathBuf::from(path);
-            let last = path.components().next_back();
-            let name = last.with_context(|| format!("无法在路径 `{path}` 中找到最后的目录名"))?;
-            (name.as_str().into(), UriTag::Local(path))
+            (
+                user_repo(path.canonicalize_utf8()?.as_str())?,
+                UriTag::Local(path),
+            )
         }
-        None => match key.matches('/').count() {
-            0 => bail!(
-                "{key} 不是正确的代码库来源；请指定以下一种格式：\
+        None => {
+            let tag = match key.matches('/').count() {
+                0 => bail!(
+                    "{key} 不是正确的代码库来源；请指定以下一种格式：\
                  `file://localpath`；github 的 `user/repo`；完整的 git 仓库地址"
-            ),
-            1 => (
-                key[key.rfind('/').unwrap() + 1..].into(),
-                UriTag::Github(key.as_str().into()),
-            ),
-            _ => {
-                let strip_git = key.trim_end_matches(".git");
-                (
-                    strip_git[strip_git.rfind('/').unwrap() + 1..].into(),
-                    UriTag::Url(key.as_str().into()),
-                )
-            }
-        },
+                ),
+                1 => UriTag::Github(key.as_str().into()),
+                _ => UriTag::Url(key.as_str().into()),
+            };
+            (user_repo(&key)?, tag)
+        }
     };
     Ok(Uri {
         tag,
-        name: local,
+        user,
+        repo,
         key,
         #[cfg(test)]
         _local_tmp_dir: None,
     })
+}
+
+fn user_repo(key: &str) -> Result<(XString, XString)> {
+    let f = || format!("无法从 `{key}` 中解析 user/repo");
+    let cap = USER_REPO.captures(key).with_context(f)?;
+    let user = cap.name("user").with_context(f)?.as_str().into();
+    let repo = cap.name("user").with_context(f)?.as_str().into();
+    Ok((user, repo))
 }
