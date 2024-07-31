@@ -7,27 +7,19 @@
     "total_count": 126,
     "kinds": [
       {
-        "kind": {
-          "Unformatted": "File"
-        },
+        "kind": "Unformatted(File)",
         "count": 35
       },
       {
-        "kind": {
-          "Unformatted": "Line"
-        },
+        "kind": "Unformatted(Line)",
         "count": 45
       },
       {
-        "kind": {
-          "Clippy": "Warn"
-        },
+        "kind": "Clippy(Warn)",
         "count": 22
       },
       {
-        "kind": {
-          "Clippy": "Error"
-        },
+        "kind": "Clippy(Error)",
         "count": 24
       }
     ]
@@ -42,9 +34,7 @@
         "total_count": 2,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Warn"
-            },
+            "kind": "Clippy(Warn)",
             "count": 2
           }
         ]
@@ -60,9 +50,7 @@
         "total_count": 2,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Error"
-            },
+            "kind": "Clippy(Error)",
             "count": 2
           }
         ]
@@ -78,9 +66,7 @@
         "total_count": 1,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Error"
-            },
+            "kind": "Clippy(Error)",
             "count": 1
           }
         ]
@@ -173,9 +159,7 @@
         "total_count": 1,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Warn"
-            },
+            "kind": "Clippy(Warn)",
             "count": 1
           }
         ]
@@ -312,9 +296,7 @@
         "total_count": 4,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Error"
-            },
+            "kind": "Clippy(Error)",
             "count": 4
           }
         ]
@@ -330,9 +312,7 @@
         "total_count": 2,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Error"
-            },
+            "kind": "Clippy(Error)",
             "count": 2
           }
         ]
@@ -370,9 +350,7 @@
         "total_count": 4,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Error"
-            },
+            "kind": "Clippy(Error)",
             "count": 4
           }
         ]
@@ -465,9 +443,7 @@
         "total_count": 4,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Error"
-            },
+            "kind": "Clippy(Error)",
             "count": 4
           }
         ]
@@ -527,9 +503,7 @@
         "total_count": 1,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Error"
-            },
+            "kind": "Clippy(Error)",
             "count": 1
           }
         ]
@@ -567,21 +541,15 @@
         "total_count": 90,
         "kinds": [
           {
-            "kind": {
-              "Unformatted": "File"
-            },
+            "kind": "Unformatted(File)",
             "count": 35
           },
           {
-            "kind": {
-              "Unformatted": "Line"
-            },
+            "kind": "Unformatted(Line)",
             "count": 45
           },
           {
-            "kind": {
-              "Clippy": "Warn"
-            },
+            "kind": "Clippy(Warn)",
             "count": 10
           }
         ]
@@ -718,9 +686,7 @@
         "total_count": 2,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Warn"
-            },
+            "kind": "Clippy(Warn)",
             "count": 2
           }
         ]
@@ -747,15 +713,11 @@
         "total_count": 7,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Warn"
-            },
+            "kind": "Clippy(Warn)",
             "count": 1
           },
           {
-            "kind": {
-              "Clippy": "Error"
-            },
+            "kind": "Clippy(Error)",
             "count": 6
           }
         ]
@@ -826,9 +788,7 @@
         "total_count": 5,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Warn"
-            },
+            "kind": "Clippy(Warn)",
             "count": 5
           }
         ]
@@ -844,9 +804,7 @@
         "total_count": 1,
         "kinds": [
           {
-            "kind": {
-              "Clippy": "Warn"
-            },
+            "kind": "Clippy(Warn)",
             "count": 1
           }
         ]

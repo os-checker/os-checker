@@ -2,7 +2,7 @@ use super::*;
 use ahash::{HashMap, HashMapExt};
 use cargo_metadata::camino::{Utf8Component, Utf8Path};
 use color_eyre::owo_colors::OwoColorize;
-use compact_str::ToCompactString;
+use compact_str::{format_compact, ToCompactString};
 use serde::Serialize;
 use std::{iter::once, path::Path};
 use tabled::{
@@ -81,7 +81,10 @@ impl Statistics {
                 kinds: self
                     .vec_of_count_on_kind()
                     .into_iter()
-                    .map(|(kind, count)| KindCount { kind, count })
+                    .map(|(kind, count)| KindCount {
+                        kind: format_compact!("{kind:?}"),
+                        count,
+                    })
                     .collect(),
             },
             children: None,
@@ -288,7 +291,7 @@ impl CountKey {
 }
 
 /// The kind a checker reports.
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord, Serialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
 pub enum Kind {
     /// fmt
     Unformatted(Unformatted),
@@ -302,13 +305,13 @@ pub enum Kind {
     Lockbud,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord, Serialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
 pub enum Unformatted {
     File,
     Line,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord, Serialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
 pub enum Rustc {
     Warn,
     Error,
@@ -316,7 +319,7 @@ pub enum Rustc {
 
 #[derive(Serialize)]
 pub struct KindCount {
-    kind: Kind,
+    kind: XString,
     count: usize,
 }
 
@@ -359,8 +362,11 @@ impl TreeNode {
         }
         let kinds = kinds
             .into_iter()
-            .map(|(kind, count)| KindCount { kind, count })
-            .sorted_by_key(|k| k.kind)
+            .sorted_by_key(|k| k.0)
+            .map(|(kind, count)| KindCount {
+                kind: format_compact!("{kind:?}"),
+                count,
+            })
             .collect();
         let total_count = children.iter().map(|c| c.data.total_count).sum();
         TreeNode {

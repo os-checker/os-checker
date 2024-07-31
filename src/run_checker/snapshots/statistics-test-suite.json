@@ -7,27 +7,19 @@
     "total_count": 12,
     "kinds": [
       {
-        "kind": {
-          "Unformatted": "File"
-        },
+        "kind": "Unformatted(File)",
         "count": 4
       },
       {
-        "kind": {
-          "Unformatted": "Line"
-        },
+        "kind": "Unformatted(Line)",
         "count": 6
       },
       {
-        "kind": {
-          "Clippy": "Warn"
-        },
+        "kind": "Clippy(Warn)",
         "count": 1
       },
       {
-        "kind": {
-          "Clippy": "Error"
-        },
+        "kind": "Clippy(Error)",
         "count": 1
       }
     ]
@@ -42,27 +34,19 @@
         "total_count": 12,
         "kinds": [
           {
-            "kind": {
-              "Unformatted": "File"
-            },
+            "kind": "Unformatted(File)",
             "count": 4
           },
           {
-            "kind": {
-              "Unformatted": "Line"
-            },
+            "kind": "Unformatted(Line)",
             "count": 6
           },
           {
-            "kind": {
-              "Clippy": "Warn"
-            },
+            "kind": "Clippy(Warn)",
             "count": 1
           },
           {
-            "kind": {
-              "Clippy": "Error"
-            },
+            "kind": "Clippy(Error)",
             "count": 1
           }
         ]
