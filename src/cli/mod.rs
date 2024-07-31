@@ -31,8 +31,10 @@ pub struct Args {
 pub enum Emit {
     /// Colorful table printed on terminal.
     AnsiTable,
-    /// Used in SSG with PrimeVue and Nuxt.
+    /// Used in SSG with PrimeVue and Nuxt. Print to stdout.
     Json,
+    /// Used in SSG with PrimeVue and Nuxt. Print to stdout.
+    JsonFile(Utf8PathBuf),
 }
 
 impl std::str::FromStr for Emit {
@@ -42,6 +44,7 @@ impl std::str::FromStr for Emit {
         match s.trim() {
             "ansi-table" => Ok(Emit::AnsiTable),
             "json" => Ok(Emit::Json),
+            p if s.ends_with(".json") => Ok(Emit::JsonFile(Utf8PathBuf::from(p))),
             _ => bail!("`{s}` is not supported; please specify one of these：ansi-table, json."),
         }
     }
@@ -62,7 +65,7 @@ impl Args {
 
     pub fn run(self) -> Result<()> {
         let stats = self.statistics()?;
-        match self.emit {
+        match &self.emit {
             Emit::AnsiTable => {
                 for stat in &stats {
                     stat.ansi_table()?;
@@ -71,6 +74,10 @@ impl Args {
             Emit::Json => {
                 let json = json_treenode(&stats);
                 serde_json::to_writer(std::io::stdout(), &json)?;
+            }
+            Emit::JsonFile(p) => {
+                let json = json_treenode(&stats);
+                serde_json::to_writer(std::fs::File::create(p)?, &json)?;
             }
         }
         Ok(())
