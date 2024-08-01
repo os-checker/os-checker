@@ -4,7 +4,7 @@
     "user": "repos",
     "repo": "arceos",
     "package": "",
-    "total_count": 126,
+    "total_count": 81,
     "Unformatted(File)": 35,
     "Unformatted(Line)": 45,
     "Clippy(Warn)": 22,
@@ -446,9 +446,8 @@
         "user": "repos",
         "repo": "arceos",
         "package": "deptool",
-        "total_count": 90,
+        "total_count": 45,
         "Unformatted(File)": 35,
-        "Unformatted(Line)": 45,
         "Clippy(Warn)": 10
       },
       "children": null

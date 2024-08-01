@@ -46,7 +46,7 @@ impl Statistics {
                         OutputParsed::Clippy(v) => count.push_clippy(v, root),
                     }
                 }
-                total.count = count.update_on_kind_and_file();
+                count.update_on_kind_and_file();
                 Statistics {
                     pkg_name,
                     outputs,
@@ -73,18 +73,24 @@ impl Statistics {
 
     pub fn json_node_children(&self, key: &mut usize, user: &XString, repo: &XString) -> TreeNode {
         *key += 1;
+        // 保持 Kind 的顺序（虽然这在 JSON 中没什么用，但如果人工检查的话，会更方便）
+        let kinds: IndexMap<_, _> = self
+            .vec_of_count_on_kind()
+            .into_iter()
+            // 不统计为格式化的行数：因为 `Clippy(Error|Warn)` 和 `Unformatted(File)`
+            // 都统计地点数量，这在合计时处于同一维度，加入行数维度到合计会很奇怪。
+            // 此外，行数报告可以单独放在 repo 详情数据里，目前这里为总览数据。
+            .filter(|(k, _)| !matches!(k, Kind::Unformatted(Unformatted::Line)))
+            .map(|(kind, count)| (format_compact!("{kind:?}"), count))
+            .collect();
         TreeNode {
             key: key.to_compact_string(),
             data: Data {
                 user: user.clone(),
                 repo: repo.clone(),
                 package: self.pkg_name.clone(),
-                total_count: self.total.count,
-                kinds: self
-                    .vec_of_count_on_kind()
-                    .into_iter()
-                    .map(|(kind, count)| (format_compact!("{kind:?}"), count))
-                    .collect(),
+                total_count: kinds.values().sum(), // 由于筛选了 Kind，这里不能直接使用 total_count
+                kinds,
             },
             children: None,
         }
@@ -174,7 +180,6 @@ fn strip_prefix<'f>(file: &'f Utf8Path, root: &Path) -> &'f Utf8Path {
 #[derive(Debug, Default)]
 pub struct Total {
     duration_ms: u64,
-    count: usize,
 }
 
 #[derive(Debug, Default)]
@@ -187,14 +192,14 @@ pub struct Count {
 }
 
 impl Count {
-    fn update_on_kind_and_file(&mut self) -> usize {
+    fn update_on_kind_and_file(&mut self) {
         let additional = self.inner.len();
         self.count_on_kind.reserve(additional);
         self.count_on_file.reserve(additional);
 
-        let mut total_count = 0;
+        // 或许可以统计不同维度的总计？不过暂时还无法确定需要哪些维度总计，
+        // 比如文件数量总计、报告地点数量总计、涉及源码行数总计。
         for (key, &count) in &self.inner {
-            total_count += count;
             *self.count_on_kind.entry(key.kind).or_insert(0) += count;
 
             if let Some(get) = self.count_on_file.get_mut(&key.file) {
@@ -203,7 +208,6 @@ impl Count {
                 self.count_on_file.insert(key.file.clone(), count);
             }
         }
-        total_count
     }
 
     fn push_unformatted(&mut self, v: &[FmtMessage], root: &Path) {
