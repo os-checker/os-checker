@@ -65,6 +65,7 @@ impl Args {
 
     pub fn run(self) -> Result<()> {
         let stats = self.statistics()?;
+        debug!("Got statistics and start to run and emit output.");
         match &self.emit {
             Emit::AnsiTable => {
                 for stat in &stats {
@@ -80,6 +81,7 @@ impl Args {
                 serde_json::to_writer(std::fs::File::create(p)?, &json)?;
             }
         }
+        debug!(?self.emit, "Output emitted");
         Ok(())
     }
 }
