@@ -82,12 +82,12 @@ os-checker/os-checker:
 diff view: <https://github.com/os-checker/os-checker/compare/7bc4462..main>
 
 ```shell
-$ git diff --stat 7bc4462 main
+$ git diff --stat 7bc4462 ae2088e
 ...
 28 files changed, 4384 insertions(+), 407 deletions(-)
 
 # 排除测试文件和其他一些文件
-$ git diff --stat 7bc4462 main -- "src/*.rs" ":!*tests.rs"
+$ git diff --stat 7bc4462 ae2088e -- "src/*.rs" ":!*tests.rs"
  src/layout/mod.rs           |  13 +++---
  src/logger.rs               |  27 ++++++++++++
  src/main.rs                 |  14 ++----
@@ -111,3 +111,51 @@ $ git diff --stat 7bc4462 main -- "src/*.rs" ":!*tests.rs"
   arceos 中长期未修复的代码损坏，并被 CI 的良性报告结果所掩埋。由于最近 arceos 正在把 crates 拆分到单独的仓库，
   如果在新仓库中依然存在该问题，那么我会去新仓库报告这个问题的解决方式。
 
+# 第 3 周
+
+## 主要工作
+
+* 7 月 27 日：发布 os-checker v0.1.0 到 crates.io
+* 7 月 27-28 日：创建 [os-checker/os-checker.github.io](https://github.com/os-checker/os-checker.github.io) 仓库
+  * 编写 Dockerfile：设定目标仓库运行 os-checker 输出检查结果
+  * 编写 Github Action CI 脚本：自动构建和推送 Docker 镜像到 [zjpzjp/os-checker]
+* 7 月 29 日 - 8 月 2 日：学习 Nuxt 和 PrimeVue 前端框架，并构建简单的 WebUI，最终静态部署到 [os-checker.github.io] 网页
+
+[zjpzjp/os-checker]: https://hub.docker.com/repository/docker/zjpzjp/os-checker
+[os-checker.github.io]: https://os-checker.github.io/
+
+
+## code diff/stat
+
+os-checker CLI 仓库代码改动情况：
+
+```text
+$ git diff --stat 440a72b 393bd05
+...
+19 files changed, 1539 insertions(+), 76 deletions(-)
+
+# 核心 Rust 代码改动（排除测试文件和其他一些文件）
+$ git diff --stat 440a72b 393bd05 -- "src/*.rs" ":!*tests.rs"
+ src/cli/mod.rs              |  87 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/layout/mod.rs           |   4 ++++
+ src/main.rs                 |   3 ++-
+ src/repo/cmd.rs             |  11 ++++++++---
+ src/repo/mod.rs             |  18 +++++++++++++++++-
+ src/repo/uri.rs             |  69 ++++++++++++++++++++++++++++++++++++++++++++-------------------------
+ src/run_checker/analysis.rs | 103 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ src/run_checker/mod.rs      | 103 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-------
+ 8 files changed, 358 insertions(+), 40 deletions(-)
+```
+
+## issues 记录
+
+含 WebUI 仓库
+
+- [x] [feat: respect/respond to system light/dark mode change](https://github.com/os-checker/os-checker.github.io/issues/8)
+- [x] [feat: toggle light / dark theme mode](https://github.com/os-checker/os-checker.github.io/issues/7)
+- [x] [feat: 多列排序](https://github.com/os-checker/os-checker.github.io/issues/6)
+- [x] [feat: 当总计为 0，不要显示 0](https://github.com/os-checker/os-checker.github.io/issues/5)
+- [x] [feat: 展平单仓库单项目成一行数据](https://github.com/os-checker/os-checker.github.io/issues/4)
+- [x] [feat: 只对非数值列筛选](https://github.com/os-checker/os-checker.github.io/issues/3)
+- [ ] [改进 JSON 数据格式输出（或者改进 CLI 与 WebUI 交互）](https://github.com/os-checker/os-checker/issues/14)
+- [x] [修复静态网页 baseURL](https://github.com/os-checker/os-checker.github.io/issues/2)
