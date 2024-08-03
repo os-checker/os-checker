@@ -85,4 +85,36 @@ os-checker-test-suite counts on file
 ├───┼─────────────────────────────┼────────┼───────┤
 │ 4 │ tests/need-fmt.rs           │ true   │ 3     │
 ╰───┴─────────────────────────────┴────────┴───────╯
+
+$ os-checker --config assets/repos.yaml --emit path/to/a.json
+[
+  {
+    "key": "0",
+    "data": {
+      "user": "repos",
+      "repo": "os-checker-test-suite",
+      "package": "",
+      "total_count": 6,
+      "Unformatted(File)": 4,
+      "Unformatted(Line)": 6,
+      "Clippy(Warn)": 1,
+      "Clippy(Error)": 1
+    },
+    "children": [
+      {
+        "key": "1",
+        "data": {
+          "user": "repos",
+          "repo": "os-checker-test-suite",
+          "package": "os-checker-test-suite",
+          "total_count": 6,
+          "Unformatted(File)": 4,
+          "Clippy(Warn)": 1,
+          "Clippy(Error)": 1
+        },
+        "children": null
+      }
+    ]
+  }
+]
 ```
