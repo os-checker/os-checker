@@ -397,3 +397,39 @@ pub enum RawReports {
     /// Outputs for a repo.
     Repo(Vec<Arc<[Output]>>),
 }
+
+impl RawReports {
+    pub fn to_serialization(&self) -> RawReportsSerialization {
+        let mut ser = RawReportsSerialization::new();
+        let f = |out| ser.push(out);
+        match self {
+            RawReports::Package(p) => p.iter().for_each(f),
+            RawReports::Repo(v) => v.iter().flat_map(|p| p.iter()).for_each(f),
+        };
+        ser
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct RawReportsSerialization<'s> {
+    fmt: Vec<&'s str>,
+    clippy: Vec<&'s str>,
+}
+
+impl<'s> RawReportsSerialization<'s> {
+    fn new() -> Self {
+        Self {
+            fmt: Vec::with_capacity(32),
+            clippy: Vec::with_capacity(32),
+        }
+    }
+
+    pub fn push(&mut self, out: &'s Output) {
+        let stdout = std::str::from_utf8(&out.raw.stdout).unwrap();
+        match out.checker {
+            CheckerTool::Fmt => self.fmt.push(stdout),
+            CheckerTool::Clippy => self.clippy.push(stdout),
+            _ => (),
+        }
+    }
+}

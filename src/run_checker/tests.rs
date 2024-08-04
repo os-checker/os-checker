@@ -34,6 +34,13 @@ file://repos/os-checker-test-suite:
     let tree = repo_stat.json(&mut 0, &mut raw_reports);
     expect_file!["./snapshots/statistics-test-suite.json"].assert_eq(&to_string_pretty(&tree)?);
 
+    let reports = raw_reports
+        .iter()
+        .map(|(key, raw)| (*key, raw.to_serialization()))
+        .collect_vec();
+    expect_file!["./snapshots/statistics-test-suite_raw_reports.json"]
+        .assert_eq(&to_string_pretty(&reports)?);
+
     Ok(())
 }
 
