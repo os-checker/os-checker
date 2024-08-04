@@ -73,12 +73,12 @@ impl Args {
                 }
             }
             Emit::Json => {
-                let json = json_treenode(&stats);
-                serde_json::to_writer(std::io::stdout(), &json)?;
+                let (tree, _raw_reports) = json_treenode(&stats);
+                serde_json::to_writer(std::io::stdout(), &tree)?;
             }
             Emit::JsonFile(p) => {
-                let json = json_treenode(&stats);
-                serde_json::to_writer(std::fs::File::create(p)?, &json)?;
+                let (tree, raw_reports) = json_treenode(&stats);
+                serde_json::to_writer(std::fs::File::create(p)?, &tree)?;
             }
         }
         debug!(?self.emit, "Output emitted");
