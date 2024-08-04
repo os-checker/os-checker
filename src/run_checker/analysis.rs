@@ -4,7 +4,7 @@ use cargo_metadata::camino::{Utf8Component, Utf8Path};
 use color_eyre::owo_colors::OwoColorize;
 use compact_str::{format_compact, ToCompactString};
 use serde::Serialize;
-use std::{iter::once, path::Path};
+use std::{iter::once, path::Path, sync::Arc};
 use tabled::{
     builder::Builder,
     settings::{object::Rows, Alignment, Modify, Style},
@@ -16,7 +16,7 @@ pub struct Statistics {
     /// package name
     pkg_name: XString,
     /// 所有检查工具的输出结果
-    outputs: Box<[Output]>,
+    outputs: Arc<[Output]>,
     /// 检查工具报告的不通过的数量（基于文件）
     count: Count,
     /// 总计
@@ -31,10 +31,10 @@ impl Statistics {
             .into_iter()
             .map(|(pkg_name, outputs)| {
                 //  outputs from each checker
-                let outputs: Box<[_]> = outputs.collect();
+                let outputs: Arc<[_]> = outputs.collect();
                 let mut count = Count::default();
                 let mut total = Total::default();
-                for out in &outputs {
+                for out in &*outputs {
                     total.duration_ms += out.duration_ms;
 
                     // 由于路径的唯一性在这变得重要，需要提前归一化路径；两条思路：
@@ -71,8 +71,15 @@ impl Statistics {
             .collect()
     }
 
-    pub fn json_node_children(&self, key: &mut usize, user: &XString, repo: &XString) -> TreeNode {
+    pub fn json_node_children(
+        &self,
+        key: &mut usize,
+        user: &XString,
+        repo: &XString,
+        raw_reports: &mut Vec<(usize, RawReports)>,
+    ) -> TreeNode {
         *key += 1;
+        raw_reports.push((*key, RawReports::Package(self.outputs.clone())));
         // 保持 Kind 的顺序（虽然这在 JSON 中没什么用，但如果人工检查的话，会更方便）
         let kinds: IndexMap<_, _> = self
             .vec_of_count_on_kind()
@@ -345,11 +352,16 @@ impl TreeNode {
         key: &mut usize,
         user: XString,
         repo: XString,
+        raw_reports: &mut Vec<(usize, RawReports)>,
     ) -> TreeNode {
         let key_str = key.to_compact_string();
+        raw_reports.push((
+            *key,
+            RawReports::Repo(stat.iter().map(|s| s.outputs.clone()).collect()),
+        ));
         let children = stat
             .iter()
-            .map(|s| s.json_node_children(key, &user, &repo))
+            .map(|s| s.json_node_children(key, &user, &repo, raw_reports))
             .collect_vec();
         let mut kinds = HashMap::with_capacity(8);
         for (k, c) in stat
@@ -376,4 +388,12 @@ impl TreeNode {
             children: Some(children),
         }
     }
+}
+
+/// Original outputs captured.
+pub enum RawReports {
+    /// Outputs for a package.
+    Package(Arc<[Output]>),
+    /// Outputs for a repo.
+    Repo(Vec<Arc<[Output]>>),
 }

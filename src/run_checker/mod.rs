@@ -19,7 +19,7 @@ use std::{
 
 /// 分析检查工具的结果
 mod analysis;
-pub use analysis::{Statistics, TreeNode};
+pub use analysis::{RawReports, Statistics, TreeNode};
 
 #[cfg(test)]
 mod tests;
@@ -53,16 +53,22 @@ impl RepoStat {
     }
 
     /// Node = { key: string, data: any, children: Node[] }
-    pub fn json(&self, key: &mut usize) -> TreeNode {
+    pub fn json(&self, key: &mut usize, raw_reports: &mut Vec<(usize, RawReports)>) -> TreeNode {
         let user = XString::new(self.repo.config.user_name());
         let repo = XString::new(self.repo.config.repo_name());
-        TreeNode::json_node(&self.stat, key, user, repo)
+        TreeNode::json_node(&self.stat, key, user, repo, raw_reports)
     }
 }
 
-pub fn json_treenode(stats: &[RepoStat]) -> Vec<TreeNode> {
+pub fn json_treenode(stats: &[RepoStat]) -> (Vec<TreeNode>, Vec<(usize, RawReports)>) {
     let key = &mut 0;
-    stats.iter().map(|s| s.json(key)).collect()
+    let mut raw_reports = Vec::with_capacity(32);
+    let tree = stats
+        .iter()
+        .map(|s| s.json(key, &mut raw_reports))
+        .collect();
+    raw_reports.sort_unstable_by_key(|(key, _)| *key);
+    (tree, raw_reports)
 }
 
 impl TryFrom<Config> for RepoStat {

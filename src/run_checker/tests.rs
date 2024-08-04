@@ -30,8 +30,9 @@ file://repos/os-checker-test-suite:
         stat: stats,
     };
 
-    expect_file!["./snapshots/statistics-test-suite.json"]
-        .assert_eq(&to_string_pretty(&repo_stat.json(&mut 0))?);
+    let mut raw_reports = Vec::new();
+    let tree = repo_stat.json(&mut 0, &mut raw_reports);
+    expect_file!["./snapshots/statistics-test-suite.json"].assert_eq(&to_string_pretty(&tree)?);
 
     Ok(())
 }
@@ -63,8 +64,9 @@ file://repos/arceos:
         stat: stats,
     };
 
-    expect_file!["./snapshots/statistics-arceos.json"]
-        .assert_eq(&to_string_pretty(&repo_stat.json(&mut 0))?);
+    let mut raw_reports = Vec::new();
+    let tree = repo_stat.json(&mut 0, &mut raw_reports);
+    expect_file!["./snapshots/statistics-arceos.json"].assert_eq(&to_string_pretty(&tree)?);
 
     Ok(())
 }
