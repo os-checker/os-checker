@@ -4,7 +4,7 @@ use cargo_metadata::camino::{Utf8Component, Utf8Path};
 use color_eyre::owo_colors::OwoColorize;
 use compact_str::{format_compact, ToCompactString};
 use serde::Serialize;
-use std::{iter::once, path::Path, sync::Arc};
+use std::{borrow::Cow, collections::BTreeMap, iter::once, path::Path, sync::Arc};
 use tabled::{
     builder::Builder,
     settings::{object::Rows, Alignment, Modify, Style},
@@ -410,26 +410,113 @@ impl RawReports {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Serialize)]
 pub struct RawReportsSerialization<'s> {
-    fmt: Vec<&'s str>,
-    clippy: Vec<&'s str>,
+    fmt: BTreeMap<&'s Utf8Path, Vec<Cow<'s, str>>>,
+    clippy_warn: BTreeMap<&'s Utf8Path, Vec<Cow<'s, str>>>,
+    clippy_error: BTreeMap<&'s Utf8Path, Vec<Cow<'s, str>>>,
 }
 
 impl<'s> RawReportsSerialization<'s> {
     fn new() -> Self {
         Self {
-            fmt: Vec::with_capacity(32),
-            clippy: Vec::with_capacity(32),
+            fmt: BTreeMap::new(),
+            clippy_warn: BTreeMap::new(),
+            clippy_error: BTreeMap::new(),
         }
     }
 
     pub fn push(&mut self, out: &'s Output) {
-        let stdout = std::str::from_utf8(&out.raw.stdout).unwrap();
-        match out.checker {
-            CheckerTool::Fmt => self.fmt.push(stdout),
-            CheckerTool::Clippy => self.clippy.push(stdout),
-            _ => (),
-        }
+        use std::fmt::Write;
+
+        match &out.parsed {
+            OutputParsed::Fmt(v) => {
+                let add = "+";
+                let minus = "-";
+                for mes in v {
+                    for mis in mes.mismatches.iter() {
+                        let mut buf = String::with_capacity(128);
+                        _ = writeln!(
+                            &mut buf,
+                            "file: {} (original lines from {} to {})",
+                            mes.name, mis.original_begin_line, mis.original_end_line
+                        );
+                        for diff in prettydiff::diff_lines(&mis.original, &mis.expected).diff() {
+                            match diff {
+                                prettydiff::basic::DiffOp::Insert(s) => {
+                                    for line in s {
+                                        _ = writeln!(&mut buf, "{add}{line}");
+                                    }
+                                }
+                                prettydiff::basic::DiffOp::Replace(a, b) => {
+                                    for line in a {
+                                        _ = writeln!(&mut buf, "{minus}{line}");
+                                    }
+                                    for line in b {
+                                        _ = writeln!(&mut buf, "{add}{line}");
+                                    }
+                                    // println!("~{a:?}#{b:?}")
+                                }
+                                prettydiff::basic::DiffOp::Remove(s) => {
+                                    for line in s {
+                                        _ = writeln!(&mut buf, "{minus}{line}");
+                                    }
+                                }
+                                prettydiff::basic::DiffOp::Equal(s) => {
+                                    for line in s {
+                                        _ = writeln!(&mut buf, " {line}");
+                                    }
+                                }
+                            }
+                        }
+                        if let Some(v) = self.fmt.get_mut(&*mes.name) {
+                            v.push(buf.into());
+                        } else {
+                            let mut v = Vec::with_capacity(mes.mismatches.len());
+                            v.push(buf.into());
+                            self.fmt.insert(&mes.name, v);
+                        }
+                    }
+                }
+            }
+            OutputParsed::Clippy(v) => {
+                for mes in v {
+                    match &mes.tag {
+                        ClippyTag::WarnDetailed(filepaths) => {
+                            for f in filepaths {
+                                if let CargoMessage::CompilerMessage(cmes) = &mes.inner {
+                                    if let Some(render) = &cmes.message.rendered {
+                                        if let Some(v) = self.clippy_warn.get_mut(&**f) {
+                                            v.push(render.as_str().into());
+                                        } else {
+                                            let mut v = Vec::with_capacity(v.len());
+                                            v.push(render.as_str().into());
+                                            self.clippy_warn.insert(f, v);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        ClippyTag::ErrorDetailed(filepaths) => {
+                            for f in filepaths {
+                                if let CargoMessage::CompilerMessage(cmes) = &mes.inner {
+                                    if let Some(render) = &cmes.message.rendered {
+                                        if let Some(v) = self.clippy_error.get_mut(&**f) {
+                                            v.push(render.as_str().into());
+                                        } else {
+                                            let mut v = Vec::with_capacity(v.len());
+                                            v.push(render.as_str().into());
+                                            self.clippy_error.insert(f, v);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        _ => (),
+                    }
+                }
+            }
+        };
     }
 }
