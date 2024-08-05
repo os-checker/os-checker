@@ -23,6 +23,7 @@ itertools = "0.13.0"
 ahash = "0.8.11"
 rayon = "1.10.0"
 indexmap = { version = "2.2.6", features = ["serde"] }
+prettydiff = { version = "0.7.0", default-features = false }
 
 # error handling
 eyre = "0.6.12"
@@ -42,7 +43,6 @@ owo-colors = { version = "4.0.0", features = ["supports-colors"] }
 
 [dev-dependencies]
 expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
-prettydiff = { version = "0.7.0", default-features = false }
 tempfile = "3"
 
 [workspace]
