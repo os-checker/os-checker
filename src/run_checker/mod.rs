@@ -19,7 +19,7 @@ use std::{
 
 /// 分析检查工具的结果
 mod analysis;
-pub use analysis::{RawReports, Statistics, TreeNode};
+pub use analysis::{RawReportsOnFile, Statistics, TreeNode};
 
 #[cfg(test)]
 mod tests;
@@ -53,14 +53,18 @@ impl RepoStat {
     }
 
     /// Node = { key: string, data: any, children: Node[] }
-    pub fn json(&self, key: &mut usize, raw_reports: &mut Vec<(usize, RawReports)>) -> TreeNode {
+    pub fn json(
+        &self,
+        key: &mut usize,
+        raw_reports: &mut Vec<(usize, RawReportsOnFile)>,
+    ) -> TreeNode {
         let user = XString::new(self.repo.config.user_name());
         let repo = XString::new(self.repo.config.repo_name());
         TreeNode::json_node(&self.stat, key, user, repo, raw_reports)
     }
 }
 
-pub fn json_treenode(stats: &[RepoStat]) -> (Vec<TreeNode>, Vec<(usize, RawReports)>) {
+pub fn json_treenode(stats: &[RepoStat]) -> (Vec<TreeNode>, Vec<RawReportsOnFile>) {
     let key = &mut 0;
     let mut raw_reports = Vec::with_capacity(32);
     let tree = stats
@@ -68,7 +72,9 @@ pub fn json_treenode(stats: &[RepoStat]) -> (Vec<TreeNode>, Vec<(usize, RawRepor
         .map(|s| s.json(key, &mut raw_reports))
         .collect();
     raw_reports.sort_unstable_by_key(|(key, _)| *key);
-    (tree, raw_reports)
+    // TODO: 如何处理 raw_reports 的汇总？显然直接重复 raw_reports 是浪费存储的。
+    // 这是一个微优化，需要更紧凑的数据组织方式（比如通过索引和数组来统一汇总与详情）。
+    (tree, raw_reports.into_iter().map(|val| val.1).collect_vec())
 }
 
 impl TryFrom<Config> for RepoStat {

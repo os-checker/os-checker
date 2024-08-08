@@ -4,7 +4,7 @@ use cargo_metadata::camino::{Utf8Component, Utf8Path};
 use color_eyre::owo_colors::OwoColorize;
 use compact_str::{format_compact, ToCompactString};
 use serde::Serialize;
-use std::{borrow::Cow, collections::BTreeMap, iter::once, path::Path, sync::Arc};
+use std::{borrow::Cow, collections::BTreeMap, fmt::Write, iter::once, path::Path, sync::Arc};
 use tabled::{
     builder::Builder,
     settings::{object::Rows, Alignment, Modify, Style},
@@ -59,7 +59,7 @@ impl Statistics {
 
     /// 无任何不良检查结果
     pub fn check_fine(&self) -> bool {
-        self.count.inner.is_empty()
+        self.count.inner_count.is_empty()
     }
 
     fn vec_of_count_on_kind(&self) -> Vec<(Kind, usize)> {
@@ -76,10 +76,10 @@ impl Statistics {
         key: &mut usize,
         user: &XString,
         repo: &XString,
-        raw_reports: &mut Vec<(usize, RawReports)>,
+        raw_reports: &mut Vec<(usize, RawReportsOnFile)>,
     ) -> TreeNode {
         *key += 1;
-        raw_reports.push((*key, RawReports::Package(self.outputs.clone())));
+        raw_reports.push((*key, self.raw_reports_on_file(user, repo)));
         // 保持 Kind 的顺序（虽然这在 JSON 中没什么用，但如果人工检查的话，会更方便）
         let kinds: IndexMap<_, _> = self
             .vec_of_count_on_kind()
@@ -100,6 +100,40 @@ impl Statistics {
                 kinds,
             },
             children: None,
+        }
+    }
+
+    pub fn raw_reports_on_file(&self, user: &XString, repo: &XString) -> RawReportsOnFile {
+        let mut map = HashMap::with_capacity(self.count.count_on_file.len());
+        for (fk, v) in &self.count.raw_reports {
+            let file = fk.file.as_str();
+            match fk.kind {
+                Kind::Unformatted(_) => map
+                    .entry(file)
+                    .or_insert_with(|| FileView::new(file))
+                    .extend_fmt(v),
+                Kind::Clippy(Rustc::Warn) => map
+                    .entry(file)
+                    .or_insert_with(|| FileView::new(file))
+                    .extend_clippy_warn(v),
+                Kind::Clippy(Rustc::Error) => map
+                    .entry(file)
+                    .or_insert_with(|| FileView::new(file))
+                    .extend_clippy_error(v),
+                _ => (),
+            }
+        }
+        let mut raw_reports = map
+            .into_values()
+            .sorted_unstable_by(|a, b| a.file.cmp(&b.file))
+            .collect_vec();
+        // compute total count for all kinds on each file
+        raw_reports.iter_mut().for_each(FileView::set_count);
+        RawReportsOnFile {
+            user: user.clone(),
+            repo: repo.clone(),
+            package: Some(self.pkg_name.clone()),
+            raw_reports,
         }
     }
 
@@ -191,7 +225,8 @@ pub struct Total {
 
 #[derive(Debug, Default)]
 pub struct Count {
-    inner: HashMap<CountKey, usize>,
+    inner_count: HashMap<CountKey, usize>,
+    raw_reports: HashMap<CountKey, Vec<String>>,
     // based on inner
     count_on_kind: HashMap<Kind, usize>,
     // based on inner
@@ -200,13 +235,13 @@ pub struct Count {
 
 impl Count {
     fn update_on_kind_and_file(&mut self) {
-        let additional = self.inner.len();
+        let additional = self.inner_count.len();
         self.count_on_kind.reserve(additional);
         self.count_on_file.reserve(additional);
 
         // 或许可以统计不同维度的总计？不过暂时还无法确定需要哪些维度总计，
         // 比如文件数量总计、报告地点数量总计、涉及源码行数总计。
-        for (key, &count) in &self.inner {
+        for (key, &count) in &self.inner_count {
             *self.count_on_kind.entry(key.kind).or_insert(0) += count;
 
             if let Some(get) = self.count_on_file.get_mut(&key.file) {
@@ -227,15 +262,34 @@ impl Count {
                 .map(|ele| (ele.original_end_line + 1 - ele.original_begin_line) as usize)
                 .sum();
             let key_line = CountKey::unformatted_line(fpath);
-            *self.inner.entry(key_line).or_insert(0) += count;
+            *self.inner_count.entry(key_line).or_insert(0) += count;
 
             let key_file = CountKey::unformatted_file(fpath);
             let len = file.mismatches.len();
-            *self.inner.entry(key_file).or_insert(0) += len;
+            *self.inner_count.entry(key_file.clone()).or_insert(0) += len;
+
+            let iter = raw_message_fmt(file);
+            self.raw_reports.entry(key_file).or_default().extend(iter);
         }
     }
 
     fn push_clippy(&mut self, v: &[ClippyMessage], root: &Path) {
+        fn raw_message_clippy_error(mes: &ClippyMessage, v: &mut Vec<String>) {
+            if let CargoMessage::CompilerMessage(cmes) = &mes.inner {
+                if let Some(render) = &cmes.message.rendered {
+                    v.push(render.clone());
+                }
+            }
+        }
+
+        fn raw_message_clippy_warn(mes: &ClippyMessage, v: &mut Vec<String>) {
+            if let CargoMessage::CompilerMessage(cmes) = &mes.inner {
+                if let Some(render) = &cmes.message.rendered {
+                    v.push(render.clone());
+                }
+            }
+        }
+
         for mes in v {
             // NOTE: 该路径似乎是相对路径，但为了防止意外的绝对路径，统一去除前缀。
             // 虽然指定了 --no-deps，但如果错误发生在依赖中，那么这个路径为绝对路径，并且可能无法缩短，
@@ -246,14 +300,18 @@ impl Count {
                     for file in paths {
                         let fpath = strip_prefix(file, root);
                         let key = CountKey::clippy_warning(fpath);
-                        *self.inner.entry(key).or_insert(0) += 1;
+                        *self.inner_count.entry(key.clone()).or_insert(0) += 1;
+
+                        raw_message_clippy_warn(mes, self.raw_reports.entry(key).or_default());
                     }
                 }
                 ClippyTag::ErrorDetailed(paths) => {
                     for file in paths {
                         let fpath = strip_prefix(file, root);
                         let key = CountKey::clippy_error(fpath);
-                        *self.inner.entry(key).or_insert(0) += 1;
+                        *self.inner_count.entry(key.clone()).or_insert(0) += 1;
+
+                        raw_message_clippy_error(mes, self.raw_reports.entry(key).or_default());
                     }
                 }
                 _ => (),
@@ -262,7 +320,7 @@ impl Count {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 struct CountKey {
     file: Utf8PathBuf,
     kind: Kind,
@@ -352,13 +410,14 @@ impl TreeNode {
         key: &mut usize,
         user: XString,
         repo: XString,
-        raw_reports: &mut Vec<(usize, RawReports)>,
+        raw_reports: &mut Vec<(usize, RawReportsOnFile)>,
     ) -> TreeNode {
         let key_str = key.to_compact_string();
-        raw_reports.push((
-            *key,
-            RawReports::Repo(stat.iter().map(|s| s.outputs.clone()).collect()),
-        ));
+        // TODO: summary raw_reports
+        // raw_reports.push((
+        //     *key,
+        //     RawReports::Repo(stat.iter().map(|s| s.outputs.clone()).collect()),
+        // ));
         let children = stat
             .iter()
             .map(|s| s.json_node_children(key, &user, &repo, raw_reports))
@@ -427,96 +486,91 @@ impl<'s> RawReportsSerialization<'s> {
     }
 
     pub fn push(&mut self, out: &'s Output) {
-        use std::fmt::Write;
+        todo!()
+    }
+}
 
-        match &out.parsed {
-            OutputParsed::Fmt(v) => {
-                let add = "+";
-                let minus = "-";
-                for mes in v {
-                    for mis in mes.mismatches.iter() {
-                        let mut buf = String::with_capacity(128);
-                        _ = writeln!(
-                            &mut buf,
-                            "file: {} (original lines from {} to {})",
-                            mes.name, mis.original_begin_line, mis.original_end_line
-                        );
-                        for diff in prettydiff::diff_lines(&mis.original, &mis.expected).diff() {
-                            match diff {
-                                prettydiff::basic::DiffOp::Insert(s) => {
-                                    for line in s {
-                                        _ = writeln!(&mut buf, "{add}{line}");
-                                    }
-                                }
-                                prettydiff::basic::DiffOp::Replace(a, b) => {
-                                    for line in a {
-                                        _ = writeln!(&mut buf, "{minus}{line}");
-                                    }
-                                    for line in b {
-                                        _ = writeln!(&mut buf, "{add}{line}");
-                                    }
-                                    // println!("~{a:?}#{b:?}")
-                                }
-                                prettydiff::basic::DiffOp::Remove(s) => {
-                                    for line in s {
-                                        _ = writeln!(&mut buf, "{minus}{line}");
-                                    }
-                                }
-                                prettydiff::basic::DiffOp::Equal(s) => {
-                                    for line in s {
-                                        _ = writeln!(&mut buf, " {line}");
-                                    }
-                                }
-                            }
-                        }
-                        if let Some(v) = self.fmt.get_mut(&*mes.name) {
-                            v.push(buf.into());
-                        } else {
-                            let mut v = Vec::with_capacity(mes.mismatches.len());
-                            v.push(buf.into());
-                            self.fmt.insert(&mes.name, v);
-                        }
+fn raw_message_fmt(mes: &FmtMessage) -> impl '_ + Iterator<Item = String> {
+    mes.mismatches.iter().map(|mis| {
+        let add = "+";
+        let minus = "-";
+        let mut buf = String::with_capacity(128);
+        _ = writeln!(
+            &mut buf,
+            "file: {} (original lines from {} to {})",
+            mes.name, mis.original_begin_line, mis.original_end_line
+        );
+        for diff in prettydiff::diff_lines(&mis.original, &mis.expected).diff() {
+            match diff {
+                prettydiff::basic::DiffOp::Insert(s) => {
+                    for line in s {
+                        _ = writeln!(&mut buf, "{add}{line}");
+                    }
+                }
+                prettydiff::basic::DiffOp::Replace(a, b) => {
+                    for line in a {
+                        _ = writeln!(&mut buf, "{minus}{line}");
+                    }
+                    for line in b {
+                        _ = writeln!(&mut buf, "{add}{line}");
+                    }
+                    // println!("~{a:?}#{b:?}")
+                }
+                prettydiff::basic::DiffOp::Remove(s) => {
+                    for line in s {
+                        _ = writeln!(&mut buf, "{minus}{line}");
+                    }
+                }
+                prettydiff::basic::DiffOp::Equal(s) => {
+                    for line in s {
+                        _ = writeln!(&mut buf, " {line}");
                     }
                 }
             }
-            OutputParsed::Clippy(v) => {
-                for mes in v {
-                    match &mes.tag {
-                        ClippyTag::WarnDetailed(filepaths) => {
-                            for f in filepaths {
-                                if let CargoMessage::CompilerMessage(cmes) = &mes.inner {
-                                    if let Some(render) = &cmes.message.rendered {
-                                        if let Some(v) = self.clippy_warn.get_mut(&**f) {
-                                            v.push(render.as_str().into());
-                                        } else {
-                                            let mut v = Vec::with_capacity(v.len());
-                                            v.push(render.as_str().into());
-                                            self.clippy_warn.insert(f, v);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        ClippyTag::ErrorDetailed(filepaths) => {
-                            for f in filepaths {
-                                if let CargoMessage::CompilerMessage(cmes) = &mes.inner {
-                                    if let Some(render) = &cmes.message.rendered {
-                                        if let Some(v) = self.clippy_error.get_mut(&**f) {
-                                            v.push(render.as_str().into());
-                                        } else {
-                                            let mut v = Vec::with_capacity(v.len());
-                                            v.push(render.as_str().into());
-                                            self.clippy_error.insert(f, v);
-                                        }
-                                    }
-                                }
-                            }
-                        }
+        }
+        buf
+    })
+}
 
-                        _ => (),
-                    }
-                }
-            }
-        };
+#[derive(Serialize)]
+pub struct RawReportsOnFile {
+    user: XString,
+    repo: XString,
+    package: Option<XString>,
+    raw_reports: Vec<FileView>,
+}
+
+#[derive(Default, Serialize)]
+struct FileView {
+    file: XString,
+    /// totoal counts on kinds
+    count: usize,
+    fmt: Vec<String>,
+    clippy_warn: Vec<String>,
+    clippy_error: Vec<String>,
+}
+
+impl FileView {
+    fn new(file: &str) -> FileView {
+        FileView {
+            file: file.into(),
+            ..Default::default()
+        }
+    }
+
+    fn extend_fmt(&mut self, v: &[String]) {
+        self.fmt.extend(v.iter().cloned());
+    }
+
+    fn extend_clippy_warn(&mut self, v: &[String]) {
+        self.clippy_warn.extend(v.iter().cloned());
+    }
+
+    fn extend_clippy_error(&mut self, v: &[String]) {
+        self.clippy_error.extend(v.iter().cloned());
+    }
+
+    fn set_count(&mut self) {
+        self.count = self.fmt.len() + self.clippy_warn.len() + self.clippy_error.len();
     }
 }

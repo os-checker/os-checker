@@ -6,7 +6,6 @@ use crate::{
 use argh::FromArgs;
 use cargo_metadata::camino::Utf8PathBuf;
 use eyre::ContextCompat;
-use itertools::Itertools;
 use rayon::prelude::*;
 use std::fs::File;
 
@@ -78,11 +77,7 @@ impl Args {
             Emit::Json => {
                 let (tree, raw_reports) = json_treenode(&stats);
                 serde_json::to_writer(std::io::stdout(), &tree)?;
-                let reports = raw_reports
-                    .iter()
-                    .map(|(key, r)| (*key, r.to_serialization()))
-                    .collect_vec();
-                serde_json::to_writer(std::io::stdout(), &reports)?;
+                serde_json::to_writer(std::io::stdout(), &raw_reports)?;
             }
             Emit::JsonFile(p) => {
                 let (tree, raw_reports) = json_treenode(&stats);
@@ -93,11 +88,7 @@ impl Args {
                 let report_path = p
                     .clone()
                     .with_file_name(format!("{file_stem}_raw_reports.json"));
-                let reports = raw_reports
-                    .iter()
-                    .map(|(key, r)| (*key, r.to_serialization()))
-                    .collect_vec();
-                serde_json::to_writer(File::create(&*report_path)?, &reports)?;
+                serde_json::to_writer(File::create(&*report_path)?, &raw_reports)?;
             }
         }
         debug!(?self.emit, "Output emitted");
