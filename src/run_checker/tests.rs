@@ -30,16 +30,11 @@ file://repos/os-checker-test-suite:
         stat: stats,
     };
 
-    let mut raw_reports = Vec::new();
-    let tree = repo_stat.json(&mut 0, &mut raw_reports);
+    let (tree, raw_reports) = json_treenode(&[repo_stat]);
     expect_file!["./snapshots/statistics-test-suite.json"].assert_eq(&to_string_pretty(&tree)?);
 
-    let reports = raw_reports
-        .iter()
-        .map(|(key, raw)| (*key, raw.to_serialization()))
-        .collect_vec();
     expect_file!["./snapshots/statistics-test-suite_raw_reports.json"]
-        .assert_eq(&to_string_pretty(&reports)?);
+        .assert_eq(&to_string_pretty(&raw_reports)?);
 
     Ok(())
 }
