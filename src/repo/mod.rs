@@ -240,7 +240,7 @@ impl RepoConfig {
                     v.push(Resolve::new(
                         p,
                         CheckerTool::Clippy,
-                        cargo_clippy(p.cargo_toml),
+                        cargo_clippy(p.cargo_toml)?,
                     ));
                 }
             }
@@ -249,7 +249,7 @@ impl RepoConfig {
                     v.push(Resolve::new(
                         p,
                         CheckerTool::Clippy,
-                        cargo_clippy(p.cargo_toml),
+                        cargo_clippy(p.cargo_toml)?,
                     ));
                 }
             }

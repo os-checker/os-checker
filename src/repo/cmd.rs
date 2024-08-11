@@ -14,18 +14,12 @@ pub fn cargo_fmt(toml: &Utf8Path) -> Expression {
 }
 
 /// 默认运行 cargo clippy 的命令
-pub fn cargo_clippy(toml: &Utf8Path) -> Expression {
+pub fn cargo_clippy(toml: &Utf8Path) -> Result<Expression> {
+    let dir = working_dir(toml)?;
     // 只分析传入 toml path 指向的 package，不分析其依赖
-    let expr = cmd!(
-        "cargo",
-        "clippy",
-        "--no-deps",
-        "--message-format=json",
-        "--manifest-path",
-        toml
-    );
+    let expr = cmd!("cargo", "clippy", "--no-deps", "--message-format=json").dir(dir);
     debug!(?expr);
-    expr
+    Ok(expr)
 }
 
 /// 自定义检查命令。
@@ -50,27 +44,30 @@ pub fn custom(line: &str, toml: &Utf8Path) -> Result<Expression> {
     let mut expr = cmd(exe, words);
 
     // 设置环境变量
-    println!("assigns.len={}", input.assigns.len());
+    debug!(assigns.len = input.assigns.len());
     for assgin in &input.assigns {
         let name = &*assgin.name;
         let val = match &assgin.value {
             Value::Scalar(word) => word.unquote().0,
             Value::Array(_) => bail!("对于 `{line}`，不支持设置 Array assgin 环境变量"),
         };
-        println!("[env] {name}={val}");
+        debug!("[env] {name}={val}");
         expr = expr.env(name, val);
     }
 
     // 设置工作目录
-    let working_dir = toml
-        .parent()
-        .with_context(|| format!("无法获取 Cargo.toml 路径 `{toml}` 的父目录"))?;
-    expr = expr.dir(working_dir);
+    expr = expr.dir(working_dir(toml)?);
 
     // 暂不处理重定向
 
     debug!(?expr);
     Ok(expr)
+}
+
+/// Cargo.toml 所在的目录
+fn working_dir(toml: &Utf8Path) -> Result<&Utf8Path> {
+    toml.parent()
+        .with_context(|| format!("无法获取 Cargo.toml 路径 `{toml}` 的父目录"))
 }
 
 #[cfg(test)]
