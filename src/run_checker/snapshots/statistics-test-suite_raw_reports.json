@@ -3,6 +3,7 @@
     "user": "repos",
     "repo": "os-checker-test-suite",
     "package": "os-checker-test-suite",
+    "count": 6,
     "raw_reports": [
       {
         "file": "examples/need-clippy-fix.rs",

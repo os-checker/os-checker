@@ -129,6 +129,7 @@ impl Statistics {
         RawReportsOnFile {
             user: user.clone(),
             repo: repo.clone(),
+            count: raw_reports.iter().map(|r| r.count).sum(),
             package: Some(self.pkg_name.clone()),
             raw_reports,
         }
@@ -494,6 +495,8 @@ pub struct RawReportsOnFile {
     user: XString,
     repo: XString,
     package: Option<XString>,
+    /// totoal counts on kinds for all files
+    count: usize,
     raw_reports: Vec<FileView>,
 }
 
