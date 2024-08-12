@@ -1,4 +1,3 @@
-#![allow(unused)]
 use crate::{
     layout::Layout,
     repo::{CheckerTool, Config, Resolve},
@@ -9,7 +8,7 @@ use eyre::{Context, ContextCompat};
 use itertools::Itertools;
 use owo_colors::OwoColorize;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::{
     io::{self, Write},
     process::Output as RawOutput,
@@ -138,6 +137,7 @@ impl TryFrom<Config> for Repo {
     }
 }
 
+#[allow(dead_code)]
 pub struct Output {
     raw: RawOutput,
     parsed: OutputParsed,
@@ -320,6 +320,7 @@ pub struct FmtMessage {
     mismatches: Box<[FmtMismatch]>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct FmtMismatch {
     original_begin_line: u32,

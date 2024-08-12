@@ -1,17 +1,14 @@
 use super::*;
 use ahash::{HashMap, HashMapExt, RandomState};
-use cargo_metadata::camino::{Utf8Component, Utf8Path};
-use color_eyre::owo_colors::OwoColorize;
+use cargo_metadata::camino::Utf8Path;
 use compact_str::{format_compact, ToCompactString};
 use serde::Serialize;
-use std::{borrow::Cow, collections::BTreeMap, fmt::Write, iter::once, path::Path, sync::Arc};
-use tabled::{
-    builder::Builder,
-    settings::{object::Rows, Alignment, Modify, Style},
-};
+use std::{fmt::Write, iter::once, path::Path, sync::Arc};
+use tabled::{builder::Builder, settings::Style};
 
 type IndexMap<K, V> = indexmap::map::IndexMap<K, V, RandomState>;
 
+#[allow(unused)]
 pub struct Statistics {
     /// package name
     pkg_name: XString,
@@ -163,7 +160,7 @@ impl Statistics {
                 if len < 3 {
                     path.to_string()
                 } else {
-                    once(Utf8Component::Normal("OUTER"))
+                    once(cargo_metadata::camino::Utf8Component::Normal("OUTER"))
                         .chain(paths[len - 3..].iter().copied())
                         .collect::<Utf8PathBuf>()
                         .to_string()
@@ -359,6 +356,7 @@ impl CountKey {
 }
 
 /// The kind a checker reports.
+#[allow(unused)]
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
 pub enum Kind {
     /// fmt
@@ -446,47 +444,6 @@ impl TreeNode {
             },
             children: Some(children),
         }
-    }
-}
-
-/// Original outputs captured.
-pub enum RawReports {
-    /// Outputs for a package.
-    Package(Arc<[Output]>),
-    /// Outputs for a repo.
-    Repo(Vec<Arc<[Output]>>),
-}
-
-impl RawReports {
-    pub fn to_serialization(&self) -> RawReportsSerialization {
-        let mut ser = RawReportsSerialization::new();
-        let f = |out| ser.push(out);
-        match self {
-            RawReports::Package(p) => p.iter().for_each(f),
-            RawReports::Repo(v) => v.iter().flat_map(|p| p.iter()).for_each(f),
-        };
-        ser
-    }
-}
-
-#[derive(Serialize)]
-pub struct RawReportsSerialization<'s> {
-    fmt: BTreeMap<&'s Utf8Path, Vec<Cow<'s, str>>>,
-    clippy_warn: BTreeMap<&'s Utf8Path, Vec<Cow<'s, str>>>,
-    clippy_error: BTreeMap<&'s Utf8Path, Vec<Cow<'s, str>>>,
-}
-
-impl<'s> RawReportsSerialization<'s> {
-    fn new() -> Self {
-        Self {
-            fmt: BTreeMap::new(),
-            clippy_warn: BTreeMap::new(),
-            clippy_error: BTreeMap::new(),
-        }
-    }
-
-    pub fn push(&mut self, out: &'s Output) {
-        todo!()
     }
 }
 
