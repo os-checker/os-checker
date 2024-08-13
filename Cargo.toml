@@ -46,7 +46,7 @@ expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
 tempfile = "3"
 
 [workspace]
-exclude = ["repos"]
+exclude = ["repos/*"]
 
 # The profile that 'cargo dist' will build with
 [profile.dist]
