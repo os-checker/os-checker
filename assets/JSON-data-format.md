@@ -48,27 +48,29 @@
       "lockbud": {"version": "sha...", "date": "...", "rustToolchain": "..."}, // lockbud 需要固定工具链
       "os-checker": {"start": "...", "finish": "..."}
     },
-    "host": { "arch": "x86_64", "kernel": "..." }, // arch 命令和 cat /proc/version
+    "host": {"arch": "x86_64", "kernel": "..."}, // arch 命令和 cat /proc/version
     "repos": [
       {"user": "arceos-org", "repo": "arceos", "cargoLayout": [...], "info": {...}}
     ],
     "packages": [ // repo.idx 指向 repos 数组中的一项
       {
         "name": "axstd",
-        "repo": { "idx": 0, "user": "arceos-org", "repo": "arceos", "branch": "main"},
+        "repo": {"idx": 0, "user": "arceos-org", "repo": "arceos", "branch": "main"},
         "cargo": {"targets": [...], "features": [...]}
       }
     ]
   },
   "idx": [ // package 指向 packages 数组中的一项
     {
-      "package": 0, "tool": "clippy", "cmd": "cargo clippy --no-deps --message-format=json",
+      "package": 0, "tool": "clippy",
+      "cmd": "cargo clippy --no-deps --message-format=json",
       "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
       "features": ["a", "b"],
       "flags": ["--cfg=...", "-Z...", "-C..."]
     },
     {
-      "package": 0, "tool": "clippy", "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
+      "package": 0, "tool": "clippy",
+      "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
       "arch": "riscv64", "targetTriple": "riscv64gc-unknown-none-elf",
       "features": [], "flags": []
     },
