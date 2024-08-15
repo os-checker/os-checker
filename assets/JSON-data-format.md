@@ -11,15 +11,19 @@
         * 仓库信息：
             * user 
             * repo 
-            * Rust 项目结构信息：由 [cargo metadata] 提供，重要的有 workspace 布局（包含各个 package 的路径）
+            * Rust 项目结构信息：由 [cargo metadata] 提供，重要的有 workspace 布局（即 cargoLayout，包含各个 package 的路径）
             * 其他基础信息：分支名、最后一次的提交 sha、时间等，可通过 Github API 获得，见末尾的 Misc
         * package 信息：每个检查工具作用的直接对象
-            * repo 索引
-            * dir_path：即 cargo_toml_path 去除 Cargo.toml 的父目录
+            * 仓库信息索引
+            * user：虽然通过仓库信息索引可以知道，但这个数据很常用，复制过来以减轻数据分析的复杂度
+            * repo：理由同 user
+            * branch：理由同 user；注意，同一个仓库下，不同 branch 的 package 应该视为不同的 packge（目前只考虑默认分支，因此可以直接使用 `user/repo#package`）
+            * pkg：即 Cargo.toml 中的 `package.name`
+            * dir：即 cargo_toml_path 去除 Cargo.toml 的父目录；这可能也很常用，从 cargoLayout 复制过来
             * 定义的 cargo targets[^1]：需要确认，如果同时存在 main.rs 和 lib.rs，检查哪个或者
             * 定义的 features：不仅是基础信息，还用于校验检查命令
 * 检查过程：每条检查结果必须通过数字索引对应一条检查过程；将过程和结果分开放置，是出于数据压缩考虑，把它们放到一起会很冗余
-    * package 索引
+    * package 索引：指向检查对象
     * 检查工具名
     * 检查命令：来自 os-checker 默认提供或者 os-checker 利用某种方式分析生成或者使用者指定
     * 编译条件：
@@ -27,6 +31,7 @@
         * 指定的 features：即 `--features ...`
         * 其他 rustc 编译选项：即 `RUSTFLAGS='--cfg=...'`，上面的编译条件都可以视为 rustc 编译选项，它们直接控制编译哪些源代码（也就是直接影响检查哪些代码），但这里放置除上面之外的选项，比如众多不稳定的 `-Z` 编译选项
 * 检查结果：问题文件信息；实际上，问题发生的地点应该由 `(文件名, 行, 列)` 描述，但出于简化，只到文件级别
+    * idx 索引：指向一个检查过程，检查过程会包含检查对象（user/repo#package）
     * 问题文件路径：需统一处理所有工具报告的文件路径；有些工具报告绝对路径，有些报告相对路径，os-checker 尽量统一为相对路径；注意，如果问题来自该 package 之外，那么此时文件指向依赖项的绝对路径
     * 原始检查输出
     * 诊断类别：比如 clippy 这个工具可以发出 `Clippy(Warn | Error)` 两个类别、lockbud 可以发出围绕 deadlock/memory/panic 的一些详细检查类别；我认为分类展示检查结果，非常有必要
@@ -44,18 +49,15 @@
       {"lockbud": {"version": "sha...", "date": "...", "rustToolchain": "..."}}, // lockbud 需要固定工具链
       {"os-checker": {"start": "...", "finish": "..."}}
     ],
-    "host": {
-      "arch": "x86_64", // arch 命令
-      "kernel": "...", // cat /proc/version
-    },
+    "host": { "arch": "x86_64", "kernel": "..." }, // arch 命令和 cat /proc/version
     "repos": [
       {"user": "arceos-org", "repo": "arceos", "cargoLayout": [...], "info": {...}}
     ],
-    "packages": [
-      {"repo": 0, "name": "axstd"}
+    "packages": [ // repo 指向 repos 数组中的一项
+      {"repo": 0, "user": "arceos-org", "repo": "arceos", "branch": "main", "pkg": "axstd", "dir": "/absolute/path/to/package", "cargo_targets": [...], "features": [...]}
     ]
   },
-  "idx": [
+  "idx": [ // package 指向 packages 数组中的一项
     {
       "package": 0, "tool": "clippy", "cmd": "cargo clippy --no-deps --message-format=json",
       "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
@@ -73,7 +75,7 @@
       "features": [], "flags": []
     }
   ],
-  "data": [
+  "data": [ // 这里的 idx 指向 idx 数组中的一项检查过程
     {"idx": 0, "file": "path/to/file.rs", "kind": "Clippy(Error)", "raw": "raw report ..."},
     {"idx": 1, "file": "path/to/file.rs", "kind": "Clippy(Warn)", "raw": "raw report ..."},
     {"idx": 2, "file": "path/to/file.rs", "kind": "Lockbud(DoubleLock)", "raw": "raw report ..."}
