@@ -1,4 +1,4 @@
-# os-checker JSON 输出格式
+# os-checker JSON 输出格式（设计稿）
 
 为了把信息统一组织起来，也为了方便处理输出的数据，需要明确 JSON 数据应该包含的内容，最后附上最简示例。
 
@@ -11,7 +11,7 @@
         * 仓库信息：
             * user 
             * repo 
-            * Rust 项目结构信息：由 [cargo metadata] 提供，重要的有 workspace 布局、
+            * Rust 项目结构信息：由 [cargo metadata] 提供，重要的有 workspace 布局（包含各个 package 的路径）
             * 其他基础信息：分支名、最后一次的提交 sha、时间等，可通过 Github API 获得，见末尾的 Misc
         * package 信息：每个检查工具作用的直接对象
             * repo 索引
@@ -40,12 +40,9 @@
   "env": {
     "tools": [
       {"rust": {"version": "1.82.0-nightly (91376f416 2024-08-12)"}},
-      {"cargo": {"version": "cargo 1.82.0-nightly (0d8d22f83 2024-08-08)"}},
-      {"fmt": {"version": "rustfmt 1.7.1-nightly (91376f4 2024-08-12)"}},
       {"clippy": {"version": "clippy 0.1.82 (91376f4 2024-08-12)"}},
       {"lockbud": {"version": "sha...", "date": "...", "rustToolchain": "..."}}, // lockbud 需要固定工具链
-      {"os-checker": {"start": "...", "finish": "..."}},
-      // ...
+      {"os-checker": {"start": "...", "finish": "..."}}
     ],
     "host": {
       "arch": "x86_64", // arch 命令
@@ -77,9 +74,9 @@
     }
   ],
   "data": [
-    {"idx": 0, "file": "path/to/file.rs", kind: "Clippy(Error)", "raw": "raw report ..."},
-    {"idx": 1, "file": "path/to/file.rs", kind: "Clippy(Warn)", "raw": "raw report ..."},
-    {"idx": 2, "file": "path/to/file.rs", kind: "Lockbud(DoubleLock)", "raw": "raw report ..."}
+    {"idx": 0, "file": "path/to/file.rs", "kind": "Clippy(Error)", "raw": "raw report ..."},
+    {"idx": 1, "file": "path/to/file.rs", "kind": "Clippy(Warn)", "raw": "raw report ..."},
+    {"idx": 2, "file": "path/to/file.rs", "kind": "Lockbud(DoubleLock)", "raw": "raw report ..."}
   ]
 }
 ```
