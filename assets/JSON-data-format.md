@@ -14,12 +14,11 @@
             * Rust 项目结构信息：由 [cargo metadata] 提供，重要的有 workspace 布局（即 cargoLayout，包含各个 package 的路径）
             * 其他基础信息：分支名、最后一次的提交 sha、时间等，可通过 Github API 获得，见末尾的 Misc
         * package 信息：每个检查工具作用的直接对象
+            * name：即 Cargo.toml 中的 `package.name`
             * 仓库信息索引
             * user：虽然通过仓库信息索引可以知道，但这个数据很常用，复制过来以减轻数据分析的复杂度
             * repo：理由同 user
             * branch：理由同 user；注意，同一个仓库下，不同 branch 的 package 应该视为不同的 packge（目前只考虑默认分支，因此一般情况下 package 就是指 `user repo package`）
-            * pkg：即 Cargo.toml 中的 `package.name`
-            * dir：即 cargo_toml_path 去除 Cargo.toml 的父目录；这可能也很常用，从 cargoLayout 复制过来
             * 定义的 cargo targets[^1]：需要确认，如果同时存在 main.rs 和 lib.rs，检查哪个或者都检查
             * 定义的 features：不仅是基础信息，还用于校验检查命令
 * 检查过程：每条检查结果必须通过数字索引对应一条检查过程；将过程和结果分开放置，是出于数据压缩考虑，把它们放到一起会很冗余
@@ -53,8 +52,12 @@
     "repos": [
       {"user": "arceos-org", "repo": "arceos", "cargoLayout": [...], "info": {...}}
     ],
-    "packages": [ // repo 指向 repos 数组中的一项
-      {"repo": 0, "user": "arceos-org", "repo": "arceos", "branch": "main", "pkg": "axstd", "dir": "/absolute/path/to/package", "cargo_targets": [...], "features": [...]}
+    "packages": [ // repo.idx 指向 repos 数组中的一项
+      {
+        "name": "axstd",
+        "repo": { "idx": 0, "user": "arceos-org", "repo": "arceos", "branch": "main"},
+        "cargo": {"targets": [...], "features": [...]}
+      }
     ]
   },
   "idx": [ // package 指向 packages 数组中的一项
