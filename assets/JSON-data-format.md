@@ -85,6 +85,8 @@
 
 # Misc：使用 Github API 获取仓库基础信息
 
+作为每个仓库基本信息，在 `.repos[].info` 字段中。
+
 ```console
 # 最后一次提交的时间和 sha
 $ export onwer=os-checker repo=os-checker
@@ -93,9 +95,8 @@ $ gh api "repos/$onwer/$repo/commits" --jq '.[0] | {sha, date: .commit.committer
 
 # arceos 仓库的主分支名和最后一次推送到主分支的时间、许可协议和一些统计数据
 $ export onwer=arceos-org repo=arceos
-$ gh api "repos/$onwer/$repo" -q '{branch:{default:.default_branch,pushed_at},license:{key:.license.key,name:.license
-.name},stats:{size,stargazers_count,watchers_count,subscribers_count,forks_count,open
-_issues_count}}'
+$ gh api "repos/$onwer/$repo" -q '{branch:{default:.default_branch,pushed_at},license:{key:.license.key,name:.license.name},
+  stats:{size,stargazers_count,watchers_count,subscribers_count,forks_count,open_issues_count}}'
 {
   "branch": {
     "default": "main",
