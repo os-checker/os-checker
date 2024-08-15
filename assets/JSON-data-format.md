@@ -24,6 +24,8 @@
 * 执行检查的命令：每条检查结果必须通过数字索引对应一条检查命令；将命令和结果分开，是出于数据压缩考虑
     * package 索引：指向检查对象；从某种角度说，完整的检查命令由工作目录（该信息就在检查对象信息内）和 shell 命令两部分组成
     * tool：检查工具名
+    * count：该检查命令产生的结果数量
+    * duration_ms：执行检查命令花费的毫秒时间；注意，每个检查命令以并行的方式执行
     * 检查命令：来自 os-checker 默认提供或者 os-checker 利用某种方式分析生成或者使用者指定的 shell 命令
     * 编译条件：
         * 架构名和架构目标三元组：即 `<arch>` 和 `<arch><sub>-<vendor>-<sys>-<abi>`
@@ -46,7 +48,7 @@
       "rust": {"version": "1.82.0-nightly (91376f416 2024-08-12)"},
       "clippy": {"version": "clippy 0.1.82 (91376f4 2024-08-12)"},
       "lockbud": {"version": "sha...", "date": "...", "rustToolchain": "..."}, // lockbud 需要固定工具链
-      "os-checker": {"start": "...", "finish": "..."}
+      "os-checker": {"start": "...", "finish": "...", "duration_ms": 3}
     },
     "host": {"arch": "x86_64", "kernel": "..."}, // arch 命令和 cat /proc/version
     "repos": [
@@ -62,20 +64,21 @@
   },
   "idx": [ // package 指向 packages 数组中的一项
     {
-      "package": 0, "tool": "clippy",
+      "package": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --no-deps --message-format=json",
       "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
       "features": ["a", "b"],
       "flags": ["--cfg=...", "-Z...", "-C..."]
     },
     {
-      "package": 0, "tool": "clippy",
+      "package": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
       "arch": "riscv64", "targetTriple": "riscv64gc-unknown-none-elf",
       "features": [], "flags": []
     },
     {
-      "package": 0, "tool": "lockbud", "cmd": "cargo lockbud",
+      "package": 0, "tool": "lockbud", "count": 1, "duration_ms": 1,
+      "cmd": "cargo lockbud",
       "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
       "features": [], "flags": []
     }
