@@ -33,7 +33,7 @@
     * idx 索引：指向一个检查过程，检查过程会包含检查对象（user/repo#package）
     * 问题文件路径：需统一处理所有工具报告的文件路径；有些工具报告绝对路径，有些报告相对路径，os-checker 尽量统一为相对路径；注意，如果问题来自该 package 之外，那么此时文件指向依赖项的绝对路径
     * 原始检查输出：严格来说，整个 JSON 都可以视为 os-checker 提供的检查结果，但在这个上下文，检查结果与原始检查输出同义
-    * 诊断类别：比如 clippy 这个工具可以发出 Warn/Error 两个类别、lockbud 可以发出围绕 deadlock/memory/panic 的一些更详细检查类别；我认为非常有必要分类展示检查结果
+    * 诊断类别：比如 clippy 这个工具可以发出 Warn/Error 两个类别、lockbud 可以围绕 deadlock/memory/panic 发出更详细检查类别；我认为分类展示检查结果非常必要
 
 [cargo metadata]: https://doc.rust-lang.org/cargo/commands/cargo-metadata.html#json-format
 
