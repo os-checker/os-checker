@@ -17,7 +17,7 @@
             * 仓库信息索引
             * user：虽然通过仓库信息索引可以知道，但这个数据很常用，复制过来以减轻数据分析的复杂度
             * repo：理由同 user
-            * branch：理由同 user；注意，同一个仓库下，不同 branch 的 package 应该视为不同的 packge（目前只考虑默认分支，因此可以直接使用 `user/repo#package`）
+            * branch：理由同 user；注意，同一个仓库下，不同 branch 的 package 应该视为不同的 packge（目前只考虑默认分支，因此一般情况下 package 就是指 `user repo package`）
             * pkg：即 Cargo.toml 中的 `package.name`
             * dir：即 cargo_toml_path 去除 Cargo.toml 的父目录；这可能也很常用，从 cargoLayout 复制过来
             * 定义的 cargo targets[^1]：需要确认，如果同时存在 main.rs 和 lib.rs，检查哪个或者
