@@ -4,42 +4,42 @@ use cargo_metadata::camino::Utf8PathBuf;
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-struct Env {
-    repos: Vec<Repo>,
-    packages: Vec<Package>,
+pub struct Env {
+    pub repos: Vec<Repo>,
+    pub packages: Vec<Package>,
 }
 
 #[derive(Debug, Serialize)]
-struct Repo {
-    user: XString,
-    repo: XString,
+pub struct Repo {
+    pub user: XString,
+    pub repo: XString,
 }
 
 #[derive(Debug, Serialize)]
-struct Package {
-    user: XString,
-    repo: PackageRepo,
+pub struct Package {
+    pub user: XString,
+    pub repo: PackageRepo,
 }
 
 #[derive(Debug, Serialize)]
-struct PackageRepo {
-    idx: usize,
-    user: XString,
-    repo: XString,
+pub struct PackageRepo {
+    pub idx: usize,
+    pub user: XString,
+    pub repo: XString,
 }
 
 #[derive(Debug, Serialize)]
-struct PackageCargo {
-    targets: Vec<String>,
-    features: Vec<String>,
+pub struct PackageCargo {
+    pub targets: Vec<String>,
+    pub features: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
-struct Data {
-    idx: usize,
-    file: Utf8PathBuf,
-    kind: Kind,
-    raw: String,
+pub struct Data {
+    pub idx: usize,
+    pub file: Utf8PathBuf,
+    pub kind: Kind,
+    pub raw: String,
 }
 
 /// The kind a checker reports.
