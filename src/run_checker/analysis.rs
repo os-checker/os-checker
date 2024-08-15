@@ -1,4 +1,5 @@
 use super::*;
+use crate::output::{Kind, Rustc, Unformatted};
 use ahash::{HashMap, HashMapExt, RandomState};
 use cargo_metadata::camino::Utf8Path;
 use compact_str::{format_compact, ToCompactString};
@@ -354,34 +355,6 @@ impl CountKey {
             kind: Kind::Clippy(Rustc::Error),
         }
     }
-}
-
-/// The kind a checker reports.
-#[allow(unused)]
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
-pub enum Kind {
-    /// fmt
-    Unformatted(Unformatted),
-    /// clippy
-    Clippy(Rustc),
-    /// miri
-    UndefinedBehavior(Rustc),
-    /// semver-checks
-    SemverViolation,
-    /// TODO
-    Lockbud,
-}
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
-pub enum Unformatted {
-    File,
-    Line,
-}
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
-pub enum Rustc {
-    Warn,
-    Error,
 }
 
 #[derive(Serialize)]
