@@ -20,11 +20,11 @@
             * branch：理由同 user；注意，同一个仓库下，不同 branch 的 package 应该视为不同的 packge（目前只考虑默认分支，因此一般情况下 package 就是指 `user repo package`）
             * pkg：即 Cargo.toml 中的 `package.name`
             * dir：即 cargo_toml_path 去除 Cargo.toml 的父目录；这可能也很常用，从 cargoLayout 复制过来
-            * 定义的 cargo targets[^1]：需要确认，如果同时存在 main.rs 和 lib.rs，检查哪个或者
+            * 定义的 cargo targets[^1]：需要确认，如果同时存在 main.rs 和 lib.rs，检查哪个或者都检查
             * 定义的 features：不仅是基础信息，还用于校验检查命令
 * 检查过程：每条检查结果必须通过数字索引对应一条检查过程；将过程和结果分开放置，是出于数据压缩考虑，把它们放到一起会很冗余
     * package 索引：指向检查对象
-    * 检查工具名
+    * tool：检查工具名
     * 检查命令：来自 os-checker 默认提供或者 os-checker 利用某种方式分析生成或者使用者指定
     * 编译条件：
         * 架构名和架构目标三元组：即 `<arch>` 和 `<arch><sub>-<vendor>-<sys>-<abi>`
@@ -33,8 +33,8 @@
 * 检查结果：问题文件信息；实际上，问题发生的地点应该由 `(文件名, 行, 列)` 描述，但出于简化，只到文件级别
     * idx 索引：指向一个检查过程，检查过程会包含检查对象（user/repo#package）
     * 问题文件路径：需统一处理所有工具报告的文件路径；有些工具报告绝对路径，有些报告相对路径，os-checker 尽量统一为相对路径；注意，如果问题来自该 package 之外，那么此时文件指向依赖项的绝对路径
-    * 原始检查输出
-    * 诊断类别：比如 clippy 这个工具可以发出 `Clippy(Warn | Error)` 两个类别、lockbud 可以发出围绕 deadlock/memory/panic 的一些详细检查类别；我认为分类展示检查结果，非常有必要
+    * 原始检查输出：严格来说，整个 JSON 都可以视为 os-checker 提供的检查结果，但在这个上下文，检查结果与原始检查输出同义
+    * 诊断类别：比如 clippy 这个工具可以发出 Warn/Error 两个类别、lockbud 可以发出围绕 deadlock/memory/panic 的一些更详细检查类别；我认为非常有必要分类展示检查结果
 
 [cargo metadata]: https://doc.rust-lang.org/cargo/commands/cargo-metadata.html#json-format
 
