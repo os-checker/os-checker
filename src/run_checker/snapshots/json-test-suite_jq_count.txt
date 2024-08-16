@@ -6,7 +6,7 @@
       "package_idx": 0,
       "tool": "Fmt",
       "count": 4,
-      "duration_ms": 225
+      "duration_ms": 179
     },
     "package": {
       "name": "os-checker-test-suite",
@@ -28,7 +28,7 @@
       "package_idx": 0,
       "tool": "Clippy",
       "count": 2,
-      "duration_ms": 184
+      "duration_ms": 206
     },
     "package": {
       "name": "os-checker-test-suite",

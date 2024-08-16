@@ -79,7 +79,6 @@ pub struct Data {
 /// The kind a checker reports.
 #[allow(unused)]
 #[derive(Debug, Serialize)]
-#[serde(untagged)]
 pub enum Kind {
     /// fmt
     Unformatted,
