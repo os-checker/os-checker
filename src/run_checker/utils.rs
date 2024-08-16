@@ -1,7 +1,7 @@
 use super::{
     CargoMessage, ClippyMessage, ClippyTag, FmtMessage, Output as RawOutput, OutputParsed,
 };
-use crate::output::*;
+use crate::output::{Data, Idx, Kind};
 use cargo_metadata::camino::Utf8Path;
 use std::fmt::Write;
 
@@ -65,8 +65,7 @@ fn push_unformatted(v: &[FmtMessage], with: WithData) {
         with.data.extend(raw_message_fmt(mes).map(|raw| Data {
             idx: with.data_idx,
             file: file.to_owned(),
-            // FIXME: 预计移除 Unformatted enum
-            kind: Kind::Unformatted(Unformatted::File),
+            kind: Kind::Unformatted,
             raw,
         }));
     }
@@ -138,7 +137,7 @@ fn push_clippy(v: &[ClippyMessage], with: WithData) {
                         with.data.push(Data {
                             idx: with.data_idx,
                             file: file.to_owned(),
-                            kind: Kind::Clippy(Rustc::Warn),
+                            kind: Kind::ClippyWarn,
                             raw,
                         });
                     };
@@ -151,7 +150,7 @@ fn push_clippy(v: &[ClippyMessage], with: WithData) {
                         with.data.push(Data {
                             idx: with.data_idx,
                             file: file.to_owned(),
-                            kind: Kind::Clippy(Rustc::Error),
+                            kind: Kind::ClippyError,
                             raw,
                         });
                     };

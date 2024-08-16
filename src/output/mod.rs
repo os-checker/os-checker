@@ -78,28 +78,19 @@ pub struct Data {
 
 /// The kind a checker reports.
 #[allow(unused)]
-#[derive(Debug, Serialize, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
+#[derive(Debug, Serialize)]
+#[serde(untagged)]
 pub enum Kind {
     /// fmt
-    Unformatted(Unformatted),
-    /// clippy
-    Clippy(Rustc),
+    Unformatted,
+    #[serde(rename = "Clippy(Warn)")]
+    ClippyWarn,
+    #[serde(rename = "Clippy(Error)")]
+    ClippyError,
     /// miri
-    UndefinedBehavior(Rustc),
+    Miri,
     /// semver-checks
     SemverViolation,
     /// TODO
     Lockbud,
-}
-
-#[derive(Debug, Serialize, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
-pub enum Unformatted {
-    File,
-    Line,
-}
-
-#[derive(Debug, Serialize, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
-pub enum Rustc {
-    Warn,
-    Error,
 }
