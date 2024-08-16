@@ -1,5 +1,5 @@
 file://./repos/os-checker-test-suite/:
   all: true
 
-# file://repos/arceos:
-#   all: true
+file://repos/arceos:
+  all: true
