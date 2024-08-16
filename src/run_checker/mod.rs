@@ -14,6 +14,9 @@ use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
 
+#[cfg(test)]
+mod tests;
+
 pub struct RepoOutput {
     repo: Repo,
     outputs: Vec<PackageOutput>,
