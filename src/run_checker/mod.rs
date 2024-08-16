@@ -269,13 +269,13 @@ impl OutputParsed {
             OutputParsed::Clippy(v) => v
                 .iter()
                 .filter_map(|mes| match &mes.tag {
-                    ClippyTag::WarnDetailed(_) | ClippyTag::ErrorDetailed(_) => {
+                    ClippyTag::WarnDetailed(p) | ClippyTag::ErrorDetailed(p) => {
                         // os-checker 根据每个可渲染内容的文件路径来发出原始输出
                         match &mes.inner {
                             CargoMessage::CompilerMessage(cmes)
                                 if cmes.message.rendered.is_some() =>
                             {
-                                Some(1)
+                                Some(p.len())
                             }
                             _ => None,
                         }
@@ -369,6 +369,7 @@ pub struct FmtMismatch {
     expected: Box<str>,
 }
 
+// FIXME: 利用 summary 来检验数量
 #[derive(Debug)]
 pub enum ClippyTag {
     /// non-summary / detailed message with primary span paths
@@ -417,7 +418,7 @@ fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
             match (warn, error) {
                 (None, None) => {
                     let spans = mes.message.spans.iter();
-                    let path = spans
+                    let mut paths: Box<_> = spans
                         .filter_map(|span| {
                             if span.is_primary {
                                 Some(Utf8PathBuf::from(&span.file_name))
@@ -426,10 +427,15 @@ fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
                             }
                         })
                         .collect();
+                    // NOTE: path 有可能是空，但该信息依然可能很重要（比如来自 rustc
+                    // 报告的错误，只不过没有指向具体的文件路径)
+                    if paths.is_empty() {
+                        paths = Box::new(["unkonwn-but-maybe-important".into()]);
+                    }
                     if matches!(mes.message.level, DiagnosticLevel::Warning) {
-                        ClippyTag::WarnDetailed(path)
+                        ClippyTag::WarnDetailed(paths)
                     } else {
-                        ClippyTag::ErrorDetailed(path)
+                        ClippyTag::ErrorDetailed(paths)
                     }
                 }
                 (None, Some(e)) => ClippyTag::Error(e),
