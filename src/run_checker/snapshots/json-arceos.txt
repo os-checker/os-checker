@@ -10,7 +10,7 @@
       {
         "name": "allocator",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -18,7 +18,7 @@
       {
         "name": "arceos-bwbench",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -26,7 +26,7 @@
       {
         "name": "arceos-display",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -34,7 +34,7 @@
       {
         "name": "arceos-echoserver",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -42,7 +42,7 @@
       {
         "name": "arceos-exception",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -50,7 +50,7 @@
       {
         "name": "arceos-helloworld",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -58,7 +58,7 @@
       {
         "name": "arceos-httpclient",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -66,7 +66,7 @@
       {
         "name": "arceos-httpserver",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -74,7 +74,7 @@
       {
         "name": "arceos-memtest",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -82,7 +82,7 @@
       {
         "name": "arceos-parallel",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -90,7 +90,7 @@
       {
         "name": "arceos-priority",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -98,7 +98,7 @@
       {
         "name": "arceos-shell",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -106,7 +106,7 @@
       {
         "name": "arceos-sleep",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -114,7 +114,7 @@
       {
         "name": "arceos-tls",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -122,7 +122,7 @@
       {
         "name": "arceos-udpserver",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -130,7 +130,7 @@
       {
         "name": "arceos-yield",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -138,7 +138,7 @@
       {
         "name": "arceos_api",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -146,7 +146,7 @@
       {
         "name": "arceos_posix_api",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -154,7 +154,7 @@
       {
         "name": "arm_gic",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -162,7 +162,7 @@
       {
         "name": "arm_pl011",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -170,7 +170,7 @@
       {
         "name": "axalloc",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -178,7 +178,7 @@
       {
         "name": "axconfig",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -186,7 +186,7 @@
       {
         "name": "axdisplay",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -194,7 +194,7 @@
       {
         "name": "axdriver",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -202,7 +202,7 @@
       {
         "name": "axerrno",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -210,7 +210,7 @@
       {
         "name": "axfeat",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -218,7 +218,7 @@
       {
         "name": "axfs",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -226,7 +226,7 @@
       {
         "name": "axfs_devfs",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -234,7 +234,7 @@
       {
         "name": "axfs_ramfs",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -242,7 +242,7 @@
       {
         "name": "axfs_vfs",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -250,7 +250,7 @@
       {
         "name": "axhal",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -258,7 +258,7 @@
       {
         "name": "axio",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -266,7 +266,7 @@
       {
         "name": "axlibc",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -274,7 +274,7 @@
       {
         "name": "axlog",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -282,7 +282,7 @@
       {
         "name": "axnet",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -290,7 +290,7 @@
       {
         "name": "axruntime",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -298,7 +298,7 @@
       {
         "name": "axstd",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -306,7 +306,7 @@
       {
         "name": "axsync",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -314,7 +314,7 @@
       {
         "name": "axtask",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -322,7 +322,7 @@
       {
         "name": "bwbench-client",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -330,7 +330,7 @@
       {
         "name": "capability",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -338,7 +338,7 @@
       {
         "name": "crate_interface",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -346,7 +346,7 @@
       {
         "name": "deptool",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -354,7 +354,7 @@
       {
         "name": "driver_block",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -362,7 +362,7 @@
       {
         "name": "driver_common",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -370,7 +370,7 @@
       {
         "name": "driver_display",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -378,7 +378,7 @@
       {
         "name": "driver_net",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -386,7 +386,7 @@
       {
         "name": "driver_pci",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -394,7 +394,7 @@
       {
         "name": "driver_virtio",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -402,7 +402,7 @@
       {
         "name": "dw_apb_uart",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -410,7 +410,7 @@
       {
         "name": "flatten_objects",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -418,7 +418,7 @@
       {
         "name": "handler_table",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -426,7 +426,7 @@
       {
         "name": "kernel_guard",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -434,7 +434,7 @@
       {
         "name": "lazy_init",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -442,7 +442,7 @@
       {
         "name": "linked_list",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -450,7 +450,7 @@
       {
         "name": "memory_addr",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -458,7 +458,7 @@
       {
         "name": "mingo",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -466,7 +466,7 @@
       {
         "name": "page_table",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -474,7 +474,7 @@
       {
         "name": "page_table_entry",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -482,7 +482,7 @@
       {
         "name": "percpu",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -490,7 +490,7 @@
       {
         "name": "percpu_macros",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -498,7 +498,7 @@
       {
         "name": "ratio",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -506,7 +506,7 @@
       {
         "name": "scheduler",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -514,7 +514,7 @@
       {
         "name": "slab_allocator",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -522,7 +522,7 @@
       {
         "name": "spinlock",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -530,7 +530,7 @@
       {
         "name": "timer_list",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
@@ -538,566 +538,16 @@
       {
         "name": "tuple_for_each",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "arceos"
         }
       }
     ]
   },
-  "idx": [
+  "cmd": [
     {
-      "package": 0,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 671,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 0,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 2,
-      "duration_ms": 1245,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 1,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 222,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 1,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 2,
-      "duration_ms": 2953,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 2,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 216,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 2,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 1,
-      "duration_ms": 872,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 3,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 209,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 3,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 221,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 4,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 208,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 4,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 212,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 5,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 235,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 5,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 231,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 6,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 213,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 6,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 238,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 7,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 236,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 7,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 241,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 8,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 238,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 8,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 263,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 9,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 232,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 9,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 227,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 10,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 307,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 10,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 1,
-      "duration_ms": 428,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 11,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 259,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 11,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 253,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 12,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 220,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 12,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 232,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 13,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 254,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 13,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 228,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 14,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 215,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 14,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 258,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 15,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 212,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 15,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 234,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 16,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 218,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 16,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 291,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 17,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 261,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 17,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 1167,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 18,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 219,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 18,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 238,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 19,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 240,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 19,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 234,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 20,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 239,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 20,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 249,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 21,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 235,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 21,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 239,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 22,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 241,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 22,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 4,
-      "duration_ms": 758,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 23,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 419,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 23,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 2,
-      "duration_ms": 1071,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 24,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 258,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 24,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 233,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 25,
+      "package_idx": 0,
       "tool": "Fmt",
       "cmd": "",
       "count": 0,
@@ -1108,40 +558,1360 @@
       "flags": []
     },
     {
-      "package": 25,
+      "package_idx": 0,
       "tool": "Clippy",
       "cmd": "",
-      "count": 0,
-      "duration_ms": 273,
+      "count": 2,
+      "duration_ms": 1156,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 26,
+      "package_idx": 1,
       "tool": "Fmt",
       "cmd": "",
       "count": 0,
-      "duration_ms": 270,
+      "duration_ms": 202,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 26,
+      "package_idx": 1,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 2,
+      "duration_ms": 1529,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 2,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 266,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 2,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 1,
+      "duration_ms": 537,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 3,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 188,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 3,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 198,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 4,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 189,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 4,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 201,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 5,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 186,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 5,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 197,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 6,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 192,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 6,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 200,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 7,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 204,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 7,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 199,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 8,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 209,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 8,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 222,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 9,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 191,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 9,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 204,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 10,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 187,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 10,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 1,
+      "duration_ms": 198,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 11,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 205,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 11,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 217,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 12,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 204,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 12,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 295,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 13,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 197,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 13,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 203,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 14,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 190,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 14,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 207,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 15,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 190,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 15,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 199,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 16,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 202,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 16,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 246,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 17,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 248,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 17,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 630,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 18,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 193,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 18,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 199,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 19,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 193,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 19,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 202,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 20,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 207,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 20,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 205,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 21,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 200,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 21,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 205,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 22,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 193,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 22,
       "tool": "Clippy",
       "cmd": "",
       "count": 4,
-      "duration_ms": 413,
+      "duration_ms": 358,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 27,
+      "package_idx": 23,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 215,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 23,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 2,
+      "duration_ms": 346,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 24,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 209,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 24,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 213,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 25,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 192,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 25,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 234,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 26,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 241,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 26,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 4,
+      "duration_ms": 382,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 27,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 199,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 27,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 202,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 28,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 204,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 28,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 260,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 29,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 214,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 29,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 202,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 30,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 303,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 30,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 226,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 31,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 200,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 31,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 197,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 32,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 258,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 32,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 1,
+      "duration_ms": 669,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 33,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 191,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 33,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 216,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 34,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 351,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 34,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 4,
+      "duration_ms": 337,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 35,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 197,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 35,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 218,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 36,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 239,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 36,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 289,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 37,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 204,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 37,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 228,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 38,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 210,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 38,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 230,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 39,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 171,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 39,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 1,
+      "duration_ms": 480,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 40,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 182,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 40,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 196,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 41,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 206,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 41,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 226,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 42,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 35,
+      "duration_ms": 180,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 42,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 10,
+      "duration_ms": 300,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 43,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 198,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 43,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 258,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 44,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 210,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 44,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 192,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 45,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 186,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 45,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 190,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 46,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 207,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 46,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 202,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 47,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 205,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 47,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 231,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 48,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 232,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 48,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 217,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 49,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 197,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 49,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 194,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 50,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 188,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 50,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 195,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 51,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 204,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 51,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 199,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 52,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 199,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 52,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 197,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 53,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 199,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 53,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 210,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 54,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 198,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 54,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 2,
+      "duration_ms": 195,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 55,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 191,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 55,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 196,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 56,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 217,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 56,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 8,
+      "duration_ms": 337,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 57,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 198,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 57,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 204,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 58,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 202,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 58,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 212,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 59,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 200,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 59,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 202,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 60,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 196,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 60,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 206,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 61,
+      "tool": "Fmt",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 205,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 61,
+      "tool": "Clippy",
+      "cmd": "",
+      "count": 0,
+      "duration_ms": 197,
+      "arch": "",
+      "target_triple": "",
+      "features": [],
+      "flags": []
+    },
+    {
+      "package_idx": 62,
       "tool": "Fmt",
       "cmd": "",
       "count": 0,
@@ -1152,869 +1922,99 @@
       "flags": []
     },
     {
-      "package": 27,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 247,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 28,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 237,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 28,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 253,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 29,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 236,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 29,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 253,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 30,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 278,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 30,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 307,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 31,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 260,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 31,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 250,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 32,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 249,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 32,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 1,
-      "duration_ms": 1288,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 33,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 370,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 33,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 365,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 34,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 278,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 34,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 4,
-      "duration_ms": 696,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 35,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 450,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 35,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 434,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 36,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 503,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 36,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 507,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 37,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 397,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 37,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 494,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 38,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 451,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 38,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 462,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 39,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 358,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 39,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 1,
-      "duration_ms": 1470,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 40,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 480,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 40,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 576,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 41,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 469,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 41,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 856,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 42,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 35,
-      "duration_ms": 671,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 42,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 10,
-      "duration_ms": 418,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 43,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 469,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 43,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 518,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 44,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 494,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 44,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 498,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 45,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 463,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 45,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 425,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 46,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 505,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 46,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 310,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 47,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 482,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 47,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 525,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 48,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 563,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 48,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 557,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 49,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 338,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 49,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 542,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 50,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 480,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 50,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 633,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 51,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 459,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 51,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 456,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 52,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 664,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 52,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 550,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 53,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 467,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 53,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 446,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 54,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 431,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 54,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 2,
-      "duration_ms": 452,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 55,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 451,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 55,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 447,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 56,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 541,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 56,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 8,
-      "duration_ms": 725,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 57,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 472,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 57,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 489,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 58,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 457,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 58,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 495,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 59,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 465,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 59,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 508,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 60,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 473,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 60,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 466,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 61,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 462,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 61,
-      "tool": "Clippy",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 478,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 62,
-      "tool": "Fmt",
-      "cmd": "",
-      "count": 0,
-      "duration_ms": 473,
-      "arch": "",
-      "target_triple": "",
-      "features": [],
-      "flags": []
-    },
-    {
-      "package": 62,
+      "package_idx": 62,
       "tool": "Clippy",
       "cmd": "",
       "count": 5,
-      "duration_ms": 472,
+      "duration_ms": 242,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 63,
+      "package_idx": 63,
       "tool": "Fmt",
       "cmd": "",
       "count": 0,
-      "duration_ms": 465,
+      "duration_ms": 201,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 63,
+      "package_idx": 63,
       "tool": "Clippy",
       "cmd": "",
       "count": 1,
-      "duration_ms": 873,
+      "duration_ms": 217,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 64,
+      "package_idx": 64,
       "tool": "Fmt",
       "cmd": "",
       "count": 0,
-      "duration_ms": 594,
+      "duration_ms": 213,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 64,
+      "package_idx": 64,
       "tool": "Clippy",
       "cmd": "",
       "count": 0,
-      "duration_ms": 791,
+      "duration_ms": 231,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 65,
+      "package_idx": 65,
       "tool": "Fmt",
       "cmd": "",
       "count": 0,
-      "duration_ms": 617,
+      "duration_ms": 198,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 65,
+      "package_idx": 65,
       "tool": "Clippy",
       "cmd": "",
       "count": 0,
-      "duration_ms": 543,
+      "duration_ms": 241,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 66,
+      "package_idx": 66,
       "tool": "Fmt",
       "cmd": "",
       "count": 0,
-      "duration_ms": 453,
+      "duration_ms": 235,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 66,
+      "package_idx": 66,
       "tool": "Clippy",
       "cmd": "",
       "count": 0,
-      "duration_ms": 476,
+      "duration_ms": 206,
       "arch": "",
       "target_triple": "",
       "features": [],
@@ -2023,499 +2023,499 @@
   ],
   "data": [
     {
-      "idx": 1,
+      "cmd_idx": 1,
       "file": "crates/allocator/src/lib.rs",
       "kind": null,
       "raw": "warning: function `align_down` is never used\n   --> crates/allocator/src/lib.rs:126:10\n    |\n126 | const fn align_down(pos: usize, align: usize) -> usize {\n    |          ^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` on by default\n\n"
     },
     {
-      "idx": 1,
+      "cmd_idx": 1,
       "file": "crates/allocator/src/lib.rs",
       "kind": null,
       "raw": "warning: function `align_up` is never used\n   --> crates/allocator/src/lib.rs:131:10\n    |\n131 | const fn align_up(pos: usize, align: usize) -> usize {\n    |          ^^^^^^^^\n\n"
     },
     {
-      "idx": 3,
+      "cmd_idx": 3,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_name` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n59 |     /// The name of the device.\n60 |     fn device_name(&self) -> &str;\n   |     ------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 3,
+      "cmd_idx": 3,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n...\n63 |     fn device_type(&self) -> DeviceType;\n   |     ------------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 5,
+      "cmd_idx": 5,
       "file": "apps/display/src/display.rs",
       "kind": null,
       "raw": "error[E0433]: failed to resolve: could not find `arceos` in `os`\n --> apps/display/src/display.rs:5:14\n  |\n5 | use std::os::arceos::api::display as api;\n  |              ^^^^^^ could not find `arceos` in `os`\n\n"
     },
     {
-      "idx": 21,
+      "cmd_idx": 21,
       "file": "apps/task/priority/src/main.rs",
       "kind": null,
       "raw": "warning: unused variable: `nice`\n  --> apps/task/priority/src/main.rs:80:13\n   |\n80 |         let nice = TASK_PARAMS[i].nice;\n   |             ^^^^ help: if this is intentional, prefix it with an underscore: `_nice`\n   |\n   = note: `#[warn(unused_variables)]` on by default\n\n"
     },
     {
-      "idx": 45,
+      "cmd_idx": 45,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n...\n63 |     fn device_type(&self) -> DeviceType;\n   |     ------------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 45,
+      "cmd_idx": 45,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_name` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n59 |     /// The name of the device.\n60 |     fn device_name(&self) -> &str;\n   |     ------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 45,
+      "cmd_idx": 45,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n...\n63 |     fn device_type(&self) -> DeviceType;\n   |     ------------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 45,
+      "cmd_idx": 45,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_name` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n59 |     /// The name of the device.\n60 |     fn device_name(&self) -> &str;\n   |     ------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 47,
+      "cmd_idx": 47,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n...\n63 |     fn device_type(&self) -> DeviceType;\n   |     ------------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 47,
+      "cmd_idx": 47,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_name` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n59 |     /// The name of the device.\n60 |     fn device_name(&self) -> &str;\n   |     ------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 53,
+      "cmd_idx": 53,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n...\n63 |     fn device_type(&self) -> DeviceType;\n   |     ------------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 53,
+      "cmd_idx": 53,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_name` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n59 |     /// The name of the device.\n60 |     fn device_name(&self) -> &str;\n   |     ------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 53,
+      "cmd_idx": 53,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n...\n63 |     fn device_type(&self) -> DeviceType;\n   |     ------------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 53,
+      "cmd_idx": 53,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_name` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n59 |     /// The name of the device.\n60 |     fn device_name(&self) -> &str;\n   |     ------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 65,
+      "cmd_idx": 65,
       "file": "ulib/axlibc/src/setjmp.rs",
       "kind": null,
       "raw": "error: avoid using labels containing only the digits `0` and `1` in inline assembly\n   --> ulib/axlibc/src/setjmp.rs:166:13\n    |\n166 |           jnz 1f\n    |  _____________^\n167 | |         inc rax\n168 | |     1:\n    | |_____^ use a different label that doesn't start with `0` or `1`\n    |\n    = help: start numbering with `2` instead\n    = note: an LLVM bug makes these labels ambiguous with a binary literal number on x86\n    = note: see <https://github.com/llvm/llvm-project/issues/99547> for more information\n    = note: `#[deny(binary_asm_labels)]` on by default\n\n"
     },
     {
-      "idx": 69,
+      "cmd_idx": 69,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n...\n63 |     fn device_type(&self) -> DeviceType;\n   |     ------------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 69,
+      "cmd_idx": 69,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_name` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n59 |     /// The name of the device.\n60 |     fn device_name(&self) -> &str;\n   |     ------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 69,
+      "cmd_idx": 69,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_type` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n...\n63 |     fn device_type(&self) -> DeviceType;\n   |     ------------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 69,
+      "cmd_idx": 69,
       "file": "/rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs",
       "kind": null,
       "raw": "error[E0049]: method `device_name` has 1 const parameter but its trait declaration has 0 const parameters\n  --> /rust/my/os-checker/repos/arceos/crates/driver_common/src/lib.rs:58:11\n   |\n58 | pub trait BaseDriverOps: Send + Sync {\n   |           ^^^^^^^^^^^^^ found 1 const parameter\n59 |     /// The name of the device.\n60 |     fn device_name(&self) -> &str;\n   |     ------------------------------ expected 0 const parameters\n\n"
     },
     {
-      "idx": 79,
+      "cmd_idx": 79,
       "file": "src/device.rs",
       "kind": null,
       "raw": "error: the loop variable `i` is used to index `mac_addr`\n  --> src/device.rs:80:22\n   |\n80 |             for i in 0..6 {\n   |                      ^^^^\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop\nnote: the lint level is defined here\n  --> src/main.rs:3:9\n   |\n3  | #![deny(warnings)]\n   |         ^^^^^^^^\n   = note: `#[deny(clippy::needless_range_loop)]` implied by `#[deny(warnings)]`\nhelp: consider using an iterator and enumerate()\n   |\n80 |             for (i, <item>) in mac_addr.iter_mut().enumerate() {\n   |                 ~~~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_builder.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_builder.rs (original lines from 6 to 6)\n-        false => \"--no-default-features\"\n+        false => \"--no-default-features\",\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_builder.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_builder.rs (original lines from 11 to 11)\n-        _ => \"-F \".to_string() + cfg.features.join(\" \").as_str()\n+        _ => \"-F \".to_string() + cfg.features.join(\" \").as_str(),\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 1 to 2)\n-use std::{fs, path::Path};\n-use clap::{Arg, ArgAction, Command};\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 4 to 4)\n+use clap::{Arg, ArgAction, Command};\n+use std::{fs, path::Path};\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 10 to 10)\n-\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 18 to 18)\n-            Arg::new(\"no-default\").short('d').long(\"no-default\").action(ArgAction::SetFalse)\n+            Arg::new(\"no-default\")\n+                .short('d')\n+                .long(\"no-default\")\n+                .action(ArgAction::SetFalse),\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 21 to 21)\n-            Arg::new(\"features\").short('f').long(\"name\").action(ArgAction::Append)\n+            Arg::new(\"features\")\n+                .short('f')\n+                .long(\"name\")\n+                .action(ArgAction::Append),\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 24 to 24)\n-            Arg::new(\"format\").short('o').long(\"format\").default_value(\"mermaid\")\n+            Arg::new(\"format\")\n+                .short('o')\n+                .long(\"format\")\n+                .default_value(\"mermaid\"),\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 26 to 26)\n+        .arg(Arg::new(\"target\").short('t').long(\"target\").required(true))\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 27 to 27)\n-            Arg::new(\"target\").short('t').long(\"target\").required(true)\n+            Arg::new(\"save-path\")\n+                .short('s')\n+                .long(\"save-path\")\n+                .default_value(\"out.txt\"),\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 29 to 31)\n-        .arg(\n-            Arg::new(\"save-path\").short('s').long(\"save-path\").default_value(\"out.txt\")\n-        )\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 35 to 35)\n-    let features = matches.get_many::<String>(\"features\").unwrap_or_default()\n+    let features = matches\n+        .get_many::<String>(\"features\")\n+        .unwrap_or_default()\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 40 to 40)\n-        _ => GraphFormat::Mermaid\n+        _ => GraphFormat::Mermaid,\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 59 to 59)\n-fn gen_config(is_default: bool, features: Vec::<String>, format: GraphFormat, loc: String, output_loc: String) -> Config {\n+fn gen_config(\n+    is_default: bool,\n+    features: Vec<String>,\n+    format: GraphFormat,\n+    loc: String,\n+    output_loc: String,\n+) -> Config {\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 65 to 65)\n-    crates.into_iter().map(|p| p.unwrap().file_name()).any(|n| n.to_str().unwrap() == name)\n+    crates\n+        .into_iter()\n+        .map(|p| p.unwrap().file_name())\n+        .any(|n| n.to_str().unwrap() == name)\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 70 to 70)\n-    crates.into_iter().map(|p| p.unwrap().file_name()).any(|n| n.to_str().unwrap() == name)\n+    crates\n+        .into_iter()\n+        .map(|p| p.unwrap().file_name())\n+        .any(|n| n.to_str().unwrap() == name)\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/cmd_parser.rs (original lines from 82 to 82)\n-    check_crate_name(&name) || check_module_name(&name) || check_app_name(name) || check_lib_name(name)\n+    check_crate_name(&name)\n+        || check_module_name(&name)\n+        || check_app_name(name)\n+        || check_lib_name(name)\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/d2_generator.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/d2_generator.rs (original lines from 3 to 3)\n-use crate::{parse_deps, cmd_parser::is_arceos_crate};\n+use crate::{cmd_parser::is_arceos_crate, parse_deps};\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 1 to 1)\n-mod cmd_parser;\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 3 to 3)\n-mod mermaid_generator;\n+mod cmd_parser;\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 5 to 5)\n+mod mermaid_generator;\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 6 to 6)\n-use std::process::Command;\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 9 to 9)\n+use std::process::Command;\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 11 to 11)\n-pub use cmd_parser::{parse_cmd, build_loc};\n+pub use cmd_parser::{build_loc, parse_cmd};\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 17 to 18)\n-   Mermaid,\n-   D2,\n+    Mermaid,\n+    D2,\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 25 to 25)\n-    pub features: Vec::<String>,\n+    pub features: Vec<String>,\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 27 to 27)\n-    output_loc: String\n+    output_loc: String,\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 31 to 32)\n-    pub fn build(no_default: bool, features: Vec::<String>, format: GraphFormat, loc: String, output_loc: String) -> Config {\n-        Config { no_default, format, features, loc, output_loc }\n+    pub fn build(\n+        no_default: bool,\n+        features: Vec<String>,\n+        format: GraphFormat,\n+        loc: String,\n+        output_loc: String,\n+    ) -> Config {\n+        Config {\n+            no_default,\n+            format,\n+            features,\n+            loc,\n+            output_loc,\n+        }\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 41 to 43)\n-                .args(cmds)\n-                .output()\n-                .expect(\"failed to execute process\")\n+            .args(cmds)\n+            .output()\n+            .expect(\"failed to execute process\")\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 46 to 48)\n-                .args(cmds)\n-                .output()\n-                .expect(\"failed to execute process\")\n+            .args(cmds)\n+            .output()\n+            .expect(\"failed to execute process\")\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 56 to 56)\n-    let mut rst = vec!();\n+    let mut rst = vec![];\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 83 to 83)\n-        _ => generate_mermaid(config)\n+        _ => generate_mermaid(config),\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/lib.rs (original lines from 97 to 98)\n-        Ok(()) => {},\n-        Err(error) => println!(\"Error during writing file {}, {}\", config.output_loc, error)\n+        Ok(()) => {}\n+        Err(error) => println!(\"Error during writing file {}, {}\", config.output_loc, error),\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/mermaid_generator.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/mermaid_generator.rs (original lines from 3 to 3)\n-use crate::{parse_deps, cmd_parser::is_arceos_crate};\n+use crate::{cmd_parser::is_arceos_crate, parse_deps};\n"
     },
     {
-      "idx": 84,
+      "cmd_idx": 84,
       "file": "src/main.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/arceos/tools/deptool/src/main.rs (original lines from 1 to 1)\n-use deptool::{run, parse_cmd};\n+use deptool::{parse_cmd, run};\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "warning: this expression creates a reference which is immediately dereferenced by the compiler\n  --> src/cmd_parser.rs:82:22\n   |\n82 |     check_crate_name(&name) || check_module_name(&name) || check_app_name(name) || check_lib_name(name)\n   |                      ^^^^^ help: change this to: `name`\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_borrow\n   = note: `#[warn(clippy::needless_borrow)]` on by default\n\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/cmd_parser.rs",
       "kind": null,
       "raw": "warning: this expression creates a reference which is immediately dereferenced by the compiler\n  --> src/cmd_parser.rs:82:50\n   |\n82 |     check_crate_name(&name) || check_module_name(&name) || check_app_name(name) || check_lib_name(name)\n   |                                                  ^^^^^ help: change this to: `name`\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_borrow\n\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/mermaid_generator.rs",
       "kind": null,
       "raw": "warning: this expression creates a reference which is immediately dereferenced by the compiler\n --> src/mermaid_generator.rs:6:34\n  |\n6 |     let deps_parsed = parse_deps(&deps);\n  |                                  ^^^^^ help: change this to: `deps`\n  |\n  = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_borrow\n\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/mermaid_generator.rs",
       "kind": null,
       "raw": "warning: this expression creates a reference which is immediately dereferenced by the compiler\n  --> src/mermaid_generator.rs:16:29\n   |\n16 |         if !is_arceos_crate(&name) {\n   |                             ^^^^^ help: change this to: `name`\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_borrow\n\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/mermaid_generator.rs",
       "kind": null,
       "raw": "warning: this expression creates a reference which is immediately dereferenced by the compiler\n  --> src/mermaid_generator.rs:32:32\n   |\n32 |             parsed_crates.push(&name);\n   |                                ^^^^^ help: change this to: `name`\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_borrow\n\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/d2_generator.rs",
       "kind": null,
       "raw": "warning: this expression creates a reference which is immediately dereferenced by the compiler\n --> src/d2_generator.rs:8:34\n  |\n8 |     let deps_parsed = parse_deps(&deps);\n  |                                  ^^^^^ help: change this to: `deps`\n  |\n  = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_borrow\n\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/d2_generator.rs",
       "kind": null,
       "raw": "warning: this expression creates a reference which is immediately dereferenced by the compiler\n  --> src/d2_generator.rs:18:29\n   |\n18 |         if !is_arceos_crate(&name) {\n   |                             ^^^^^ help: change this to: `name`\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_borrow\n\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/d2_generator.rs",
       "kind": null,
       "raw": "warning: this expression creates a reference which is immediately dereferenced by the compiler\n  --> src/d2_generator.rs:34:32\n   |\n34 |             parsed_crates.push(&name);\n   |                                ^^^^^ help: change this to: `name`\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_borrow\n\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "warning: this expression creates a reference which is immediately dereferenced by the compiler\n  --> src/lib.rs:37:39\n   |\n37 |     let cmd_ct = build_cargo_tree_cmd(&cfg);\n   |                                       ^^^^ help: change this to: `cfg`\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_borrow\n\n"
     },
     {
-      "idx": 85,
+      "cmd_idx": 85,
       "file": "src/lib.rs",
       "kind": null,
       "raw": "warning: writing `&String` instead of `&str` involves a new object where a slice will do\n  --> src/lib.rs:55:21\n   |\n55 | fn parse_deps(deps: &String) -> Vec<(i32, String)> {\n   |                     ^^^^^^^ help: change this to: `&str`\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#ptr_arg\n   = note: `#[warn(clippy::ptr_arg)]` on by default\n\n"
     },
     {
-      "idx": 109,
+      "cmd_idx": 109,
       "file": "crates/linked_list/src/unsafe_list.rs",
       "kind": null,
       "raw": "warning: you should consider adding a `Default` implementation for `List<A>`\n   --> crates/linked_list/src/unsafe_list.rs:99:5\n    |\n99  | /     pub const fn new() -> Self {\n100 | |         Self { first: None }\n101 | |     }\n    | |_____^\n    |\n    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default\n    = note: `#[warn(clippy::new_without_default)]` on by default\nhelp: try adding this\n    |\n97  + impl<A: Adapter + ?Sized> Default for List<A> {\n98  +     fn default() -> Self {\n99  +         Self::new()\n100 +     }\n101 + }\n    |\n\n"
     },
     {
-      "idx": 109,
+      "cmd_idx": 109,
       "file": "crates/linked_list/src/unsafe_list.rs",
       "kind": null,
       "raw": "warning: you should consider adding a `Default` implementation for `Links<T>`\n   --> crates/linked_list/src/unsafe_list.rs:435:5\n    |\n435 | /     pub const fn new() -> Self {\n436 | |         Self(UnsafeCell::new(MaybeUninit::uninit()))\n437 | |     }\n    | |_____^\n    |\n    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default\nhelp: try adding this\n    |\n433 + impl<T: ?Sized> Default for Links<T> {\n434 +     fn default() -> Self {\n435 +         Self::new()\n436 +     }\n437 + }\n    |\n\n"
     },
     {
-      "idx": 113,
+      "cmd_idx": 113,
       "file": "src/panic_wait.rs",
       "kind": null,
       "raw": "error: Add the target_arch to above's check if the following code is safe to use\n  --> src/panic_wait.rs:30:5\n   |\n30 |     compile_error!(\"Add the target_arch to above's check if the following code is safe to use\");\n   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
     },
     {
-      "idx": 113,
+      "cmd_idx": 113,
       "file": "src/cpu.rs",
       "kind": null,
       "raw": "error[E0432]: unresolved import `arch_cpu`\n  --> src/cpu.rs:16:9\n   |\n16 | pub use arch_cpu::{nop, wait_forever};\n   |         ^^^^^^^^ use of undeclared crate or module `arch_cpu`\n\n"
     },
     {
-      "idx": 113,
+      "cmd_idx": 113,
       "file": "src/main.rs",
       "kind": null,
       "raw": "error[E0433]: failed to resolve: could not find `driver` in `bsp`\n   --> src/main.rs:133:26\n    |\n133 |     if let Err(x) = bsp::driver::init() {\n    |                          ^^^^^^ could not find `driver` in `bsp`\n\n"
     },
     {
-      "idx": 113,
+      "cmd_idx": 113,
       "file": "src/main.rs",
       "kind": null,
       "raw": "error[E0433]: failed to resolve: could not find `memory` in `bsp`\n   --> src/main.rs:180:37\n    |\n180 |     let kernel_addr: *mut u8 = bsp::memory::board_default_load_addr() as *mut u8;\n    |                                     ^^^^^^ could not find `memory` in `bsp`\n\n"
     },
     {
-      "idx": 113,
+      "cmd_idx": 113,
       "file": "src/main.rs",
       "kind": null,
       "raw": "error[E0425]: cannot find function `board_name` in module `bsp`\n   --> src/main.rs:157:29\n    |\n157 |     println!(\"{:^37}\", bsp::board_name());\n    |                             ^^^^^^^^^^ not found in `bsp`\n\n"
     },
     {
-      "idx": 113,
+      "cmd_idx": 113,
       "file": "unkonwn-but-maybe-important",
       "kind": null,
       "raw": "error: unwinding panics are not supported without std\n  |\n  = help: using nightly cargo, use -Zbuild-std with panic=\"abort\" to avoid unwinding\n  = note: since the core library is usually precompiled with panic=\"unwind\", rebuilding your crate with panic=\"abort\" may not be enough to fix the problem\n\n"
     },
     {
-      "idx": 113,
+      "cmd_idx": 113,
       "file": "src/main.rs",
       "kind": null,
       "raw": "warning: the feature `panic_info_message` has been stable since 1.81.0 and no longer requires an attribute to enable\n   --> src/main.rs:112:12\n    |\n112 | #![feature(panic_info_message)]\n    |            ^^^^^^^^^^^^^^^^^^\n    |\n    = note: `#[warn(stable_features)]` on by default\n\n"
     },
     {
-      "idx": 113,
+      "cmd_idx": 113,
       "file": "src/panic_wait.rs",
       "kind": null,
       "raw": "error[E0599]: no method named `unwrap_or` found for struct `core::panic::PanicMessage` in the current scope\n  --> src/panic_wait.rs:60:24\n   |\n60 |         info.message().unwrap_or(&format_args!(\"\")),\n   |                        ^^^^^^^^^ method not found in `PanicMessage<'_>`\n\n"
     },
     {
-      "idx": 125,
+      "cmd_idx": 125,
       "file": "crates/linked_list/src/unsafe_list.rs",
       "kind": null,
       "raw": "warning: you should consider adding a `Default` implementation for `List<A>`\n   --> crates/linked_list/src/unsafe_list.rs:99:5\n    |\n99  | /     pub const fn new() -> Self {\n100 | |         Self { first: None }\n101 | |     }\n    | |_____^\n    |\n    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default\n    = note: `#[warn(clippy::new_without_default)]` on by default\nhelp: try adding this\n    |\n97  + impl<A: Adapter + ?Sized> Default for List<A> {\n98  +     fn default() -> Self {\n99  +         Self::new()\n100 +     }\n101 + }\n    |\n\n"
     },
     {
-      "idx": 125,
+      "cmd_idx": 125,
       "file": "crates/linked_list/src/unsafe_list.rs",
       "kind": null,
       "raw": "warning: you should consider adding a `Default` implementation for `Links<T>`\n   --> crates/linked_list/src/unsafe_list.rs:435:5\n    |\n435 | /     pub const fn new() -> Self {\n436 | |         Self(UnsafeCell::new(MaybeUninit::uninit()))\n437 | |     }\n    | |_____^\n    |\n    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default\nhelp: try adding this\n    |\n433 + impl<T: ?Sized> Default for Links<T> {\n434 +     fn default() -> Self {\n435 +         Self::new()\n436 +     }\n437 + }\n    |\n\n"
     },
     {
-      "idx": 125,
+      "cmd_idx": 125,
       "file": "crates/scheduler/src/cfs.rs",
       "kind": null,
       "raw": "warning: you should consider adding a `Default` implementation for `CFScheduler<T>`\n   --> crates/scheduler/src/cfs.rs:111:5\n    |\n111 | /     pub const fn new() -> Self {\n112 | |         Self {\n113 | |             ready_queue: BTreeMap::new(),\n114 | |             min_vruntime: None,\n115 | |             id_pool: AtomicIsize::new(0_isize),\n116 | |         }\n117 | |     }\n    | |_____^\n    |\n    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default\n    = note: `#[warn(clippy::new_without_default)]` on by default\nhelp: try adding this\n    |\n109 + impl<T> Default for CFScheduler<T> {\n110 +     fn default() -> Self {\n111 +         Self::new()\n112 +     }\n113 + }\n    |\n\n"
     },
     {
-      "idx": 125,
+      "cmd_idx": 125,
       "file": "crates/scheduler/src/fifo.rs",
       "kind": null,
       "raw": "warning: you should consider adding a `Default` implementation for `FifoScheduler<T>`\n  --> crates/scheduler/src/fifo.rs:63:5\n   |\n63 | /     pub const fn new() -> Self {\n64 | |         Self {\n65 | |             ready_queue: List::new(),\n66 | |         }\n67 | |     }\n   | |_____^\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default\nhelp: try adding this\n   |\n61 + impl<T> Default for FifoScheduler<T> {\n62 +     fn default() -> Self {\n63 +         Self::new()\n64 +     }\n65 + }\n   |\n\n"
     },
     {
-      "idx": 125,
+      "cmd_idx": 125,
       "file": "crates/scheduler/src/round_robin.rs",
       "kind": null,
       "raw": "warning: you should consider adding a `Default` implementation for `RRScheduler<T, S>`\n  --> crates/scheduler/src/round_robin.rs:64:5\n   |\n64 | /     pub const fn new() -> Self {\n65 | |         Self {\n66 | |             ready_queue: VecDeque::new(),\n67 | |         }\n68 | |     }\n   | |_____^\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default\nhelp: try adding this\n   |\n62 + impl<T, const S: usize> Default for RRScheduler<T, S> {\n63 +     fn default() -> Self {\n64 +         Self::new()\n65 +     }\n66 + }\n   |\n\n"
     },
     {
-      "idx": 127,
+      "cmd_idx": 127,
       "file": "crates/slab_allocator/src/slab.rs",
       "kind": null,
       "raw": "warning: using `map` over `inspect`\n  --> crates/slab_allocator/src/slab.rs:93:26\n   |\n93 |         self.head.take().map(|node| {\n   |                          ^^^\n   |\n   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#manual_inspect\n   = note: `#[warn(clippy::manual_inspect)]` on by default\nhelp: try\n   |\n93 ~         self.head.take().inspect(|node| {\n94 |             self.head = node.next.take();\n95 ~             self.len -= 1;\n   |\n\n"

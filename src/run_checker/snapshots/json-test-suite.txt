@@ -10,31 +10,31 @@
       {
         "name": "os-checker-test-suite",
         "repo": {
-          "idx": 0,
+          "repo_idx": 0,
           "user": "repos",
           "repo": "os-checker-test-suite"
         }
       }
     ]
   },
-  "idx": [
+  "cmd": [
     {
-      "package": 0,
+      "package_idx": 0,
       "tool": "Fmt",
       "cmd": "",
       "count": 4,
-      "duration_ms": 672,
+      "duration_ms": 225,
       "arch": "",
       "target_triple": "",
       "features": [],
       "flags": []
     },
     {
-      "package": 0,
+      "package_idx": 0,
       "tool": "Clippy",
       "cmd": "",
       "count": 2,
-      "duration_ms": 577,
+      "duration_ms": 184,
       "arch": "",
       "target_triple": "",
       "features": [],
@@ -43,37 +43,37 @@
   ],
   "data": [
     {
-      "idx": 0,
+      "cmd_idx": 0,
       "file": "examples/need-clippy-fix.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/os-checker-test-suite/examples/need-clippy-fix.rs (original lines from 2 to 2)\n-    _ = (123); \n+    _ = (123);\n"
     },
     {
-      "idx": 0,
+      "cmd_idx": 0,
       "file": "examples/need-fmt.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/os-checker-test-suite/examples/need-fmt.rs (original lines from 1 to 1)\n-fn main() {    println!(\"from example\");\n+fn main() {\n+    println!(\"from example\");\n"
     },
     {
-      "idx": 0,
+      "cmd_idx": 0,
       "file": "src/main.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/os-checker-test-suite/src/main.rs (original lines from 4 to 5)\n- \n-println!(\"Hello, world!\");\n+    println!(\"Hello, world!\");\n"
     },
     {
-      "idx": 0,
+      "cmd_idx": 0,
       "file": "tests/need-fmt.rs",
       "kind": null,
       "raw": "file: /rust/my/os-checker/repos/os-checker-test-suite/tests/need-fmt.rs (original lines from 1 to 2)\n-fn main () {\n-  }\n+fn main() {}\n"
     },
     {
-      "idx": 1,
+      "cmd_idx": 1,
       "file": "src/main.rs",
       "kind": null,
       "raw": "warning: unused variable: `a`\n --> src/main.rs:2:9\n  |\n2 |     let a = 3.14;\n  |         ^ help: if this is intentional, prefix it with an underscore: `_a`\n  |\n  = note: `#[warn(unused_variables)]` on by default\n\n"
     },
     {
-      "idx": 1,
+      "cmd_idx": 1,
       "file": "src/main.rs",
       "kind": null,
       "raw": "error: approximate value of `f{32, 64}::consts::PI` found\n --> src/main.rs:2:13\n  |\n2 |     let a = 3.14;\n  |             ^^^^\n  |\n  = help: consider using the constant directly\n  = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#approx_constant\n  = note: `#[deny(clippy::approx_constant)]` on by default\n\n"

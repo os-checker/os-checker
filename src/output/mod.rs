@@ -6,7 +6,7 @@ use serde::Serialize;
 #[derive(Debug, Serialize)]
 pub struct JsonOutput {
     pub env: Env,
-    pub idx: Vec<Idx>,
+    pub cmd: Vec<Cmd>,
     pub data: Vec<Data>,
 }
 
@@ -17,7 +17,7 @@ impl JsonOutput {
                 repos: vec![],
                 packages: vec![],
             },
-            idx: vec![],
+            cmd: vec![],
             data: vec![],
         }
     }
@@ -43,7 +43,7 @@ pub struct Package {
 
 #[derive(Debug, Serialize)]
 pub struct PackageRepo {
-    pub idx: usize,
+    pub repo_idx: usize,
     pub user: XString,
     pub repo: XString,
 }
@@ -55,8 +55,8 @@ pub struct PackageCargo {
 }
 
 #[derive(Debug, Serialize)]
-pub struct Idx {
-    pub package: usize,
+pub struct Cmd {
+    pub package_idx: usize,
     pub tool: CheckerTool,
     pub cmd: String,
     pub count: usize,
@@ -70,7 +70,7 @@ pub struct Idx {
 #[derive(Debug, Serialize)]
 pub struct Data {
     /// idx referring to `Vec<Idx>`
-    pub idx: usize,
+    pub cmd_idx: usize,
     pub file: Utf8PathBuf,
     pub kind: Kind,
     pub raw: String,

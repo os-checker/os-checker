@@ -48,12 +48,12 @@ file://repos/arceos:
 
 fn jq_count(json_bytes: &[u8]) -> Result<String> {
     let query = "
-. as $x | .data | group_by(.idx) | map({
-  cmd_idx: .[0].idx,
+. as $x | .data | group_by(.cmd_idx) | map({
+  cmd_idx: .[0].cmd_idx,
   length: . | length,
-} | . + { cmd: $x.idx[.cmd_idx] | {package, tool,count, duration_ms} } # 为了简洁，这里去掉一些字段
-  | . + { package: $x.env.packages[.cmd.package] }
-  | . + { repo: $x.env.repos[.package.repo.idx] }
+} | . + { cmd: $x.cmd[.cmd_idx] | {package_idx, tool, count, duration_ms} } # 为了简洁，这里去掉一些字段
+  | . + { package: $x.env.packages[.cmd.package_idx] }
+  | . + { repo: $x.env.repos[.package.repo.repo_idx] }
 )
 ";
     let out1 = duct::cmd!("jq", query)

@@ -51,13 +51,13 @@ impl RepoOutput {
             json.env.packages.push(Package {
                 name: pkg.pkg_name.clone(),
                 repo: PackageRepo {
-                    idx: repo_idx,
+                    repo_idx,
                     user: user.clone(),
                     repo: repo.clone(),
                 },
             });
             for raw in &pkg.outputs {
-                utils::push_idx_and_data(pkg_idx, raw, &mut json.idx, &mut json.data);
+                utils::push_idx_and_data(pkg_idx, raw, &mut json.cmd, &mut json.data);
             }
         }
 

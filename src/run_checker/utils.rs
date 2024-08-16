@@ -1,21 +1,21 @@
 use super::{
     CargoMessage, ClippyMessage, ClippyTag, FmtMessage, Output as RawOutput, OutputParsed,
 };
-use crate::output::{Data, Idx, Kind};
+use crate::output::{Cmd, Data, Kind};
 use cargo_metadata::camino::Utf8Path;
 use std::fmt::Write;
 
 /// 将一次工具的检查命令推入一次 `Vec<Idx>`，并把原始输出全部推入 `Vec<Data>`。
 pub fn push_idx_and_data(
-    pkg_idx: usize,
+    package_idx: usize,
     raw: &RawOutput,
-    idx: &mut Vec<Idx>,
+    cmds: &mut Vec<Cmd>,
     data: &mut Vec<Data>,
 ) {
     // TODO: 这些等会解决
     let (cmd, arch, target_triple, features, flags) = Default::default();
-    let idx_item = Idx {
-        package: pkg_idx,
+    let idx_item = Cmd {
+        package_idx,
         tool: raw.checker,
         count: raw.count,
         duration_ms: raw.duration_ms,
@@ -25,12 +25,12 @@ pub fn push_idx_and_data(
         features,
         flags,
     };
-    let data_idx = idx.len();
-    idx.push(idx_item);
+    let cmd_idx = cmds.len();
+    cmds.push(idx_item);
 
     let with = WithData {
         data,
-        data_idx,
+        cmd_idx,
         root: &raw.package_root,
     };
     push_data(raw, with);
@@ -48,7 +48,7 @@ fn push_data(out: &RawOutput, with: WithData) {
 
 struct WithData<'data, 'root> {
     data: &'data mut Vec<Data>,
-    data_idx: usize,
+    cmd_idx: usize,
     root: &'root Utf8Path,
 }
 
@@ -63,7 +63,7 @@ fn push_unformatted(v: &[FmtMessage], with: WithData) {
         let file = strip_prefix(&mes.name, with.root);
 
         with.data.extend(raw_message_fmt(mes).map(|raw| Data {
-            idx: with.data_idx,
+            cmd_idx: with.cmd_idx,
             file: file.to_owned(),
             kind: Kind::Unformatted,
             raw,
@@ -135,7 +135,7 @@ fn push_clippy(v: &[ClippyMessage], with: WithData) {
                     let file = strip_prefix(path, with.root);
                     if let Some(raw) = raw_message_clippy(mes) {
                         with.data.push(Data {
-                            idx: with.data_idx,
+                            cmd_idx: with.cmd_idx,
                             file: file.to_owned(),
                             kind: Kind::ClippyWarn,
                             raw,
@@ -148,7 +148,7 @@ fn push_clippy(v: &[ClippyMessage], with: WithData) {
                     let file = strip_prefix(path, with.root);
                     if let Some(raw) = raw_message_clippy(mes) {
                         with.data.push(Data {
-                            idx: with.data_idx,
+                            cmd_idx: with.cmd_idx,
                             file: file.to_owned(),
                             kind: Kind::ClippyError,
                             raw,
