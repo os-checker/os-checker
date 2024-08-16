@@ -1,9 +1,4 @@
-use crate::{
-    output::JsonOutput,
-    repo::Config,
-    run_checker::{Repo, RepoStat},
-    Result,
-};
+use crate::{output::JsonOutput, repo::Config, run_checker::RepoOutput, Result};
 use argh::FromArgs;
 use cargo_metadata::camino::Utf8PathBuf;
 use rayon::prelude::*;
@@ -24,18 +19,17 @@ pub struct Args {
     #[argh(option, default = r#"Utf8PathBuf::from("repos.yaml")"#)]
     config: Utf8PathBuf,
 
-    #[argh(option, default = "Emit::AnsiTable")]
-    /// emit a format containing the checking reports
+    #[argh(option, default = "Emit::Json")]
+    /// emit a JSON format containing the checking reports
     emit: Emit,
 }
 
+/// 见 `../../assets/JSON-data-format.md`
 #[derive(Debug)]
 pub enum Emit {
-    /// Colorful table printed on terminal.
-    AnsiTable,
-    /// Used in SSG with PrimeVue and Nuxt. Print to stdout.
+    /// Print to stdout.
     Json,
-    /// Used in SSG with PrimeVue and Nuxt. Print to stdout.
+    /// Save as a json file.
     JsonFile(Utf8PathBuf),
 }
 
@@ -44,7 +38,6 @@ impl std::str::FromStr for Emit {
 
     fn from_str(s: &str) -> Result<Emit> {
         match s.trim() {
-            "ansi-table" => Ok(Emit::AnsiTable),
             "json" => Ok(Emit::Json),
             p if s.ends_with(".json") => Ok(Emit::JsonFile(Utf8PathBuf::from(p))),
             _ => bail!("`{s}` is not supported; please specify one of these：ansi-table, json."),
@@ -57,31 +50,25 @@ impl Args {
         Config::from_path(&*self.config)
     }
 
-    fn repos(&self) -> Result<impl ParallelIterator<Item = Result<Repo>>> {
-        Ok(self.configurations()?.into_par_iter().map(Repo::try_from))
-    }
-
-    fn statistics(&self) -> Result<Vec<RepoStat>> {
-        self.repos()?.map(|repo| repo?.try_into()).collect()
+    fn repos_outputs(&self) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {
+        Ok(self
+            .configurations()?
+            .into_par_iter()
+            .map(RepoOutput::try_from))
     }
 
     pub fn run(self) -> Result<()> {
-        let stats = self.statistics()?;
+        let outs = self.repos_outputs()?.collect::<Result<Vec<_>>>()?;
         debug!("Got statistics and start to run and emit output.");
         match &self.emit {
-            Emit::AnsiTable => {
-                for stat in &stats {
-                    stat.ansi_table()?;
-                }
-            }
             Emit::Json => {
                 let mut json = JsonOutput::new();
-                stats.iter().for_each(|s| s.with_json_output(&mut json));
+                outs.iter().for_each(|s| s.with_json_output(&mut json));
                 serde_json::to_writer(std::io::stdout(), &json)?;
             }
             Emit::JsonFile(p) => {
                 let mut json = JsonOutput::new();
-                stats.iter().for_each(|s| s.with_json_output(&mut json));
+                outs.iter().for_each(|s| s.with_json_output(&mut json));
                 serde_json::to_writer(File::create(p)?, &json)?;
             }
         }

@@ -7,126 +7,58 @@ use crate::{
 use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message as CargoMessage};
 use eyre::{Context, ContextCompat};
 use itertools::Itertools;
-use owo_colors::OwoColorize;
 use regex::Regex;
 use serde::Deserialize;
-use std::{
-    io::{self, Write},
-    process::Output as RawOutput,
-    sync::LazyLock,
-    time::Instant,
-};
-
-/// 分析检查工具的结果
-mod analysis;
-pub use analysis::{RawReportsOnFile, Statistics, TreeNode};
+use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
 
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
 
-#[cfg(test)]
-mod tests;
-
-pub struct RepoStat {
+pub struct RepoOutput {
     repo: Repo,
-    stat: Vec<Statistics>,
+    outputs: Vec<PackageOutput>,
 }
 
-impl RepoStat {
-    pub fn ansi_table(&self) -> Result<()> {
-        let stdout = io::stdout();
-        let repo_path = self.repo.layout.root_path();
-        let repo_name = self.repo.config.repo_name();
-        writeln!(
-            &stdout,
-            "The result of checking {} | src: {repo_path}",
-            repo_name.bold().black().on_bright_blue()
-        )?;
+struct PackageOutput {
+    pkg_name: XString,
+    outputs: Vec<Output>,
+}
 
-        for stat in self.stat.iter().filter(|s| !s.check_fine()) {
-            writeln!(
-                &stdout,
-                "{}\n{}",
-                stat.table_of_count_of_kind(),
-                stat.table_of_count_of_file()
-            )?;
-        }
-
-        Ok(())
+impl PackageOutput {
+    pub fn counts(&self) -> usize {
+        self.outputs.iter().map(|out| out.count).sum()
     }
+}
 
-    /// Node = { key: string, data: any, children: Node[] }
-    pub fn json(
-        &self,
-        key: &mut usize,
-        raw_reports: &mut Vec<(usize, RawReportsOnFile)>,
-    ) -> TreeNode {
-        let user = XString::new(self.repo.config.user_name());
-        let repo = XString::new(self.repo.config.repo_name());
-        TreeNode::json_node(&self.stat, key, user, repo, raw_reports)
-    }
-
+impl RepoOutput {
     pub fn with_json_output(&self, json: &mut JsonOutput) {
         use crate::output::*;
         let user = XString::new(self.repo.config.user_name());
         let repo = XString::new(self.repo.config.repo_name());
         let repo_idx = json.env.repos.len();
-        for stat in &self.stat {
+
+        let pkg_outputs = &self.outputs;
+        // 预留足够的空间
+        // TODO: 应该可以在初始化 json.data 的时候就一次性预留空间
+        json.data
+            .reserve(pkg_outputs.iter().map(PackageOutput::counts).sum());
+
+        for pkg in pkg_outputs {
             let pkg_idx = json.env.packages.len();
             json.env.packages.push(Package {
-                name: stat.pkg_name(),
+                name: pkg.pkg_name.clone(),
                 repo: PackageRepo {
                     idx: repo_idx,
                     user: user.clone(),
                     repo: repo.clone(),
                 },
             });
-
-            let raw_outputs = stat.raw_outputs();
-            // 预留足够的空间
-            // TODO: 应该可以在初始化 json.data 的时候就一次性预留空间
-            json.data.reserve(raw_outputs.iter().map(|r| r.count).sum());
-            for raw in raw_outputs {
+            for raw in &pkg.outputs {
                 utils::push_idx_and_data(pkg_idx, raw, &mut json.idx, &mut json.data);
             }
         }
+
         json.env.repos.push(Repo { user, repo });
-    }
-}
-
-pub fn json_treenode(stats: &[RepoStat]) -> (Vec<TreeNode>, Vec<RawReportsOnFile>) {
-    let key = &mut 0;
-    let mut raw_reports = Vec::with_capacity(32);
-    let tree = stats
-        .iter()
-        .map(|s| s.json(key, &mut raw_reports))
-        .collect();
-    raw_reports.sort_unstable_by_key(|(key, _)| *key);
-    // TODO: 如何处理 raw_reports 的汇总？显然直接重复 raw_reports 是浪费存储的。
-    // 这是一个微优化，需要更紧凑的数据组织方式（比如通过索引和数组来统一汇总与详情）。
-    (tree, raw_reports.into_iter().map(|val| val.1).collect_vec())
-}
-
-impl TryFrom<Config> for RepoStat {
-    type Error = eyre::Error;
-
-    fn try_from(config: Config) -> Result<Self> {
-        let repo = Repo::try_from(config)?;
-        Ok(RepoStat {
-            stat: repo.outputs_and_statistics()?,
-            repo,
-        })
-    }
-}
-
-impl TryFrom<Repo> for RepoStat {
-    type Error = eyre::Error;
-
-    fn try_from(repo: Repo) -> Result<Self> {
-        Ok(RepoStat {
-            stat: repo.outputs_and_statistics()?,
-            repo,
-        })
     }
 }
 
@@ -153,10 +85,6 @@ impl Repo {
         // v.sort_unstable_by(|a, b| (&a.package_name, a.checker).cmp(&(&b.package_name, b.checker)));
         Ok(v)
     }
-
-    pub fn outputs_and_statistics(&self) -> Result<Vec<Statistics>> {
-        self.run_check().map(Statistics::new)
-    }
 }
 
 impl TryFrom<Config> for Repo {
@@ -165,6 +93,25 @@ impl TryFrom<Config> for Repo {
     fn try_from(mut config: Config) -> Result<Repo> {
         let repo_root = config.local_root_path()?;
         Repo::new(repo_root.as_str(), &[], config)
+    }
+}
+
+impl TryFrom<Config> for RepoOutput {
+    type Error = eyre::Error;
+
+    fn try_from(config: Config) -> Result<RepoOutput> {
+        let repo = Repo::try_from(config)?;
+        let all_outputs = repo.run_check()?;
+        let outputs = all_outputs
+            .into_iter()
+            .chunk_by(|out| out.package_name.clone())
+            .into_iter()
+            .map(|(pkg_name, outs)| PackageOutput {
+                pkg_name,
+                outputs: outs.collect_vec(),
+            })
+            .collect_vec();
+        Ok(RepoOutput { repo, outputs })
     }
 }
 
@@ -283,71 +230,6 @@ impl OutputParsed {
                     _ => None,
                 })
                 .sum(),
-        }
-    }
-
-    #[cfg(test)]
-    fn test_diagnostics(&self) -> String {
-        use std::fmt::Write;
-
-        let mut idx = 0;
-        match self {
-            OutputParsed::Fmt(v) => {
-                let mut buf = String::with_capacity(1024);
-                let add = "+";
-                let minus = "-";
-                for mes in v.iter() {
-                    for mis in &mes.mismatches {
-                        idx += 1;
-                        _ = writeln!(
-                            &mut buf,
-                            "\n[{idx}] file: {} (original lines from {} to {})",
-                            mes.name, mis.original_begin_line, mis.original_end_line
-                        );
-                        for diff in prettydiff::diff_lines(&mis.original, &mis.expected).diff() {
-                            match diff {
-                                prettydiff::basic::DiffOp::Insert(s) => {
-                                    for line in s {
-                                        _ = writeln!(&mut buf, "{add}{line}");
-                                    }
-                                }
-                                prettydiff::basic::DiffOp::Replace(a, b) => {
-                                    for line in a {
-                                        _ = writeln!(&mut buf, "{minus}{line}");
-                                    }
-                                    for line in b {
-                                        _ = writeln!(&mut buf, "{add}{line}");
-                                    }
-                                    // println!("~{a:?}#{b:?}")
-                                }
-                                prettydiff::basic::DiffOp::Remove(s) => {
-                                    for line in s {
-                                        _ = writeln!(&mut buf, "{minus}{line}");
-                                    }
-                                }
-                                prettydiff::basic::DiffOp::Equal(s) => {
-                                    for line in s {
-                                        _ = writeln!(&mut buf, " {line}");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                buf
-            }
-            OutputParsed::Clippy(v) => v
-                .iter()
-                .filter_map(|mes| {
-                    if let CargoMessage::CompilerMessage(mes) = &mes.inner {
-                        idx += 1;
-                        Some(format!("[{idx}] {}", mes.message))
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<_>>()
-                .join(""),
         }
     }
 }
