@@ -20,9 +20,7 @@ serde_json = "1.0.120"
 regex = "1.10.5"
 compact_str = { version = "0.8.0", features = ["serde"] }
 itertools = "0.13.0"
-ahash = "0.8.11"
 rayon = "1.10.0"
-indexmap = { version = "2.2.6", features = ["serde"] }
 prettydiff = { version = "0.7.0", default-features = false }
 
 # error handling
@@ -36,10 +34,6 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 # shell commands
 duct = "0.13.7" # better subprocess, pipe, redirct
 yash-syntax = "0.10.0" # shell lang parsing
-
-# pretty statistics table
-tabled = { version = "0.15.0", features = ["ansi"] }
-owo-colors = { version = "4.0.0", features = ["supports-colors"] }
 
 [dev-dependencies]
 expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
