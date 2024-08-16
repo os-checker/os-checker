@@ -151,7 +151,7 @@ fn push_clippy(v: &[ClippyMessage], with: WithData) {
                         with.data.push(Data {
                             idx: with.data_idx,
                             file: file.to_owned(),
-                            kind: Kind::Clippy(Rustc::Warn),
+                            kind: Kind::Clippy(Rustc::Error),
                             raw,
                         });
                     };
