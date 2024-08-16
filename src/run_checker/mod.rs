@@ -172,7 +172,7 @@ impl TryFrom<Config> for Repo {
 pub struct Output {
     raw: RawOutput,
     parsed: OutputParsed,
-    /// TODO: 需确认这个数量与最后 os-checker 提供原始输出数量一致
+    /// 该检查工具报告的总数量；与最后 os-checker 提供原始输出计算的数量应该一致
     count: usize,
     duration_ms: u64,
     package_root: Utf8PathBuf,
@@ -251,6 +251,7 @@ pub enum OutputParsed {
 }
 
 impl OutputParsed {
+    /// 这里计算的逻辑应该与原始输出的逻辑一致：统计检查工具报告的问题数量（而不是文件数量之类的)
     // 对于 clippy 和 miri?，最后可能有汇总，这应该在计算 count 时排除, e.g.
     // * warning: 10 warnings emitted （结尾）
     //   有时甚至在中途：
@@ -261,20 +262,24 @@ impl OutputParsed {
     //   [9] error: aborting due to 7 previous errors; 1 warning emitted
     //   [10] Some errors have detailed explanations: E0425, E0432, E0433, E0599.
     //   [11] For more information about an error, try `rustc --explain E0425`.
-    //
-    // 注意：如果使用正则表达式， warning 和 error 之类的名词是单复数感知的。
-    //
-    // BTW bacon 采用解析 stdout 的内容而不是 JSON 来计算 count:
-    // https://github.com/Canop/bacon/blob/main/src/line_analysis.rs
     fn count(&self) -> usize {
         match self {
-            OutputParsed::Fmt(v) => v.len(), // 需要 fmt 的文件数量
+            // 一个文件可能含有多处未格式化的报告
+            OutputParsed::Fmt(v) => v.iter().map(|f| f.mismatches.len()).sum(),
             OutputParsed::Clippy(v) => v
                 .iter()
-                .filter_map(|mes| match mes.tag {
-                    ClippyTag::Error(n) | ClippyTag::Warn(n) => Some(n as usize),
-                    // FIXME: 这里应该使用 ErrorDetailed 和 WarnDetailed ？
-                    // ClippyTag::WarnAndError(w, e) => Some(w as usize + e as usize),
+                .filter_map(|mes| match &mes.tag {
+                    ClippyTag::WarnDetailed(_) | ClippyTag::ErrorDetailed(_) => {
+                        // os-checker 根据每个可渲染内容的文件路径来发出原始输出
+                        match &mes.inner {
+                            CargoMessage::CompilerMessage(cmes)
+                                if cmes.message.rendered.is_some() =>
+                            {
+                                Some(1)
+                            }
+                            _ => None,
+                        }
+                    }
                     _ => None,
                 })
                 .sum(),
