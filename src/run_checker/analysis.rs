@@ -22,6 +22,14 @@ pub struct Statistics {
 }
 
 impl Statistics {
+    pub fn pkg_name(&self) -> XString {
+        self.pkg_name.clone()
+    }
+
+    pub fn raw_outputs(&self) -> &[Output] {
+        &self.outputs
+    }
+
     pub fn new(outputs: Vec<Output>) -> Vec<Statistics> {
         outputs
             .into_iter()

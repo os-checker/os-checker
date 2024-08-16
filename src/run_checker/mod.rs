@@ -1,5 +1,6 @@
 use crate::{
     layout::Layout,
+    output::JsonOutput,
     repo::{CheckerTool, Config, Resolve},
     Result, XString,
 };
@@ -19,6 +20,9 @@ use std::{
 /// 分析检查工具的结果
 mod analysis;
 pub use analysis::{RawReportsOnFile, Statistics, TreeNode};
+
+/// 把获得的输出转化成 JSON 所需的输出
+mod utils;
 
 #[cfg(test)]
 mod tests;
@@ -60,6 +64,33 @@ impl RepoStat {
         let user = XString::new(self.repo.config.user_name());
         let repo = XString::new(self.repo.config.repo_name());
         TreeNode::json_node(&self.stat, key, user, repo, raw_reports)
+    }
+
+    pub fn with_json_output(&self, json: &mut JsonOutput) {
+        use crate::output::*;
+        let user = XString::new(self.repo.config.user_name());
+        let repo = XString::new(self.repo.config.repo_name());
+        let repo_idx = json.env.repos.len();
+        for stat in &self.stat {
+            let pkg_idx = json.env.packages.len();
+            json.env.packages.push(Package {
+                name: stat.pkg_name(),
+                repo: PackageRepo {
+                    idx: repo_idx,
+                    user: user.clone(),
+                    repo: repo.clone(),
+                },
+            });
+
+            let raw_outputs = stat.raw_outputs();
+            // 预留足够的空间
+            // TODO: 应该可以在初始化 json.data 的时候就一次性预留空间
+            json.data.reserve(raw_outputs.iter().map(|r| r.count).sum());
+            for raw in raw_outputs {
+                utils::push_idx_and_data(pkg_idx, raw, &mut json.idx, &mut json.data);
+            }
+        }
+        json.env.repos.push(Repo { user, repo });
     }
 }
 
@@ -141,6 +172,7 @@ impl TryFrom<Config> for Repo {
 pub struct Output {
     raw: RawOutput,
     parsed: OutputParsed,
+    /// TODO: 需确认这个数量与最后 os-checker 提供原始输出数量一致
     count: usize,
     duration_ms: u64,
     package_root: Utf8PathBuf,
@@ -241,7 +273,8 @@ impl OutputParsed {
                 .iter()
                 .filter_map(|mes| match mes.tag {
                     ClippyTag::Error(n) | ClippyTag::Warn(n) => Some(n as usize),
-                    ClippyTag::WarnAndError(w, e) => Some(w as usize + e as usize),
+                    // FIXME: 这里应该使用 ErrorDetailed 和 WarnDetailed ？
+                    // ClippyTag::WarnAndError(w, e) => Some(w as usize + e as usize),
                     _ => None,
                 })
                 .sum(),

@@ -2,7 +2,7 @@ use crate::{layout::Package, Result};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::Expression;
 use eyre::Context;
-use serde::{de, Deserialize, Deserializer};
+use serde::{de, Deserialize, Deserializer, Serialize};
 use std::{
     collections::{BTreeMap, BTreeSet},
     fmt,
@@ -78,7 +78,7 @@ impl Config {
 const TOOLS: usize = 4; // 目前支持的检查工具数量
 
 /// 检查工具
-#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
+#[derive(Debug, Serialize, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
 pub enum CheckerTool {
     Fmt,
     Clippy,

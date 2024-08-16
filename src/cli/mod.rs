@@ -1,11 +1,11 @@
 use crate::{
+    output::JsonOutput,
     repo::Config,
-    run_checker::{json_treenode, Repo, RepoStat},
+    run_checker::{Repo, RepoStat},
     Result,
 };
 use argh::FromArgs;
 use cargo_metadata::camino::Utf8PathBuf;
-use eyre::ContextCompat;
 use rayon::prelude::*;
 use std::fs::File;
 
@@ -75,20 +75,14 @@ impl Args {
                 }
             }
             Emit::Json => {
-                let (tree, raw_reports) = json_treenode(&stats);
-                serde_json::to_writer(std::io::stdout(), &tree)?;
-                serde_json::to_writer(std::io::stdout(), &raw_reports)?;
+                let mut json = JsonOutput::new();
+                stats.iter().for_each(|s| s.with_json_output(&mut json));
+                serde_json::to_writer(std::io::stdout(), &json)?;
             }
             Emit::JsonFile(p) => {
-                let (tree, raw_reports) = json_treenode(&stats);
-                serde_json::to_writer(File::create(p)?, &tree)?;
-                let file_stem = p
-                    .file_stem()
-                    .with_context(|| format!("{p} doesn't contain the file name"))?;
-                let report_path = p
-                    .clone()
-                    .with_file_name(format!("{file_stem}_raw_reports.json"));
-                serde_json::to_writer(File::create(&*report_path)?, &raw_reports)?;
+                let mut json = JsonOutput::new();
+                stats.iter().for_each(|s| s.with_json_output(&mut json));
+                serde_json::to_writer(File::create(p)?, &json)?;
             }
         }
         debug!(?self.emit, "Output emitted");
