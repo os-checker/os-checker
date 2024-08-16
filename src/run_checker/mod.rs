@@ -255,6 +255,7 @@ pub struct FmtMismatch {
 }
 
 // FIXME: 利用 summary 来检验数量
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum ClippyTag {
     /// non-summary / detailed message with primary span paths

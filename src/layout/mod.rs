@@ -219,15 +219,15 @@ impl Layout {
         LayoutOwner::new(repo_root, dirs_excluded).map(LayoutOwner::into_self_cell)
     }
 
-    pub fn layout(&self) -> &LayoutOwner {
-        self.borrow_owner()
-    }
+    // pub fn layout(&self) -> &LayoutOwner {
+    //     self.borrow_owner()
+    // }
 
     pub fn packages(&self) -> &[Package] {
         self.borrow_dependent()
     }
 
-    pub fn root_path(&self) -> &Utf8Path {
-        &self.layout().root_path
-    }
+    // pub fn root_path(&self) -> &Utf8Path {
+    //     &self.layout().root_path
+    // }
 }
