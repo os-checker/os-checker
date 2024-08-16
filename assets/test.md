@@ -50,7 +50,7 @@ def sort_by_count: . | sort_by(
   -.sorting["Clippy(Error)"],
   -.sorting["Clippy(Warn)"],
   -.sorting["Unformatted"]
-);
+) | map(del(.sorting)); # 最后删除排序键
 
 # 由于 sort_by 不允许对 null 值排序，所以给默认值
 def zero: {
@@ -60,7 +60,7 @@ def zero: {
 };
 
 # 由于 sort_by 只能指定字段排序，因此从数组转换到对象
-def gen_sorting_keys: . | map((. | zero) + {(.kind): .count}) | add;
+def gen_sorting_keys: . | map(zero + {(.kind): .count}) | add;
 
 # 重新排列字段，以及按照计数排序
 def epilogue: . | map({
@@ -72,8 +72,8 @@ def epilogue: . | map({
     total_count,
     kinds,
     sorting: .kinds | gen_sorting_keys
-  }) | sort_by_count | map(del(.sorting))
-}) | sort_by_count | map(del(.sorting));
+  }) | sort_by_count
+}) | sort_by_count;
 
 . | extract_kind_count | group_by_package | group_by_repo | epilogue
 ```
