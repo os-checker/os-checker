@@ -44,7 +44,38 @@ def group_by_repo: . | group_by(.key2) | map({
   }
 );
 
-. | extract_kind_count | group_by_package | group_by_repo 
+# 所有计数按照降序排列；先按照总计数，如果相同，按照指定的字段的值来比较先后顺序
+def sort_by_count: . | sort_by(
+  -.total_count,
+  -.sorting["Clippy(Error)"],
+  -.sorting["Clippy(Warn)"],
+  -.sorting["Unformatted"]
+);
+
+# 由于 sort_by 不允许对 null 值排序，所以给默认值
+def zero: {
+  "Clippy(Error)": 0,
+  "Clippy(Warn)": 0,
+  Unformatted: 0,
+};
+
+# 由于 sort_by 只能指定字段排序，因此从数组转换到对象
+def gen_sorting_keys: . | map((. | zero) + {(.kind): .count}) | add;
+
+# 重新排列字段，以及按照计数排序
+def epilogue: . | map({
+  user, reoo, total_count, kinds, sorting: .kinds | gen_sorting_keys,
+  children: .children | map({
+    user: .key1.user,
+    repo: .key1.repo,
+    package: .key1.package,
+    total_count,
+    kinds,
+    sorting: .kinds | gen_sorting_keys
+  }) | sort_by_count | map(del(.sorting))
+}) | sort_by_count | map(del(.sorting));
+
+. | extract_kind_count | group_by_package | group_by_repo | epilogue
 ```
 
 <details>
@@ -54,229 +85,9 @@ def group_by_repo: . | group_by(.key2) | map({
 ```json
 [
   {
-    "children": [
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "allocator"
-        },
-        "total_count": 2,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 2
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "arceos-bwbench"
-        },
-        "total_count": 2,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 2
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "arceos-display"
-        },
-        "total_count": 1,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 1
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "arceos-priority"
-        },
-        "total_count": 1,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 1
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "axdisplay"
-        },
-        "total_count": 4,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 4
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "axdriver"
-        },
-        "total_count": 2,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 2
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "axfs"
-        },
-        "total_count": 4,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 4
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "axlibc"
-        },
-        "total_count": 1,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 1
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "axnet"
-        },
-        "total_count": 4,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 4
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "bwbench-client"
-        },
-        "total_count": 1,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 1
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "deptool"
-        },
-        "total_count": 45,
-        "kinds": [
-          {
-            "kind": "Unformatted",
-            "count": 35
-          },
-          {
-            "kind": "Clippy(Warn)",
-            "count": 10
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "linked_list"
-        },
-        "total_count": 2,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 2
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "mingo"
-        },
-        "total_count": 8,
-        "kinds": [
-          {
-            "kind": "Clippy(Error)",
-            "count": 7
-          },
-          {
-            "kind": "Clippy(Warn)",
-            "count": 1
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "scheduler"
-        },
-        "total_count": 5,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 5
-          }
-        ]
-      },
-      {
-        "key1": {
-          "user": "repos",
-          "repo": "arceos",
-          "package": "slab_allocator"
-        },
-        "total_count": 1,
-        "kinds": [
-          {
-            "kind": "Clippy(Warn)",
-            "count": 1
-          }
-        ]
-      }
-    ],
-    "total_count": 83,
     "user": "repos",
-    "repo": "arceos",
+    "reoo": null,
+    "total_count": 83,
     "kinds": [
       {
         "kind": "Clippy(Error)",
@@ -290,16 +101,221 @@ def group_by_repo: . | group_by(.key2) | map({
         "kind": "Unformatted",
         "count": 35
       }
+    ],
+    "children": [
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "deptool",
+        "total_count": 45,
+        "kinds": [
+          {
+            "kind": "Unformatted",
+            "count": 35
+          },
+          {
+            "kind": "Clippy(Warn)",
+            "count": 10
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "mingo",
+        "total_count": 8,
+        "kinds": [
+          {
+            "kind": "Clippy(Error)",
+            "count": 7
+          },
+          {
+            "kind": "Clippy(Warn)",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "scheduler",
+        "total_count": 5,
+        "kinds": [
+          {
+            "kind": "Clippy(Warn)",
+            "count": 5
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "axdisplay",
+        "total_count": 4,
+        "kinds": [
+          {
+            "kind": "Clippy(Error)",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "axfs",
+        "total_count": 4,
+        "kinds": [
+          {
+            "kind": "Clippy(Error)",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "axnet",
+        "total_count": 4,
+        "kinds": [
+          {
+            "kind": "Clippy(Error)",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "arceos-bwbench",
+        "total_count": 2,
+        "kinds": [
+          {
+            "kind": "Clippy(Error)",
+            "count": 2
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "axdriver",
+        "total_count": 2,
+        "kinds": [
+          {
+            "kind": "Clippy(Error)",
+            "count": 2
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "allocator",
+        "total_count": 2,
+        "kinds": [
+          {
+            "kind": "Clippy(Warn)",
+            "count": 2
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "linked_list",
+        "total_count": 2,
+        "kinds": [
+          {
+            "kind": "Clippy(Warn)",
+            "count": 2
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "arceos-display",
+        "total_count": 1,
+        "kinds": [
+          {
+            "kind": "Clippy(Error)",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "axlibc",
+        "total_count": 1,
+        "kinds": [
+          {
+            "kind": "Clippy(Error)",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "bwbench-client",
+        "total_count": 1,
+        "kinds": [
+          {
+            "kind": "Clippy(Error)",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "arceos-priority",
+        "total_count": 1,
+        "kinds": [
+          {
+            "kind": "Clippy(Warn)",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "user": "repos",
+        "repo": "arceos",
+        "package": "slab_allocator",
+        "total_count": 1,
+        "kinds": [
+          {
+            "kind": "Clippy(Warn)",
+            "count": 1
+          }
+        ]
+      }
     ]
   },
   {
+    "user": "repos",
+    "reoo": null,
+    "total_count": 6,
+    "kinds": [
+      {
+        "kind": "Clippy(Error)",
+        "count": 1
+      },
+      {
+        "kind": "Clippy(Warn)",
+        "count": 1
+      },
+      {
+        "kind": "Unformatted",
+        "count": 4
+      }
+    ],
     "children": [
       {
-        "key1": {
-          "user": "repos",
-          "repo": "os-checker-test-suite",
-          "package": "os-checker-test-suite"
-        },
+        "user": "repos",
+        "repo": "os-checker-test-suite",
+        "package": "os-checker-test-suite",
         "total_count": 6,
         "kinds": [
           {
@@ -315,23 +331,6 @@ def group_by_repo: . | group_by(.key2) | map({
             "count": 1
           }
         ]
-      }
-    ],
-    "total_count": 6,
-    "user": "repos",
-    "repo": "os-checker-test-suite",
-    "kinds": [
-      {
-        "kind": "Clippy(Error)",
-        "count": 1
-      },
-      {
-        "kind": "Clippy(Warn)",
-        "count": 1
-      },
-      {
-        "kind": "Unformatted",
-        "count": 4
       }
     ]
   }

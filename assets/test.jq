@@ -39,5 +39,36 @@ def group_by_repo: . | group_by(.key2) | map({
   }
 );
 
-. | extract_kind_count | group_by_package | group_by_repo 
+# 所有计数按照降序排列；先按照总计数，如果相同，按照指定的字段的值来比较先后顺序
+def sort_by_count: . | sort_by(
+  -.total_count,
+  -.sorting["Clippy(Error)"],
+  -.sorting["Clippy(Warn)"],
+  -.sorting["Unformatted"]
+);
+
+# 由于 sort_by 不允许对 null 值排序，所以给默认值
+def zero: {
+  "Clippy(Error)": 0,
+  "Clippy(Warn)": 0,
+  Unformatted: 0,
+};
+
+# 由于 sort_by 只能指定字段排序，因此从数组转换到对象
+def gen_sorting_keys: . | map((. | zero) + {(.kind): .count}) | add;
+
+# 重新排列字段，以及按照计数排序
+def epilogue: . | map({
+  user, reoo, total_count, kinds, sorting: .kinds | gen_sorting_keys,
+  children: .children | map({
+    user: .key1.user,
+    repo: .key1.repo,
+    package: .key1.package,
+    total_count,
+    kinds,
+    sorting: .kinds | gen_sorting_keys
+  }) | sort_by_count | map(del(.sorting))
+}) | sort_by_count | map(del(.sorting));
+
+. | extract_kind_count | group_by_package | group_by_repo | epilogue
 
