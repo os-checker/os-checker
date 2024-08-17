@@ -20,11 +20,11 @@ file://repos/os-checker-test-suite:
     output.with_json_output(&mut json);
 
     let json_str = to_string_pretty(&json)?;
-    expect_file!["./snapshots/json-test-suite.txt"].assert_eq(&json_str);
+    expect_file!["./snapshots/json-test-suite.json"].assert_eq(&json_str);
 
     let json_bytes = json_str.as_bytes();
     let json_count = jq_count(json_bytes)?;
-    expect_file!["./snapshots/json-test-suite_jq_count.txt"].assert_eq(&json_count);
+    expect_file!["./snapshots/json-test-suite_jq_count.json"].assert_eq(&json_count);
 
     Ok(())
 }
@@ -41,7 +41,7 @@ file://repos/arceos:
 
     let mut json = JsonOutput::new();
     output.with_json_output(&mut json);
-    expect_file!["./snapshots/json-arceos.txt"].assert_eq(&to_string_pretty(&json)?);
+    expect_file!["./snapshots/json-arceos.json"].assert_eq(&to_string_pretty(&json)?);
 
     Ok(())
 }
