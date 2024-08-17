@@ -64,12 +64,12 @@ impl Args {
             Emit::Json => {
                 let mut json = JsonOutput::new();
                 outs.iter().for_each(|s| s.with_json_output(&mut json));
-                serde_json::to_writer(std::io::stdout(), &json)?;
+                serde_json::to_writer_pretty(std::io::stdout(), &json)?;
             }
             Emit::JsonFile(p) => {
                 let mut json = JsonOutput::new();
                 outs.iter().for_each(|s| s.with_json_output(&mut json));
-                serde_json::to_writer(File::create(p)?, &json)?;
+                serde_json::to_writer_pretty(File::create(p)?, &json)?;
             }
         }
         debug!(?self.emit, "Output emitted");
