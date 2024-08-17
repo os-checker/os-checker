@@ -60,7 +60,7 @@ def gen_sorting_keys: . | map(zero + {(.kind): .count}) | add;
 
 # 重新排列字段，以及按照计数排序
 def epilogue: . | map({
-  user, reoo, total_count, kinds, sorting: .kinds | gen_sorting_keys,
+  user, repo, total_count, kinds, sorting: .kinds | gen_sorting_keys,
   children: .children | map({
     user: .key1.user,
     repo: .key1.repo,

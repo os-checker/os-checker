@@ -52,7 +52,8 @@ def sort_by_count: . | sort_by(
   -.sorting["Unformatted"]
 ) | map(del(.sorting)); # 最后删除排序键
 
-# 由于 sort_by 不允许对 null 值排序，所以给默认值
+# 由于 sort_by 不允许对 null 值排序，所以给默认值；
+# 必须放置在已有值之前，并通过 + 连接，因为 + 会让右边的键覆盖左边的键
 def zero: {
   "Clippy(Error)": 0,
   "Clippy(Warn)": 0,
@@ -64,7 +65,7 @@ def gen_sorting_keys: . | map(zero + {(.kind): .count}) | add;
 
 # 重新排列字段，以及按照计数排序
 def epilogue: . | map({
-  user, reoo, total_count, kinds, sorting: .kinds | gen_sorting_keys,
+  user, repo, total_count, kinds, sorting: .kinds | gen_sorting_keys,
   children: .children | map({
     user: .key1.user,
     repo: .key1.repo,
@@ -86,7 +87,7 @@ def epilogue: . | map({
 [
   {
     "user": "repos",
-    "reoo": null,
+    "repo": "arceos",
     "total_count": 83,
     "kinds": [
       {
@@ -295,7 +296,7 @@ def epilogue: . | map({
   },
   {
     "user": "repos",
-    "reoo": null,
+    "repo": "os-checker-test-suite",
     "total_count": 6,
     "kinds": [
       {
