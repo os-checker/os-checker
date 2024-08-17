@@ -15,25 +15,27 @@
             * 其他基础信息：分支名、最后一次的提交 sha、时间等，可通过 Github API 获得，见末尾的 Misc
         * package 信息：每个检查工具作用的直接对象
             * name：即 Cargo.toml 中的 `package.name`
-            * 仓库信息索引
+            * repo_idx：指向检查对象的某个仓库
             * user：虽然通过仓库信息索引可以知道，但这个数据很常用，复制过来以减轻数据分析的复杂度
             * repo：理由同 user
             * branch：理由同 user；注意，同一个仓库下，不同 branch 的 package 应该视为不同的 packge（目前只考虑默认分支，因此一般情况下 package 就是指 `user repo package`）
             * 定义的 cargo targets[^1]：需要确认，如果同时存在 main.rs 和 lib.rs，检查哪个或者都检查
             * 定义的 features：不仅是基础信息，还用于校验检查命令
 * 执行检查的命令：每条检查结果必须通过数字索引对应一条检查命令；将命令和结果分开，是出于数据压缩考虑
-    * package 索引：指向检查对象；从某种角度说，完整的检查命令由工作目录（该信息就在检查对象信息内）和 shell 命令两部分组成
+    * package_idx 索引：指向检查对象中的某项 package；从某种角度说，完整的检查命令由工作目录（该信息就在检查对象信息内）和 shell 命令两部分组成
     * tool：检查工具名
+    * count：该检查命令产生的结果数量
+    * duration_ms：执行检查命令花费的毫秒时间；注意，每个检查命令以并行的方式执行
     * 检查命令：来自 os-checker 默认提供或者 os-checker 利用某种方式分析生成或者使用者指定的 shell 命令
     * 编译条件：
         * 架构名和架构目标三元组：即 `<arch>` 和 `<arch><sub>-<vendor>-<sys>-<abi>`
         * 指定的 features：即 `--features ...`
         * 其他 rustc 编译选项：即 `RUSTFLAGS='...'`，上面的编译条件都可以视为 rustc 编译选项，它们直接控制编译哪些源代码（也就是直接影响检查哪些代码），但这里放置除上面之外的选项，比如用于条件编译的 `--cfg` 或者众多不稳定的 `-Z` 编译选项
 * 执行检查的结果：问题文件信息；实际上，问题发生的地点应该由 `(文件名, 行, 列)` 描述，但出于简化，只到文件级别
-    * idx 索引：指向一个检查过程，检查过程会包含检查对象（user/repo#package）
+    * cmd_idx 索引：指向一个检查命令
     * 问题文件路径：需统一处理所有工具报告的文件路径；有些工具报告绝对路径，有些报告相对路径，os-checker 尽量统一为相对路径；注意，如果问题来自该 package 之外，那么此时文件指向依赖项的绝对路径
     * 原始检查输出：严格来说，整个 JSON 都可以视为 os-checker 提供的检查结果，但在这个上下文，检查结果与原始检查输出同义
-    * 诊断类别：比如 clippy 这个工具可以发出 Warn/Error 两个类别、lockbud 可以发出围绕 deadlock/memory/panic 的一些更详细检查类别；我认为非常有必要分类展示检查结果
+    * 诊断类别：比如 clippy 这个工具可以发出 Warn/Error 两个类别、lockbud 可以围绕 deadlock/memory/panic 发出更详细检查类别；我认为分类展示检查结果非常必要
 
 [cargo metadata]: https://doc.rust-lang.org/cargo/commands/cargo-metadata.html#json-format
 
@@ -46,44 +48,45 @@
       "rust": {"version": "1.82.0-nightly (91376f416 2024-08-12)"},
       "clippy": {"version": "clippy 0.1.82 (91376f4 2024-08-12)"},
       "lockbud": {"version": "sha...", "date": "...", "rustToolchain": "..."}, // lockbud 需要固定工具链
-      "os-checker": {"start": "...", "finish": "..."}
+      "os-checker": {"start": "...", "finish": "...", "duration_ms": 3}
     },
     "host": {"arch": "x86_64", "kernel": "..."}, // arch 命令和 cat /proc/version
     "repos": [
       {"user": "arceos-org", "repo": "arceos", "cargoLayout": [...], "info": {...}}
     ],
-    "packages": [ // repo.idx 指向 repos 数组中的一项
+    "packages": [ // repo_idx 指向 .env.repos 数组中的一项
       {
         "name": "axstd",
-        "repo": {"idx": 0, "user": "arceos-org", "repo": "arceos", "branch": "main"},
+        "repo": {"repo_idx": 0, "user": "arceos-org", "repo": "arceos", "branch": "main"},
         "cargo": {"targets": [...], "features": [...]}
       }
     ]
   },
-  "idx": [ // package 指向 packages 数组中的一项
+  "cmd": [ // package_idx 指向 packages 数组中的一项
     {
-      "package": 0, "tool": "clippy",
+      "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --no-deps --message-format=json",
       "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
       "features": ["a", "b"],
       "flags": ["--cfg=...", "-Z...", "-C..."]
     },
     {
-      "package": 0, "tool": "clippy",
+      "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
       "arch": "riscv64", "targetTriple": "riscv64gc-unknown-none-elf",
       "features": [], "flags": []
     },
     {
-      "package": 0, "tool": "lockbud", "cmd": "cargo lockbud",
+      "package_idx": 0, "tool": "lockbud", "count": 1, "duration_ms": 1,
+      "cmd": "cargo lockbud",
       "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
       "features": [], "flags": []
     }
   ],
-  "data": [ // 这里的 idx 指向 idx 数组中的一项检查过程
-    {"idx": 0, "file": "path/to/file.rs", "kind": "Clippy(Error)", "raw": "raw report ..."},
-    {"idx": 1, "file": "path/to/file.rs", "kind": "Clippy(Warn)", "raw": "raw report ..."},
-    {"idx": 2, "file": "path/to/file.rs", "kind": "Lockbud(DoubleLock)", "raw": "raw report ..."}
+  "data": [ // 这里的 cmd_idx 指向 .cmd 数组中的一项检查命令
+    {"cmd_idx": 0, "file": "path/to/file.rs", "kind": "Clippy(Error)", "raw": "raw report ..."},
+    {"cmd_idx": 1, "file": "path/to/file.rs", "kind": "Clippy(Warn)", "raw": "raw report ..."},
+    {"cmd_idx": 2, "file": "path/to/file.rs", "kind": "Lockbud(DoubleLock)", "raw": "raw report ..."}
   ]
 }
 ```

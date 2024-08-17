@@ -13,6 +13,8 @@ mod cli;
 mod layout;
 /// initialization of logger
 mod logger;
+/// JSON output: see `../assets/JSON-data-format.md` for more information
+mod output;
 /// parse yaml file for repo configuration
 mod repo;
 /// run checker tools based on codebase layout and configuration
