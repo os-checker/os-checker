@@ -16,12 +16,13 @@ self_cell = "1.0.4" # self-referential
 serde = { version = "1", features = ["derive"] }
 marked-yaml = { version = "0.7.1", features = ["serde-path"] } # parse yaml file
 cargo_metadata = "0.18.1" # parse metadata for knowing project layout
-serde_json = "1.0.120"
 regex = "1.10.5"
 compact_str = { version = "0.8.0", features = ["serde"] }
 itertools = "0.13.0"
 rayon = "1.10.0"
 prettydiff = { version = "0.7.0", default-features = false }
+
+serde_json = { version = "1.0.125", features = ["preserve_order"] }
 
 # error handling
 eyre = "0.6.12"

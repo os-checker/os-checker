@@ -6,7 +6,8 @@
 
 * 执行检查的环境：运行一次 os-checker CLI 的环境，包括
     * 各种工具信息：Rust 工具链信息（版本号等）、所应用检查工具信息（名称、版本号等)、os-checker 信息（运行和结束的时间）
-    * 宿主机器信息：架构、操作系统
+    * 诊断分类信息：一个检查工具可能发出不同类别，比如 clippy 可以发出 Warn/Error 两个类别、lockbud 围绕 deadlock/memory/panic 发出更详细检查类别
+    * 宿主机器信息：架构、操作系统等信息
     * 检查对象信息：
         * 仓库信息：
             * user 
@@ -35,7 +36,7 @@
     * cmd_idx 索引：指向一个检查命令
     * 问题文件路径：需统一处理所有工具报告的文件路径；有些工具报告绝对路径，有些报告相对路径，os-checker 尽量统一为相对路径；注意，如果问题来自该 package 之外，那么此时文件指向依赖项的绝对路径
     * 原始检查输出：严格来说，整个 JSON 都可以视为 os-checker 提供的检查结果，但在这个上下文，检查结果与原始检查输出同义
-    * 诊断类别：比如 clippy 这个工具可以发出 Warn/Error 两个类别、lockbud 可以围绕 deadlock/memory/panic 发出更详细检查类别；我认为分类展示检查结果非常必要
+    * 诊断类别
 
 [cargo metadata]: https://doc.rust-lang.org/cargo/commands/cargo-metadata.html#json-format
 
@@ -49,6 +50,13 @@
       "clippy": {"version": "clippy 0.1.82 (91376f4 2024-08-12)"},
       "lockbud": {"version": "sha...", "date": "...", "rustToolchain": "..."}, // lockbud 需要固定工具链
       "os-checker": {"start": "...", "finish": "...", "duration_ms": 3}
+    },
+    "kinds": {
+      "order": ["Clippy(Error)", "Clippy(Warn)", "Unformatted"], // 类别的优先程度（我认为的）
+      "mapping": {
+        "clippy": ["Clippy(Error)", "Clippy(Warn)"],
+        "fmt": ["Unformatted"]
+      }
     },
     "host": {"arch": "x86_64", "kernel": "..."}, // arch 命令和 cat /proc/version
     "repos": [

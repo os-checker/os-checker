@@ -14,6 +14,7 @@ impl JsonOutput {
     pub fn new() -> Self {
         Self {
             env: Env {
+                kinds: Kinds::new(),
                 repos: vec![],
                 packages: vec![],
             },
@@ -25,6 +26,7 @@ impl JsonOutput {
 
 #[derive(Debug, Serialize)]
 pub struct Env {
+    kinds: Kinds,
     pub repos: Vec<Repo>,
     pub packages: Vec<Package>,
 }
@@ -77,11 +79,12 @@ pub struct Data {
 }
 
 /// The kind a checker reports.
-#[allow(unused)]
 #[derive(Debug, Serialize)]
 pub enum Kind {
     /// fmt
     Unformatted,
+    // FIXME: 带括号的键存在诸多不变，为了编程方便，使用 camel-case；
+    // 面向 UI 时，前端会转换成所需的文字。
     #[serde(rename = "Clippy(Warn)")]
     ClippyWarn,
     #[serde(rename = "Clippy(Error)")]
@@ -92,4 +95,23 @@ pub enum Kind {
     SemverViolation,
     /// TODO
     Lockbud,
+}
+
+#[derive(Debug, Serialize)]
+struct Kinds {
+    order: Vec<Kind>,
+    mapping: serde_json::Value,
+}
+
+impl Kinds {
+    fn new() -> Kinds {
+        use Kind::*;
+        Kinds {
+            order: vec![ClippyError, ClippyWarn, Unformatted],
+            mapping: serde_json::json!({
+                "clippy": [ClippyError, ClippyWarn],
+                "fmt": [Unformatted]
+            }),
+        }
+    }
 }
