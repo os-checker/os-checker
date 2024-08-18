@@ -48,7 +48,7 @@
     "tools": {
       "rust": {"version": "1.82.0-nightly (91376f416 2024-08-12)"},
       "clippy": {"version": "clippy 0.1.82 (91376f4 2024-08-12)"},
-      "lockbud": {"version": "sha...", "date": "...", "rustToolchain": "..."}, // lockbud 需要固定工具链
+      "lockbud": {"version": "sha...", "date": "...", "rust_toolchain": "..."}, // lockbud 需要固定工具链
       "os-checker": {"start": "...", "finish": "...", "duration_ms": 3}
     },
     "kinds": {
@@ -60,7 +60,7 @@
     },
     "host": {"arch": "x86_64", "kernel": "..."}, // arch 命令和 cat /proc/version
     "repos": [
-      {"user": "arceos-org", "repo": "arceos", "cargoLayout": [...], "info": {...}}
+      {"user": "arceos-org", "repo": "arceos", "cargo_layout": [...], "info": {...}}
     ],
     "packages": [ // repo_idx 指向 .env.repos 数组中的一项
       {
