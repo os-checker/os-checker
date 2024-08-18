@@ -62,13 +62,11 @@ impl Args {
         debug!("Got statistics and start to run and emit output.");
         match &self.emit {
             Emit::Json => {
-                let mut json = JsonOutput::new();
-                outs.iter().for_each(|s| s.with_json_output(&mut json));
+                let json = JsonOutput::new(&outs);
                 serde_json::to_writer_pretty(std::io::stdout(), &json)?;
             }
             Emit::JsonFile(p) => {
-                let mut json = JsonOutput::new();
-                outs.iter().for_each(|s| s.with_json_output(&mut json));
+                let json = JsonOutput::new(&outs);
                 serde_json::to_writer_pretty(File::create(p)?, &json)?;
             }
         }

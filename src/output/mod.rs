@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::{repo::CheckerTool, XString};
+use crate::{repo::CheckerTool, run_checker::RepoOutput, XString};
 use cargo_metadata::camino::Utf8PathBuf;
 use serde::Serialize;
 
@@ -11,8 +11,8 @@ pub struct JsonOutput {
 }
 
 impl JsonOutput {
-    pub fn new() -> Self {
-        Self {
+    pub fn new(outputs: &[RepoOutput]) -> Self {
+        let mut json = Self {
             env: Env {
                 kinds: Kinds::new(),
                 repos: vec![],
@@ -20,7 +20,9 @@ impl JsonOutput {
             },
             cmd: vec![],
             data: vec![],
-        }
+        };
+        outputs.iter().for_each(|s| s.with_json_output(&mut json));
+        json
     }
 }
 

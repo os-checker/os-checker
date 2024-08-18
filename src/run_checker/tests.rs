@@ -16,9 +16,7 @@ file://repos/os-checker-test-suite:
     )
     .try_into()?;
 
-    let mut json = JsonOutput::new();
-    output.with_json_output(&mut json);
-
+    let json = JsonOutput::new(&[output]);
     let json_str = to_string_pretty(&json)?;
     expect_file!["./snapshots/json-test-suite.json"].assert_eq(&json_str);
 
@@ -39,8 +37,7 @@ file://repos/arceos:
     )
     .try_into()?;
 
-    let mut json = JsonOutput::new();
-    output.with_json_output(&mut json);
+    let json = JsonOutput::new(&[output]);
     expect_file!["./snapshots/json-arceos.json"].assert_eq(&to_string_pretty(&json)?);
 
     Ok(())
