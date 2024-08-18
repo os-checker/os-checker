@@ -60,17 +60,17 @@ impl Args {
     pub fn run(self) -> Result<()> {
         let start = SystemTime::now();
         let outs = self.repos_outputs()?.collect::<Result<Vec<_>>>()?;
-        let end = SystemTime::now();
+        let finish = SystemTime::now();
         debug!("Got statistics and start to run and emit output.");
         match &self.emit {
             Emit::Json => {
                 let mut json = JsonOutput::new(&outs);
-                json.set_start_end_time(start, end);
+                json.set_start_end_time(start, finish);
                 serde_json::to_writer_pretty(std::io::stdout(), &json)?;
             }
             Emit::JsonFile(p) => {
                 let mut json = JsonOutput::new(&outs);
-                json.set_start_end_time(start, end);
+                json.set_start_end_time(start, finish);
                 serde_json::to_writer_pretty(File::create(p)?, &json)?;
             }
         }

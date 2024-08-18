@@ -29,11 +29,11 @@ impl JsonOutput {
 
     /// 设置 os-checker 开始运行检查和完成所有检查（得到所有结果，但不包含转换成
     /// JSON 格式）的时间
-    pub fn set_start_end_time(&mut self, start: SystemTime, end: SystemTime) {
+    pub fn set_start_end_time(&mut self, start: SystemTime, finish: SystemTime) {
         self.env.tools.os_checker.start = unix_timestamp(start);
-        self.env.tools.os_checker.finish = unix_timestamp(end);
+        self.env.tools.os_checker.finish = unix_timestamp(finish);
         self.env.tools.os_checker.duration_ms =
-            end.duration_since(start).unwrap().as_millis() as u64;
+            finish.duration_since(start).unwrap().as_millis() as u64;
     }
 }
 
