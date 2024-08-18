@@ -40,6 +40,10 @@ yash-syntax = "0.10.0" # shell lang parsing
 expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
 tempfile = "3"
 
+[build-dependencies]
+duct = "0.13.7" # better subprocess, pipe, redirct
+color-eyre = "0.6.3"
+
 [workspace]
 exclude = ["repos/*"]
 

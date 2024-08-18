@@ -5,8 +5,8 @@
 从逻辑上，应该把完整的 os-checker 检查划分为几个维度：
 
 * 执行检查的环境：运行一次 os-checker CLI 的环境，包括
-    * 各种工具信息：Rust 工具链信息（版本号等）、所应用检查工具信息（名称、版本号等)、os-checker 信息（运行和结束的时间）
-    * 诊断分类信息：一个检查工具可能发出不同类别，比如 clippy 可以发出 Warn/Error 两个类别、lockbud 围绕 deadlock/memory/panic 发出更详细检查类别
+    * 各种工具信息：Rust 工具链信息（版本号等）、所应用检查工具信息（名称、版本号等)、os-checker 信息
+    * 诊断分类信息：一个检查工具可能发出不同类别，比如 clippy 可以发出 Warn/Error 两个类别、lockbud 发出更详细安全检查类别
     * 宿主机器信息：架构、操作系统等信息
     * 检查对象信息：
         * 仓库信息：
@@ -49,7 +49,7 @@
       "rust": {"version": "1.82.0-nightly (91376f416 2024-08-12)"},
       "clippy": {"version": "clippy 0.1.82 (91376f4 2024-08-12)"},
       "lockbud": {"version": "sha...", "date": "...", "rust_toolchain": "..."}, // lockbud 需要固定工具链
-      "os-checker": {"start": "...", "finish": "...", "duration_ms": 3}
+      "os_checker": {"start": "...", "finish": "...", "duration_ms": 3, "git_time": "...", "git_sha": "..."}
     },
     "kinds": {
       "order": ["Clippy(Error)", "Clippy(Warn)", "Unformatted"], // 类别的优先程度（我认为的）

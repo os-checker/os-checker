@@ -2,6 +2,7 @@
 use crate::{repo::CheckerTool, run_checker::RepoOutput, XString};
 use cargo_metadata::camino::Utf8PathBuf;
 use serde::Serialize;
+use std::time::SystemTime;
 
 #[derive(Debug, Serialize)]
 pub struct JsonOutput {
@@ -14,6 +15,7 @@ impl JsonOutput {
     pub fn new(outputs: &[RepoOutput]) -> Self {
         let mut json = Self {
             env: Env {
+                tools: Tools::new(),
                 kinds: Kinds::new(),
                 repos: vec![],
                 packages: vec![],
@@ -24,13 +26,66 @@ impl JsonOutput {
         outputs.iter().for_each(|s| s.with_json_output(&mut json));
         json
     }
+
+    /// 设置 os-checker 开始运行检查和完成所有检查（得到所有结果，但不包含转换成
+    /// JSON 格式）的时间
+    pub fn set_start_end_time(&mut self, start: SystemTime, end: SystemTime) {
+        self.env.tools.os_checker.start = unix_timestamp(start);
+        self.env.tools.os_checker.finish = unix_timestamp(end);
+        self.env.tools.os_checker.duration_ms =
+            end.duration_since(start).unwrap().as_millis() as u64;
+    }
 }
 
 #[derive(Debug, Serialize)]
 pub struct Env {
+    tools: Tools,
     kinds: Kinds,
     pub repos: Vec<Repo>,
     pub packages: Vec<Package>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct Tools {
+    os_checker: ToolOsChecker,
+}
+
+impl Tools {
+    pub fn new() -> Self {
+        Self {
+            os_checker: ToolOsChecker::new_without_duration(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct ToolOsChecker {
+    start: u64,
+    finish: u64,
+    duration_ms: u64,
+    git_time: &'static str,
+    git_sha: &'static str,
+}
+
+impl ToolOsChecker {
+    fn new_without_duration() -> Self {
+        let [start, finish, duration_ms] = [0; 3];
+        let [git_time, git_sha] = [env!("OS_CHECKER_GIT_TIME"), env!("OS_CHECKER_GIT_SHA")];
+        Self {
+            start,
+            finish,
+            duration_ms,
+            git_time,
+            git_sha,
+        }
+    }
+}
+
+// Get current unix timestamp in ms which is handled in WebUI for example.
+fn unix_timestamp(time: SystemTime) -> u64 {
+    time.duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as u64
 }
 
 #[derive(Debug, Serialize)]
