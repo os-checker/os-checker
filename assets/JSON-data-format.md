@@ -59,6 +59,10 @@
       }
     },
     "host": {"arch": "x86_64", "kernel": "..."}, // arch 命令和 cat /proc/version
+    "target_spec": [ // 完整示例见 https://github.com/os-checker/os-checker/issues/25
+      {"arch": "x86_64", "cpu": "x86-64", ...},
+      {"arch": "riscv64", "cpu": "generic-rv64", ...},
+    ],
     "repos": [
       {"user": "arceos-org", "repo": "arceos", "cargo_layout": [...], "info": {...}}
     ],
@@ -70,24 +74,24 @@
       }
     ]
   },
-  "cmd": [ // package_idx 指向 packages 数组中的一项
+  "cmd": [ // package_idx 指向 .env.packages 数组中的一项；spec_idx 指向 .env.target_spec 数组中的一项
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --no-deps --message-format=json",
-      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu",
+      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0,
       "features": ["a", "b"],
       "flags": ["--cfg=...", "-Z...", "-C..."]
     },
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
-      "arch": "riscv64", "triple": "riscv64gc-unknown-none-elf",
+      "arch": "riscv64", "triple": "riscv64gc-unknown-none-elf", "spec_idx": 1,
       "features": [], "flags": []
     },
     {
       "package_idx": 0, "tool": "lockbud", "count": 1, "duration_ms": 1,
       "cmd": "cargo lockbud",
-      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu",
+      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0,
       "features": [], "flags": []
     }
   ],
