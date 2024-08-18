@@ -74,20 +74,20 @@
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --no-deps --message-format=json",
-      "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
+      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu",
       "features": ["a", "b"],
       "flags": ["--cfg=...", "-Z...", "-C..."]
     },
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
-      "arch": "riscv64", "targetTriple": "riscv64gc-unknown-none-elf",
+      "arch": "riscv64", "triple": "riscv64gc-unknown-none-elf",
       "features": [], "flags": []
     },
     {
       "package_idx": 0, "tool": "lockbud", "count": 1, "duration_ms": 1,
       "cmd": "cargo lockbud",
-      "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
+      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu",
       "features": [], "flags": []
     }
   ],
