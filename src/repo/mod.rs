@@ -12,6 +12,7 @@ mod cmd;
 use cmd::*;
 
 mod uri;
+mod validate;
 
 #[cfg(test)]
 mod tests;
