@@ -103,17 +103,25 @@ impl CargoCheckDiagnostics {
 
 impl std::fmt::Debug for CargoCheckDiagnostics {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        #[cfg(test)]
+        {
+            f.debug_struct("CargoCheckDiagnostics")
+                .field("target_triple", &self.target_triple)
+                .field(
+                    "compiler_messages",
+                    &self
+                        .compiler_messages
+                        .iter()
+                        .map(|d| d.message.to_string())
+                        .collect_vec(),
+                )
+                .finish()
+        }
+        #[cfg(not(test))]
         f.debug_struct("CargoCheckDiagnostics")
             .field("target_triple", &self.target_triple)
-            // .field("duration_ms", &self.duration_ms) // don't write this to snapshots
-            .field(
-                "compiler_messages",
-                &self
-                    .compiler_messages
-                    .iter()
-                    .map(|d| d.message.to_string())
-                    .collect_vec(),
-            )
+            .field("duration_ms", &self.duration_ms)
+            .field("compiler_messages.len", &self.compiler_messages.len())
             .finish()
     }
 }
