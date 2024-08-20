@@ -19,6 +19,8 @@ mod output;
 mod repo;
 /// run checker tools based on codebase layout and configuration
 mod run_checker;
+/// some helper functions
+mod utils;
 
 fn main() -> Result<()> {
     logger::init();

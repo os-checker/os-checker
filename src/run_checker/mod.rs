@@ -9,7 +9,7 @@ use eyre::{Context, ContextCompat};
 use itertools::Itertools;
 use regex::Regex;
 use serde::Deserialize;
-use std::{process::Output as RawOutput, sync::LazyLock, time::Instant};
+use std::{process::Output as RawOutput, sync::LazyLock};
 
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
@@ -132,14 +132,15 @@ pub struct Output {
 
 /// 以子进程方式执行检查
 fn run_check(resolve: &Resolve) -> Result<Output> {
-    let now = Instant::now();
-    let raw = resolve
-        .expr
-        .stderr_capture()
-        .stdout_capture()
-        .unchecked()
-        .run()?;
-    let duration_ms = now.elapsed().as_millis() as u64;
+    let (duration_ms, raw) = crate::utils::execution_time_ms(|| {
+        resolve
+            .expr
+            .stderr_capture()
+            .stdout_capture()
+            .unchecked()
+            .run()
+    });
+    let raw = raw?;
 
     trace!(
         ?resolve,
