@@ -1,4 +1,5 @@
 use super::LayoutOwner;
+use cargo_metadata::camino::Utf8Path;
 use expect_test::{expect, expect_file};
 
 #[test]
@@ -16,7 +17,8 @@ fn arceos_layout() {
 fn cargo_check_verbose() -> crate::Result<()> {
     use itertools::Itertools;
 
-    let current_dir = "/rust/tmp/os-checker/e1000-driver/examples";
+    let current_dir = Utf8Path::new("repos/e1000-driver/examples").canonicalize_utf8()?;
+    let current_dir = current_dir.as_str();
     _ = duct::cmd!("cargo", "clean").dir(current_dir).run()?;
     let output = duct::cmd!("cargo", "check", "-vv")
         .dir(current_dir)
