@@ -5,15 +5,48 @@ use cargo_metadata::{
 };
 use itertools::Itertools;
 
+/// A target triple with precise source.
+#[derive(Debug)]
+pub struct TargetTriple {
+    target: String,
+    source: Vec<TargetSource>,
+}
+
+impl TargetTriple {
+    fn specified_default(target: &str) -> Self {
+        TargetTriple {
+            target: target.to_owned(),
+            source: vec![TargetSource::SpecifiedDefault],
+        }
+    }
+
+    fn unspecified_default() -> Self {
+        TargetTriple {
+            target: todo!(),
+            source: vec![TargetSource::SpecifiedDefault],
+        }
+    }
+
+    fn triple(&self) -> &str {
+        &self.target
+    }
+}
+
+/// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
+#[derive(Debug)]
+pub enum TargetSource {
+    SpecifiedDefault,
+    UnspecifiedDefault,
+    DetectedBy(Utf8PathBuf),
+    OverriddenInYaml,
+}
+
 /// Default cargo target triple list got by `cargo check -vv` which compiles all targets.
 #[derive(Debug)]
 pub struct DefaultTargetTriples {
-    /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
-    /// NOTE: this can be empty if no target is specified in .cargo/config.toml,
-    /// in which case the host target should be implied when the empty value is handled.
-    pub targets: Box<[String]>,
+    pub targets: Vec<TargetTriple>,
     /// The first time `cargo check` takes.
-    pub duration_ms: u64,
+    pub first_check_duration_ms: u64,
 }
 
 impl DefaultTargetTriples {
@@ -46,7 +79,7 @@ impl DefaultTargetTriples {
                 .run()
         });
 
-        let triples = Message::parse_stream(output?.stderr.as_slice())
+        let mut targets = Message::parse_stream(output?.stderr.as_slice())
             .filter_map(|parsed| {
                 if let Message::TextLine(mes) = &parsed.ok()? {
                     // 只需要当前 package 的 target triple：
@@ -58,7 +91,7 @@ impl DefaultTargetTriples {
                         let manifest_dir = RE.manifest_dir.captures(mes)?.get(1)?.as_str();
                         let target_triple = RE.target_triple.captures(mes)?.get(1)?.as_str();
                         if crate_name == pkg_name && manifest_dir == pkg_dir {
-                            return Some(target_triple.to_owned());
+                            return Some(TargetTriple::specified_default(target_triple));
                         }
                     }
                 }
@@ -66,9 +99,15 @@ impl DefaultTargetTriples {
             })
             .collect_vec();
 
+        // NOTE: this can be empty if no target is specified in .cargo/config.toml,
+        // in which case the host target should be implied when the empty value is handled.
+        if targets.is_empty() {
+            targets = vec![TargetTriple::unspecified_default()];
+        }
+
         Ok(DefaultTargetTriples {
-            targets: triples.into(),
-            duration_ms,
+            targets,
+            first_check_duration_ms: duration_ms,
         })
     }
 }
@@ -148,7 +187,7 @@ impl PackageInfo {
         let cargo_check_diagnostics = default_target_triples
             .targets
             .iter()
-            .map(|target| CargoCheckDiagnostics::new(pkg_dir, pkg_name, target))
+            .map(|target| CargoCheckDiagnostics::new(pkg_dir, pkg_name, target.triple()))
             .collect::<Result<_>>()?;
         Ok(PackageInfo {
             pkg_name: pkg_name.into(),

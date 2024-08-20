@@ -3,10 +3,20 @@ PackageInfo {
     pkg_dir: "/rust/my/os-checker/repos/e1000-driver/examples",
     default_target_triples: DefaultTargetTriples {
         targets: [
-            "riscv64gc-unknown-none-elf",
-            "x86_64-unknown-linux-gnu",
+            TargetTriple {
+                target: "riscv64gc-unknown-none-elf",
+                source: [
+                    SpecifiedDefault,
+                ],
+            },
+            TargetTriple {
+                target: "x86_64-unknown-linux-gnu",
+                source: [
+                    SpecifiedDefault,
+                ],
+            },
         ],
-        duration_ms: 7041,
+        first_check_duration_ms: 10869,
     },
     cargo_check_diagnostics: [
         CargoCheckDiagnostics {
