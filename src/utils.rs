@@ -4,6 +4,25 @@ use eyre::ContextCompat;
 use regex::Regex;
 use std::{sync::LazyLock, time::Instant};
 
+/// 遍历一个目录及其子目录的所有文件（但不进入 .git 和 target 目录）
+pub fn walk_dir_but_exclude_some<'ex>(
+    dir: &str,
+    max_depth: usize,
+    dirs_excluded: &'ex [&str],
+) -> walkdir::FilterEntry<walkdir::IntoIter, impl 'ex + for<'a> FnMut(&'a walkdir::DirEntry) -> bool>
+{
+    walkdir::WalkDir::new(dir)
+        .max_depth(max_depth) // 目录递归上限
+        .into_iter()
+        .filter_entry(move |entry| {
+            // 别进入这些文件夹（适用于子目录递归）
+            const NO_JUMP_IN: &[&str] = &[".git", "target"];
+            let filename = entry.file_name();
+            let excluded = &mut NO_JUMP_IN.iter().chain(dirs_excluded);
+            !excluded.any(|&dir| dir == filename)
+        })
+}
+
 /// Perform an operation and get the execution time.
 pub fn execution_time_ms<T>(op: impl FnOnce() -> T) -> (u64, T) {
     let now = Instant::now();

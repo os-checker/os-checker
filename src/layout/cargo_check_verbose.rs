@@ -1,4 +1,4 @@
-use crate::{Result, XString};
+use crate::{utils::walk_dir_but_exclude_some, Result, XString};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     CompilerMessage, Message,
@@ -23,13 +23,18 @@ impl TargetTriple {
     fn unspecified_default() -> Self {
         TargetTriple {
             target: crate::utils::host_target_triple().to_owned(),
-            source: vec![TargetSource::SpecifiedDefault],
+            source: vec![TargetSource::UnspecifiedDefault],
         }
     }
 
     fn triple(&self) -> &str {
         &self.target
     }
+}
+
+fn detected_targets(repo_root: &str) -> Vec<TargetTriple> {
+    walk_dir_but_exclude_some(repo_root, 4, &[]);
+    vec![]
 }
 
 /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
