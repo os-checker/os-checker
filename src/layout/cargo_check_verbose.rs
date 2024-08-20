@@ -22,7 +22,7 @@ impl TargetTriple {
 
     fn unspecified_default() -> Self {
         TargetTriple {
-            target: todo!(),
+            target: crate::utils::host_target_triple().to_owned(),
             source: vec![TargetSource::SpecifiedDefault],
         }
     }
