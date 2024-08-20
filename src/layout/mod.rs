@@ -10,6 +10,9 @@ use std::{collections::BTreeMap, fmt};
 #[cfg(test)]
 mod tests;
 
+/// Target triple list and cargo check diagnostics.
+mod cargo_check_verbose;
+
 /// 寻找仓库内所有 Cargo.toml 所在的路径
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
     let mut cargo_tomls: Vec<Utf8PathBuf> = walkdir::WalkDir::new(repo_root)
