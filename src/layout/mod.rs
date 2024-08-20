@@ -12,6 +12,7 @@ mod tests;
 
 /// Target triple list and cargo check diagnostics.
 mod cargo_check_verbose;
+use cargo_check_verbose::PackageInfo;
 
 /// 寻找仓库内所有 Cargo.toml 所在的路径
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
@@ -85,7 +86,9 @@ pub struct LayoutOwner {
     ///       `[package]`，因此要获取所有 packages 的信息，应使用 [`Layout::packages`]
     cargo_tomls: Vec<Utf8PathBuf>,
     /// 一个仓库可能有一个 Workspace，但也可能有多个，比如单独一些 Packages，那么它们是各自的 Workspace
+    /// NOTE: workspaces 的键指向 workspace_root dir，而不是 workspace_root 的 Cargo.toml
     workspaces: Workspaces,
+    packages_info: Box<[PackageInfo]>,
 }
 
 impl fmt::Debug for LayoutOwner {
@@ -116,6 +119,7 @@ impl fmt::Debug for LayoutOwner {
             .field("repo_root", root)
             .field("cargo_tomls", &self.cargo_tomls)
             .field("workspaces", &WorkspacesDebug(&self.workspaces, root_full))
+            .field("packages_info", &self.packages_info)
             .finish()
     }
 }
@@ -130,16 +134,32 @@ impl LayoutOwner {
             "repo_root `{repo_root}` (规范路径为 `{}`) 不是 Rust 项目，因为不包含任何 Cargo.toml",
             root_path.canonicalize_utf8()?
         );
+        debug!(?cargo_tomls);
+
+        let workspaces = parse(&cargo_tomls)?;
+
+        let cargo_tomls_len = cargo_tomls.len();
+        let mut pkg_info = Vec::with_capacity(cargo_tomls_len);
+        for ws in workspaces.values() {
+            for member in ws.workspace_packages() {
+                let pkg_dir = member.manifest_path.parent().unwrap();
+                pkg_info.push(PackageInfo::new(pkg_dir, &member.name)?);
+            }
+        }
+        debug!(cargo_tomls_len, pkg_len = pkg_info.len());
+        pkg_info.sort_unstable_by(|a, b| (&a.pkg_name, &a.pkg_dir).cmp(&(&b.pkg_name, &b.pkg_dir)));
 
         let layout = LayoutOwner {
-            workspaces: parse(&cargo_tomls)?,
+            workspaces,
             cargo_tomls,
             root_path,
+            packages_info: pkg_info.into_boxed_slice(),
         };
         debug!("layout={layout:#?}");
         Ok(layout)
     }
 
+    // FIXME: remove Packages
     fn packages(&self) -> Packages {
         let cargo_tomls_len = self.cargo_tomls.len();
         let mut v = Vec::with_capacity(cargo_tomls_len);

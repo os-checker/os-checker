@@ -1,16 +1,23 @@
-use cargo_metadata::{CompilerMessage, Message};
+use crate::{Result, XString};
+use cargo_metadata::{
+    camino::{Utf8Path, Utf8PathBuf},
+    CompilerMessage, Message,
+};
 use itertools::Itertools;
 
 /// Default cargo target triple list got by `cargo check -vv` which compiles all targets.
+#[derive(Debug)]
 pub struct DefaultTargetTriples {
     /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
+    /// NOTE: this can be empty if no target is specified in .cargo/config.toml,
+    /// in which case the host target should be implied when the empty value is handled.
     pub targets: Box<[String]>,
     /// The first time `cargo check` takes.
     pub duration_ms: u64,
 }
 
 impl DefaultTargetTriples {
-    pub fn new(pkg_dir: &str, pkg_name: &str) -> crate::Result<DefaultTargetTriples> {
+    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str) -> Result<DefaultTargetTriples> {
         use regex::Regex;
         use std::sync::LazyLock;
 
@@ -73,7 +80,7 @@ pub struct CargoCheckDiagnostics {
 }
 
 impl CargoCheckDiagnostics {
-    pub fn new(pkg_dir: &str, pkg_name: &str, target_triple: &str) -> crate::Result<Self> {
+    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str, target_triple: &str) -> Result<Self> {
         let (duration_ms, out) = crate::utils::execution_time_ms(|| {
             duct::cmd!(
                 "cargo",
@@ -123,5 +130,31 @@ impl std::fmt::Debug for CargoCheckDiagnostics {
             .field("duration_ms", &self.duration_ms)
             .field("compiler_messages.len", &self.compiler_messages.len())
             .finish()
+    }
+}
+
+#[derive(Debug)]
+pub struct PackageInfo {
+    pub pkg_name: XString,
+    /// i.e. manifest_dir
+    pub pkg_dir: Utf8PathBuf,
+    pub default_target_triples: DefaultTargetTriples,
+    pub cargo_check_diagnostics: Box<[CargoCheckDiagnostics]>,
+}
+
+impl PackageInfo {
+    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str) -> Result<Self> {
+        let default_target_triples = DefaultTargetTriples::new(pkg_dir, pkg_name)?;
+        let cargo_check_diagnostics = default_target_triples
+            .targets
+            .iter()
+            .map(|target| CargoCheckDiagnostics::new(pkg_dir, pkg_name, target))
+            .collect::<Result<_>>()?;
+        Ok(PackageInfo {
+            pkg_name: pkg_name.into(),
+            pkg_dir: pkg_dir.to_owned(),
+            cargo_check_diagnostics,
+            default_target_triples,
+        })
     }
 }

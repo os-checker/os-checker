@@ -1,10 +1,7 @@
-use super::{
-    cargo_check_verbose::{CargoCheckDiagnostics, DefaultTargetTriples},
-    LayoutOwner,
-};
+use super::{cargo_check_verbose::PackageInfo, LayoutOwner};
 use crate::Result;
 use cargo_metadata::camino::Utf8Path;
-use expect_test::{expect, expect_file};
+use expect_test::expect_file;
 
 #[test]
 fn arceos_layout() {
@@ -19,24 +16,11 @@ fn arceos_layout() {
 
 #[test]
 fn cargo_check_verbose() -> Result<()> {
-    let current_dir = Utf8Path::new("repos/e1000-driver/examples").canonicalize_utf8()?;
-    let pkg_dir = current_dir.as_str();
+    let pkg_dir = Utf8Path::new("repos/e1000-driver/examples").canonicalize_utf8()?;
     let pkg_name = "e1000-driver-test";
 
-    let DefaultTargetTriples { targets, .. } = DefaultTargetTriples::new(pkg_dir, pkg_name)?;
-    expect![[r#"
-        [
-            "riscv64gc-unknown-none-elf",
-            "x86_64-unknown-linux-gnu",
-        ]
-    "#]]
-    .assert_debug_eq(&targets);
-
-    let diagnostics: Vec<_> = targets
-        .iter()
-        .map(|target| CargoCheckDiagnostics::new(pkg_dir, pkg_name, target))
-        .collect::<Result<_>>()?;
-    expect_file!["./snapshots/check_diagnostics.txt"].assert_debug_eq(&diagnostics);
+    let info = PackageInfo::new(&pkg_dir, pkg_name)?;
+    expect_file!["./snapshots/e1000-driver-test_package_info.txt"].assert_debug_eq(&info);
 
     Ok(())
 }
