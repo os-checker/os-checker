@@ -1,5 +1,5 @@
 use super::LayoutOwner;
-use cargo_metadata::{camino::Utf8Path, Message};
+use cargo_metadata::{camino::Utf8Path, CompilerMessage, Message};
 use expect_test::{expect, expect_file};
 use itertools::Itertools;
 
@@ -19,45 +19,21 @@ fn cargo_check_verbose() -> crate::Result<()> {
     let current_dir = Utf8Path::new("repos/e1000-driver/examples").canonicalize_utf8()?;
     let pkg_dir = current_dir.as_str();
     let pkg_name = "e1000-driver-test";
-    let DefaultTargetTriples { triples, .. } = DefaultTargetTriples::new(pkg_dir, pkg_name)?;
+
+    let DefaultTargetTriples { targets, .. } = DefaultTargetTriples::new(pkg_dir, pkg_name)?;
     expect![[r#"
         [
             "riscv64gc-unknown-none-elf",
             "x86_64-unknown-linux-gnu",
         ]
     "#]]
-    .assert_debug_eq(&triples);
+    .assert_debug_eq(&targets);
 
-    let mut diagnostics = Vec::with_capacity(triples.len());
-    for target in &triples {
-        let out = duct::cmd!(
-            "cargo",
-            "check",
-            "--message-format=json",
-            "--target",
-            target
-        )
-        .dir(pkg_dir)
-        .stdout_capture()
-        .unchecked()
-        .run()?;
-
-        diagnostics.push(
-            Message::parse_stream(out.stdout.as_slice())
-                .filter_map(|mes| match mes.ok()? {
-                    Message::CompilerMessage(mes) if mes.target.name == pkg_name => Some(mes),
-                    _ => None,
-                })
-                .collect_vec(),
-        );
-    }
-    expect_file!["./snapshots/check_diagnostics.txt"].assert_debug_eq(
-        &diagnostics
-            .iter()
-            .zip(&triples)
-            .map(|(v, t)| (t, v.iter().map(|d| d.message.to_string()).collect_vec()))
-            .collect_vec(),
-    );
+    let diagnostics: Vec<_> = targets
+        .iter()
+        .map(|target| CargoCheckDiagnostics::new(pkg_dir, pkg_name, target))
+        .try_collect()?;
+    expect_file!["./snapshots/check_diagnostics.txt"].assert_debug_eq(&diagnostics);
 
     Ok(())
 }
@@ -65,7 +41,7 @@ fn cargo_check_verbose() -> crate::Result<()> {
 /// Default cargo target triple list got by `cargo check -vv` which compiles all targets.
 pub struct DefaultTargetTriples {
     /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
-    triples: Box<[String]>,
+    targets: Box<[String]>,
     /// The first time `cargo check` takes.
     duration_ms: u64,
 }
@@ -121,8 +97,60 @@ impl DefaultTargetTriples {
             .collect_vec();
 
         Ok(DefaultTargetTriples {
-            triples: triples.into(),
+            targets: triples.into(),
             duration_ms,
         })
+    }
+}
+
+pub struct CargoCheckDiagnostics {
+    target_triple: String,
+    compiler_messages: Box<[CompilerMessage]>,
+    duration_ms: u64,
+}
+
+impl CargoCheckDiagnostics {
+    pub fn new(pkg_dir: &str, pkg_name: &str, target_triple: &str) -> crate::Result<Self> {
+        let (duration_ms, out) = crate::utils::execution_time_ms(|| {
+            duct::cmd!(
+                "cargo",
+                "check",
+                "--message-format=json",
+                "--target",
+                target_triple
+            )
+            .dir(pkg_dir)
+            .stdout_capture()
+            .unchecked()
+            .run()
+        });
+
+        Ok(CargoCheckDiagnostics {
+            target_triple: target_triple.to_owned(),
+            compiler_messages: Message::parse_stream(out?.stdout.as_slice())
+                .filter_map(|mes| match mes.ok()? {
+                    Message::CompilerMessage(mes) if mes.target.name == pkg_name => Some(mes),
+                    _ => None,
+                })
+                .collect(),
+            duration_ms,
+        })
+    }
+}
+
+impl std::fmt::Debug for CargoCheckDiagnostics {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CargoCheckDiagnostics")
+            .field("target_triple", &self.target_triple)
+            // .field("duration_ms", &self.duration_ms) // don't write this to snapshots
+            .field(
+                "compiler_messages",
+                &self
+                    .compiler_messages
+                    .iter()
+                    .map(|d| d.message.to_string())
+                    .collect_vec(),
+            )
+            .finish()
     }
 }

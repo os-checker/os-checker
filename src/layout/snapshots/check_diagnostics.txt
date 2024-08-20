@@ -1,7 +1,7 @@
 [
-    (
-        "riscv64gc-unknown-none-elf",
-        [
+    CargoCheckDiagnostics {
+        target_triple: "riscv64gc-unknown-none-elf",
+        compiler_messages: [
             "warning: unused import: `vec`\n --> examples/src/e1000.rs:1:25\n  |\n1 | use alloc::{boxed::Box, vec};\n  |                         ^^^\n  |\n  = note: `#[warn(unused_imports)]` on by default\n\n",
             "warning: unused imports: `boxed::Box` and `vec`\n  --> examples/src/main.rs:17:13\n   |\n17 | use alloc::{boxed::Box, format, vec, vec::Vec};\n   |             ^^^^^^^^^^          ^^^\n\n",
             "warning: value assigned to `ret` is never read\n  --> examples/src/boot/sbi.rs:20:23\n   |\n20 |              lateout(\"x10\") ret,\n   |                             ^^^\n   |\n   = help: maybe it is overwritten before being read?\n   = note: `#[warn(unused_assignments)]` on by default\n\n",
@@ -10,10 +10,10 @@
             "warning: unused `Result` that must be used\n  --> examples/src/main.rs:31:5\n   |\n31 |     logger::init(\"DEBUG\");\n   |     ^^^^^^^^^^^^^^^^^^^^^\n   |\n   = note: this `Result` may be an `Err` variant, which should be handled\n   = note: `#[warn(unused_must_use)]` on by default\nhelp: use `let _ = ...` to ignore the resulting value\n   |\n31 |     let _ = logger::init(\"DEBUG\");\n   |     +++++++\n\n",
             "warning: 6 warnings emitted\n\n",
         ],
-    ),
-    (
-        "x86_64-unknown-linux-gnu",
-        [
+    },
+    CargoCheckDiagnostics {
+        target_triple: "x86_64-unknown-linux-gnu",
+        compiler_messages: [
             "error[E0433]: failed to resolve: unresolved import\n  --> examples/src/pci_impl.rs:24:5\n   |\n24 | use x86_64::instructions::port::Port;\n   |     ^^^^^^\n   |     |\n   |     unresolved import\n   |     help: a similar path exists: `core::arch::x86_64`\n\n",
             "warning: unused import: `vec`\n --> examples/src/e1000.rs:1:25\n  |\n1 | use alloc::{boxed::Box, vec};\n  |                         ^^^\n  |\n  = note: `#[warn(unused_imports)]` on by default\n\n",
             "warning: unused imports: `boxed::Box` and `vec`\n  --> examples/src/main.rs:17:13\n   |\n17 | use alloc::{boxed::Box, format, vec, vec::Vec};\n   |             ^^^^^^^^^^          ^^^\n\n",
@@ -34,5 +34,5 @@
             "error: aborting due to 12 previous errors; 5 warnings emitted\n\n",
             "For more information about this error, try `rustc --explain E0433`.\n",
         ],
-    ),
+    },
 ]
