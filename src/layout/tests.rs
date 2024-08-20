@@ -55,5 +55,40 @@ fn cargo_check_verbose() -> crate::Result<()> {
     "#]]
     .assert_debug_eq(&target_triples);
 
+    let mut diagnostics = Vec::with_capacity(target_triples.len());
+    for target in &target_triples {
+        let out = duct::cmd!(
+            "cargo",
+            "check",
+            "--message-format=json",
+            "--target",
+            target
+        )
+        .dir(current_dir)
+        .stdout_capture()
+        .unchecked()
+        .run()?;
+
+        diagnostics.push(
+            cargo_metadata::Message::parse_stream(out.stdout.as_slice())
+                .filter_map(|mes| match mes.ok()? {
+                    cargo_metadata::Message::CompilerMessage(mes)
+                        if mes.target.name == current_pkg_name =>
+                    {
+                        Some(mes)
+                    }
+                    _ => None,
+                })
+                .collect_vec(),
+        );
+    }
+    expect_file!["./snapshots/check_diagnostics.txt"].assert_debug_eq(
+        &diagnostics
+            .iter()
+            .zip(&target_triples)
+            .map(|(v, t)| (t, v.iter().map(|d| d.message.to_string()).collect_vec()))
+            .collect_vec(),
+    );
+
     Ok(())
 }
