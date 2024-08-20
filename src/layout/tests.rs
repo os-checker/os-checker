@@ -1,6 +1,7 @@
 use super::LayoutOwner;
-use cargo_metadata::camino::Utf8Path;
+use cargo_metadata::{camino::Utf8Path, Message};
 use expect_test::{expect, expect_file};
+use itertools::Itertools;
 
 #[test]
 fn arceos_layout() {
@@ -15,40 +16,10 @@ fn arceos_layout() {
 
 #[test]
 fn cargo_check_verbose() -> crate::Result<()> {
-    use itertools::Itertools;
-
     let current_dir = Utf8Path::new("repos/e1000-driver/examples").canonicalize_utf8()?;
-    let current_dir = current_dir.as_str();
-    _ = duct::cmd!("cargo", "clean").dir(current_dir).run()?;
-    let output = duct::cmd!("cargo", "check", "-vv")
-        .dir(current_dir)
-        .stderr_capture()
-        .unchecked()
-        .run()?;
-
-    let current_pkg_name = "e1000-driver-test";
-
-    // 不建议使用 CRATE_NAME，它会把连字符转换成下划线
-    let re_pkg_name = regex::Regex::new(r#"CARGO_PKG_NAME=(\S+)"#)?;
-    let re_manifest_dir = regex::Regex::new(r#"CARGO_MANIFEST_DIR=(\S+)"#)?;
-    let re_target_triple = regex::Regex::new(r#"--target\s+(\S+)"#)?;
-    let re_running_cargo = regex::Regex::new(r#"^\s+Running `CARGO="#)?;
-
-    let target_triples = cargo_metadata::Message::parse_stream(output.stderr.as_slice())
-        .filter_map(|parsed| {
-            if let cargo_metadata::Message::TextLine(mes) = &parsed.ok()? {
-                if re_running_cargo.is_match(mes) {
-                    let crate_name = re_pkg_name.captures(mes)?.get(1)?.as_str();
-                    let manifest_dir = re_manifest_dir.captures(mes)?.get(1)?.as_str();
-                    let target_triple = re_target_triple.captures(mes)?.get(1)?.as_str();
-                    if crate_name == current_pkg_name && manifest_dir == current_dir {
-                        return Some(target_triple.to_owned());
-                    }
-                }
-            }
-            None
-        })
-        .collect_vec();
+    let pkg_dir = current_dir.as_str();
+    let pkg_name = "e1000-driver-test";
+    let target_triples = get_target_triples(pkg_dir, pkg_name)?;
     expect![[r#"
         [
             "riscv64gc-unknown-none-elf",
@@ -66,19 +37,15 @@ fn cargo_check_verbose() -> crate::Result<()> {
             "--target",
             target
         )
-        .dir(current_dir)
+        .dir(pkg_dir)
         .stdout_capture()
         .unchecked()
         .run()?;
 
         diagnostics.push(
-            cargo_metadata::Message::parse_stream(out.stdout.as_slice())
+            Message::parse_stream(out.stdout.as_slice())
                 .filter_map(|mes| match mes.ok()? {
-                    cargo_metadata::Message::CompilerMessage(mes)
-                        if mes.target.name == current_pkg_name =>
-                    {
-                        Some(mes)
-                    }
+                    Message::CompilerMessage(mes) if mes.target.name == pkg_name => Some(mes),
                     _ => None,
                 })
                 .collect_vec(),
@@ -93,4 +60,54 @@ fn cargo_check_verbose() -> crate::Result<()> {
     );
 
     Ok(())
+}
+
+fn get_target_triples(pkg_dir: &str, pkg_name: &str) -> crate::Result<Vec<String>> {
+    use regex::Regex;
+    use std::sync::LazyLock;
+
+    struct ExtractTriplePattern {
+        pkg_name: Regex,
+        manifest_dir: Regex,
+        target_triple: Regex,
+        running_cargo: Regex,
+    }
+    static RE: LazyLock<ExtractTriplePattern> = LazyLock::new(|| ExtractTriplePattern {
+        pkg_name: regex::Regex::new(r#"CARGO_PKG_NAME=(\S+)"#).unwrap(),
+        manifest_dir: regex::Regex::new(r#"CARGO_MANIFEST_DIR=(\S+)"#).unwrap(),
+        target_triple: regex::Regex::new(r#"--target\s+(\S+)"#).unwrap(),
+        running_cargo: regex::Regex::new(r#"^\s+Running `CARGO="#).unwrap(),
+    });
+
+    // NOTE: 似乎只有第一次运行 cargo check 才会强制编译所有 target triples，
+    // 第二次开始运行 cargo check 之后，如果在某个 triple 上编译失败，不会编译其他 triple，
+    // 这导致无法全部获取 triples 列表。因此为了避免缓存影响，清除 target dir。
+    _ = duct::cmd!("cargo", "clean").dir(pkg_dir).run()?;
+    let output = duct::cmd!("cargo", "check", "-vv")
+        .dir(pkg_dir)
+        .stderr_capture()
+        .unchecked()
+        .run()?;
+
+    let target_triples = Message::parse_stream(output.stderr.as_slice())
+        .filter_map(|parsed| {
+            if let Message::TextLine(mes) = &parsed.ok()? {
+                // 只需要当前 package 的 target triple：
+                // * 需要 pkg_name 和 manifest_dir 是因为输出会产生依赖项的信息，仅有
+                //   pkg_name 会造成可能的冲突（尤其 cargo check 最后才会编译当前 pkg）
+                // * 实际的编译命令示例，见 https://github.com/os-checker/os-checker/commit/de95f5928a25f6b64bcf5f1964870351899f85c3
+                if RE.running_cargo.is_match(mes) {
+                    let crate_name = RE.pkg_name.captures(mes)?.get(1)?.as_str();
+                    let manifest_dir = RE.manifest_dir.captures(mes)?.get(1)?.as_str();
+                    let target_triple = RE.target_triple.captures(mes)?.get(1)?.as_str();
+                    if crate_name == pkg_name && manifest_dir == pkg_dir {
+                        return Some(target_triple.to_owned());
+                    }
+                }
+            }
+            None
+        })
+        .collect_vec();
+
+    Ok(target_triples)
 }
