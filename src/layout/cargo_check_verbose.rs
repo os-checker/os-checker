@@ -1,4 +1,4 @@
-use crate::{utils::walk_dir_but_exclude_some, Result, XString};
+use crate::{utils::walk_dir, Result, XString};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     CompilerMessage, Message,
@@ -33,7 +33,7 @@ impl TargetTriple {
 }
 
 fn detected_targets(repo_root: &str) -> Vec<TargetTriple> {
-    walk_dir_but_exclude_some(repo_root, 4, &[]);
+    walk_dir(repo_root, 4, &[], |_file_path| None::<()>);
     vec![]
 }
 

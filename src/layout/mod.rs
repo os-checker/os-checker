@@ -1,6 +1,6 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
-use crate::{utils::walk_dir_but_exclude_some, Result};
+use crate::{utils::walk_dir, Result};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
@@ -16,21 +16,15 @@ use cargo_check_verbose::PackageInfo;
 
 /// 寻找仓库内所有 Cargo.toml 所在的路径
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
-    let mut cargo_tomls: Vec<Utf8PathBuf> = walk_dir_but_exclude_some(repo_root, 10, dirs_excluded)
-        .filter_map(|entry| {
-            // 只搜索 Cargo.toml 文件
-            let entry = entry.ok()?;
-            if !entry.file_type().is_file() {
-                return None;
-            }
-            let filename = entry.file_name().to_str()?;
-            if filename == "Cargo.toml" {
-                entry.into_path().try_into().ok()
-            } else {
-                None
-            }
-        })
-        .collect();
+    let mut cargo_tomls = walk_dir(repo_root, 10, dirs_excluded, |file_path| {
+        let file_name = file_path.file_name()?;
+        // 只搜索 Cargo.toml 文件
+        if file_name == "Cargo.toml" {
+            Some(file_path)
+        } else {
+            None
+        }
+    });
 
     cargo_tomls.sort_unstable();
     cargo_tomls
