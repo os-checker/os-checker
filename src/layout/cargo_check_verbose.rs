@@ -11,6 +11,8 @@ use indexmap::IndexMap;
 fn detected_targets(repo_root: &str, targets: &mut Targets) -> Result<()> {
     // os-checker 会启发式搜索一些常见的脚本来猜测额外的目标架构信息，这些被查询脚本为：
     // .github 文件夹内的任何文件、递归查找 Makefile、makefile、py、sh、just 后缀的文件
+    //
+    // 此外，一个可能的改进是查找 Cargo.toml 中的条件编译中包含架构的信息（见 `layout::parse`）。
     let scripts = walk_dir(repo_root, 4, &[".github"], |file_path| {
         let file_stem = file_path.file_stem()?;
 
