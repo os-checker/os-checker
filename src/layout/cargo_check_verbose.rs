@@ -1,71 +1,24 @@
-use crate::{
-    utils::{scan_scripts_for_target, walk_dir},
-    Result, XString,
-};
+use crate::{Result, XString};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     CompilerMessage, Message,
 };
 use indexmap::IndexMap;
 
-fn detected_targets(repo_root: &str, targets: &mut Targets) -> Result<()> {
-    // os-checker 会启发式搜索一些常见的脚本来猜测额外的目标架构信息，这些被查询脚本为：
-    // .github 文件夹内的任何文件、递归查找 Makefile、makefile、py、sh、just 后缀的文件
-    //
-    // 此外，一个可能的改进是查找 Cargo.toml 中的条件编译中包含架构的信息（见 `layout::parse`）。
-    //
-    // 更实际的一个改进是，此函数目前考虑在 repo_root 中查找，如果增加在 pkg_dir 中查找，那么会
-    // 更好；不过，这意味着需要区分 TargetSource 中的 DetectedBy 是从仓库还是库得到的。
-    let scripts = walk_dir(repo_root, 4, &[".github"], |file_path| {
-        let file_stem = file_path.file_stem()?;
-
-        // 除了标准的 Makefile 文件外，还有一些其他文件名可能会与 Makefile 一起使用，这些文件通常用于定义特定目标或条件的规则：
-        //
-        // 1. **GNUmakefile**: 这是 GNU make 的标准文件名，用于区分其他 make 版本。
-        // 2. **makefile**: 这是 BSD make 的标准文件名。
-        // 3. **Makefile.am** 或 **Makefile.in**: 这些文件通常由 autotools 生成，用于自动配置 makefile。
-        // 4. **Makefile.\***: 有时，项目可能会有多个 Makefile 文件，用于不同的平台或配置，例如 Makefile.linux 或 Makefile.debug。
-        // 5. **.mk**: 这是 Makefile 的另一种扩展名，用于包含在其他 Makefile 中的 makefile 片段。
-        //
-        // 请注意，尽管有多种可能的文件名，但大多数 make 工具默认寻找的文件名是 "Makefile" 或 "makefile"。如果你使用不同的文件名，可能需要在调用 `make` 命令时指定文件名。
-        if file_stem.starts_with("Makefile")
-            || file_stem.starts_with("makefile")
-            || file_stem == "GNUmakefile"
-        {
-            return Some(file_path);
-        }
-        if let "mk" | "sh" | "py" | "just" = file_path.extension()? {
-            return Some(file_path);
-        }
-        None
-    });
-    let github_dir = Utf8Path::new(repo_root).join(".github");
-    let github_files = walk_dir(&github_dir, 4, &[], Some);
-    debug!(repo_root, ?scripts, ?github_files);
-
-    scan_scripts_for_target(&scripts, |target, path| {
-        targets.detected_by_repo_scripts(target, path);
-    })?;
-    scan_scripts_for_target(&github_files, |target, path| {
-        targets.detected_by_repo_github(target, path);
-    })?;
-    Ok(())
-}
-
 /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TargetSource {
     SpecifiedDefault,
     UnspecifiedDefault,
+    DetectedByPkgScripts(Utf8PathBuf),
     DetectedByRepoGithub(Utf8PathBuf),
     DetectedByRepoScripts(Utf8PathBuf),
-    // DetectedBy(Utf8PathBuf),
     OverriddenInYaml,
 }
 
 /// A list of target triples obtained from multiple sources.
 /// The orders in key and value demonstrates how they shape.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Targets {
     map: IndexMap<String, Vec<TargetSource>>,
 }
@@ -84,9 +37,19 @@ impl std::ops::DerefMut for Targets {
 }
 
 impl Targets {
-    fn new() -> Targets {
+    pub fn new() -> Targets {
         Targets {
             map: IndexMap::with_capacity(4),
+        }
+    }
+
+    fn merge(&mut self, other: &Self) {
+        for (target, sources) in &other.map {
+            if let Some(v) = self.get_mut(target) {
+                v.extend(sources.iter().cloned());
+            } else {
+                self.insert(target.to_owned(), sources.clone());
+            }
         }
     }
 
@@ -107,7 +70,7 @@ impl Targets {
         }
     }
 
-    fn detected_by_repo_github(&mut self, target: &str, path: Utf8PathBuf) {
+    pub fn detected_by_repo_github(&mut self, target: &str, path: Utf8PathBuf) {
         match self.get_mut(target) {
             Some(v) => v.push(TargetSource::DetectedByRepoGithub(path)),
             None => {
@@ -119,13 +82,25 @@ impl Targets {
         }
     }
 
-    fn detected_by_repo_scripts(&mut self, target: &str, path: Utf8PathBuf) {
+    pub fn detected_by_repo_scripts(&mut self, target: &str, path: Utf8PathBuf) {
         match self.get_mut(target) {
             Some(v) => v.push(TargetSource::DetectedByRepoScripts(path)),
             None => {
                 _ = self.insert(
                     target.to_owned(),
                     vec![TargetSource::DetectedByRepoScripts(path)],
+                )
+            }
+        }
+    }
+
+    pub fn detected_by_pkg_scripts(&mut self, target: &str, path: Utf8PathBuf) {
+        match self.get_mut(target) {
+            Some(v) => v.push(TargetSource::DetectedByPkgScripts(path)),
+            None => {
+                _ = self.insert(
+                    target.to_owned(),
+                    vec![TargetSource::DetectedByPkgScripts(path)],
                 )
             }
         }
@@ -277,9 +252,12 @@ pub struct PackageInfo {
 }
 
 impl PackageInfo {
-    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str) -> Result<Self> {
-        let default_target_triples = TargetTriples::new(pkg_dir, pkg_name)?;
-        let cargo_check_diagnostics = default_target_triples
+    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str, repo_targets: &Targets) -> Result<Self> {
+        let mut target_triples = TargetTriples::new(pkg_dir, pkg_name)?;
+        super::detect_targets::in_pkg_dir(pkg_dir, &mut target_triples.targets)?;
+        target_triples.targets.merge(repo_targets);
+
+        let cargo_check_diagnostics = target_triples
             .targets
             .keys()
             .map(|target| CargoCheckDiagnostics::new(pkg_dir, pkg_name, target))
@@ -288,11 +266,7 @@ impl PackageInfo {
             pkg_name: pkg_name.into(),
             pkg_dir: pkg_dir.to_owned(),
             cargo_check_diagnostics,
-            target_triples: default_target_triples,
+            target_triples,
         })
-    }
-
-    pub fn detected_targets_by_scripts(&mut self, repo_root: &str) -> Result<()> {
-        detected_targets(repo_root, &mut self.target_triples.targets)
     }
 }
