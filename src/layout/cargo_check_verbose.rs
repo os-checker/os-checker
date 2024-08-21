@@ -43,12 +43,12 @@ fn detected_targets(repo_root: &str, targets: &mut Targets) -> Result<()> {
     let github_files = walk_dir(&github_dir, 4, &[], Some);
     debug!(repo_root, ?scripts, ?github_files);
 
-    let mut f = |target: &str, path: Utf8PathBuf| match targets.get_mut(target) {
-        Some(v) => v.push(TargetSource::DetectedBy(path)),
-        None => _ = targets.insert(target.to_owned(), vec![TargetSource::DetectedBy(path)]),
-    };
-    scan_scripts_for_target(&scripts, &mut f)?;
-    scan_scripts_for_target(&github_files, &mut f)?;
+    scan_scripts_for_target(&scripts, |target, path| {
+        targets.detected_by_repo_scripts(target, path);
+    })?;
+    scan_scripts_for_target(&github_files, |target, path| {
+        targets.detected_by_repo_github(target, path);
+    })?;
     Ok(())
 }
 
@@ -57,7 +57,9 @@ fn detected_targets(repo_root: &str, targets: &mut Targets) -> Result<()> {
 pub enum TargetSource {
     SpecifiedDefault,
     UnspecifiedDefault,
-    DetectedBy(Utf8PathBuf),
+    DetectedByRepoGithub(Utf8PathBuf),
+    DetectedByRepoScripts(Utf8PathBuf),
+    // DetectedBy(Utf8PathBuf),
     OverriddenInYaml,
 }
 
@@ -102,6 +104,30 @@ impl Targets {
             source.push(TargetSource::UnspecifiedDefault);
         } else {
             self.insert(target.to_owned(), vec![TargetSource::UnspecifiedDefault]);
+        }
+    }
+
+    fn detected_by_repo_github(&mut self, target: &str, path: Utf8PathBuf) {
+        match self.get_mut(target) {
+            Some(v) => v.push(TargetSource::DetectedByRepoGithub(path)),
+            None => {
+                _ = self.insert(
+                    target.to_owned(),
+                    vec![TargetSource::DetectedByRepoGithub(path)],
+                )
+            }
+        }
+    }
+
+    fn detected_by_repo_scripts(&mut self, target: &str, path: Utf8PathBuf) {
+        match self.get_mut(target) {
+            Some(v) => v.push(TargetSource::DetectedByRepoScripts(path)),
+            None => {
+                _ = self.insert(
+                    target.to_owned(),
+                    vec![TargetSource::DetectedByRepoScripts(path)],
+                )
+            }
         }
     }
 }
