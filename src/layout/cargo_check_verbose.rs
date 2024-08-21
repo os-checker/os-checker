@@ -13,6 +13,9 @@ fn detected_targets(repo_root: &str, targets: &mut Targets) -> Result<()> {
     // .github 文件夹内的任何文件、递归查找 Makefile、makefile、py、sh、just 后缀的文件
     //
     // 此外，一个可能的改进是查找 Cargo.toml 中的条件编译中包含架构的信息（见 `layout::parse`）。
+    //
+    // 更实际的一个改进是，此函数目前考虑在 repo_root 中查找，如果增加在 pkg_dir 中查找，那么会
+    // 更好；不过，这意味着需要区分 TargetSource 中的 DetectedBy 是从仓库还是库得到的。
     let scripts = walk_dir(repo_root, 4, &[".github"], |file_path| {
         let file_stem = file_path.file_stem()?;
 
@@ -58,26 +61,50 @@ pub enum TargetSource {
     OverriddenInYaml,
 }
 
-impl TargetSource {
-    fn specified_default(target: &str, targets: &mut Targets) {
-        if let Some(source) = targets.get_mut(target) {
-            source.push(TargetSource::SpecifiedDefault);
-        } else {
-            targets.insert(target.to_owned(), vec![TargetSource::SpecifiedDefault]);
-        }
-    }
+/// A list of target triples obtained from multiple sources.
+/// The orders in key and value demonstrates how they shape.
+#[derive(Debug)]
+pub struct Targets {
+    map: IndexMap<String, Vec<TargetSource>>,
+}
 
-    fn unspecified_default(targets: &mut Targets) {
-        let target = crate::utils::host_target_triple();
-        if let Some(source) = targets.get_mut(target) {
-            source.push(TargetSource::UnspecifiedDefault);
-        } else {
-            targets.insert(target.to_owned(), vec![TargetSource::UnspecifiedDefault]);
-        }
+impl std::ops::Deref for Targets {
+    type Target = IndexMap<String, Vec<TargetSource>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.map
+    }
+}
+impl std::ops::DerefMut for Targets {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.map
     }
 }
 
-type Targets = IndexMap<String, Vec<TargetSource>>;
+impl Targets {
+    fn new() -> Targets {
+        Targets {
+            map: IndexMap::with_capacity(4),
+        }
+    }
+
+    fn specified_default(&mut self, target: &str) {
+        if let Some(source) = self.get_mut(target) {
+            source.push(TargetSource::SpecifiedDefault);
+        } else {
+            self.insert(target.to_owned(), vec![TargetSource::SpecifiedDefault]);
+        }
+    }
+
+    fn unspecified_default(&mut self) {
+        let target = crate::utils::host_target_triple();
+        if let Some(source) = self.get_mut(target) {
+            source.push(TargetSource::UnspecifiedDefault);
+        } else {
+            self.insert(target.to_owned(), vec![TargetSource::UnspecifiedDefault]);
+        }
+    }
+}
 
 /// Default cargo target triple list got by `cargo check -vv` which compiles all targets.
 #[derive(Debug)]
@@ -132,7 +159,7 @@ impl DefaultTargetTriples {
                         let manifest_dir = RE.manifest_dir.captures(mes)?.get(1)?.as_str();
                         let target_triple = RE.target_triple.captures(mes)?.get(1)?.as_str();
                         if crate_name == pkg_name && manifest_dir == pkg_dir {
-                            TargetSource::specified_default(target_triple, &mut targets);
+                            targets.specified_default(target_triple);
                         }
                         None::<()>
                     };
@@ -144,7 +171,7 @@ impl DefaultTargetTriples {
         // NOTE: this can be empty if no target is specified in .cargo/config.toml,
         // in which case the host target should be implied when the empty value is handled.
         if targets.is_empty() {
-            TargetSource::unspecified_default(&mut targets);
+            targets.unspecified_default();
         }
 
         Ok(DefaultTargetTriples {
