@@ -1,4 +1,4 @@
-use super::{cargo_check_verbose::PackageInfo, LayoutOwner};
+use super::{cargo_check_verbose::PackageInfo, Layout};
 use crate::Result;
 use cargo_metadata::camino::Utf8Path;
 use expect_test::expect_file;
@@ -7,9 +7,9 @@ use expect_test::expect_file;
 fn arceos_layout() {
     crate::logger::init();
     let excluded = &["tmp"];
-    assert!(LayoutOwner::new("tmp", excluded).is_err());
+    assert!(Layout::parse("tmp", excluded).is_err());
 
-    let arceos = LayoutOwner::new("./repos/arceos", excluded).unwrap();
+    let arceos = Layout::parse("./repos/arceos", excluded).unwrap();
     expect_file!["./snapshots/arceos.txt"].assert_debug_eq(&arceos);
     expect_file!["./snapshots/arceos-packages.txt"].assert_debug_eq(&arceos.packages());
 }

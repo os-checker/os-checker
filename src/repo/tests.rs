@@ -1,5 +1,5 @@
 use super::Config;
-use crate::{layout::Package, Result};
+use crate::{layout::Packages, Result};
 use expect_test::{expect, expect_file};
 use itertools::Itertools;
 
@@ -44,7 +44,7 @@ fn pkg_checker_action() -> Result<()> {
     let parsed = Config::from_yaml(YAML)?;
     let v = parsed[0]
         .config
-        .pkg_checker_action(&Package::test_new(["package1", "package2"]))?;
+        .pkg_checker_action(&Packages::test_new(&["package1", "package2"]))?;
     expect_file!["./snapshots/pkg_checker_action-basic.txt"].assert_debug_eq(&v);
 
     Ok(())
@@ -67,7 +67,7 @@ user/repo:
 "#;
     let v = Config::from_yaml(yaml)?[0]
         .config
-        .pkg_checker_action(&Package::test_new([
+        .pkg_checker_action(&Packages::test_new(&[
             "crate0", "crate1", "crate2", "crate3", "crate4",
         ]))?;
     expect_file!["./snapshots/pkg_checker_action-fmt_clippy_only.txt"].assert_debug_eq(&v);

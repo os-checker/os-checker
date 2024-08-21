@@ -1,12 +1,10 @@
-use crate::{layout::Package, Result};
+use crate::{layout::Packages, Result, XString};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::Expression;
 use eyre::Context;
+use indexmap::{IndexMap, IndexSet};
 use serde::{de, Deserialize, Deserializer, Serialize};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    fmt,
-};
+use std::fmt;
 
 mod cmd;
 use cmd::*;
@@ -27,8 +25,16 @@ pub struct Config {
 impl Config {
     /// 解析 yaml 配置文件
     pub fn from_yaml(yaml: &str) -> Result<Vec<Config>> {
-        let parsed: BTreeMap<String, Box<RepoConfig>> = marked_yaml::from_yaml(0, yaml)
+        let mut parsed: IndexMap<String, Box<RepoConfig>> = marked_yaml::from_yaml(0, yaml)
             .with_context(|| "仓库配置解析错误，请检查 yaml 格式或者内容是否正确")?;
+        // 按仓库名排序
+        parsed.sort_unstable_keys();
+        for val in parsed.values_mut() {
+            if let Some(pkgs) = &mut val.packages {
+                // 按 package 名排序
+                pkgs.sort_unstable_keys();
+            }
+        }
         parsed
             .into_iter()
             .map(|(key, config)| {
@@ -48,7 +54,9 @@ impl Config {
         Config::from_yaml(&yaml)
     }
 
-    /// 检查命令与工具是否匹配；fork 仓库？
+    /// 检查命令与工具是否匹配
+    ///
+    /// TODO: 检查自定义命令中的 target、features 和 RUSTFLAGS（需要与 layout 信息进行覆盖或者合并）
     fn check(self) -> Result<Config> {
         self.config.check_tool_action()?;
         Ok(self)
@@ -68,7 +76,7 @@ impl Config {
     }
 
     /// 解析该仓库所有 package 的检查执行命令
-    pub fn resolve<'p>(&self, pkgs: &[Package<'p>]) -> Result<Vec<Resolve<'p>>> {
+    pub fn resolve(&self, pkgs: &Packages) -> Result<Vec<Resolve>> {
         self.config
             .pkg_checker_action(pkgs)
             .with_context(|| format!("解析 `{:?}` 仓库的检查命令出错", self.uri))
@@ -100,16 +108,18 @@ impl CheckerTool {
 }
 
 #[derive(Debug)]
-pub struct Resolve<'p> {
-    pub package: Package<'p>,
+pub struct Resolve {
+    pub pkg_name: XString,
+    pub pkg_dir: Utf8PathBuf,
     pub checker: CheckerTool,
     pub expr: Expression,
 }
 
-impl<'p> Resolve<'p> {
-    fn new(package: Package<'p>, checker: CheckerTool, expr: Expression) -> Self {
+impl Resolve {
+    fn new(pkg_name: &str, pkg_dir: &Utf8Path, checker: CheckerTool, expr: Expression) -> Self {
         Self {
-            package,
+            pkg_name: pkg_name.into(),
+            pkg_dir: pkg_dir.to_owned(),
             checker,
             expr,
         }
@@ -133,7 +143,7 @@ pub struct RepoConfig {
     // * 支持 V 为 false 的情况？（低优先级，不确定这是否必要）
     // * 如何处理不同 workspaces 的同名 package name
     // * 如何处理无意多次指定同一个 package
-    packages: Option<BTreeMap<String, RepoConfig>>,
+    packages: Option<IndexMap<String, RepoConfig>>,
 }
 
 macro_rules! filter {
@@ -162,16 +172,17 @@ impl fmt::Debug for RepoConfig {
 
 impl RepoConfig {
     /// 每个 package 及其对应的检查命令
-    fn pkg_checker_action<'p>(&self, pkgs: &[Package<'p>]) -> Result<Vec<Resolve<'p>>> {
+    fn pkg_checker_action(&self, pkgs: &Packages) -> Result<Vec<Resolve>> {
         let all = matches!(self.all, Some(Action::Perform(true)));
 
         let mut v = match &self.packages {
             Some(map) => {
                 // check validity of packages names
-                let layout: BTreeSet<_> = pkgs.iter().map(|p| p.name).collect();
-                let input: BTreeSet<_> = map.keys().map(|s| s.as_str()).collect();
-                let invalid: BTreeSet<_> = input.difference(&layout).copied().collect();
-                let rest: BTreeSet<_> = layout.difference(&input).copied().collect();
+                let layout = pkgs.package_set();
+                let mut input: IndexSet<_> = map.keys().map(|s| s.as_str()).collect();
+                input.sort_unstable();
+                let invalid: IndexSet<_> = input.difference(&layout).copied().collect();
+                let rest: IndexSet<_> = layout.difference(&input).copied().collect();
                 ensure!(
                     invalid.is_empty(),
                     "yaml 配置中不存在如下 packages：{invalid:?}；\n\
@@ -181,54 +192,51 @@ impl RepoConfig {
                 );
 
                 let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
-                let layout: BTreeMap<_, _> = pkgs.iter().map(|&p| (p.name, p)).collect();
+                // let layout: BTreeMap<_, _> = pkgs.iter().map(|&p| (p.name, p)).collect();
 
                 // 指定的 packages
                 for (name, config) in map {
-                    let pkg = *layout.get(name.as_str()).unwrap(); // already checked
+                    let pkg_dir = pkgs.get_pkg_dir(name).unwrap(); // already checked
                     let inner_all = match config.all {
                         Some(Action::Perform(false)) => false,
                         _ => all,
                     };
-                    v.extend(config.pkg_cmd(inner_all, &[pkg])?);
+                    v.extend(config.pkg_cmd(inner_all, &[(name, pkg_dir)])?);
                 }
                 // 未指定的 packages
                 for name in rest {
-                    let pkg = *layout.get(name).unwrap(); // already checked
-                    v.extend(self.pkg_cmd(all, &[pkg])?);
+                    let pkg_dir = pkgs.get_pkg_dir(name).unwrap(); // already checked
+                    v.extend(self.pkg_cmd(all, &[(name, pkg_dir)])?);
                 }
                 v
             }
-            None => self.pkg_cmd(all, pkgs)?, // for all pkgs
+            None => self.pkg_cmd(all, &pkgs.vec_of_name_dir())?, // for all pkgs
         };
 
-        v.sort_unstable_by_key(|resolve| (resolve.package.name, resolve.checker));
+        v.sort_unstable_by(|a, b| (&a.pkg_name, a.checker).cmp(&(&b.pkg_name, b.checker)));
         Ok(v)
     }
 
     /// TODO: 暂时应用 fmt 和 clippy，其他工具待完成
-    fn pkg_cmd<'p>(&self, all: bool, pkgs: &[Package<'p>]) -> Result<Vec<Resolve<'p>>> {
+    fn pkg_cmd(&self, all: bool, pkgs: &[(&str, &Utf8Path)]) -> Result<Vec<Resolve>> {
+        use CheckerTool::*;
         let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
 
         match &self.fmt {
             Some(Action::Perform(true)) => {
-                for &p in pkgs {
-                    v.push(Resolve::new(p, CheckerTool::Fmt, cargo_fmt(p.cargo_toml)));
+                for (name, dir) in pkgs {
+                    v.push(Resolve::new(name, dir, Fmt, cargo_fmt(dir)));
                 }
             }
             None if all => {
-                for &p in pkgs {
-                    v.push(Resolve::new(p, CheckerTool::Fmt, cargo_fmt(p.cargo_toml)));
+                for (name, dir) in pkgs {
+                    v.push(Resolve::new(name, dir, Fmt, cargo_fmt(dir)));
                 }
             }
             Some(Action::Lines(lines)) => {
-                for &p in pkgs {
+                for (name, dir) in pkgs {
                     for line in lines {
-                        v.push(Resolve::new(
-                            p,
-                            CheckerTool::Fmt,
-                            custom(line, p.cargo_toml)?,
-                        ));
+                        v.push(Resolve::new(name, dir, Fmt, custom(line, dir)?));
                     }
                 }
             }
@@ -236,31 +244,19 @@ impl RepoConfig {
         }
         match &self.clippy {
             Some(Action::Perform(true)) => {
-                for &p in pkgs {
-                    v.push(Resolve::new(
-                        p,
-                        CheckerTool::Clippy,
-                        cargo_clippy(p.cargo_toml)?,
-                    ));
+                for (name, dir) in pkgs {
+                    v.push(Resolve::new(name, dir, Clippy, cargo_clippy(dir)?));
                 }
             }
             None if all => {
-                for &p in pkgs {
-                    v.push(Resolve::new(
-                        p,
-                        CheckerTool::Clippy,
-                        cargo_clippy(p.cargo_toml)?,
-                    ));
+                for (name, dir) in pkgs {
+                    v.push(Resolve::new(name, dir, Clippy, cargo_clippy(dir)?));
                 }
             }
             Some(Action::Lines(lines)) => {
-                for &p in pkgs {
+                for (name, dir) in pkgs {
                     for line in lines {
-                        v.push(Resolve::new(
-                            p,
-                            CheckerTool::Clippy,
-                            custom(line, p.cargo_toml)?,
-                        ));
+                        v.push(Resolve::new(name, dir, Clippy, custom(line, dir)?));
                     }
                 }
             }

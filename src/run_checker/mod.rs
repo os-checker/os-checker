@@ -5,7 +5,7 @@ use crate::{
     Result, XString,
 };
 use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message as CargoMessage};
-use eyre::{Context, ContextCompat};
+use eyre::Context;
 use itertools::Itertools;
 use regex::Regex;
 use serde::Deserialize;
@@ -79,7 +79,7 @@ impl Repo {
     }
 
     pub fn resolve(&self) -> Result<Vec<Resolve>> {
-        self.config.resolve(self.layout.packages())
+        self.config.resolve(&self.layout.packages())
     }
 
     pub fn run_check(&self) -> Result<Vec<Output>> {
@@ -176,13 +176,8 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
         CheckerTool::Lockbud => todo!(),
     };
     let count = parsed.count();
-    let package_root = resolve
-        .package
-        .cargo_toml
-        .parent()
-        .map(Into::into)
-        .with_context(|| format!("{} 无父目录", resolve.package.cargo_toml))?;
-    let package_name = XString::from(resolve.package.name);
+    let package_root = resolve.pkg_dir.clone();
+    let package_name = resolve.pkg_name.clone();
     trace!(%package_root, %package_name);
     Ok(Output {
         raw,
