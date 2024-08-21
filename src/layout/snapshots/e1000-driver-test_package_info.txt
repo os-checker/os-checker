@@ -1,22 +1,18 @@
 PackageInfo {
     pkg_name: "e1000-driver-test",
     pkg_dir: "/rust/my/os-checker/repos/e1000-driver/examples",
-    default_target_triples: DefaultTargetTriples {
-        targets: [
-            TargetTriple {
-                target: "riscv64gc-unknown-none-elf",
-                source: [
+    target_triples: TargetTriples {
+        targets: Targets {
+            map: {
+                "riscv64gc-unknown-none-elf": [
+                    SpecifiedDefault,
+                ],
+                "x86_64-unknown-linux-gnu": [
                     SpecifiedDefault,
                 ],
             },
-            TargetTriple {
-                target: "x86_64-unknown-linux-gnu",
-                source: [
-                    SpecifiedDefault,
-                ],
-            },
-        ],
-        first_check_duration_ms: 10869,
+        },
+        first_check_duration_ms: 7796,
     },
     cargo_check_diagnostics: [
         CargoCheckDiagnostics {

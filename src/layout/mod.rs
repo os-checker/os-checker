@@ -134,7 +134,9 @@ impl LayoutOwner {
         for ws in workspaces.values() {
             for member in ws.workspace_packages() {
                 let pkg_dir = member.manifest_path.parent().unwrap();
-                pkg_info.push(PackageInfo::new(pkg_dir, &member.name)?);
+                let mut info = PackageInfo::new(pkg_dir, &member.name)?;
+                info.detected_targets_by_scripts(repo_root)?;
+                pkg_info.push(info);
             }
         }
         debug!(cargo_tomls_len, pkg_len = pkg_info.len());

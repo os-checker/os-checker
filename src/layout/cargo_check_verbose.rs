@@ -108,14 +108,14 @@ impl Targets {
 
 /// Default cargo target triple list got by `cargo check -vv` which compiles all targets.
 #[derive(Debug)]
-pub struct DefaultTargetTriples {
+pub struct TargetTriples {
     pub targets: Targets,
     /// The first time `cargo check` takes.
     pub first_check_duration_ms: u64,
 }
 
-impl DefaultTargetTriples {
-    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str) -> Result<DefaultTargetTriples> {
+impl TargetTriples {
+    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str) -> Result<TargetTriples> {
         use regex::Regex;
         use std::sync::LazyLock;
 
@@ -174,7 +174,7 @@ impl DefaultTargetTriples {
             targets.unspecified_default();
         }
 
-        Ok(DefaultTargetTriples {
+        Ok(TargetTriples {
             targets,
             first_check_duration_ms: duration_ms,
         })
@@ -246,13 +246,13 @@ pub struct PackageInfo {
     pub pkg_name: XString,
     /// i.e. manifest_dir
     pub pkg_dir: Utf8PathBuf,
-    pub default_target_triples: DefaultTargetTriples,
+    pub target_triples: TargetTriples,
     pub cargo_check_diagnostics: Box<[CargoCheckDiagnostics]>,
 }
 
 impl PackageInfo {
     pub fn new(pkg_dir: &Utf8Path, pkg_name: &str) -> Result<Self> {
-        let default_target_triples = DefaultTargetTriples::new(pkg_dir, pkg_name)?;
+        let default_target_triples = TargetTriples::new(pkg_dir, pkg_name)?;
         let cargo_check_diagnostics = default_target_triples
             .targets
             .keys()
@@ -262,7 +262,11 @@ impl PackageInfo {
             pkg_name: pkg_name.into(),
             pkg_dir: pkg_dir.to_owned(),
             cargo_check_diagnostics,
-            default_target_triples,
+            target_triples: default_target_triples,
         })
+    }
+
+    pub fn detected_targets_by_scripts(&mut self, repo_root: &str) -> Result<()> {
+        detected_targets(repo_root, &mut self.target_triples.targets)
     }
 }
