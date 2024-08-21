@@ -2,19 +2,23 @@ use crate::Result;
 use cargo_metadata::camino::Utf8PathBuf;
 use duct::cmd;
 use eyre::ContextCompat;
+use itertools::Itertools;
 use regex::Regex;
-use std::{sync::LazyLock, time::Instant};
+use std::{path::Path, sync::LazyLock, time::Instant};
+
+mod scan_for_targets;
+pub use scan_for_targets::scan_scripts_for_target;
 
 /// 遍历一个目录及其子目录的所有文件（但不进入 .git 和 target 目录）：
 /// * 需要设置一个最大递归深度（虽然可以不设置这个条件，但大部分情况下，os-checker 不需要深度递归）
 /// * op_on_file 为一个回调函数，其参数保证为一个文件路径，且返回值为 Some 时表示把它的值推到 Vec
 pub fn walk_dir<T>(
-    dir: &str,
+    dir: impl AsRef<Path>,
     max_depth: usize,
     dirs_excluded: &[&str],
     mut op_on_file: impl FnMut(Utf8PathBuf) -> Option<T>,
 ) -> Vec<T> {
-    walkdir::WalkDir::new(dir)
+    walkdir::WalkDir::new(dir.as_ref())
         .max_depth(max_depth) // 目录递归上限
         .into_iter()
         .filter_entry(move |entry| {
