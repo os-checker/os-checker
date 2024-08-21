@@ -29,7 +29,7 @@ pub struct Uri {
 
 impl Uri {
     /// 获取该代码库的本地路径：如果指定 Github 或者 Url，则调用 git 命令下载
-    pub fn local_root_path(&mut self) -> Result<Utf8PathBuf> {
+    pub fn local_root_path_with_git_clone(&mut self) -> Result<Utf8PathBuf> {
         let url = match &self.tag {
             UriTag::Github(user_repo) => format!("https://github.com/{user_repo}.git"),
             UriTag::Url(url) => url.clone(),

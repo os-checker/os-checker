@@ -94,7 +94,7 @@ impl TryFrom<Config> for Repo {
     type Error = eyre::Error;
 
     fn try_from(mut config: Config) -> Result<Repo> {
-        let repo_root = config.local_root_path()?;
+        let repo_root = config.local_root_path_with_git_clone()?;
         Repo::new(repo_root.as_str(), &[], config)
     }
 }
