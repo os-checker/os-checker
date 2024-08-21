@@ -12,7 +12,7 @@ PackageInfo {
                 ],
             },
         },
-        first_check_duration_ms: 7796,
+        first_check_duration_ms: 6245,
     },
     cargo_check_diagnostics: [
         CargoCheckDiagnostics {

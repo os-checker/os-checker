@@ -1,8 +1,14 @@
 [
     (
-        Github(
-            "os-checker/os-checker",
-        ),
+        Uri {
+            tag: Github(
+                "os-checker/os-checker",
+            ),
+            user: "os-checker",
+            repo: "os-checker",
+            _local_tmp_dir: None,
+            key: "os-checker/os-checker",
+        },
         [
             (
                 Fmt,
@@ -36,9 +42,15 @@
         ],
     ),
     (
-        Github(
-            "user/repo",
-        ),
+        Uri {
+            tag: Github(
+                "user/repo",
+            ),
+            user: "user",
+            repo: "repo",
+            _local_tmp_dir: None,
+            key: "user/repo",
+        },
         [
             (
                 Lockbud,

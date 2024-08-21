@@ -1,8 +1,14 @@
 [
     Config {
-        uri: Github(
-            "os-checker/os-checker",
-        ),
+        uri: Uri {
+            tag: Github(
+                "os-checker/os-checker",
+            ),
+            user: "os-checker",
+            repo: "os-checker",
+            _local_tmp_dir: None,
+            key: "os-checker/os-checker",
+        },
         config: RepoConfig {
             fmt: Perform(
                 true,
@@ -24,9 +30,15 @@
         },
     },
     Config {
-        uri: Github(
-            "user/repo",
-        ),
+        uri: Uri {
+            tag: Github(
+                "user/repo",
+            ),
+            user: "user",
+            repo: "repo",
+            _local_tmp_dir: None,
+            key: "user/repo",
+        },
         config: RepoConfig {
             all: Perform(
                 true,

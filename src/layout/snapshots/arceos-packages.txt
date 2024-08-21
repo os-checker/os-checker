@@ -1,337 +1,205 @@
-[
-    Package {
-        name: "allocator",
-        cargo_toml: "./crates/allocator/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-bwbench",
-        cargo_toml: "./apps/net/bwbench/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-display",
-        cargo_toml: "./apps/display/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-echoserver",
-        cargo_toml: "./apps/net/echoserver/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-exception",
-        cargo_toml: "./apps/exception/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-helloworld",
-        cargo_toml: "./apps/helloworld/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-httpclient",
-        cargo_toml: "./apps/net/httpclient/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-httpserver",
-        cargo_toml: "./apps/net/httpserver/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-memtest",
-        cargo_toml: "./apps/memtest/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-parallel",
-        cargo_toml: "./apps/task/parallel/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-priority",
-        cargo_toml: "./apps/task/priority/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-shell",
-        cargo_toml: "./apps/fs/shell/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-sleep",
-        cargo_toml: "./apps/task/sleep/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-tls",
-        cargo_toml: "./apps/task/tls/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-udpserver",
-        cargo_toml: "./apps/net/udpserver/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos-yield",
-        cargo_toml: "./apps/task/yield/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos_api",
-        cargo_toml: "./api/arceos_api/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arceos_posix_api",
-        cargo_toml: "./api/arceos_posix_api/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arm_gic",
-        cargo_toml: "./crates/arm_gic/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "arm_pl011",
-        cargo_toml: "./crates/arm_pl011/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axalloc",
-        cargo_toml: "./modules/axalloc/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axconfig",
-        cargo_toml: "./modules/axconfig/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axdisplay",
-        cargo_toml: "./modules/axdisplay/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axdriver",
-        cargo_toml: "./modules/axdriver/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axerrno",
-        cargo_toml: "./crates/axerrno/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axfeat",
-        cargo_toml: "./api/axfeat/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axfs",
-        cargo_toml: "./modules/axfs/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axfs_devfs",
-        cargo_toml: "./crates/axfs_devfs/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axfs_ramfs",
-        cargo_toml: "./crates/axfs_ramfs/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axfs_vfs",
-        cargo_toml: "./crates/axfs_vfs/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axhal",
-        cargo_toml: "./modules/axhal/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axio",
-        cargo_toml: "./crates/axio/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axlibc",
-        cargo_toml: "./ulib/axlibc/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axlog",
-        cargo_toml: "./modules/axlog/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axnet",
-        cargo_toml: "./modules/axnet/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axruntime",
-        cargo_toml: "./modules/axruntime/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axstd",
-        cargo_toml: "./ulib/axstd/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axsync",
-        cargo_toml: "./modules/axsync/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "axtask",
-        cargo_toml: "./modules/axtask/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "bwbench-client",
-        cargo_toml: "./Cargo.toml",
-        workspace_root (file name): "bwbench_client",
-    },
-    Package {
-        name: "capability",
-        cargo_toml: "./crates/capability/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "crate_interface",
-        cargo_toml: "./crates/crate_interface/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "deptool",
-        cargo_toml: "./Cargo.toml",
-        workspace_root (file name): "deptool",
-    },
-    Package {
-        name: "driver_block",
-        cargo_toml: "./crates/driver_block/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "driver_common",
-        cargo_toml: "./crates/driver_common/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "driver_display",
-        cargo_toml: "./crates/driver_display/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "driver_net",
-        cargo_toml: "./crates/driver_net/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "driver_pci",
-        cargo_toml: "./crates/driver_pci/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "driver_virtio",
-        cargo_toml: "./crates/driver_virtio/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "dw_apb_uart",
-        cargo_toml: "./crates/dw_apb_uart/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "flatten_objects",
-        cargo_toml: "./crates/flatten_objects/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "handler_table",
-        cargo_toml: "./crates/handler_table/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "kernel_guard",
-        cargo_toml: "./crates/kernel_guard/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "lazy_init",
-        cargo_toml: "./crates/lazy_init/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "linked_list",
-        cargo_toml: "./crates/linked_list/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "memory_addr",
-        cargo_toml: "./crates/memory_addr/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "mingo",
-        cargo_toml: "./Cargo.toml",
-        workspace_root (file name): "chainloader",
-    },
-    Package {
-        name: "page_table",
-        cargo_toml: "./crates/page_table/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "page_table_entry",
-        cargo_toml: "./crates/page_table_entry/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "percpu",
-        cargo_toml: "./crates/percpu/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "percpu_macros",
-        cargo_toml: "./crates/percpu_macros/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "ratio",
-        cargo_toml: "./crates/ratio/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "scheduler",
-        cargo_toml: "./crates/scheduler/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "slab_allocator",
-        cargo_toml: "./crates/slab_allocator/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "spinlock",
-        cargo_toml: "./crates/spinlock/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "timer_list",
-        cargo_toml: "./crates/timer_list/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-    Package {
-        name: "tuple_for_each",
-        cargo_toml: "./crates/tuple_for_each/Cargo.toml",
-        workspace_root (file name): "arceos",
-    },
-]
+Packages {
+    map: {
+        "allocator": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/allocator",
+        },
+        "arceos-bwbench": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/bwbench",
+        },
+        "arceos-display": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/display",
+        },
+        "arceos-echoserver": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/echoserver",
+        },
+        "arceos-exception": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/exception",
+        },
+        "arceos-helloworld": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/helloworld",
+        },
+        "arceos-httpclient": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/httpclient",
+        },
+        "arceos-httpserver": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/httpserver",
+        },
+        "arceos-memtest": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/memtest",
+        },
+        "arceos-parallel": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/parallel",
+        },
+        "arceos-priority": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/priority",
+        },
+        "arceos-shell": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/fs/shell",
+        },
+        "arceos-sleep": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/sleep",
+        },
+        "arceos-tls": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/tls",
+        },
+        "arceos-udpserver": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/udpserver",
+        },
+        "arceos-yield": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/yield",
+        },
+        "arceos_api": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/api/arceos_api",
+        },
+        "arceos_posix_api": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/api/arceos_posix_api",
+        },
+        "arm_gic": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/arm_gic",
+        },
+        "arm_pl011": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/arm_pl011",
+        },
+        "axalloc": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axalloc",
+        },
+        "axconfig": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axconfig",
+        },
+        "axdisplay": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axdisplay",
+        },
+        "axdriver": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axdriver",
+        },
+        "axerrno": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axerrno",
+        },
+        "axfeat": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/api/axfeat",
+        },
+        "axfs": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axfs",
+        },
+        "axfs_devfs": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axfs_devfs",
+        },
+        "axfs_ramfs": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axfs_ramfs",
+        },
+        "axfs_vfs": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axfs_vfs",
+        },
+        "axhal": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axhal",
+        },
+        "axio": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axio",
+        },
+        "axlibc": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/ulib/axlibc",
+        },
+        "axlog": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axlog",
+        },
+        "axnet": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axnet",
+        },
+        "axruntime": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axruntime",
+        },
+        "axstd": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/ulib/axstd",
+        },
+        "axsync": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axsync",
+        },
+        "axtask": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axtask",
+        },
+        "bwbench-client": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/tools/bwbench_client",
+        },
+        "capability": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/capability",
+        },
+        "crate_interface": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/crate_interface",
+        },
+        "deptool": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/tools/deptool",
+        },
+        "driver_block": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_block",
+        },
+        "driver_common": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_common",
+        },
+        "driver_display": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_display",
+        },
+        "driver_net": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_net",
+        },
+        "driver_pci": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_pci",
+        },
+        "driver_virtio": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_virtio",
+        },
+        "dw_apb_uart": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/dw_apb_uart",
+        },
+        "flatten_objects": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/flatten_objects",
+        },
+        "handler_table": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/handler_table",
+        },
+        "kernel_guard": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/kernel_guard",
+        },
+        "lazy_init": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/lazy_init",
+        },
+        "linked_list": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/linked_list",
+        },
+        "memory_addr": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/memory_addr",
+        },
+        "mingo": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/tools/raspi4/chainloader",
+        },
+        "page_table": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/page_table",
+        },
+        "page_table_entry": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/page_table_entry",
+        },
+        "percpu": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/percpu",
+        },
+        "percpu_macros": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/percpu_macros",
+        },
+        "ratio": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/ratio",
+        },
+        "scheduler": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/scheduler",
+        },
+        "slab_allocator": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/slab_allocator",
+        },
+        "spinlock": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/spinlock",
+        },
+        "timer_list": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/timer_list",
+        },
+        "tuple_for_each": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/tuple_for_each",
+        },
+    },
+}

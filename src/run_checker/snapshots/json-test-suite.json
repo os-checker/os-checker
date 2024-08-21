@@ -1,5 +1,30 @@
 {
   "env": {
+    "tools": {
+      "os_checker": {
+        "start": 0,
+        "finish": 0,
+        "duration_ms": 0,
+        "git_time": "2024-08-21 11:40:57 +0800",
+        "git_sha": "8014cbb09a2df3e0d606f2ca26db96e3a098eabd"
+      }
+    },
+    "kinds": {
+      "order": [
+        "Clippy(Error)",
+        "Clippy(Warn)",
+        "Unformatted"
+      ],
+      "mapping": {
+        "clippy": [
+          "Clippy(Error)",
+          "Clippy(Warn)"
+        ],
+        "fmt": [
+          "Unformatted"
+        ]
+      }
+    },
     "repos": [
       {
         "user": "repos",
@@ -23,7 +48,7 @@
       "tool": "Fmt",
       "cmd": "",
       "count": 4,
-      "duration_ms": 179,
+      "duration_ms": 183,
       "arch": "",
       "target_triple": "",
       "features": [],
@@ -34,7 +59,7 @@
       "tool": "Clippy",
       "cmd": "",
       "count": 2,
-      "duration_ms": 206,
+      "duration_ms": 255,
       "arch": "",
       "target_triple": "",
       "features": [],

@@ -70,7 +70,7 @@ mod tests {
         expect![[r#"
             Io(
                 Dir(
-                    ".",
+                    "./Cargo.toml",
                 ),
                 Cmd(
                     [
@@ -85,18 +85,18 @@ mod tests {
 
         expect![[r#"
             Io(
-                Dir(
-                    ".",
+                Env(
+                    "RUST_LOG",
+                    "debug",
                 ),
                 Io(
                     Env(
-                        "RUST_LOG",
-                        "debug",
+                        "RUSTFLAGS",
+                        "--cfg unstable",
                     ),
                     Io(
-                        Env(
-                            "RUSTFLAGS",
-                            "--cfg unstable",
+                        Dir(
+                            "./Cargo.toml",
                         ),
                         Cmd(
                             [
