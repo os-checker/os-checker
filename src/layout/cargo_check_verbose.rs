@@ -2,41 +2,13 @@ use crate::{
     utils::{scan_scripts_for_target, walk_dir},
     Result, XString,
 };
-use ahash::AHashMap;
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     CompilerMessage, Message,
 };
-use itertools::Itertools;
+use indexmap::IndexMap;
 
-/// A target triple with precise source.
-#[derive(Debug)]
-pub struct TargetTriple {
-    target: String,
-    source: Vec<TargetSource>,
-}
-
-impl TargetTriple {
-    fn specified_default(target: &str) -> Self {
-        TargetTriple {
-            target: target.to_owned(),
-            source: vec![TargetSource::SpecifiedDefault],
-        }
-    }
-
-    fn unspecified_default() -> Self {
-        TargetTriple {
-            target: crate::utils::host_target_triple().to_owned(),
-            source: vec![TargetSource::UnspecifiedDefault],
-        }
-    }
-
-    fn triple(&self) -> &str {
-        &self.target
-    }
-}
-
-fn detected_targets(repo_root: &str, map: &mut AHashMap<String, Vec<TargetSource>>) -> Result<()> {
+fn detected_targets(repo_root: &str, targets: &mut Targets) -> Result<()> {
     // os-checker 会启发式搜索一些常见的脚本来猜测额外的目标架构信息，这些被查询脚本为：
     // .github 文件夹内的任何文件、递归查找 Makefile、makefile、py、sh、just 后缀的文件
     let scripts = walk_dir(repo_root, 4, &[".github"], |file_path| {
@@ -66,9 +38,9 @@ fn detected_targets(repo_root: &str, map: &mut AHashMap<String, Vec<TargetSource
     let github_files = walk_dir(&github_dir, 4, &[], Some);
     debug!(repo_root, ?scripts, ?github_files);
 
-    let mut f = |target: &str, path: Utf8PathBuf| match map.get_mut(target) {
+    let mut f = |target: &str, path: Utf8PathBuf| match targets.get_mut(target) {
         Some(v) => v.push(TargetSource::DetectedBy(path)),
-        None => _ = map.insert(target.to_owned(), vec![TargetSource::DetectedBy(path)]),
+        None => _ = targets.insert(target.to_owned(), vec![TargetSource::DetectedBy(path)]),
     };
     scan_scripts_for_target(&scripts, &mut f)?;
     scan_scripts_for_target(&github_files, &mut f)?;
@@ -84,10 +56,31 @@ pub enum TargetSource {
     OverriddenInYaml,
 }
 
+impl TargetSource {
+    fn specified_default(target: &str, targets: &mut Targets) {
+        if let Some(source) = targets.get_mut(target) {
+            source.push(TargetSource::SpecifiedDefault);
+        } else {
+            targets.insert(target.to_owned(), vec![TargetSource::SpecifiedDefault]);
+        }
+    }
+
+    fn unspecified_default(targets: &mut Targets) {
+        let target = crate::utils::host_target_triple();
+        if let Some(source) = targets.get_mut(target) {
+            source.push(TargetSource::UnspecifiedDefault);
+        } else {
+            targets.insert(target.to_owned(), vec![TargetSource::UnspecifiedDefault]);
+        }
+    }
+}
+
+type Targets = IndexMap<String, Vec<TargetSource>>;
+
 /// Default cargo target triple list got by `cargo check -vv` which compiles all targets.
 #[derive(Debug)]
 pub struct DefaultTargetTriples {
-    pub targets: Vec<TargetTriple>,
+    pub targets: Targets,
     /// The first time `cargo check` takes.
     pub first_check_duration_ms: u64,
 }
@@ -122,30 +115,34 @@ impl DefaultTargetTriples {
                 .run()
         });
 
-        let mut targets = Message::parse_stream(output?.stderr.as_slice())
-            .filter_map(|parsed| {
-                if let Message::TextLine(mes) = &parsed.ok()? {
-                    // 只需要当前 package 的 target triple：
-                    // * 需要 pkg_name 和 manifest_dir 是因为输出会产生依赖项的信息，仅有
-                    //   pkg_name 会造成可能的冲突（尤其 cargo check 最后才会编译当前 pkg）
-                    // * 实际的编译命令示例，见 https://github.com/os-checker/os-checker/commit/de95f5928a25f6b64bcf5f1964870351899f85c3
-                    if RE.running_cargo.is_match(mes) {
+        let mut targets = Targets::new();
+
+        for parsed in Message::parse_stream(output?.stderr.as_slice()) {
+            if let Ok(Message::TextLine(mes)) = &parsed {
+                // 只需要当前 package 的 target triple：
+                // * 需要 pkg_name 和 manifest_dir 是因为输出会产生依赖项的信息，仅有
+                //   pkg_name 会造成可能的冲突（尤其 cargo check 最后才会编译当前 pkg）
+                // * 实际的编译命令示例，见 https://github.com/os-checker/os-checker/commit/de95f5928a25f6b64bcf5f1964870351899f85c3
+                if RE.running_cargo.is_match(mes) {
+                    // trick to use ? in small scope
+                    let mut f = || {
                         let crate_name = RE.pkg_name.captures(mes)?.get(1)?.as_str();
                         let manifest_dir = RE.manifest_dir.captures(mes)?.get(1)?.as_str();
                         let target_triple = RE.target_triple.captures(mes)?.get(1)?.as_str();
                         if crate_name == pkg_name && manifest_dir == pkg_dir {
-                            return Some(TargetTriple::specified_default(target_triple));
+                            TargetSource::specified_default(target_triple, &mut targets);
                         }
-                    }
+                        None::<()>
+                    };
+                    f();
                 }
-                None
-            })
-            .collect_vec();
+            }
+        }
 
         // NOTE: this can be empty if no target is specified in .cargo/config.toml,
         // in which case the host target should be implied when the empty value is handled.
         if targets.is_empty() {
-            targets = vec![TargetTriple::unspecified_default()];
+            TargetSource::unspecified_default(&mut targets);
         }
 
         Ok(DefaultTargetTriples {
@@ -202,7 +199,7 @@ impl std::fmt::Debug for CargoCheckDiagnostics {
                         .compiler_messages
                         .iter()
                         .map(|d| d.message.to_string())
-                        .collect_vec(),
+                        .collect::<Vec<_>>(),
                 )
                 .finish()
         }
@@ -229,8 +226,8 @@ impl PackageInfo {
         let default_target_triples = DefaultTargetTriples::new(pkg_dir, pkg_name)?;
         let cargo_check_diagnostics = default_target_triples
             .targets
-            .iter()
-            .map(|target| CargoCheckDiagnostics::new(pkg_dir, pkg_name, target.triple()))
+            .keys()
+            .map(|target| CargoCheckDiagnostics::new(pkg_dir, pkg_name, target))
             .collect::<Result<_>>()?;
         Ok(PackageInfo {
             pkg_name: pkg_name.into(),
