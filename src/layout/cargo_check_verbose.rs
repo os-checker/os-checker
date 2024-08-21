@@ -53,11 +53,11 @@ impl Targets {
         }
     }
 
-    fn specified_default(&mut self, target: &str) {
-        if let Some(source) = self.get_mut(target) {
+    fn specified_default(&mut self, target: String) {
+        if let Some(source) = self.get_mut(&target) {
             source.push(TargetSource::SpecifiedDefault);
         } else {
-            self.insert(target.to_owned(), vec![TargetSource::SpecifiedDefault]);
+            self.insert(target, vec![TargetSource::SpecifiedDefault]);
         }
     }
 
@@ -105,80 +105,24 @@ impl Targets {
             }
         }
     }
-}
 
-/// Default cargo target triple list got by `cargo check -vv` which compiles all targets.
-#[derive(Debug)]
-pub struct TargetTriples {
-    pub targets: Targets,
-    /// The first time `cargo check` takes.
-    pub first_check_duration_ms: u64,
-}
-
-impl TargetTriples {
-    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str) -> Result<TargetTriples> {
-        use regex::Regex;
-        use std::sync::LazyLock;
-
-        struct ExtractTriplePattern {
-            pkg_name: Regex,
-            manifest_dir: Regex,
-            target_triple: Regex,
-            running_cargo: Regex,
-        }
-        static RE: LazyLock<ExtractTriplePattern> = LazyLock::new(|| ExtractTriplePattern {
-            pkg_name: regex::Regex::new(r#"CARGO_PKG_NAME=(\S+)"#).unwrap(),
-            manifest_dir: regex::Regex::new(r#"CARGO_MANIFEST_DIR=(\S+)"#).unwrap(),
-            target_triple: regex::Regex::new(r#"--target\s+(\S+)"#).unwrap(),
-            running_cargo: regex::Regex::new(r#"^\s+Running `CARGO="#).unwrap(),
-        });
-
-        // NOTE: 似乎只有第一次运行 cargo check 才会强制编译所有 target triples，
-        // 第二次开始运行 cargo check 之后，如果在某个 triple 上编译失败，不会编译其他 triple，
-        // 这导致无法全部获取 triples 列表。因此为了避免缓存影响，清除 target dir。
-        _ = duct::cmd!("cargo", "clean").dir(pkg_dir).run()?;
-        let (duration_ms, output) = crate::utils::execution_time_ms(|| {
-            duct::cmd!("cargo", "check", "-vv")
-                .dir(pkg_dir)
-                .stderr_capture()
-                .unchecked()
-                .run()
-        });
-
+    fn from_repo_and_workspace(
+        ws: Vec<String>,
+        pkg_dir: &Utf8Path,
+        repo: &Targets,
+    ) -> Result<Self> {
         let mut targets = Targets::new();
-
-        for parsed in Message::parse_stream(output?.stderr.as_slice()) {
-            if let Ok(Message::TextLine(mes)) = &parsed {
-                // 只需要当前 package 的 target triple：
-                // * 需要 pkg_name 和 manifest_dir 是因为输出会产生依赖项的信息，仅有
-                //   pkg_name 会造成可能的冲突（尤其 cargo check 最后才会编译当前 pkg）
-                // * 实际的编译命令示例，见 https://github.com/os-checker/os-checker/commit/de95f5928a25f6b64bcf5f1964870351899f85c3
-                if RE.running_cargo.is_match(mes) {
-                    // trick to use ? in small scope
-                    let mut f = || {
-                        let crate_name = RE.pkg_name.captures(mes)?.get(1)?.as_str();
-                        let manifest_dir = RE.manifest_dir.captures(mes)?.get(1)?.as_str();
-                        let target_triple = RE.target_triple.captures(mes)?.get(1)?.as_str();
-                        if crate_name == pkg_name && manifest_dir == pkg_dir {
-                            targets.specified_default(target_triple);
-                        }
-                        None::<()>
-                    };
-                    f();
-                }
+        if ws.is_empty() {
+            // 无指定的 targets
+            targets.unspecified_default();
+        } else {
+            for target in ws {
+                targets.specified_default(target);
             }
         }
-
-        // NOTE: this can be empty if no target is specified in .cargo/config.toml,
-        // in which case the host target should be implied when the empty value is handled.
-        if targets.is_empty() {
-            targets.unspecified_default();
-        }
-
-        Ok(TargetTriples {
-            targets,
-            first_check_duration_ms: duration_ms,
-        })
+        super::detect_targets::in_pkg_dir(pkg_dir, &mut targets)?;
+        targets.merge(repo);
+        Ok(targets)
     }
 }
 
@@ -247,26 +191,30 @@ pub struct PackageInfo {
     pub pkg_name: XString,
     /// i.e. manifest_dir
     pub pkg_dir: Utf8PathBuf,
-    pub target_triples: TargetTriples,
+    pub targets: Targets,
     pub cargo_check_diagnostics: Box<[CargoCheckDiagnostics]>,
 }
 
 impl PackageInfo {
-    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str, repo_targets: &Targets) -> Result<Self> {
-        let mut target_triples = TargetTriples::new(pkg_dir, pkg_name)?;
-        super::detect_targets::in_pkg_dir(pkg_dir, &mut target_triples.targets)?;
-        target_triples.targets.merge(repo_targets);
+    pub fn new(
+        pkg_dir: Utf8PathBuf,
+        pkg_name: XString,
+        repo_targets: &Targets,
+        ws_targets: Vec<String>,
+    ) -> Result<Self> {
+        let targets = Targets::from_repo_and_workspace(ws_targets, &pkg_dir, repo_targets)?;
+        // super::detect_targets::in_pkg_dir(pkg_dir, &mut target_triples.targets)?;
+        // target_triples.targets.merge(repo_targets);
 
-        let cargo_check_diagnostics = target_triples
-            .targets
+        let cargo_check_diagnostics = targets
             .keys()
-            .map(|target| CargoCheckDiagnostics::new(pkg_dir, pkg_name, target))
+            .map(|target| CargoCheckDiagnostics::new(&pkg_dir, &pkg_name, target))
             .collect::<Result<_>>()?;
         Ok(PackageInfo {
-            pkg_name: pkg_name.into(),
-            pkg_dir: pkg_dir.to_owned(),
+            pkg_name,
+            pkg_dir,
+            targets,
             cargo_check_diagnostics,
-            target_triples,
         })
     }
 }

@@ -138,9 +138,20 @@ impl Layout {
         let cargo_tomls_len = cargo_tomls.len();
         let mut pkg_info = Vec::with_capacity(cargo_tomls_len);
         for ws in workspaces.values() {
-            for member in ws.workspace_packages() {
-                let pkg_dir = member.manifest_path.parent().unwrap(); // strip Cargo.toml
-                pkg_info.push(PackageInfo::new(pkg_dir, &member.name, &repo_targets)?);
+            let packages = ws.workspace_packages();
+            let members: IndexSet<_> = packages
+                .iter() // strip Cargo.toml
+                .map(|pkg| (pkg.manifest_path.parent().unwrap().as_str(), &*pkg.name))
+                .collect();
+            let ws_targets =
+                detect_targets::WorkspaceTargetTriples::new(&ws.workspace_root, &members)?;
+            debug!(ws_targets.first_check_duration_ms, %ws.workspace_root, ?members);
+            // FIXME: 由于 cargo check -vv --workspace 以 host target 编译，并不输出
+            // .cargo/config.toml 指定的 targets 编译；考虑到所有 package 如果每个都重头编译，
+            // 时间会很长，因此需要抛弃解析 cargo check 的方式，转而分析 .cargo/config.toml
+            // 和 Cargo.toml。
+            for ((pkg_dir, pkg_name), targets) in ws_targets.targets {
+                pkg_info.push(PackageInfo::new(pkg_dir, pkg_name, &repo_targets, targets)?);
             }
         }
         debug!(cargo_tomls_len, pkg_len = pkg_info.len());

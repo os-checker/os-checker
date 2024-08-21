@@ -16,9 +16,96 @@
 use super::cargo_check_verbose::Targets;
 use crate::{
     utils::{scan_scripts_for_target, walk_dir},
-    Result,
+    Result, XString,
 };
-use cargo_metadata::camino::Utf8Path;
+use cargo_metadata::{
+    camino::{Utf8Path, Utf8PathBuf},
+    Message,
+};
+use indexmap::{IndexMap, IndexSet};
+
+type TargetsMap = IndexMap<(Utf8PathBuf, XString), Vec<String>>;
+
+/// Default cargo target triple list got by `cargo check -vv` which compiles all targets.
+#[derive(Debug)]
+pub struct WorkspaceTargetTriples {
+    // NOTE: this can be empty if no target is specified in .cargo/config.toml,
+    // in which case the host target should be implied when the empty value is handled.
+    pub targets: TargetsMap,
+    /// The first time `cargo check` takes.
+    pub first_check_duration_ms: u64,
+}
+
+impl WorkspaceTargetTriples {
+    pub fn new(workspce_root: &Utf8Path, members: &IndexSet<(&str, &str)>) -> Result<Self> {
+        use regex::Regex;
+        use std::sync::LazyLock;
+
+        struct ExtractTriplePattern {
+            pkg_name: Regex,
+            manifest_dir: Regex,
+            target_triple: Regex,
+            running_cargo: Regex,
+        }
+        static RE: LazyLock<ExtractTriplePattern> = LazyLock::new(|| ExtractTriplePattern {
+            pkg_name: regex::Regex::new(r#"CARGO_PKG_NAME=(\S+)"#).unwrap(),
+            manifest_dir: regex::Regex::new(r#"CARGO_MANIFEST_DIR=(\S+)"#).unwrap(),
+            target_triple: regex::Regex::new(r#"--target\s+(\S+)"#).unwrap(),
+            running_cargo: regex::Regex::new(r#"^\s+Running `CARGO="#).unwrap(),
+        });
+
+        // NOTE: 似乎只有第一次运行 cargo check 才会强制编译所有 target triples，
+        // 第二次开始运行 cargo check 之后，如果在某个 triple 上编译失败，不会编译其他 triple，
+        // 这导致无法全部获取 triples 列表。因此为了避免缓存影响，清除 target dir。
+        _ = duct::cmd!("cargo", "clean").dir(workspce_root).run()?;
+        let (duration_ms, output) = crate::utils::execution_time_ms(|| {
+            duct::cmd!("cargo", "check", "-vv", "--workspace")
+                .dir(workspce_root)
+                .stderr_capture()
+                .unchecked()
+                .run()
+        });
+
+        let mut targets = TargetsMap::with_capacity(members.len());
+
+        for parsed in Message::parse_stream(output?.stderr.as_slice()) {
+            if let Ok(Message::TextLine(mes)) = &parsed {
+                // 只需要当前 package 的 target triple：
+                // * 需要 pkg_name 和 manifest_dir 是因为输出会产生依赖项的信息，仅有
+                //   pkg_name 会造成可能的冲突（尤其 cargo check 最后才会编译当前 pkg）
+                // * 实际的编译命令示例，见 https://github.com/os-checker/os-checker/commit/de95f5928a25f6b64bcf5f1964870351899f85c3
+                if RE.running_cargo.is_match(mes) {
+                    // trick to use ? in small scope
+                    let mut f = || {
+                        debug!(mes);
+                        let crate_name = RE.pkg_name.captures(mes)?.get(1)?.as_str();
+                        debug!(crate_name);
+                        let manifest_dir = RE.manifest_dir.captures(mes)?.get(1)?.as_str();
+                        debug!(manifest_dir);
+                        let target_triple = RE.target_triple.captures(mes)?.get(1)?.as_str();
+                        debug!(target_triple);
+                        if members.contains(&(manifest_dir, crate_name)) {
+                            let target = target_triple.to_owned();
+                            let key = (Utf8PathBuf::from(manifest_dir), XString::new(crate_name));
+                            if let Some(v) = targets.get_mut(&key) {
+                                v.push(target);
+                            } else {
+                                targets.insert(key, vec![target]);
+                            };
+                        }
+                        None::<()>
+                    };
+                    f();
+                }
+            }
+        }
+
+        Ok(WorkspaceTargetTriples {
+            targets,
+            first_check_duration_ms: duration_ms,
+        })
+    }
+}
 
 pub fn in_repo(repo_root: &str) -> Result<Targets> {
     let mut targets = Targets::new();
