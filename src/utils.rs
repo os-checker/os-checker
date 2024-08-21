@@ -60,6 +60,7 @@ pub fn host_target_triple() -> &'static str {
 }
 
 #[allow(dead_code)]
+#[derive(Debug)]
 pub struct Rustc {
     version: String,
     commit_hash: String,
@@ -81,8 +82,8 @@ impl Rustc {
     // LLVM version: 19.1.0
     fn new() -> Result<Rustc> {
         fn parse(pat: &str, src: &str) -> Result<String> {
-            let f = || format!("`{src}` doesn't contain `{pat}` pattern to get a value");
-            Ok(Regex::new(&format!("^{pat}(.*)$"))
+            let f = || format!("`{src:?}` doesn't contain `{pat}` pattern to get a value");
+            Ok(Regex::new(pat)
                 .unwrap()
                 .captures(src)
                 .with_context(f)?
@@ -94,12 +95,27 @@ impl Rustc {
 
         let src = &cmd!("rustc", "-vV").read()?;
         Ok(Rustc {
-            version: parse("^rustc (.*)$", src)?,
-            commit_hash: parse("^commit-hash: (.*)$", src)?,
-            commit_date: parse("^commit-date: (.*)$", src)?,
-            host: parse("^host: (.*)$", src)?,
-            release: parse("^release: (.*)$", src)?,
-            llvm_version: parse("^LLVM version: (.*)$", src)?,
+            version: parse("(?m)^rustc (.*)$", src)?,
+            commit_hash: parse("(?m)^commit-hash: (.*)$", src)?,
+            commit_date: parse("(?m)^commit-date: (.*)$", src)?,
+            host: parse("(?m)^host: (.*)$", src)?,
+            release: parse("(?m)^release: (.*)$", src)?,
+            llvm_version: parse("(?m)^LLVM version: (.*)$", src)?,
         })
     }
+}
+
+#[test]
+fn rustc_verbose() -> Result<()> {
+    expect_test::expect![[r#"
+        Rustc {
+            version: "1.82.0-nightly (91376f416 2024-08-12)",
+            commit_hash: "91376f416222a238227c84a848d168835ede2cc3",
+            commit_date: "2024-08-12",
+            host: "x86_64-unknown-linux-gnu",
+            release: "1.82.0-nightly",
+            llvm_version: "19.1.0",
+        }
+    "#]].assert_debug_eq(&Rustc::new()?);
+    Ok(())
 }
