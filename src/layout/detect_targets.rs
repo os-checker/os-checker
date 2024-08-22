@@ -22,6 +22,7 @@ use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata,
 };
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Targets obtained from `.cargo/config{,.toml}` and `Cargo.toml`'s metadata table.
@@ -114,7 +115,7 @@ fn metadata_targets(value: &Value, mut f: impl FnMut(&str)) {
 
 pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
     let mut targets = Targets::new();
-    scripts_in_dir(repo_root, &mut targets);
+    scripts_in_dir(repo_root, &mut targets)?;
 
     let github_dir = Utf8Path::new(repo_root).join(".github");
     let github_files = walk_dir(&github_dir, 4, &[], Some);
@@ -152,4 +153,83 @@ fn scripts_in_dir(dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
 
 pub fn scripts_in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
     scripts_in_dir(pkg_dir, targets)
+}
+
+// *************** .cargo/config.toml ***************
+
+#[derive(Deserialize, Serialize, Debug)]
+struct CargoConfigToml {
+    build: BuildTarget,
+}
+#[derive(Deserialize, Serialize, Debug)]
+struct BuildTarget {
+    target: CargoConfigTomlTarget,
+}
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(untagged)]
+enum CargoConfigTomlTarget {
+    One(String),
+    Multiple(Vec<String>),
+}
+
+impl CargoConfigTomlTarget {
+    fn new(path: &Utf8Path) -> Result<Self> {
+        let bytes = std::fs::read(path)?;
+        let config: CargoConfigToml = basic_toml::from_slice(&bytes)?;
+        Ok(config.build.target)
+    }
+}
+
+/// 搜索从 package dir 开始往父级到 repo_root 的 .cargo/ 目录下的
+/// config 和 config.toml 文件。
+///
+/// 注意：一旦找到一个更高优先级的配置文件中的 build.target，那么不再进行搜索
+/// * 子级优于父级
+/// * config.toml 文件优于 config 文件
+fn search_cargo_config_toml(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Option<Targets> {
+    None
+}
+
+#[test]
+fn cargo_config_toml_deserialize() -> Result<()> {
+    // [build]
+    // target = ["x86_64-unknown-linux-gnu", "riscv64gc-unknown-none-elf"]
+    let s = std::fs::read("repos/e1000-driver/examples/.cargo/config.toml")?;
+    let toml = CargoConfigToml {
+        build: BuildTarget {
+            target: CargoConfigTomlTarget::Multiple(vec!["a".to_owned()]),
+        },
+    };
+    println!("{}", basic_toml::to_string(&toml)?);
+    let config: CargoConfigToml = basic_toml::from_slice(&s)?;
+    dbg!(&config);
+    Ok(())
+}
+
+#[test]
+fn cargo_config_toml_from_child_to_root() -> Result<()> {
+    let child = Utf8Path::new("repos/e1000-driver/examples/src").canonicalize_utf8()?;
+    let root = Utf8Path::new(".").canonicalize_utf8()?;
+    let mut path = Utf8PathBuf::new();
+    for parent in child.ancestors() {
+        path.extend(parent);
+        println!("{path}");
+        path.extend([".cargo", "config.toml"]);
+        if let Ok(target) = CargoConfigTomlTarget::new(&path) {
+            println!("{path}: {target:?} done!");
+            break;
+        }
+        println!("{path}");
+        path.set_file_name("config");
+        if let Ok(target) = CargoConfigTomlTarget::new(&path) {
+            println!("{path}: {target:?} done!");
+            break;
+        }
+        println!("{path}");
+        if parent == root {
+            break;
+        }
+        path.clear();
+    }
+    Ok(())
 }

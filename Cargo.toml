@@ -11,7 +11,7 @@ description = "Run a collection of checkers targeting Rust crates, and report ba
 [dependencies]
 argh = "0.1.12"   # cli argument parser
 walkdir = "2.5.0" # recursively search Cargo.toml for finding packages
-# self_cell = "1.0.4" # self-referential 
+basic-toml = "0.1"
 
 serde = { version = "1", features = ["derive"] }
 marked-yaml = { version = "0.7.1", features = ["serde-path"] } # parse yaml file

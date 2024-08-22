@@ -114,6 +114,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "basic-toml"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "823388e228f614e9558c6804262db37960ec8821856535f5c3f59913140558f8"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -514,6 +523,7 @@ name = "os-checker"
 version = "0.1.1"
 dependencies = [
  "argh",
+ "basic-toml",
  "cargo_metadata",
  "color-eyre",
  "compact_str",
