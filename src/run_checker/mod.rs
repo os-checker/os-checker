@@ -83,7 +83,7 @@ impl Repo {
     }
 
     pub fn run_check(&self) -> Result<Vec<Output>> {
-        let v: Vec<_> = self.resolve()?.iter().map(run_check).try_collect()?;
+        let v: Vec<_> = self.resolve()?.into_iter().map(run_check).try_collect()?;
         // 由于已经按顺序执行，这里其实无需排序；如果以后引入并发，则需要排序
         // v.sort_unstable_by(|a, b| (&a.package_name, a.checker).cmp(&(&b.package_name, b.checker)));
         Ok(v)
@@ -107,7 +107,7 @@ impl TryFrom<Config> for RepoOutput {
         let all_outputs = repo.run_check()?;
         let outputs = all_outputs
             .into_iter()
-            .chunk_by(|out| out.package_name.clone())
+            .chunk_by(|out| out.resolve.pkg_name.clone())
             .into_iter()
             .map(|(pkg_name, outs)| PackageOutput {
                 pkg_name,
@@ -125,20 +125,14 @@ pub struct Output {
     /// 该检查工具报告的总数量；与最后 os-checker 提供原始输出计算的数量应该一致
     count: usize,
     duration_ms: u64,
-    package_root: Utf8PathBuf,
-    package_name: XString,
-    checker: CheckerTool,
+    resolve: Resolve,
 }
 
 /// 以子进程方式执行检查
-fn run_check(resolve: &Resolve) -> Result<Output> {
+fn run_check(resolve: Resolve) -> Result<Output> {
+    let expr = resolve.expr.clone();
     let (duration_ms, raw) = crate::utils::execution_time_ms(|| {
-        resolve
-            .expr
-            .stderr_capture()
-            .stdout_capture()
-            .unchecked()
-            .run()
+        expr.stderr_capture().stdout_capture().unchecked().run()
     });
     let raw = raw?;
 
@@ -176,17 +170,12 @@ fn run_check(resolve: &Resolve) -> Result<Output> {
         CheckerTool::Lockbud => todo!(),
     };
     let count = parsed.count();
-    let package_root = resolve.pkg_dir.clone();
-    let package_name = resolve.pkg_name.clone();
-    trace!(%package_root, %package_name);
     Ok(Output {
         raw,
         parsed,
         count,
         duration_ms,
-        package_root,
-        package_name,
-        checker: resolve.checker,
+        resolve,
     })
 }
 

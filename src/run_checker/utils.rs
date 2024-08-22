@@ -13,15 +13,20 @@ pub fn push_idx_and_data(
     data: &mut Vec<Data>,
 ) {
     // TODO: 这些等会解决
-    let (cmd, arch, target_triple, features, flags) = Default::default();
+    let (features, flags) = Default::default();
     let idx_item = Cmd {
         package_idx,
-        tool: raw.checker,
+        tool: raw.resolve.checker,
         count: raw.count,
         duration_ms: raw.duration_ms,
-        cmd,
-        arch,
-        target_triple,
+        cmd: raw.resolve.cmd.clone(),
+        arch: raw
+            .resolve
+            .target
+            .split_once("-")
+            .map(|(arch, _)| arch.into())
+            .unwrap_or_default(),
+        target_triple: raw.resolve.target.clone(),
         features,
         flags,
     };
@@ -31,7 +36,7 @@ pub fn push_idx_and_data(
     let with = WithData {
         data,
         cmd_idx,
-        root: &raw.package_root,
+        root: &raw.resolve.pkg_dir,
     };
     push_data(raw, with);
 }
