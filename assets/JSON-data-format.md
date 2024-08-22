@@ -5,8 +5,8 @@
 从逻辑上，应该把完整的 os-checker 检查划分为几个维度：
 
 * 执行检查的环境：运行一次 os-checker CLI 的环境，包括
-    * 各种工具信息：Rust 工具链信息（版本号等）、所应用检查工具信息（名称、版本号等)、os-checker 信息（运行和结束的时间）
-    * 诊断分类信息：一个检查工具可能发出不同类别，比如 clippy 可以发出 Warn/Error 两个类别、lockbud 围绕 deadlock/memory/panic 发出更详细检查类别
+    * 各种工具信息：Rust 工具链信息（版本号等）、所应用检查工具信息（名称、版本号等)、os-checker 信息
+    * 诊断分类信息：一个检查工具可能发出不同类别，比如 clippy 可以发出 Warn/Error 两个类别、lockbud 发出更详细安全检查类别
     * 宿主机器信息：架构、操作系统等信息
     * 检查对象信息：
         * 仓库信息：
@@ -48,8 +48,8 @@
     "tools": {
       "rust": {"version": "1.82.0-nightly (91376f416 2024-08-12)"},
       "clippy": {"version": "clippy 0.1.82 (91376f4 2024-08-12)"},
-      "lockbud": {"version": "sha...", "date": "...", "rustToolchain": "..."}, // lockbud 需要固定工具链
-      "os-checker": {"start": "...", "finish": "...", "duration_ms": 3}
+      "lockbud": {"version": "sha...", "date": "...", "rust_toolchain": "..."}, // lockbud 需要固定工具链
+      "os_checker": {"start": "...", "finish": "...", "duration_ms": 3, "git_time": "...", "git_sha": "..."}
     },
     "kinds": {
       "order": ["Clippy(Error)", "Clippy(Warn)", "Unformatted"], // 类别的优先程度（我认为的）
@@ -59,8 +59,12 @@
       }
     },
     "host": {"arch": "x86_64", "kernel": "..."}, // arch 命令和 cat /proc/version
+    "target_spec": [ // 完整示例见 https://github.com/os-checker/os-checker/issues/25
+      {"arch": "x86_64", "cpu": "x86-64", ...},
+      {"arch": "riscv64", "cpu": "generic-rv64", ...},
+    ],
     "repos": [
-      {"user": "arceos-org", "repo": "arceos", "cargoLayout": [...], "info": {...}}
+      {"user": "arceos-org", "repo": "arceos", "cargo_layout": [...], "info": {...}}
     ],
     "packages": [ // repo_idx 指向 .env.repos 数组中的一项
       {
@@ -70,24 +74,24 @@
       }
     ]
   },
-  "cmd": [ // package_idx 指向 packages 数组中的一项
+  "cmd": [ // package_idx 指向 .env.packages 数组中的一项；spec_idx 指向 .env.target_spec 数组中的一项
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --no-deps --message-format=json",
-      "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
+      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0,
       "features": ["a", "b"],
       "flags": ["--cfg=...", "-Z...", "-C..."]
     },
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
-      "arch": "riscv64", "targetTriple": "riscv64gc-unknown-none-elf",
+      "arch": "riscv64", "triple": "riscv64gc-unknown-none-elf", "spec_idx": 1,
       "features": [], "flags": []
     },
     {
       "package_idx": 0, "tool": "lockbud", "count": 1, "duration_ms": 1,
       "cmd": "cargo lockbud",
-      "arch": "x86_64", "targetTriple": "x86_64-unknown-linux-gnu",
+      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0,
       "features": [], "flags": []
     }
   ],

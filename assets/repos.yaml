@@ -1,5 +1,8 @@
 file://./repos/os-checker-test-suite/:
   all: true
 
-file://repos/arceos:
+file://repos/e1000-driver:
   all: true
+
+# file://repos/arceos:
+#   all: true

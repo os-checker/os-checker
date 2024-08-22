@@ -1,5 +1,5 @@
 use super::Config;
-use crate::{layout::Package, Result};
+use crate::{layout::Packages, Result};
 use expect_test::{expect, expect_file};
 use itertools::Itertools;
 
@@ -44,7 +44,7 @@ fn pkg_checker_action() -> Result<()> {
     let parsed = Config::from_yaml(YAML)?;
     let v = parsed[0]
         .config
-        .pkg_checker_action(&Package::test_new(["package1", "package2"]))?;
+        .pkg_checker_action(&Packages::test_new(&["package1", "package2"]))?;
     expect_file!["./snapshots/pkg_checker_action-basic.txt"].assert_debug_eq(&v);
 
     Ok(())
@@ -67,7 +67,7 @@ user/repo:
 "#;
     let v = Config::from_yaml(yaml)?[0]
         .config
-        .pkg_checker_action(&Package::test_new([
+        .pkg_checker_action(&Packages::test_new(&[
             "crate0", "crate1", "crate2", "crate3", "crate4",
         ]))?;
     expect_file!["./snapshots/pkg_checker_action-fmt_clippy_only.txt"].assert_debug_eq(&v);
@@ -99,13 +99,13 @@ user/repo:
 fn uri() -> Result<()> {
     let yaml = "
 # 本地路径以 file:// 开头，支持绝对路径和相对路径
-file:///path/to/os-checker-test-suite:
+file:///rust/my/os-checker/repos/os-checker-test-suite:
   all: true
 file://repos/arceos:
   all: true
 
 # 任何 git repo url
-https://github.com/os-checker/os-checker.git:
+https://github.com/os-checker/os-checker-test-suite.git:
   all: true
 
 # 对于 github git repo url，简化成 user/repo
@@ -115,10 +115,10 @@ os-checker/os-checker:
     let configs = Config::from_yaml(yaml)?;
     let join = configs.iter().map(|c| format!("{:?}", c.uri)).join("\n");
     let expected = expect![[r#"
-        Uri { tag: Local("/path/to/os-checker-test-suite"), local: "os-checker-test-suite", _local_tmp_dir: None, key: "file:///path/to/os-checker-test-suite" }
-        Uri { tag: Local("repos/arceos"), local: "arceos", _local_tmp_dir: None, key: "file://repos/arceos" }
-        Uri { tag: Url("https://github.com/os-checker/os-checker.git"), local: "os-checker", _local_tmp_dir: None, key: "https://github.com/os-checker/os-checker.git" }
-        Uri { tag: Github("os-checker/os-checker"), local: "os-checker", _local_tmp_dir: None, key: "os-checker/os-checker" }"#]];
+        Uri { tag: Local("/rust/my/os-checker/repos/os-checker-test-suite"), user: "repos", repo: "os-checker-test-suite", _local_tmp_dir: None, key: "file:///rust/my/os-checker/repos/os-checker-test-suite" }
+        Uri { tag: Local("repos/arceos"), user: "repos", repo: "arceos", _local_tmp_dir: None, key: "file://repos/arceos" }
+        Uri { tag: Url("https://github.com/os-checker/os-checker-test-suite.git"), user: "os-checker", repo: "os-checker-test-suite", _local_tmp_dir: None, key: "https://github.com/os-checker/os-checker-test-suite.git" }
+        Uri { tag: Github("os-checker/os-checker"), user: "os-checker", repo: "os-checker", _local_tmp_dir: None, key: "os-checker/os-checker" }"#]];
     expected.assert_eq(&join);
 
     Ok(())

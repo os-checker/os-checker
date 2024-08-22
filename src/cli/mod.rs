@@ -2,7 +2,7 @@ use crate::{output::JsonOutput, repo::Config, run_checker::RepoOutput, Result};
 use argh::FromArgs;
 use cargo_metadata::camino::Utf8PathBuf;
 use rayon::prelude::*;
-use std::fs::File;
+use std::{fs::File, time::SystemTime};
 
 pub fn args() -> Args {
     let arguments = argh::from_env();
@@ -58,20 +58,27 @@ impl Args {
     }
 
     pub fn run(self) -> Result<()> {
+        let start = SystemTime::now();
         let outs = self.repos_outputs()?.collect::<Result<Vec<_>>>()?;
+        let finish = SystemTime::now();
         debug!("Got statistics and start to run and emit output.");
-        match &self.emit {
+        let mut json = JsonOutput::new(&outs);
+        json.set_start_end_time(start, finish);
+
+        // trick to have stacked dyn trait objects
+        let (mut writer1, mut writer2);
+        let writer: &mut dyn std::io::Write = match &self.emit {
             Emit::Json => {
-                let mut json = JsonOutput::new();
-                outs.iter().for_each(|s| s.with_json_output(&mut json));
-                serde_json::to_writer_pretty(std::io::stdout(), &json)?;
+                writer1 = std::io::stdout();
+                &mut writer1
             }
             Emit::JsonFile(p) => {
-                let mut json = JsonOutput::new();
-                outs.iter().for_each(|s| s.with_json_output(&mut json));
-                serde_json::to_writer_pretty(File::create(p)?, &json)?;
+                writer2 = File::create(p)?;
+                &mut writer2
             }
-        }
+        };
+        serde_json::to_writer_pretty(writer, &json)?;
+
         debug!(?self.emit, "Output emitted");
         Ok(())
     }

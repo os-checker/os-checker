@@ -1,47 +1,62 @@
-use crate::Result;
-use cargo_metadata::camino::Utf8Path;
-use duct::{cmd, Expression};
-use eyre::ContextCompat;
+use crate::{
+    layout::Pkg,
+    repo::{CheckerTool, Resolve},
+    Result,
+};
+use duct::cmd;
 use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 
 /// 默认运行 cargo fmt 的命令
-pub fn cargo_fmt(toml: &Utf8Path) -> Expression {
-    // e.g. cargo fmt --check --manifest-path tmp/test-fmt/Cargo.toml
-    // cmd!("cargo", "fmt", "--check", "--manifest-path", toml)
-    let expr = cmd!("cargo", "fmt", "--manifest-path", toml, "--", "--emit=json");
+// NOTE: cargo fmt 不支持 --target 参数，但依然会在不同的 target_triple 上运行，
+// 尽管这会造成报告重复。
+//
+// $ cargo fmt --target x86_64-unknown-linux-gnu
+// error: unexpected argument '--target' found
+//
+//   tip: to pass '--target' as a value, use '-- --target'
+//
+// Usage: cargo fmt [OPTIONS] [-- <rustfmt_options>...]
+// For more information, try '--help'.
+pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
+    let name = pkg.name;
+    let expr = cmd!("cargo", "fmt", "-p", name, "--", "--emit=json").dir(pkg.dir);
     debug!(?expr);
-    expr
+    let cmd = format!("cargo fmt -p {name} -- --emit=json");
+    Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
 }
 
 /// 默认运行 cargo clippy 的命令
-pub fn cargo_clippy(toml: &Utf8Path) -> Result<Expression> {
-    let dir = working_dir(toml)?;
+pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
+    let target = pkg.target;
     // 只分析传入 toml path 指向的 package，不分析其依赖
-    let expr = cmd!("cargo", "clippy", "--no-deps", "--message-format=json").dir(dir);
+    let expr = cmd!(
+        "cargo",
+        "clippy",
+        "--target",
+        target,
+        "--no-deps",
+        "--message-format=json"
+    )
+    .dir(pkg.dir);
     debug!(?expr);
-    Ok(expr)
+    let cmd = format!("cargo clippy --target {target} --no-deps --message-format=json");
+    Resolve::new(pkg, CheckerTool::Clippy, cmd, expr)
 }
 
 /// 自定义检查命令。
-///
-/// TODO: os-checker 已经检查每行检查命令必须包含对应的工具名，但这并不意味着
-/// 每行检查命令只有一个 shell command。我们可以支持 `{ prerequisite1; prerequisite2; ...; tool cmd; }`
-/// 其中 prerequisite 不包含 tool name。暂时尚未编写一行检查命令中支持多条语句的代码，如需支持，则把
-/// SimpleCommand 换成 Command。
-pub fn custom(line: &str, toml: &Utf8Path) -> Result<Expression> {
-    let input: SimpleCommand = line.parse().map_err(|err| match err {
-        Some(err) => {
-            eyre!("解析 `{line}` 失败：\n{err}\n请输入正确的 shell 命令（暂不支持复杂的命令）")
-        }
-        None => eyre!("解析 `{line}` 失败，请输入正确的 shell 命令（暂不支持复杂的命令）"),
-    })?;
+pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
+    let (input, mut words) = parse_cmd(line)?;
+    ensure!(
+        words.len() > 2,
+        "请输入检查工具的执行文件名称或路径：命令切分的字长必须大于 2"
+    );
 
-    let mut words: Vec<_> = input.words.iter().map(|word| word.unquote().0).collect();
-    ensure!(!words.is_empty(), "请输入检查工具的执行文件名称或路径");
+    let overriden = append_target(&mut words, pkg.target);
+    let cmd_str = words.join(" ");
 
-    // 构造命令
+    // 构造命令、设置工作目录
     let exe = words.remove(0);
-    let mut expr = cmd(exe, words);
+    let mut expr = cmd(exe, words).dir(pkg.dir);
 
     // 设置环境变量
     debug!(assigns.len = input.assigns.len());
@@ -55,81 +70,51 @@ pub fn custom(line: &str, toml: &Utf8Path) -> Result<Expression> {
         expr = expr.env(name, val);
     }
 
-    // 设置工作目录
-    expr = expr.dir(working_dir(toml)?);
-
     // 暂不处理重定向
 
     debug!(?expr);
-    Ok(expr)
+
+    let resolve = if let Some(target) = overriden {
+        Resolve::new_overrriden(pkg, target, checker, cmd_str, expr)
+    } else {
+        Resolve::new(pkg, checker, cmd_str, expr)
+    };
+    Ok(resolve)
 }
 
-/// Cargo.toml 所在的目录
-fn working_dir(toml: &Utf8Path) -> Result<&Utf8Path> {
-    toml.parent()
-        .with_context(|| format!("无法获取 Cargo.toml 路径 `{toml}` 的父目录"))
+/// TODO: os-checker 已经检查每行检查命令必须包含对应的工具名，但这并不意味着
+/// 每行检查命令只有一个 shell command。我们可以支持 `{ prerequisite1; prerequisite2; ...; tool cmd; }`
+/// 其中 prerequisite 不包含 tool name。暂时尚未编写一行检查命令中支持多条语句的代码，如需支持，则把
+/// SimpleCommand 换成 Command。
+fn parse_cmd(line: &str) -> Result<(SimpleCommand, Vec<String>)> {
+    let input: SimpleCommand = line.parse().map_err(|err| match err {
+        Some(err) => {
+            eyre!("解析 `{line}` 失败：\n{err}\n请输入正确的 shell 命令（暂不支持复杂的命令）")
+        }
+        None => eyre!("解析 `{line}` 失败，请输入正确的 shell 命令（暂不支持复杂的命令）"),
+    })?;
+    let words: Vec<_> = input.words.iter().map(|word| word.unquote().0).collect();
+    Ok((input, words))
+}
+
+/// 从自定义命令中提取 --target
+fn extract_target(words: &[String]) -> Option<&str> {
+    words.iter().enumerate().find_map(|(idx, word)| {
+        if word == "--target" {
+            words.get(idx + 1).map(|w| &**w)
+        } else {
+            word.strip_prefix("--target=")
+        }
+    })
+}
+
+fn append_target(words: &mut Vec<String>, candidate_target: &str) -> Option<String> {
+    let overriden = extract_target(words).map(String::from);
+    if overriden.is_none() {
+        words.insert(2, format!("--target={candidate_target}"));
+    }
+    overriden
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use expect_test::expect;
-
-    #[test]
-    fn custom_cmd() {
-        let toml: &Utf8Path = "./Cargo.toml".into();
-        expect![[r#"
-            Io(
-                Dir(
-                    ".",
-                ),
-                Cmd(
-                    [
-                        "cargo",
-                        "fmt",
-                        "--check",
-                    ],
-                ),
-            )
-        "#]]
-        .assert_debug_eq(&custom("cargo fmt --check", toml).unwrap());
-
-        expect![[r#"
-            Io(
-                Dir(
-                    ".",
-                ),
-                Io(
-                    Env(
-                        "RUST_LOG",
-                        "debug",
-                    ),
-                    Io(
-                        Env(
-                            "RUSTFLAGS",
-                            "--cfg unstable",
-                        ),
-                        Cmd(
-                            [
-                                "cargo",
-                                "clippy",
-                                "-F",
-                                "a,b,c",
-                                "-F",
-                                "e,f",
-                            ],
-                        ),
-                    ),
-                ),
-            )
-        "#]]
-        .assert_debug_eq(
-            // 这里指定 -F 的方式可能是错误的，但目的是测试环境变量和引号处理
-            &custom(
-                r#"RUSTFLAGS="--cfg unstable" RUST_LOG=debug cargo clippy -F a,b,c -F "e,f" "#,
-                toml,
-            )
-            .unwrap(),
-        );
-    }
-}
+mod tests;

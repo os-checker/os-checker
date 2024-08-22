@@ -1,41 +1,33 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
-use crate::Result;
+use crate::{utils::walk_dir, Result, XString};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
+use indexmap::{IndexMap, IndexSet};
 use std::{collections::BTreeMap, fmt};
 
 #[cfg(test)]
 mod tests;
 
+/// Target triple list and cargo check diagnostics.
+mod targets;
+use targets::PackageInfo;
+
+mod detect_targets;
+
 /// 寻找仓库内所有 Cargo.toml 所在的路径
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
-    let mut cargo_tomls: Vec<Utf8PathBuf> = walkdir::WalkDir::new(repo_root)
-        .max_depth(10) // 目录递归上限
-        .into_iter()
-        .filter_entry(|entry| {
-            // 别进入这些文件夹（适用于子目录递归）
-            const NO_JUMP_IN: &[&str] = &[".git", "target"];
-            let filename = entry.file_name();
-            let excluded = &mut NO_JUMP_IN.iter().chain(dirs_excluded);
-            !excluded.any(|&dir| dir == filename)
-        })
-        .filter_map(|entry| {
-            // 只搜索 Cargo.toml 文件
-            let entry = entry.ok()?;
-            if !entry.file_type().is_file() {
-                return None;
-            }
-            let filename = entry.file_name().to_str()?;
-            if filename == "Cargo.toml" {
-                entry.into_path().try_into().ok()
-            } else {
-                None
-            }
-        })
-        .collect();
+    let mut cargo_tomls = walk_dir(repo_root, 10, dirs_excluded, |file_path| {
+        let file_name = file_path.file_name()?;
+        // 只搜索 Cargo.toml 文件
+        if file_name == "Cargo.toml" {
+            Some(file_path)
+        } else {
+            None
+        }
+    });
 
     cargo_tomls.sort_unstable();
     cargo_tomls
@@ -47,10 +39,16 @@ type Workspaces = BTreeMap<Utf8PathBuf, Metadata>;
 fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
     let mut map = BTreeMap::new();
     for cargo_toml in cargo_tomls {
-        // 暂时不解析依赖，原因：
+        // 暂时不解析依赖的原因：
         // * 不需要依赖信息
         // * 加快的解析速度
         // * 如何处理 features? features 会影响依赖吗？（待确认）
+        //
+        // 需要解析依赖的原因：
+        // * 从 `[target.'cfg(...)'.*dependencies]` 中搜索 target：注意，如果这一条会比较难，因为
+        //   有可能它为 target_os 或者 target_family 之类宽泛的平台名称，与我们所需的三元组不直接相关。
+        //
+        // [`DepKindInfo`]: https://docs.rs/cargo_metadata/0.18.1/cargo_metadata/struct.DepKindInfo.html#structfield.target
         let metadata = MetadataCommand::new()
             .manifest_path(cargo_toml)
             .no_deps()
@@ -73,7 +71,7 @@ fn strip_base_path(target: &Utf8Path, base: &Utf8Path) -> Option<Utf8PathBuf> {
         .ok()
 }
 
-pub struct LayoutOwner {
+pub struct Layout {
     /// 仓库根目录的完整路径，可用于去除 Metadata 中的路径前缀，让路径看起来更清爽
     root_path: Utf8PathBuf,
     /// 所有 Cargo.toml 的路径
@@ -82,10 +80,13 @@ pub struct LayoutOwner {
     ///       `[package]`，因此要获取所有 packages 的信息，应使用 [`Layout::packages`]
     cargo_tomls: Vec<Utf8PathBuf>,
     /// 一个仓库可能有一个 Workspace，但也可能有多个，比如单独一些 Packages，那么它们是各自的 Workspace
+    /// NOTE: workspaces 的键指向 workspace_root dir，而不是 workspace_root 的 Cargo.toml
     workspaces: Workspaces,
+    /// The order is by pkg name and dir path.
+    packages_info: Box<[PackageInfo]>,
 }
 
-impl fmt::Debug for LayoutOwner {
+impl fmt::Debug for Layout {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         struct WorkspacesDebug<'a>(&'a Workspaces, &'a Utf8PathBuf);
         impl fmt::Debug for WorkspacesDebug<'_> {
@@ -113,12 +114,13 @@ impl fmt::Debug for LayoutOwner {
             .field("repo_root", root)
             .field("cargo_tomls", &self.cargo_tomls)
             .field("workspaces", &WorkspacesDebug(&self.workspaces, root_full))
+            .field("packages_info", &self.packages_info)
             .finish()
     }
 }
 
-impl LayoutOwner {
-    fn new(repo_root: &str, dirs_excluded: &[&str]) -> Result<LayoutOwner> {
+impl Layout {
+    pub fn parse(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
         let root_path = Utf8PathBuf::from(repo_root);
 
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded);
@@ -127,107 +129,139 @@ impl LayoutOwner {
             "repo_root `{repo_root}` (规范路径为 `{}`) 不是 Rust 项目，因为不包含任何 Cargo.toml",
             root_path.canonicalize_utf8()?
         );
+        debug!(?cargo_tomls);
 
-        let layout = LayoutOwner {
-            workspaces: parse(&cargo_tomls)?,
+        let workspaces = parse(&cargo_tomls)?;
+
+        let repo_targets = detect_targets::scripts_and_github_dir_in_repo(&root_path)?;
+        debug!(?repo_targets);
+
+        let cargo_tomls_len = cargo_tomls.len();
+        let mut pkg_info = Vec::with_capacity(cargo_tomls_len);
+        for ws in workspaces.values() {
+            let ws_targets = detect_targets::WorkspaceTargetTriples::new(&root_path, ws);
+            for pkg in ws_targets.packages {
+                pkg_info.push(PackageInfo::new(pkg, &repo_targets)?);
+            }
+        }
+        debug!(cargo_tomls_len, pkg_len = pkg_info.len());
+        // sort by pkg_name and pkg_dir
+        pkg_info.sort_unstable_by(|a, b| (&a.pkg_name, &a.pkg_dir).cmp(&(&b.pkg_name, &b.pkg_dir)));
+
+        let layout = Layout {
+            workspaces,
             cargo_tomls,
             root_path,
+            packages_info: pkg_info.into_boxed_slice(),
         };
         debug!("layout={layout:#?}");
         Ok(layout)
     }
 
-    fn packages(&self) -> Packages {
-        let cargo_tomls_len = self.cargo_tomls.len();
-        let mut v = Vec::with_capacity(cargo_tomls_len);
-        for (cargo_toml, ws) in &self.workspaces {
-            for member in ws.workspace_packages() {
-                v.push(Package {
-                    name: &member.name,
-                    cargo_toml: &member.manifest_path,
-                    workspace_root: cargo_toml,
-                });
+    pub fn packages(&self) -> Result<Packages> {
+        // FIXME: 这里开始假设一个仓库不存在同名 package；这其实不正确：
+        // 如果具有多个 workspaces，那么可能存在同名 package。
+        // 但如果要支持同名 package，还需要修改 RepoConfig。
+        // 目前没有计划支持这么做，因为出现同名 package 的情况并不常见。
+        // 从根本上解决这个问题，必须不允许同名 package，比如统一成
+        // 路径，或者对同名 package 进行检查，必须包含额外的路径。
+        // 无论如何，这都带来复杂性，目前来看并不值得。
+        let map: IndexMap<_, _> = self
+            .packages_info
+            .iter()
+            .map(|info| {
+                (
+                    info.pkg_name.clone(),
+                    PackageInfoShared {
+                        pkg_dir: info.pkg_dir.clone(),
+                        targets: info.targets.keys().cloned().collect(),
+                    },
+                )
+            })
+            .collect();
+        if map.len() != self.packages_info.len() {
+            let mut count = IndexMap::with_capacity(map.len());
+            for name in self.packages_info.iter().map(|info| &*info.pkg_name) {
+                count.entry(name).and_modify(|c| *c += 1).or_insert(1);
             }
+            let duplicates: Vec<_> = count.iter().filter(|(_, c)| **c != 1).collect();
+            bail!("暂不支持一个代码仓库中出现同名 packages：{duplicates:?}");
         }
-        debug!(cargo_tomls_len, pkg_len = v.len());
-        v.sort_unstable_by_key(|pkg| (pkg.name, pkg.cargo_toml));
-        v.into_boxed_slice()
-    }
-
-    fn into_self_cell(self) -> Layout {
-        Layout::new(self, Self::packages)
+        Ok(Packages { map })
     }
 }
 
-/// package infomation
-#[derive(Clone, Copy)]
-pub struct Package<'a> {
-    /// package name written in its Cargo.toml
-    pub name: &'a str,
-    /// i.e. manifest_path
-    pub cargo_toml: &'a Utf8Path,
-    /// workspace root path without manifest_path
-    workspace_root: &'a Utf8Path,
+#[derive(Debug)]
+pub struct Packages {
+    /// The order is by pkg_name and pkd_dir.
+    map: IndexMap<XString, PackageInfoShared>,
 }
 
-impl fmt::Debug for Package<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let toml = self.cargo_toml;
-        let root = self.workspace_root;
-        let toml_stripped = strip_base_path(toml, root);
-        f.debug_struct("Package")
-            .field("name", &self.name)
-            .field("cargo_toml", &toml_stripped.as_deref().unwrap_or(toml))
-            .field(
-                "workspace_root (file name)",
-                &root.file_name().unwrap_or("unknown???"),
-            )
-            .finish()
+impl Packages {
+    pub fn package_set(&self) -> IndexSet<&str> {
+        self.map.keys().map(|name| name.as_str()).collect()
     }
-}
 
-impl Package<'_> {
+    pub fn len(&self) -> usize {
+        self.map.len()
+    }
+
+    pub fn single_vec_of_pkg(&self, name: &str) -> Vec<Pkg> {
+        let Some((_, k, v)) = self.map.get_full(name) else {
+            return vec![];
+        };
+        v.targets
+            .iter()
+            .map(move |target| Pkg {
+                name: k,
+                dir: &v.pkg_dir,
+                target,
+            })
+            .collect()
+    }
+
+    pub fn all_vec_of_pkg(&self) -> Vec<Pkg> {
+        self.map
+            .iter()
+            .flat_map(|(name, info)| {
+                info.targets.iter().map(move |target| Pkg {
+                    name,
+                    dir: &info.pkg_dir,
+                    target,
+                })
+            })
+            .collect()
+    }
+
     #[cfg(test)]
-    pub fn test_new<const N: usize>(names: [&'static str; N]) -> [Package<'static>; N] {
-        use std::sync::LazyLock;
-        static PATH: LazyLock<[Utf8PathBuf; 2]> =
-            LazyLock::new(|| [Utf8PathBuf::from("./Cargo.toml"), Utf8PathBuf::from(".")]);
-
-        let cargo_toml = &PATH[0];
-        let workspace_root = &PATH[1];
-        names.map(|name| Package {
-            name,
-            cargo_toml,
-            workspace_root,
-        })
+    pub fn test_new(pkgs: &[&str]) -> Self {
+        let host = crate::utils::host_target_triple().to_owned();
+        Packages {
+            map: pkgs
+                .iter()
+                .map(|name| {
+                    (
+                        XString::from(*name),
+                        PackageInfoShared {
+                            pkg_dir: Utf8PathBuf::new(),
+                            targets: vec![host.clone()],
+                        },
+                    )
+                })
+                .collect(),
+        }
     }
 }
 
-type Packages<'a> = Box<[Package<'a>]>;
+#[derive(Debug)]
+struct PackageInfoShared {
+    /// manifest_dir, i.e. manifest_path without Cargo.toml
+    pkg_dir: Utf8PathBuf,
+    targets: Vec<String>,
+}
 
-self_cell::self_cell!(
-    pub struct Layout {
-        owner: LayoutOwner,
-        #[covariant]
-        dependent: Packages,
-    }
-    impl {Debug}
-);
-
-impl Layout {
-    pub fn parse(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
-        LayoutOwner::new(repo_root, dirs_excluded).map(LayoutOwner::into_self_cell)
-    }
-
-    // pub fn layout(&self) -> &LayoutOwner {
-    //     self.borrow_owner()
-    // }
-
-    pub fn packages(&self) -> &[Package] {
-        self.borrow_dependent()
-    }
-
-    // pub fn root_path(&self) -> &Utf8Path {
-    //     &self.layout().root_path
-    // }
+pub struct Pkg<'a> {
+    pub name: &'a str,
+    pub dir: &'a Utf8Path,
+    pub target: &'a str,
 }

@@ -1,32 +1,29 @@
 [
     Resolve {
-        package: Package {
-            name: "package1",
-            cargo_toml: "./Cargo.toml",
-            workspace_root (file name): "unknown???",
-        },
+        pkg_name: "package1",
+        pkg_dir: "",
         checker: Fmt,
-        expr: Cmd(
-            [
-                "cargo",
-                "fmt",
-                "--manifest-path",
-                "./Cargo.toml",
-                "--",
-                "--emit=json",
-            ],
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "fmt",
+                    "--",
+                    "--emit=json",
+                ],
+            ),
         ),
     },
     Resolve {
-        package: Package {
-            name: "package1",
-            cargo_toml: "./Cargo.toml",
-            workspace_root (file name): "unknown???",
-        },
+        pkg_name: "package1",
+        pkg_dir: "",
         checker: Clippy,
         expr: Io(
             Dir(
-                ".",
+                "",
             ),
             Cmd(
                 [
@@ -39,33 +36,30 @@
         ),
     },
     Resolve {
-        package: Package {
-            name: "package2",
-            cargo_toml: "./Cargo.toml",
-            workspace_root (file name): "unknown???",
-        },
+        pkg_name: "package2",
+        pkg_dir: "",
         checker: Fmt,
-        expr: Cmd(
-            [
-                "cargo",
-                "fmt",
-                "--manifest-path",
-                "./Cargo.toml",
-                "--",
-                "--emit=json",
-            ],
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "fmt",
+                    "--",
+                    "--emit=json",
+                ],
+            ),
         ),
     },
     Resolve {
-        package: Package {
-            name: "package2",
-            cargo_toml: "./Cargo.toml",
-            workspace_root (file name): "unknown???",
-        },
+        pkg_name: "package2",
+        pkg_dir: "",
         checker: Clippy,
         expr: Io(
             Dir(
-                ".",
+                "",
             ),
             Cmd(
                 [
