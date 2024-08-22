@@ -16,8 +16,8 @@ pub enum TargetSource {
     CargoTomlDocsrsInWorkspaceDefault(Utf8PathBuf),
     CargoTomlDocsrsInPkg(Utf8PathBuf),
     CargoTomlDocsrsInWorkspace(Utf8PathBuf),
-    SpecifiedDefault,
-    UnspecifiedDefault,
+    /// 非上面的方式指定，那么默认会增加一个 host target
+    UnspecifiedDefaultToHostTarget,
     DetectedByPkgScripts(Utf8PathBuf),
     DetectedByRepoGithub(Utf8PathBuf),
     DetectedByRepoScripts(Utf8PathBuf),
@@ -61,20 +61,15 @@ impl Targets {
         }
     }
 
-    fn specified_default(&mut self, target: String) {
-        if let Some(source) = self.get_mut(&target) {
-            source.push(TargetSource::SpecifiedDefault);
-        } else {
-            self.insert(target, vec![TargetSource::SpecifiedDefault]);
-        }
-    }
-
     fn unspecified_default(&mut self) {
         let target = crate::utils::host_target_triple();
         if let Some(source) = self.get_mut(target) {
-            source.push(TargetSource::UnspecifiedDefault);
+            source.push(TargetSource::UnspecifiedDefaultToHostTarget);
         } else {
-            self.insert(target.to_owned(), vec![TargetSource::UnspecifiedDefault]);
+            self.insert(
+                target.to_owned(),
+                vec![TargetSource::UnspecifiedDefaultToHostTarget],
+            );
         }
     }
 
