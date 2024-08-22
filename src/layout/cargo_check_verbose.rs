@@ -9,7 +9,7 @@ use super::detect_targets::PackageTargets;
 
 /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
 // FIXME: 把 tag 和 path 分开
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TargetSource {
     CargoConfigToml(Utf8PathBuf),
     CargoTomlDocsrsInPkgDefault(Utf8PathBuf),
@@ -84,9 +84,16 @@ impl Targets {
         path: impl Into<Utf8PathBuf>,
         f: impl FnOnce(Utf8PathBuf) -> TargetSource,
     ) {
+        let path = path.into();
         match self.get_mut(target) {
-            Some(v) => v.push(f(path.into())),
-            None => _ = self.insert(target.to_owned(), vec![f(path.into())]),
+            Some(v) => {
+                let src = f(path);
+                if !v.contains(&src) {
+                    // 如果一个文件内出现多次同样的 target，只需要记录一次
+                    v.push(src);
+                }
+            }
+            None => _ = self.insert(target.to_owned(), vec![f(path)]),
         }
     }
 
