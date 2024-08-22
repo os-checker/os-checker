@@ -158,7 +158,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -179,6 +179,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -227,7 +233,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -248,6 +254,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -280,7 +292,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -301,6 +313,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -348,7 +366,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -369,6 +387,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -433,7 +457,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -454,6 +478,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -502,7 +532,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -523,6 +553,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -570,7 +606,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -591,6 +627,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -645,7 +687,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -666,6 +708,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -742,7 +790,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -763,6 +811,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -811,7 +865,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -832,6 +886,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -880,7 +940,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -901,6 +961,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -960,7 +1026,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -981,6 +1047,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1082,7 +1154,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1103,6 +1175,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1158,7 +1236,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1179,6 +1257,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1251,7 +1335,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1272,6 +1356,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1329,7 +1419,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1350,6 +1440,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1405,7 +1501,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1426,6 +1522,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1458,7 +1560,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1479,6 +1581,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1511,7 +1619,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1532,6 +1640,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1564,7 +1678,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1585,6 +1699,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1617,7 +1737,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1638,6 +1758,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1670,7 +1796,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1691,6 +1817,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1731,7 +1863,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1752,6 +1884,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1784,7 +1922,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1805,6 +1943,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1847,7 +1991,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1868,6 +2012,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1900,7 +2050,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1921,6 +2071,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -1953,7 +2109,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -1974,6 +2130,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2006,7 +2168,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2027,6 +2189,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2059,7 +2227,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2080,6 +2248,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2112,7 +2286,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2133,6 +2307,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2165,7 +2345,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2186,6 +2366,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2218,7 +2404,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2239,6 +2425,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2271,7 +2463,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2292,6 +2484,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2327,7 +2525,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2348,6 +2546,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2380,7 +2584,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2401,6 +2605,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2433,7 +2643,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2454,6 +2664,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2486,7 +2702,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2507,6 +2723,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2539,7 +2761,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2560,6 +2782,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2592,7 +2820,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2613,6 +2841,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2645,7 +2879,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2666,6 +2900,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2698,7 +2938,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2719,6 +2959,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2751,7 +2997,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2772,6 +3018,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2804,7 +3056,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2825,6 +3077,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2857,7 +3115,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2878,6 +3136,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2910,7 +3174,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2931,6 +3195,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -2971,7 +3241,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -2992,6 +3262,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3024,7 +3300,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3045,6 +3321,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3077,7 +3359,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3098,6 +3380,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3130,7 +3418,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3151,6 +3439,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3183,7 +3477,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3204,6 +3498,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3236,7 +3536,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3257,6 +3557,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3289,7 +3595,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3310,6 +3616,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3350,7 +3662,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3371,6 +3683,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3403,7 +3721,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3424,6 +3742,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3464,7 +3788,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3485,6 +3809,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3525,7 +3855,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3546,6 +3876,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3586,7 +3922,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "aarch64-unknown-none": [
                         DetectedByPkgScripts(
@@ -3594,6 +3930,12 @@ Layout {
                         ),
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3642,7 +3984,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3663,6 +4005,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3695,7 +4043,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3716,6 +4064,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3748,7 +4102,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3769,6 +4123,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3801,7 +4161,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3822,6 +4182,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3854,7 +4220,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3875,6 +4241,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3915,7 +4287,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3936,6 +4308,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -3968,7 +4346,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -3989,6 +4367,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -4021,7 +4405,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -4042,6 +4426,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -4074,7 +4464,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -4095,6 +4485,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",
@@ -4135,7 +4531,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "x86_64-unknown-none": [
                         DetectedByRepoScripts(
@@ -4156,6 +4552,12 @@ Layout {
                     "aarch64-unknown-none": [
                         DetectedByRepoScripts(
                             "./repos/arceos/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/tools/raspi4/chainloader/Makefile",
+                        ),
+                        DetectedByRepoScripts(
+                            "./repos/arceos/scripts/make/raspi4.mk",
                         ),
                         DetectedByRepoGithub(
                             "./repos/arceos/.github/workflows/build.yml",

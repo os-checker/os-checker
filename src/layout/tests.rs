@@ -57,11 +57,14 @@ fn cargo_config_toml_from_child_to_root() -> Result<()> {
     let target = CargoConfigTomlTarget::search(child, root)?;
     expect![[r#"
         Some(
-            Multiple(
-                [
-                    "x86_64-unknown-linux-gnu",
-                    "riscv64gc-unknown-none-elf",
-                ],
+            (
+                Multiple(
+                    [
+                        "x86_64-unknown-linux-gnu",
+                        "riscv64gc-unknown-none-elf",
+                    ],
+                ),
+                "/rust/my/os-checker/repos/e1000-driver/examples/.cargo/config.toml",
             ),
         )
     "#]]

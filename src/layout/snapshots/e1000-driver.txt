@@ -18,7 +18,7 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        UnspecifiedDefaultToHostTarget,
                     ],
                     "riscv64gc-unknown-none-elf": [
                         DetectedByRepoGithub(
@@ -44,9 +44,14 @@ Layout {
             targets: Targets {
                 map: {
                     "x86_64-unknown-linux-gnu": [
-                        UnspecifiedDefault,
+                        CargoConfigToml(
+                            "/rust/my/os-checker/repos/e1000-driver/examples/.cargo/config.toml",
+                        ),
                     ],
                     "riscv64gc-unknown-none-elf": [
+                        CargoConfigToml(
+                            "/rust/my/os-checker/repos/e1000-driver/examples/.cargo/config.toml",
+                        ),
                         DetectedByRepoGithub(
                             "repos/e1000-driver/.github/workflows/build.yml",
                         ),
