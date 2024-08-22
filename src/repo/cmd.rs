@@ -1,40 +1,48 @@
-use crate::{layout::Pkg, Result};
-use duct::{cmd, Expression};
+use crate::{
+    layout::Pkg,
+    repo::{CheckerTool, Resolve},
+    Result,
+};
+use duct::cmd;
 use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 
 /// 默认运行 cargo fmt 的命令
-pub fn cargo_fmt(pkg: &Pkg) -> Expression {
-    // e.g. cargo fmt --check --manifest-path tmp/test-fmt/Cargo.toml
-    // cmd!("cargo", "fmt", "--check", "--manifest-path", toml)
-    let expr = cmd!("cargo", "fmt", "--", "--emit=json").dir(pkg.dir);
+pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
+    let target = pkg.target;
+    let expr = cmd!("cargo", "fmt", "--target", target, "--", "--emit=json").dir(pkg.dir);
     debug!(?expr);
-    expr
+    let cmd = format!("cargo fmt --target {target} -- --emit=json");
+    Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
 }
 
 /// 默认运行 cargo clippy 的命令
-pub fn cargo_clippy(pkg: &Pkg) -> Result<Expression> {
+pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
+    let target = pkg.target;
     // 只分析传入 toml path 指向的 package，不分析其依赖
-    let expr = cmd!("cargo", "clippy", "--no-deps", "--message-format=json").dir(pkg.dir);
+    let expr = cmd!(
+        "cargo",
+        "clippy",
+        "--target",
+        target,
+        "--no-deps",
+        "--message-format=json"
+    )
+    .dir(pkg.dir);
     debug!(?expr);
-    Ok(expr)
+    let cmd = format!("cargo clippy --target {target} --no-deps --message-format=json");
+    Resolve::new(pkg, CheckerTool::Clippy, cmd, expr)
 }
 
 /// 自定义检查命令。
-///
-/// TODO: os-checker 已经检查每行检查命令必须包含对应的工具名，但这并不意味着
-/// 每行检查命令只有一个 shell command。我们可以支持 `{ prerequisite1; prerequisite2; ...; tool cmd; }`
-/// 其中 prerequisite 不包含 tool name。暂时尚未编写一行检查命令中支持多条语句的代码，如需支持，则把
-/// SimpleCommand 换成 Command。
-pub fn custom(line: &str, pkg: &Pkg) -> Result<Expression> {
-    let input: SimpleCommand = line.parse().map_err(|err| match err {
-        Some(err) => {
-            eyre!("解析 `{line}` 失败：\n{err}\n请输入正确的 shell 命令（暂不支持复杂的命令）")
-        }
-        None => eyre!("解析 `{line}` 失败，请输入正确的 shell 命令（暂不支持复杂的命令）"),
-    })?;
+pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
+    let (input, mut words) = parse_cmd(line)?;
+    ensure!(
+        words.len() > 2,
+        "请输入检查工具的执行文件名称或路径：命令切分的字长必须大于 2"
+    );
 
-    let mut words: Vec<_> = input.words.iter().map(|word| word.unquote().0).collect();
-    ensure!(!words.is_empty(), "请输入检查工具的执行文件名称或路径");
+    let overriden = append_target(&mut words, pkg.target);
+    let cmd_str = words.join(" ");
 
     // 构造命令、设置工作目录
     let exe = words.remove(0);
@@ -55,73 +63,48 @@ pub fn custom(line: &str, pkg: &Pkg) -> Result<Expression> {
     // 暂不处理重定向
 
     debug!(?expr);
-    Ok(expr)
+
+    let resolve = if let Some(target) = overriden {
+        Resolve::new_overrriden(pkg, target, checker, cmd_str, expr)
+    } else {
+        Resolve::new(pkg, checker, cmd_str, expr)
+    };
+    Ok(resolve)
+}
+
+/// TODO: os-checker 已经检查每行检查命令必须包含对应的工具名，但这并不意味着
+/// 每行检查命令只有一个 shell command。我们可以支持 `{ prerequisite1; prerequisite2; ...; tool cmd; }`
+/// 其中 prerequisite 不包含 tool name。暂时尚未编写一行检查命令中支持多条语句的代码，如需支持，则把
+/// SimpleCommand 换成 Command。
+fn parse_cmd(line: &str) -> Result<(SimpleCommand, Vec<String>)> {
+    let input: SimpleCommand = line.parse().map_err(|err| match err {
+        Some(err) => {
+            eyre!("解析 `{line}` 失败：\n{err}\n请输入正确的 shell 命令（暂不支持复杂的命令）")
+        }
+        None => eyre!("解析 `{line}` 失败，请输入正确的 shell 命令（暂不支持复杂的命令）"),
+    })?;
+    let words: Vec<_> = input.words.iter().map(|word| word.unquote().0).collect();
+    Ok((input, words))
+}
+
+/// 从自定义命令中提取 --target
+fn extract_target(words: &[String]) -> Option<&str> {
+    words.iter().enumerate().find_map(|(idx, word)| {
+        if word == "--target" {
+            words.get(idx + 1).map(|w| &**w)
+        } else {
+            word.strip_prefix("--target=")
+        }
+    })
+}
+
+fn append_target(words: &mut Vec<String>, candidate_target: &str) -> Option<String> {
+    let overriden = extract_target(words).map(String::from);
+    if overriden.is_none() {
+        words.insert(2, format!("--target={candidate_target}"));
+    }
+    overriden
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use expect_test::expect;
-
-    #[test]
-    fn custom_cmd() {
-        let pkg = &Pkg {
-            name: "nothing",
-            dir: cargo_metadata::camino::Utf8Path::new("."),
-            target: "x86_64-unknown-linux-gnu",
-        };
-        expect![[r#"
-            Io(
-                Dir(
-                    "./Cargo.toml",
-                ),
-                Cmd(
-                    [
-                        "cargo",
-                        "fmt",
-                        "--check",
-                    ],
-                ),
-            )
-        "#]]
-        .assert_debug_eq(&custom("cargo fmt --check", pkg).unwrap());
-
-        expect![[r#"
-            Io(
-                Env(
-                    "RUST_LOG",
-                    "debug",
-                ),
-                Io(
-                    Env(
-                        "RUSTFLAGS",
-                        "--cfg unstable",
-                    ),
-                    Io(
-                        Dir(
-                            "./Cargo.toml",
-                        ),
-                        Cmd(
-                            [
-                                "cargo",
-                                "clippy",
-                                "-F",
-                                "a,b,c",
-                                "-F",
-                                "e,f",
-                            ],
-                        ),
-                    ),
-                ),
-            )
-        "#]]
-        .assert_debug_eq(
-            // 这里指定 -F 的方式可能是错误的，但目的是测试环境变量和引号处理
-            &custom(
-                r#"RUSTFLAGS="--cfg unstable" RUST_LOG=debug cargo clippy -F a,b,c -F "e,f" "#,
-                pkg,
-            )
-            .unwrap(),
-        );
-    }
-}
+mod tests;

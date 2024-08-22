@@ -1,9 +1,8 @@
 use crate::{
     layout::{Packages, Pkg},
-    Result, XString,
+    Result,
 };
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
-use duct::Expression;
 use eyre::Context;
 use indexmap::{IndexMap, IndexSet};
 use serde::{de, Deserialize, Deserializer, Serialize};
@@ -14,6 +13,7 @@ use cmd::*;
 
 mod uri;
 mod validate;
+pub use validate::Resolve;
 
 #[cfg(test)]
 mod tests;
@@ -106,25 +106,6 @@ impl CheckerTool {
             CheckerTool::Miri => "miri",
             CheckerTool::SemverChecks => "semver-checks",
             CheckerTool::Lockbud => "lockbud",
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Resolve {
-    pub pkg_name: XString,
-    pub pkg_dir: Utf8PathBuf,
-    pub checker: CheckerTool,
-    pub expr: Expression,
-}
-
-impl Resolve {
-    fn new(pkg: &Pkg, checker: CheckerTool, expr: Expression) -> Self {
-        Self {
-            pkg_name: pkg.name.into(),
-            pkg_dir: pkg.dir.to_owned(),
-            checker,
-            expr,
         }
     }
 }
@@ -224,43 +205,15 @@ impl RepoConfig {
         let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
 
         match &self.fmt {
-            Some(Action::Perform(true)) => {
-                for pkg in pkgs {
-                    v.push(Resolve::new(pkg, Fmt, cargo_fmt(pkg)));
-                }
-            }
-            None if all => {
-                for pkg in pkgs {
-                    v.push(Resolve::new(pkg, Fmt, cargo_fmt(pkg)));
-                }
-            }
-            Some(Action::Lines(lines)) => {
-                for pkg in pkgs {
-                    for line in lines {
-                        v.push(Resolve::new(pkg, Fmt, custom(line, pkg)?));
-                    }
-                }
-            }
+            Some(Action::Perform(true)) => Resolve::fmt(pkgs, &mut v),
+            None if all => Resolve::fmt(pkgs, &mut v),
+            Some(Action::Lines(lines)) => Resolve::custom(pkgs, lines, Fmt, &mut v)?,
             _ => (),
         }
         match &self.clippy {
-            Some(Action::Perform(true)) => {
-                for pkg in pkgs {
-                    v.push(Resolve::new(pkg, Clippy, cargo_clippy(pkg)?));
-                }
-            }
-            None if all => {
-                for pkg in pkgs {
-                    v.push(Resolve::new(pkg, Clippy, cargo_clippy(pkg)?));
-                }
-            }
-            Some(Action::Lines(lines)) => {
-                for pkg in pkgs {
-                    for line in lines {
-                        v.push(Resolve::new(pkg, Clippy, custom(line, pkg)?));
-                    }
-                }
-            }
+            Some(Action::Perform(true)) => Resolve::clippy(pkgs, &mut v),
+            None if all => Resolve::clippy(pkgs, &mut v),
+            Some(Action::Lines(lines)) => Resolve::custom(pkgs, lines, Clippy, &mut v)?,
             _ => (),
         }
 
