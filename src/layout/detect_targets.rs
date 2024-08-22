@@ -120,8 +120,9 @@ fn metadata_targets(value: &Value, mut f: impl FnMut(&str)) {
 
 pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
     let mut targets = Targets::new();
-    // FIXME: use targets.detected_by_repo_scripts instead
-    scripts_in_dir(repo_root, &mut targets)?;
+    scripts_in_dir(repo_root, |target, path| {
+        targets.detected_by_repo_scripts(target, path);
+    })?;
 
     let github_dir = Utf8Path::new(repo_root).join(".github");
     let github_files = walk_dir(&github_dir, 4, &[], Some);
@@ -134,7 +135,7 @@ pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
     Ok(targets)
 }
 
-fn scripts_in_dir(dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
+fn scripts_in_dir(dir: &Utf8Path, f: impl FnMut(&str, Utf8PathBuf)) -> Result<()> {
     let scripts = walk_dir(dir, 4, &[".github"], |file_path| {
         let file_stem = file_path.file_stem()?;
 
@@ -150,15 +151,13 @@ fn scripts_in_dir(dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
         None
     });
     debug!(%dir, ?scripts);
-
-    scan_scripts_for_target(&scripts, |target, path| {
-        targets.detected_by_pkg_scripts(target, path);
-    })?;
-    Ok(())
+    scan_scripts_for_target(&scripts, f)
 }
 
 pub fn scripts_in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
-    scripts_in_dir(pkg_dir, targets)
+    scripts_in_dir(pkg_dir, |target, path| {
+        targets.detected_by_pkg_scripts(target, path);
+    })
 }
 
 // *************** .cargo/config.toml ***************
