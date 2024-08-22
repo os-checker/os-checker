@@ -1,4 +1,7 @@
-use crate::{layout::Packages, Result, XString};
+use crate::{
+    layout::{Packages, Pkg},
+    Result, XString,
+};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::Expression;
 use eyre::Context;
@@ -116,10 +119,10 @@ pub struct Resolve {
 }
 
 impl Resolve {
-    fn new(pkg_name: &str, pkg_dir: &Utf8Path, checker: CheckerTool, expr: Expression) -> Self {
+    fn new(pkg: &Pkg, checker: CheckerTool, expr: Expression) -> Self {
         Self {
-            pkg_name: pkg_name.into(),
-            pkg_dir: pkg_dir.to_owned(),
+            pkg_name: pkg.name.into(),
+            pkg_dir: pkg.dir.to_owned(),
             checker,
             expr,
         }
@@ -196,21 +199,19 @@ impl RepoConfig {
 
                 // 指定的 packages
                 for (name, config) in map {
-                    let pkg_dir = pkgs.get_pkg_dir(name).unwrap(); // already checked
                     let inner_all = match config.all {
                         Some(Action::Perform(false)) => false,
                         _ => all,
                     };
-                    v.extend(config.pkg_cmd(inner_all, &[(name, pkg_dir)])?);
+                    v.extend(config.pkg_cmd(inner_all, &pkgs.single_vec_of_pkg(name))?);
                 }
                 // 未指定的 packages
                 for name in rest {
-                    let pkg_dir = pkgs.get_pkg_dir(name).unwrap(); // already checked
-                    v.extend(self.pkg_cmd(all, &[(name, pkg_dir)])?);
+                    v.extend(self.pkg_cmd(all, &pkgs.single_vec_of_pkg(name))?);
                 }
                 v
             }
-            None => self.pkg_cmd(all, &pkgs.vec_of_name_dir())?, // for all pkgs
+            None => self.pkg_cmd(all, &pkgs.all_vec_of_pkg())?, // for all pkgs
         };
 
         v.sort_unstable_by(|a, b| (&a.pkg_name, a.checker).cmp(&(&b.pkg_name, b.checker)));
@@ -218,25 +219,25 @@ impl RepoConfig {
     }
 
     /// TODO: 暂时应用 fmt 和 clippy，其他工具待完成
-    fn pkg_cmd(&self, all: bool, pkgs: &[(&str, &Utf8Path)]) -> Result<Vec<Resolve>> {
+    fn pkg_cmd(&self, all: bool, pkgs: &[Pkg]) -> Result<Vec<Resolve>> {
         use CheckerTool::*;
         let mut v = Vec::with_capacity(pkgs.len() * TOOLS);
 
         match &self.fmt {
             Some(Action::Perform(true)) => {
-                for (name, dir) in pkgs {
-                    v.push(Resolve::new(name, dir, Fmt, cargo_fmt(dir)));
+                for pkg in pkgs {
+                    v.push(Resolve::new(pkg, Fmt, cargo_fmt(pkg)));
                 }
             }
             None if all => {
-                for (name, dir) in pkgs {
-                    v.push(Resolve::new(name, dir, Fmt, cargo_fmt(dir)));
+                for pkg in pkgs {
+                    v.push(Resolve::new(pkg, Fmt, cargo_fmt(pkg)));
                 }
             }
             Some(Action::Lines(lines)) => {
-                for (name, dir) in pkgs {
+                for pkg in pkgs {
                     for line in lines {
-                        v.push(Resolve::new(name, dir, Fmt, custom(line, dir)?));
+                        v.push(Resolve::new(pkg, Fmt, custom(line, pkg)?));
                     }
                 }
             }
@@ -244,19 +245,19 @@ impl RepoConfig {
         }
         match &self.clippy {
             Some(Action::Perform(true)) => {
-                for (name, dir) in pkgs {
-                    v.push(Resolve::new(name, dir, Clippy, cargo_clippy(dir)?));
+                for pkg in pkgs {
+                    v.push(Resolve::new(pkg, Clippy, cargo_clippy(pkg)?));
                 }
             }
             None if all => {
-                for (name, dir) in pkgs {
-                    v.push(Resolve::new(name, dir, Clippy, cargo_clippy(dir)?));
+                for pkg in pkgs {
+                    v.push(Resolve::new(pkg, Clippy, cargo_clippy(pkg)?));
                 }
             }
             Some(Action::Lines(lines)) => {
-                for (name, dir) in pkgs {
+                for pkg in pkgs {
                     for line in lines {
-                        v.push(Resolve::new(name, dir, Clippy, custom(line, dir)?));
+                        v.push(Resolve::new(pkg, Clippy, custom(line, pkg)?));
                     }
                 }
             }

@@ -1,21 +1,20 @@
-use crate::Result;
-use cargo_metadata::camino::Utf8Path;
+use crate::{layout::Pkg, Result};
 use duct::{cmd, Expression};
 use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 
 /// 默认运行 cargo fmt 的命令
-pub fn cargo_fmt(dir: &Utf8Path) -> Expression {
+pub fn cargo_fmt(pkg: &Pkg) -> Expression {
     // e.g. cargo fmt --check --manifest-path tmp/test-fmt/Cargo.toml
     // cmd!("cargo", "fmt", "--check", "--manifest-path", toml)
-    let expr = cmd!("cargo", "fmt", "--", "--emit=json").dir(dir);
+    let expr = cmd!("cargo", "fmt", "--", "--emit=json").dir(pkg.dir);
     debug!(?expr);
     expr
 }
 
 /// 默认运行 cargo clippy 的命令
-pub fn cargo_clippy(dir: &Utf8Path) -> Result<Expression> {
+pub fn cargo_clippy(pkg: &Pkg) -> Result<Expression> {
     // 只分析传入 toml path 指向的 package，不分析其依赖
-    let expr = cmd!("cargo", "clippy", "--no-deps", "--message-format=json").dir(dir);
+    let expr = cmd!("cargo", "clippy", "--no-deps", "--message-format=json").dir(pkg.dir);
     debug!(?expr);
     Ok(expr)
 }
@@ -26,7 +25,7 @@ pub fn cargo_clippy(dir: &Utf8Path) -> Result<Expression> {
 /// 每行检查命令只有一个 shell command。我们可以支持 `{ prerequisite1; prerequisite2; ...; tool cmd; }`
 /// 其中 prerequisite 不包含 tool name。暂时尚未编写一行检查命令中支持多条语句的代码，如需支持，则把
 /// SimpleCommand 换成 Command。
-pub fn custom(line: &str, dir: &Utf8Path) -> Result<Expression> {
+pub fn custom(line: &str, pkg: &Pkg) -> Result<Expression> {
     let input: SimpleCommand = line.parse().map_err(|err| match err {
         Some(err) => {
             eyre!("解析 `{line}` 失败：\n{err}\n请输入正确的 shell 命令（暂不支持复杂的命令）")
@@ -39,7 +38,7 @@ pub fn custom(line: &str, dir: &Utf8Path) -> Result<Expression> {
 
     // 构造命令、设置工作目录
     let exe = words.remove(0);
-    let mut expr = cmd(exe, words).dir(dir);
+    let mut expr = cmd(exe, words).dir(pkg.dir);
 
     // 设置环境变量
     debug!(assigns.len = input.assigns.len());
@@ -66,7 +65,11 @@ mod tests {
 
     #[test]
     fn custom_cmd() {
-        let toml: &Utf8Path = "./Cargo.toml".into();
+        let pkg = &Pkg {
+            name: "nothing",
+            dir: cargo_metadata::camino::Utf8Path::new("."),
+            target: "x86_64-unknown-linux-gnu",
+        };
         expect![[r#"
             Io(
                 Dir(
@@ -81,7 +84,7 @@ mod tests {
                 ),
             )
         "#]]
-        .assert_debug_eq(&custom("cargo fmt --check", toml).unwrap());
+        .assert_debug_eq(&custom("cargo fmt --check", pkg).unwrap());
 
         expect![[r#"
             Io(
@@ -116,7 +119,7 @@ mod tests {
             // 这里指定 -F 的方式可能是错误的，但目的是测试环境变量和引号处理
             &custom(
                 r#"RUSTFLAGS="--cfg unstable" RUST_LOG=debug cargo clippy -F a,b,c -F "e,f" "#,
-                toml,
+                pkg,
             )
             .unwrap(),
         );

@@ -174,6 +174,7 @@ impl Layout {
                     info.pkg_name.clone(),
                     PackageInfoShared {
                         pkg_dir: info.pkg_dir.clone(),
+                        targets: info.targets.keys().cloned().collect(),
                     },
                 )
             })
@@ -197,10 +198,6 @@ pub struct Packages {
 }
 
 impl Packages {
-    pub fn get_pkg_dir(&self, name: &str) -> Option<&Utf8Path> {
-        self.map.get(name).map(|p| &*p.pkg_dir)
-    }
-
     pub fn package_set(&self) -> IndexSet<&str> {
         self.map.keys().map(|name| name.as_str()).collect()
     }
@@ -209,15 +206,36 @@ impl Packages {
         self.map.len()
     }
 
-    pub fn vec_of_name_dir(&self) -> Vec<(&str, &Utf8Path)> {
+    pub fn single_vec_of_pkg(&self, name: &str) -> Vec<Pkg> {
+        let Some((_, k, v)) = self.map.get_full(name) else {
+            return vec![];
+        };
+        v.targets
+            .iter()
+            .map(move |target| Pkg {
+                name: k,
+                dir: &v.pkg_dir,
+                target,
+            })
+            .collect()
+    }
+
+    pub fn all_vec_of_pkg(&self) -> Vec<Pkg> {
         self.map
             .iter()
-            .map(|(name, info)| (&**name, &*info.pkg_dir))
+            .flat_map(|(name, info)| {
+                info.targets.iter().map(move |target| Pkg {
+                    name,
+                    dir: &info.pkg_dir,
+                    target,
+                })
+            })
             .collect()
     }
 
     #[cfg(test)]
     pub fn test_new(pkgs: &[&str]) -> Self {
+        let host = crate::utils::host_target_triple().to_owned();
         Packages {
             map: pkgs
                 .iter()
@@ -226,6 +244,7 @@ impl Packages {
                         XString::from(*name),
                         PackageInfoShared {
                             pkg_dir: Utf8PathBuf::new(),
+                            targets: vec![host.clone()],
                         },
                     )
                 })
@@ -234,16 +253,15 @@ impl Packages {
     }
 }
 
-// impl std::ops::Deref for Packages {
-//     type Target = IndexMap<XString, PackageInfoShared>;
-//
-//     fn deref(&self) -> &Self::Target {
-//         &self.map
-//     }
-// }
-
 #[derive(Debug)]
 struct PackageInfoShared {
     /// manifest_dir, i.e. manifest_path without Cargo.toml
     pkg_dir: Utf8PathBuf,
+    targets: Vec<String>,
+}
+
+pub struct Pkg<'a> {
+    pub name: &'a str,
+    pub dir: &'a Utf8Path,
+    pub target: &'a str,
 }
