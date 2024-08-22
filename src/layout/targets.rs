@@ -133,7 +133,7 @@ impl Targets {
             // 无指定的 targets
             self.unspecified_default();
         }
-        super::detect_targets::in_pkg_dir(pkg_dir, self)?;
+        super::detect_targets::scripts_in_pkg_dir(pkg_dir, self)?;
         self.merge(repo);
         Ok(())
     }

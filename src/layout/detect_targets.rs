@@ -112,7 +112,7 @@ fn metadata_targets(value: &Value, mut f: impl FnMut(&str)) {
     }
 }
 
-pub fn in_repo(repo_root: &str) -> Result<Targets> {
+pub fn scripts_and_github_dir_in_repo(repo_root: &str) -> Result<Targets> {
     let mut targets = Targets::new();
     let scripts = walk_dir(repo_root, 1, &[".github"], |file_path| {
         let file_stem = file_path.file_stem()?;
@@ -142,7 +142,7 @@ pub fn in_repo(repo_root: &str) -> Result<Targets> {
     Ok(targets)
 }
 
-pub fn in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
+pub fn scripts_in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
     let scripts = walk_dir(pkg_dir, 4, &[".github"], |file_path| {
         let file_stem = file_path.file_stem()?;
 
