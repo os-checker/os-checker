@@ -79,7 +79,7 @@ impl Repo {
     }
 
     pub fn resolve(&self) -> Result<Vec<Resolve>> {
-        self.config.resolve(&self.layout.packages())
+        self.config.resolve(&self.layout.packages()?)
     }
 
     pub fn run_check(&self) -> Result<Vec<Output>> {

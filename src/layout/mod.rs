@@ -158,8 +158,15 @@ impl Layout {
         Ok(layout)
     }
 
-    pub fn packages(&self) -> Packages {
-        let map = self
+    pub fn packages(&self) -> Result<Packages> {
+        // FIXME: 这里开始假设一个仓库不存在同名 package；这其实不正确：
+        // 如果具有多个 workspaces，那么可能存在同名 package。
+        // 但如果要支持同名 package，还需要修改 RepoConfig。
+        // 目前没有计划支持这么做，因为出现同名 package 的情况并不常见。
+        // 从根本上解决这个问题，必须不允许同名 package，比如统一成
+        // 路径，或者对同名 package 进行检查，必须包含额外的路径。
+        // 无论如何，这都带来复杂性，目前来看并不值得。
+        let map: IndexMap<_, _> = self
             .packages_info
             .iter()
             .map(|info| {
@@ -171,7 +178,15 @@ impl Layout {
                 )
             })
             .collect();
-        Packages { map }
+        if map.len() != self.packages_info.len() {
+            let mut count = IndexMap::with_capacity(map.len());
+            for name in self.packages_info.iter().map(|info| &*info.pkg_name) {
+                count.entry(name).and_modify(|c| *c += 1).or_insert(1);
+            }
+            let duplicates: Vec<_> = count.iter().filter(|(_, c)| **c != 1).collect();
+            bail!("暂不支持一个代码仓库中出现同名 packages：{duplicates:?}");
+        }
+        Ok(Packages { map })
     }
 }
 
