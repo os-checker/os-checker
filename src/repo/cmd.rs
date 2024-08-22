@@ -18,9 +18,10 @@ use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 // Usage: cargo fmt [OPTIONS] [-- <rustfmt_options>...]
 // For more information, try '--help'.
 pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
-    let expr = cmd!("cargo", "fmt", "--", "--emit=json").dir(pkg.dir);
+    let name = pkg.name;
+    let expr = cmd!("cargo", "fmt", "-p", name, "--", "--emit=json").dir(pkg.dir);
     debug!(?expr);
-    let cmd = "cargo fmt -- --emit=json".to_owned();
+    let cmd = format!("cargo fmt -p {name} -- --emit=json");
     Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
 }
 
