@@ -75,12 +75,13 @@ impl Targets {
 
     pub fn push(
         &mut self,
-        target: &str,
+        target: impl AsRef<str> + Into<String>,
         path: impl Into<Utf8PathBuf>,
         f: impl FnOnce(Utf8PathBuf) -> TargetSource,
     ) {
         let path = path.into();
-        match self.get_mut(target) {
+        let target_ref = target.as_ref();
+        match self.get_mut(target_ref) {
             Some(v) => {
                 let src = f(path);
                 if !v.contains(&src) {
@@ -88,7 +89,7 @@ impl Targets {
                     v.push(src);
                 }
             }
-            None => _ = self.insert(target.to_owned(), vec![f(path)]),
+            None => _ = self.insert(target.into(), vec![f(path)]),
         }
     }
 
@@ -104,7 +105,7 @@ impl Targets {
         self.push(target, path, TargetSource::DetectedByPkgScripts);
     }
 
-    pub fn cargo_config_toml(&mut self, target: &str, path: Utf8PathBuf) {
+    pub fn cargo_config_toml(&mut self, target: String, path: Utf8PathBuf) {
         self.push(target, path, TargetSource::CargoConfigToml);
     }
 

@@ -139,7 +139,7 @@ impl Layout {
         let cargo_tomls_len = cargo_tomls.len();
         let mut pkg_info = Vec::with_capacity(cargo_tomls_len);
         for ws in workspaces.values() {
-            let ws_targets = detect_targets::WorkspaceTargetTriples::new(ws);
+            let ws_targets = detect_targets::WorkspaceTargetTriples::new(&root_path, ws);
             for pkg in ws_targets.packages {
                 pkg_info.push(PackageInfo::new(pkg, &repo_targets)?);
             }

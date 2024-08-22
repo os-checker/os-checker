@@ -39,7 +39,7 @@ pub struct PackageTargets {
 }
 
 impl WorkspaceTargetTriples {
-    pub fn new(/*cargo_config: &[(String],*/ ws: &Metadata) -> Self {
+    pub fn new(repo_root: &Utf8Path, ws: &Metadata) -> Self {
         // src: https://docs.rs/crate/riscv/0.8.0/source/Cargo.toml.orig
         // [package.metadata.docs.rs]
         // default-target = "riscv64imac-unknown-none-elf" # 可选的
@@ -53,12 +53,17 @@ impl WorkspaceTargetTriples {
                 .workspace_packages()
                 .iter()
                 .map(|pkg| {
-                    let mut targets = pkg_targets(pkg).unwrap_or_default();
+                    let pkg_dir = pkg.manifest_path.parent().unwrap();
+                    let mut targets = search_cargo_config_toml(pkg_dir, repo_root).unwrap();
+
+                    let pkg_targets = pkg_targets(pkg).unwrap_or_default();
+
+                    targets.merge(&pkg_targets);
                     targets.merge(&ws_targets);
 
                     PackageTargets {
                         pkg_name: XString::from(&*pkg.name),
-                        pkg_dir: pkg.manifest_path.parent().unwrap().to_owned(),
+                        pkg_dir: pkg_dir.to_owned(),
                         targets,
                     }
                 })
@@ -115,6 +120,7 @@ fn metadata_targets(value: &Value, mut f: impl FnMut(&str)) {
 
 pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
     let mut targets = Targets::new();
+    // FIXME: use targets.detected_by_repo_scripts instead
     scripts_in_dir(repo_root, &mut targets)?;
 
     let github_dir = Utf8Path::new(repo_root).join(".github");
@@ -194,7 +200,7 @@ impl CargoConfigTomlTarget {
         Ok(config.build.target)
     }
 
-    pub fn search(child: &Utf8Path, root: &Utf8Path) -> Result<Option<Self>> {
+    pub fn search(child: &Utf8Path, root: &Utf8Path) -> Result<Option<(Self, Utf8PathBuf)>> {
         let child = child.canonicalize_utf8()?;
         let root = root.canonicalize_utf8()?;
         let mut path = Utf8PathBuf::new();
@@ -202,11 +208,11 @@ impl CargoConfigTomlTarget {
             path.extend(parent);
             path.extend([".cargo", "config.toml"]);
             if let Ok(target) = CargoConfigTomlTarget::new(&path) {
-                return Ok(Some(target));
+                return Ok(Some((target, path)));
             }
             path.set_file_name("config");
             if let Ok(target) = CargoConfigTomlTarget::new(&path) {
-                return Ok(Some(target));
+                return Ok(Some((target, path)));
             }
             if parent == root {
                 break;
@@ -223,6 +229,16 @@ impl CargoConfigTomlTarget {
 /// 注意：一旦找到一个更高优先级的配置文件中的 build.target，那么不再进行搜索
 /// * 子级优于父级
 /// * config.toml 文件优于 config 文件
-fn search_cargo_config_toml(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Option<Targets> {
-    None
+fn search_cargo_config_toml(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<Targets> {
+    let mut targets = Targets::default();
+    match CargoConfigTomlTarget::search(pkg_dir, repo_root)? {
+        Some((CargoConfigTomlTarget::One(target), p)) => targets.cargo_config_toml(target, p),
+        Some((CargoConfigTomlTarget::Multiple(v), p)) => {
+            for target in v {
+                targets.cargo_config_toml(target, p.clone());
+            }
+        }
+        None => (),
+    }
+    Ok(targets)
 }
