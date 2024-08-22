@@ -24,9 +24,6 @@ Layout {
                         DetectedByRepoGithub(
                             "repos/e1000-driver/.github/workflows/build.yml",
                         ),
-                        DetectedByRepoGithub(
-                            "repos/e1000-driver/.github/workflows/build.yml",
-                        ),
                     ],
                 },
             },
@@ -50,9 +47,6 @@ Layout {
                         UnspecifiedDefault,
                     ],
                     "riscv64gc-unknown-none-elf": [
-                        DetectedByRepoGithub(
-                            "repos/e1000-driver/.github/workflows/build.yml",
-                        ),
                         DetectedByRepoGithub(
                             "repos/e1000-driver/.github/workflows/build.yml",
                         ),

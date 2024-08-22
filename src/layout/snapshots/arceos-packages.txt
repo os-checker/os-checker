@@ -1,3 +1,205 @@
 Packages {
-    map: {},
+    map: {
+        "allocator": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/allocator",
+        },
+        "arceos-bwbench": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/bwbench",
+        },
+        "arceos-display": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/display",
+        },
+        "arceos-echoserver": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/echoserver",
+        },
+        "arceos-exception": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/exception",
+        },
+        "arceos-helloworld": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/helloworld",
+        },
+        "arceos-httpclient": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/httpclient",
+        },
+        "arceos-httpserver": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/httpserver",
+        },
+        "arceos-memtest": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/memtest",
+        },
+        "arceos-parallel": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/parallel",
+        },
+        "arceos-priority": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/priority",
+        },
+        "arceos-shell": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/fs/shell",
+        },
+        "arceos-sleep": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/sleep",
+        },
+        "arceos-tls": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/tls",
+        },
+        "arceos-udpserver": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/net/udpserver",
+        },
+        "arceos-yield": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/apps/task/yield",
+        },
+        "arceos_api": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/api/arceos_api",
+        },
+        "arceos_posix_api": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/api/arceos_posix_api",
+        },
+        "arm_gic": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/arm_gic",
+        },
+        "arm_pl011": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/arm_pl011",
+        },
+        "axalloc": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axalloc",
+        },
+        "axconfig": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axconfig",
+        },
+        "axdisplay": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axdisplay",
+        },
+        "axdriver": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axdriver",
+        },
+        "axerrno": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axerrno",
+        },
+        "axfeat": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/api/axfeat",
+        },
+        "axfs": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axfs",
+        },
+        "axfs_devfs": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axfs_devfs",
+        },
+        "axfs_ramfs": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axfs_ramfs",
+        },
+        "axfs_vfs": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axfs_vfs",
+        },
+        "axhal": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axhal",
+        },
+        "axio": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/axio",
+        },
+        "axlibc": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/ulib/axlibc",
+        },
+        "axlog": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axlog",
+        },
+        "axnet": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axnet",
+        },
+        "axruntime": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axruntime",
+        },
+        "axstd": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/ulib/axstd",
+        },
+        "axsync": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axsync",
+        },
+        "axtask": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/modules/axtask",
+        },
+        "bwbench-client": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/tools/bwbench_client",
+        },
+        "capability": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/capability",
+        },
+        "crate_interface": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/crate_interface",
+        },
+        "deptool": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/tools/deptool",
+        },
+        "driver_block": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_block",
+        },
+        "driver_common": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_common",
+        },
+        "driver_display": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_display",
+        },
+        "driver_net": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_net",
+        },
+        "driver_pci": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_pci",
+        },
+        "driver_virtio": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/driver_virtio",
+        },
+        "dw_apb_uart": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/dw_apb_uart",
+        },
+        "flatten_objects": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/flatten_objects",
+        },
+        "handler_table": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/handler_table",
+        },
+        "kernel_guard": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/kernel_guard",
+        },
+        "lazy_init": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/lazy_init",
+        },
+        "linked_list": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/linked_list",
+        },
+        "memory_addr": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/memory_addr",
+        },
+        "mingo": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/tools/raspi4/chainloader",
+        },
+        "page_table": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/page_table",
+        },
+        "page_table_entry": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/page_table_entry",
+        },
+        "percpu": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/percpu",
+        },
+        "percpu_macros": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/percpu_macros",
+        },
+        "ratio": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/ratio",
+        },
+        "scheduler": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/scheduler",
+        },
+        "slab_allocator": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/slab_allocator",
+        },
+        "spinlock": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/spinlock",
+        },
+        "timer_list": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/timer_list",
+        },
+        "tuple_for_each": PackageInfoShared {
+            pkg_dir: "/rust/my/os-checker/repos/arceos/crates/tuple_for_each",
+        },
+    },
 }
