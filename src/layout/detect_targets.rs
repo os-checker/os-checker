@@ -13,7 +13,7 @@
 //!
 //! 请注意，尽管有多种可能的文件名，但大多数 make 工具默认寻找的文件名是 "Makefile" 或 "makefile"。如果你使用不同的文件名，可能需要在调用 `make` 命令时指定文件名。
 
-use super::cargo_check_verbose::Targets;
+use super::targets::Targets;
 use crate::{
     utils::{scan_scripts_for_target, walk_dir},
     Result, XString,

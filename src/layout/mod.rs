@@ -12,8 +12,8 @@ use std::{collections::BTreeMap, fmt};
 mod tests;
 
 /// Target triple list and cargo check diagnostics.
-mod cargo_check_verbose;
-use cargo_check_verbose::PackageInfo;
+mod targets;
+use targets::PackageInfo;
 
 mod detect_targets;
 
