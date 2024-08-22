@@ -75,9 +75,16 @@ impl Resolve {
         resolved: &mut Vec<Self>,
     ) -> Result<()> {
         resolved.reserve(pkgs.len() * lines.len());
-        for pkg in pkgs {
-            for line in lines {
-                resolved.push(custom(line, pkg, checker)?);
+        'line: for line in lines {
+            for pkg in pkgs {
+                let value = custom(line, pkg, checker)?;
+                let target_overriden = value.target_overriden;
+                resolved.push(value);
+                if target_overriden {
+                    // 已经从自定义命令中覆盖了所有搜索到的 targets，因此无需继续
+                    // NOTE:这也意味着，自定义命令的 --target 仅作用于那一行，而不是这一批
+                    continue 'line;
+                }
             }
         }
         Ok(())
