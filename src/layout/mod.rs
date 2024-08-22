@@ -133,7 +133,7 @@ impl Layout {
 
         let workspaces = parse(&cargo_tomls)?;
 
-        let repo_targets = detect_targets::scripts_and_github_dir_in_repo(repo_root)?;
+        let repo_targets = detect_targets::scripts_and_github_dir_in_repo(&root_path)?;
         debug!(?repo_targets);
 
         let cargo_tomls_len = cargo_tomls.len();

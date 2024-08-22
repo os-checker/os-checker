@@ -112,29 +112,14 @@ fn metadata_targets(value: &Value, mut f: impl FnMut(&str)) {
     }
 }
 
-pub fn scripts_and_github_dir_in_repo(repo_root: &str) -> Result<Targets> {
+pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
     let mut targets = Targets::new();
-    let scripts = walk_dir(repo_root, 1, &[".github"], |file_path| {
-        let file_stem = file_path.file_stem()?;
+    scripts_in_dir(repo_root, &mut targets);
 
-        if file_stem.starts_with("Makefile")
-            || file_stem.starts_with("makefile")
-            || file_stem == "GNUmakefile"
-        {
-            return Some(file_path);
-        }
-        if let "mk" | "sh" | "py" | "just" = file_path.extension()? {
-            return Some(file_path);
-        }
-        None
-    });
     let github_dir = Utf8Path::new(repo_root).join(".github");
     let github_files = walk_dir(&github_dir, 4, &[], Some);
-    debug!(repo_root, ?scripts, ?github_files);
+    debug!(%repo_root, ?github_files);
 
-    scan_scripts_for_target(&scripts, |target, path| {
-        targets.detected_by_repo_scripts(target, path);
-    })?;
     scan_scripts_for_target(&github_files, |target, path| {
         targets.detected_by_repo_github(target, path);
     })?;
@@ -142,8 +127,8 @@ pub fn scripts_and_github_dir_in_repo(repo_root: &str) -> Result<Targets> {
     Ok(targets)
 }
 
-pub fn scripts_in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
-    let scripts = walk_dir(pkg_dir, 4, &[".github"], |file_path| {
+fn scripts_in_dir(dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
+    let scripts = walk_dir(dir, 4, &[".github"], |file_path| {
         let file_stem = file_path.file_stem()?;
 
         if file_stem.starts_with("Makefile")
@@ -157,10 +142,14 @@ pub fn scripts_in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<(
         }
         None
     });
-    debug!(?pkg_dir, ?scripts);
+    debug!(%dir, ?scripts);
 
     scan_scripts_for_target(&scripts, |target, path| {
         targets.detected_by_pkg_scripts(target, path);
     })?;
     Ok(())
+}
+
+pub fn scripts_in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
+    scripts_in_dir(pkg_dir, targets)
 }
