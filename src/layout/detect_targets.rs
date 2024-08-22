@@ -157,17 +157,32 @@ pub fn scripts_in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<(
 
 // *************** .cargo/config.toml ***************
 
+// [build]
+// target = ["x86_64-unknown-linux-gnu", "riscv64gc-unknown-none-elf"]
 #[derive(Deserialize, Serialize, Debug)]
-struct CargoConfigToml {
+pub struct CargoConfigToml {
     build: BuildTarget,
 }
+
+impl CargoConfigToml {
+    #[cfg(test)]
+    pub fn test() -> Self {
+        CargoConfigToml {
+            build: BuildTarget {
+                target: CargoConfigTomlTarget::Multiple(vec!["a".to_owned()]),
+            },
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug)]
 struct BuildTarget {
     target: CargoConfigTomlTarget,
 }
+
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(untagged)]
-enum CargoConfigTomlTarget {
+pub enum CargoConfigTomlTarget {
     One(String),
     Multiple(Vec<String>),
 }
@@ -177,6 +192,28 @@ impl CargoConfigTomlTarget {
         let bytes = std::fs::read(path)?;
         let config: CargoConfigToml = basic_toml::from_slice(&bytes)?;
         Ok(config.build.target)
+    }
+
+    pub fn search(child: &Utf8Path, root: &Utf8Path) -> Result<Option<Self>> {
+        let child = child.canonicalize_utf8()?;
+        let root = root.canonicalize_utf8()?;
+        let mut path = Utf8PathBuf::new();
+        for parent in child.ancestors() {
+            path.extend(parent);
+            path.extend([".cargo", "config.toml"]);
+            if let Ok(target) = CargoConfigTomlTarget::new(&path) {
+                return Ok(Some(target));
+            }
+            path.set_file_name("config");
+            if let Ok(target) = CargoConfigTomlTarget::new(&path) {
+                return Ok(Some(target));
+            }
+            if parent == root {
+                break;
+            }
+            path.clear();
+        }
+        Ok(None)
     }
 }
 
@@ -188,48 +225,4 @@ impl CargoConfigTomlTarget {
 /// * config.toml 文件优于 config 文件
 fn search_cargo_config_toml(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Option<Targets> {
     None
-}
-
-#[test]
-fn cargo_config_toml_deserialize() -> Result<()> {
-    // [build]
-    // target = ["x86_64-unknown-linux-gnu", "riscv64gc-unknown-none-elf"]
-    let s = std::fs::read("repos/e1000-driver/examples/.cargo/config.toml")?;
-    let toml = CargoConfigToml {
-        build: BuildTarget {
-            target: CargoConfigTomlTarget::Multiple(vec!["a".to_owned()]),
-        },
-    };
-    println!("{}", basic_toml::to_string(&toml)?);
-    let config: CargoConfigToml = basic_toml::from_slice(&s)?;
-    dbg!(&config);
-    Ok(())
-}
-
-#[test]
-fn cargo_config_toml_from_child_to_root() -> Result<()> {
-    let child = Utf8Path::new("repos/e1000-driver/examples/src").canonicalize_utf8()?;
-    let root = Utf8Path::new(".").canonicalize_utf8()?;
-    let mut path = Utf8PathBuf::new();
-    for parent in child.ancestors() {
-        path.extend(parent);
-        println!("{path}");
-        path.extend([".cargo", "config.toml"]);
-        if let Ok(target) = CargoConfigTomlTarget::new(&path) {
-            println!("{path}: {target:?} done!");
-            break;
-        }
-        println!("{path}");
-        path.set_file_name("config");
-        if let Ok(target) = CargoConfigTomlTarget::new(&path) {
-            println!("{path}: {target:?} done!");
-            break;
-        }
-        println!("{path}");
-        if parent == root {
-            break;
-        }
-        path.clear();
-    }
-    Ok(())
 }
