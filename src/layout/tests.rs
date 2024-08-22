@@ -1,9 +1,5 @@
-use super::{
-    cargo_check_verbose::{PackageInfo, Targets},
-    Layout,
-};
+use super::Layout;
 use crate::Result;
-use cargo_metadata::camino::Utf8Path;
 use expect_test::expect_file;
 
 #[test]
@@ -21,6 +17,6 @@ fn arceos_layout() {
 fn cargo_check_verbose() -> Result<()> {
     crate::logger::init();
     let layout = Layout::parse("repos/e1000-driver", &[])?;
-    expect_file!["./snapshots/e1000-driver-test_package_info.txt"].assert_debug_eq(&layout);
+    expect_file!["./snapshots/e1000-driver.txt"].assert_debug_eq(&layout);
     Ok(())
 }

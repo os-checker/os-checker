@@ -5,15 +5,23 @@ use cargo_metadata::{
 };
 use indexmap::IndexMap;
 
+use super::detect_targets::PackageTargets;
+
 /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
+// FIXME: 把 tag 和 path 分开
 #[derive(Debug, Clone)]
 pub enum TargetSource {
+    CargoConfigToml(Utf8PathBuf),
+    CargoTomlDocsrsInPkgDefault(Utf8PathBuf),
+    CargoTomlDocsrsInWorkspaceDefault(Utf8PathBuf),
+    CargoTomlDocsrsInPkg(Utf8PathBuf),
+    CargoTomlDocsrsInWorkspace(Utf8PathBuf),
     SpecifiedDefault,
     UnspecifiedDefault,
     DetectedByPkgScripts(Utf8PathBuf),
     DetectedByRepoGithub(Utf8PathBuf),
     DetectedByRepoScripts(Utf8PathBuf),
-    OverriddenInYaml,
+    OverriddenInOsCheckerYaml,
 }
 
 /// A list of target triples obtained from multiple sources.
@@ -43,7 +51,7 @@ impl Targets {
         }
     }
 
-    fn merge(&mut self, other: &Self) {
+    pub fn merge(&mut self, other: &Self) {
         for (target, sources) in &other.map {
             if let Some(v) = self.get_mut(target) {
                 v.extend(sources.iter().cloned());
@@ -70,59 +78,62 @@ impl Targets {
         }
     }
 
-    pub fn detected_by_repo_github(&mut self, target: &str, path: Utf8PathBuf) {
+    pub fn push(
+        &mut self,
+        target: &str,
+        path: impl Into<Utf8PathBuf>,
+        f: impl FnOnce(Utf8PathBuf) -> TargetSource,
+    ) {
         match self.get_mut(target) {
-            Some(v) => v.push(TargetSource::DetectedByRepoGithub(path)),
-            None => {
-                _ = self.insert(
-                    target.to_owned(),
-                    vec![TargetSource::DetectedByRepoGithub(path)],
-                )
-            }
+            Some(v) => v.push(f(path.into())),
+            None => _ = self.insert(target.to_owned(), vec![f(path.into())]),
         }
+    }
+
+    pub fn detected_by_repo_github(&mut self, target: &str, path: Utf8PathBuf) {
+        self.push(target, path, TargetSource::DetectedByRepoGithub);
     }
 
     pub fn detected_by_repo_scripts(&mut self, target: &str, path: Utf8PathBuf) {
-        match self.get_mut(target) {
-            Some(v) => v.push(TargetSource::DetectedByRepoScripts(path)),
-            None => {
-                _ = self.insert(
-                    target.to_owned(),
-                    vec![TargetSource::DetectedByRepoScripts(path)],
-                )
-            }
-        }
+        self.push(target, path, TargetSource::DetectedByRepoScripts);
     }
 
     pub fn detected_by_pkg_scripts(&mut self, target: &str, path: Utf8PathBuf) {
-        match self.get_mut(target) {
-            Some(v) => v.push(TargetSource::DetectedByPkgScripts(path)),
-            None => {
-                _ = self.insert(
-                    target.to_owned(),
-                    vec![TargetSource::DetectedByPkgScripts(path)],
-                )
-            }
-        }
+        self.push(target, path, TargetSource::DetectedByPkgScripts);
     }
 
-    fn from_repo_and_workspace(
-        ws: Vec<String>,
-        pkg_dir: &Utf8Path,
-        repo: &Targets,
-    ) -> Result<Self> {
-        let mut targets = Targets::new();
-        if ws.is_empty() {
+    pub fn cargo_config_toml(&mut self, target: &str, path: Utf8PathBuf) {
+        self.push(target, path, TargetSource::CargoConfigToml);
+    }
+
+    pub fn cargo_toml_docsrs_in_pkg_default(&mut self, target: &str, path: &Utf8Path) {
+        self.push(target, path, TargetSource::CargoTomlDocsrsInPkgDefault);
+    }
+
+    pub fn cargo_toml_docsrs_in_pkg(&mut self, target: &str, path: &Utf8Path) {
+        self.push(target, path, TargetSource::CargoTomlDocsrsInPkg);
+    }
+
+    pub fn cargo_toml_docsrs_in_workspace_default(&mut self, target: &str, path: &Utf8Path) {
+        self.push(
+            target,
+            path,
+            TargetSource::CargoTomlDocsrsInWorkspaceDefault,
+        );
+    }
+
+    pub fn cargo_toml_docsrs_in_workspace(&mut self, target: &str, path: &Utf8Path) {
+        self.push(target, path, TargetSource::CargoTomlDocsrsInWorkspace);
+    }
+
+    fn merge_more(&mut self, pkg_dir: &Utf8Path, repo: &Targets) -> Result<()> {
+        if self.is_empty() {
             // 无指定的 targets
-            targets.unspecified_default();
-        } else {
-            for target in ws {
-                targets.specified_default(target);
-            }
+            self.unspecified_default();
         }
-        super::detect_targets::in_pkg_dir(pkg_dir, &mut targets)?;
-        targets.merge(repo);
-        Ok(targets)
+        super::detect_targets::in_pkg_dir(pkg_dir, self)?;
+        self.merge(repo);
+        Ok(())
     }
 }
 
@@ -196,16 +207,15 @@ pub struct PackageInfo {
 }
 
 impl PackageInfo {
-    pub fn new(
-        pkg_dir: Utf8PathBuf,
-        pkg_name: XString,
-        repo_targets: &Targets,
-        ws_targets: Vec<String>,
-    ) -> Result<Self> {
-        let targets = Targets::from_repo_and_workspace(ws_targets, &pkg_dir, repo_targets)?;
-        // super::detect_targets::in_pkg_dir(pkg_dir, &mut target_triples.targets)?;
-        // target_triples.targets.merge(repo_targets);
+    pub fn new(pkg: PackageTargets, repo_targets: &Targets) -> Result<Self> {
+        let PackageTargets {
+            pkg_name,
+            pkg_dir,
+            mut targets,
+        } = pkg;
+        targets.merge_more(&pkg_dir, repo_targets)?;
 
+        debug!(?targets);
         let cargo_check_diagnostics = targets
             .keys()
             .map(|target| CargoCheckDiagnostics::new(&pkg_dir, &pkg_name, target))

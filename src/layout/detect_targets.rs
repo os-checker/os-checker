@@ -20,90 +20,95 @@ use crate::{
 };
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
-    Message,
+    Metadata,
 };
-use indexmap::{IndexMap, IndexSet};
+use serde_json::Value;
 
-type TargetsMap = IndexMap<(Utf8PathBuf, XString), Vec<String>>;
-
-/// Default cargo target triple list got by `cargo check -vv` which compiles all targets.
-#[derive(Debug)]
+/// Targets obtained from `.cargo/config{,.toml}` and `Cargo.toml`'s metadata table.
 pub struct WorkspaceTargetTriples {
+    pub packages: Vec<PackageTargets>,
+}
+
+pub struct PackageTargets {
+    pub pkg_name: XString,
+    pub pkg_dir: Utf8PathBuf,
     // NOTE: this can be empty if no target is specified in .cargo/config.toml,
     // in which case the host target should be implied when the empty value is handled.
-    pub targets: TargetsMap,
-    /// The first time `cargo check` takes.
-    pub first_check_duration_ms: u64,
+    pub targets: Targets,
 }
 
 impl WorkspaceTargetTriples {
-    pub fn new(workspce_root: &Utf8Path, members: &IndexSet<(&str, &str)>) -> Result<Self> {
-        use regex::Regex;
-        use std::sync::LazyLock;
+    pub fn new(/*cargo_config: &[(String],*/ ws: &Metadata) -> Self {
+        // src: https://docs.rs/crate/riscv/0.8.0/source/Cargo.toml.orig
+        // [package.metadata.docs.rs]
+        // default-target = "riscv64imac-unknown-none-elf" # 可选的
+        // targets = [ # 也是可选的
+        //     "riscv32i-unknown-none-elf", "riscv32imc-unknown-none-elf", "riscv32imac-unknown-none-elf",
+        //     "riscv64imac-unknown-none-elf", "riscv64gc-unknown-none-elf",
+        // ]
+        let ws_targets = ws_targets(ws).unwrap_or_default();
+        WorkspaceTargetTriples {
+            packages: ws
+                .workspace_packages()
+                .iter()
+                .map(|pkg| {
+                    let mut targets = pkg_targets(pkg).unwrap_or_default();
+                    targets.merge(&ws_targets);
 
-        struct ExtractTriplePattern {
-            pkg_name: Regex,
-            manifest_dir: Regex,
-            target_triple: Regex,
-            running_cargo: Regex,
+                    PackageTargets {
+                        pkg_name: XString::from(&*pkg.name),
+                        pkg_dir: pkg.manifest_path.parent().unwrap().to_owned(),
+                        targets,
+                    }
+                })
+                .collect(),
         }
-        static RE: LazyLock<ExtractTriplePattern> = LazyLock::new(|| ExtractTriplePattern {
-            pkg_name: regex::Regex::new(r#"CARGO_PKG_NAME=(\S+)"#).unwrap(),
-            manifest_dir: regex::Regex::new(r#"CARGO_MANIFEST_DIR=(\S+)"#).unwrap(),
-            target_triple: regex::Regex::new(r#"--target\s+(\S+)"#).unwrap(),
-            running_cargo: regex::Regex::new(r#"^\s+Running `CARGO="#).unwrap(),
+    }
+}
+
+fn ws_targets(ws: &Metadata) -> Option<Targets> {
+    let ws_manifest_path = &ws.workspace_root.join("Cargo.toml");
+    let mut ws_targets = Targets::default();
+    let docsrs = ws.workspace_metadata.get("docs")?.get("rs")?;
+    if let Some(value) = docsrs.get("default-target") {
+        metadata_targets(value, |target| {
+            ws_targets.cargo_toml_docsrs_in_workspace_default(target, ws_manifest_path)
         });
-
-        // NOTE: 似乎只有第一次运行 cargo check 才会强制编译所有 target triples，
-        // 第二次开始运行 cargo check 之后，如果在某个 triple 上编译失败，不会编译其他 triple，
-        // 这导致无法全部获取 triples 列表。因此为了避免缓存影响，清除 target dir。
-        _ = duct::cmd!("cargo", "clean").dir(workspce_root).run()?;
-        let (duration_ms, output) = crate::utils::execution_time_ms(|| {
-            duct::cmd!("cargo", "check", "-vv", "--workspace")
-                .dir(workspce_root)
-                .stderr_capture()
-                .unchecked()
-                .run()
+    }
+    if let Some(value) = docsrs.get("targets") {
+        metadata_targets(value, |target| {
+            ws_targets.cargo_toml_docsrs_in_workspace(target, ws_manifest_path)
         });
+    }
+    Some(ws_targets)
+}
 
-        let mut targets = TargetsMap::with_capacity(members.len());
+fn pkg_targets(pkg: &cargo_metadata::Package) -> Option<Targets> {
+    let manifest_path = &pkg.manifest_path;
+    let mut targets = Targets::default();
+    let docsrs = pkg.metadata.get("docs")?.get("rs")?;
+    if let Some(value) = docsrs.get("default-target") {
+        metadata_targets(value, |target| {
+            targets.cargo_toml_docsrs_in_pkg_default(target, manifest_path)
+        });
+    }
+    if let Some(value) = docsrs.get("targets") {
+        metadata_targets(value, |target| {
+            targets.cargo_toml_docsrs_in_pkg(target, manifest_path)
+        });
+    }
+    Some(targets)
+}
 
-        for parsed in Message::parse_stream(output?.stderr.as_slice()) {
-            if let Ok(Message::TextLine(mes)) = &parsed {
-                // 只需要当前 package 的 target triple：
-                // * 需要 pkg_name 和 manifest_dir 是因为输出会产生依赖项的信息，仅有
-                //   pkg_name 会造成可能的冲突（尤其 cargo check 最后才会编译当前 pkg）
-                // * 实际的编译命令示例，见 https://github.com/os-checker/os-checker/commit/de95f5928a25f6b64bcf5f1964870351899f85c3
-                if RE.running_cargo.is_match(mes) {
-                    // trick to use ? in small scope
-                    let mut f = || {
-                        debug!(mes);
-                        let crate_name = RE.pkg_name.captures(mes)?.get(1)?.as_str();
-                        debug!(crate_name);
-                        let manifest_dir = RE.manifest_dir.captures(mes)?.get(1)?.as_str();
-                        debug!(manifest_dir);
-                        let target_triple = RE.target_triple.captures(mes)?.get(1)?.as_str();
-                        debug!(target_triple);
-                        if members.contains(&(manifest_dir, crate_name)) {
-                            let target = target_triple.to_owned();
-                            let key = (Utf8PathBuf::from(manifest_dir), XString::new(crate_name));
-                            if let Some(v) = targets.get_mut(&key) {
-                                v.push(target);
-                            } else {
-                                targets.insert(key, vec![target]);
-                            };
-                        }
-                        None::<()>
-                    };
-                    f();
-                }
+fn metadata_targets(value: &Value, mut f: impl FnMut(&str)) {
+    match value {
+        Value::String(target) => f(target),
+        Value::Array(v) => {
+            for target in v.iter().filter_map(Value::as_str) {
+                f(target);
             }
         }
-
-        Ok(WorkspaceTargetTriples {
-            targets,
-            first_check_duration_ms: duration_ms,
-        })
+        _ => (),
     }
 }
 
