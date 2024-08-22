@@ -7,11 +7,20 @@ use duct::cmd;
 use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 
 /// 默认运行 cargo fmt 的命令
+// NOTE: cargo fmt 不支持 --target 参数，但依然会在不同的 target_triple 上运行，
+// 尽管这会造成报告重复。
+//
+// $ cargo fmt --target x86_64-unknown-linux-gnu
+// error: unexpected argument '--target' found
+//
+//   tip: to pass '--target' as a value, use '-- --target'
+//
+// Usage: cargo fmt [OPTIONS] [-- <rustfmt_options>...]
+// For more information, try '--help'.
 pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
-    let target = pkg.target;
-    let expr = cmd!("cargo", "fmt", "--target", target, "--", "--emit=json").dir(pkg.dir);
+    let expr = cmd!("cargo", "fmt", "--", "--emit=json").dir(pkg.dir);
     debug!(?expr);
-    let cmd = format!("cargo fmt --target {target} -- --emit=json");
+    let cmd = "cargo fmt -- --emit=json".to_owned();
     Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
 }
 
