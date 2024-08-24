@@ -15,4 +15,25 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run the Docker image
-        run: docker run -e DEBUG=1 ${{ env.IMAGE }}
+        run: docker run -e DEBUG=1 -v /check:/check ${{ env.IMAGE }}
+
+      - name: Commit and push ui.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # author zjp-CN, and commiter bot
+          git config --global user.name "zjp-CN"
+          git config --global user.email "jiping_zhou@foxmail.com"
+          git config --global committer.name "zjp-CN[bot]"
+          git config --global committer.email "zjp-CN[bot]@users.noreply.github.com"
+
+          echo "正在 clone os-checker/database"
+          git clone https://x-access-token:${{ secrets.ACCESS_TOKEN }}@github.com/os-checker/database.git
+          echo "成功 clone os-checker/database"
+          cd database
+          git pull --rebase # 防止二次运行 CI 时落后于远程分支
+
+          export BOT=1 UI_JSON=ui.json # database 仓库的 json 检查结果
+          cp /check/test.json $UI_JSON
+          # 运行 jq 生成 WebUI 所需的 JSON 文件，并推送到 database 仓库
+          sh ci.sh
