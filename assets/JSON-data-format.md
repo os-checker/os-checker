@@ -46,9 +46,12 @@
 {
   "env": {
     "tools": {
-      "rust": {"version": "1.82.0-nightly (91376f416 2024-08-12)"},
+      "rust_toolchain": {
+        "host": {...}, // 总是默认最新的 nightly Rust
+        "installed": [...] // host 以及所有 repos、packages 和检查工具指定的 rust-toolchain 数组，repo/package/cmd 通过索引指向这
+      }, 
       "clippy": {"version": "clippy 0.1.82 (91376f4 2024-08-12)"},
-      "lockbud": {"version": "sha...", "date": "...", "rust_toolchain": "..."}, // lockbud 需要固定工具链
+      "lockbud": {"version": "sha...", "date": "...", "rust_toolchain_idx": 1}, // lockbud 需要固定工具链
       "os_checker": {"start": "...", "finish": "...", "duration_ms": 3, "git_time": "...", "git_sha": "..."}
     },
     "kinds": {
@@ -64,11 +67,11 @@
       {"arch": "riscv64", "cpu": "generic-rv64", ...},
     ],
     "repos": [
-      {"user": "arceos-org", "repo": "arceos", "cargo_layout": [...], "info": {...}}
+      {"user": "arceos-org", "repo": "arceos", "cargo_layout": [...], "info": {...}, "rust_toolchain_idx": 2}
     ],
     "packages": [ // repo_idx 指向 .env.repos 数组中的一项
       {
-        "name": "axstd",
+        "name": "axstd", "rust_toolchain_idx": "...", // 注意：package 有可能设置和 repo 不一样的 rustc 版本
         "repo": {"repo_idx": 0, "user": "arceos-org", "repo": "arceos", "branch": "main"},
         "cargo": {"targets": [...], "features": [...]}
       }
@@ -78,20 +81,20 @@
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --no-deps --message-format=json",
-      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0,
+      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0, "rust_toolchain_idx": 2,
       "features": ["a", "b"],
       "flags": ["--cfg=...", "-Z...", "-C..."]
     },
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
-      "arch": "riscv64", "triple": "riscv64gc-unknown-none-elf", "spec_idx": 1,
+      "arch": "riscv64", "triple": "riscv64gc-unknown-none-elf", "spec_idx": 1, "rust_toolchain_idx": 2,
       "features": [], "flags": []
     },
     {
       "package_idx": 0, "tool": "lockbud", "count": 1, "duration_ms": 1,
       "cmd": "cargo lockbud",
-      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0,
+      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0, "rust_toolchain_idx": 2,
       "features": [], "flags": []
     }
   ],
@@ -102,6 +105,47 @@
   ]
 }
 ```
+
+# `rust_toolchain` 的格式
+
+信息主要来自
+* 主机默认的版本：`rustc -vV`；
+* 查找并解析 `rust-toolchain.{,toml}` 文件，这是 os-checker 的做法。有一些其他方式，但并不采用它们：
+  * `cargo rustc -- -vV` 需要编译才能得到 rustc 的版本信息，因此不使用此命令
+  * `rustup toolchain list` 命令不需要编译，可以搜索出现 `(override)` 的那一行，但前提是安装了工具链才行，因此也不使用此命令
+  * `rustup show` 会自动安装工具链，并报告当前所需的工具链版本，但缺点它直接打印清单，将来可能会变化，所以不建议依赖它的输出，此外它虽然输出当前工具链安装的 
+     targets，但不一定适用于 package：比如默认工具链现在安装了所有 targets，当这个工具链作用于 package，并不意味着个 package 需要所有的 targets。（ [#29]）
+
+```json
+{
+  "host": {
+    "rustc": {
+      "version": "...",
+      "commit_hash": "...",
+      "commit_date": "...",
+      "host": "...",
+      "release": "...",
+      "llvm_version": "...",
+    }
+  },
+  "installed": [
+    { // 第 0 个是 host 工具链
+      "channel": "nightly",
+      "profile": "minimal",
+      "components": ["rustfmt", "clippy"],
+      "targets": ["all"]
+    },
+    {
+      "channel": "nightly-2024-05-02",
+      "profile": "minimal",
+      "components": ["rust-src", "llvm-tools", "rustfmt", "clippy"],
+      "targets": ["x86_64-unknown-none", "riscv64gc-unknown-none-elf", "aarch64-unknown-none", "aarch64-unknown-none-softfloat"]
+    }
+  ]
+}
+```
+
+[#29]: https://github.com/os-checker/os-checker/issues/29#issuecomment-2308639316
 
 # Misc：使用 Github API 获取仓库基础信息
 
