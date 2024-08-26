@@ -62,7 +62,11 @@
       }
     },
     "host": {"arch": "x86_64", "kernel": "..."}, // arch 命令和 cat /proc/version
-    "target_spec": [ // 完整示例见 https://github.com/os-checker/os-checker/issues/25
+    "targets": [ // target_idx 指向这
+      {"triple": "x86_64-unknown-linux-gnu", "arch": "x86_64"},
+      {"triple": "riscv64gc-unknown-none-elf", "arch": "riscv64gc"}
+    ],
+    "target_spec": [ // 尚未确定；完整示例见 https://github.com/os-checker/os-checker/issues/25
       {"arch": "x86_64", "cpu": "x86-64", ...},
       {"arch": "riscv64", "cpu": "generic-rv64", ...},
     ],
@@ -81,20 +85,20 @@
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --no-deps --message-format=json",
-      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0, "rust_toolchain_idx": 2,
+      "target_idx": 0, "spec_idx": 0, "rust_toolchain_idx": 2,
       "features": ["a", "b"],
       "flags": ["--cfg=...", "-Z...", "-C..."]
     },
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
-      "arch": "riscv64", "triple": "riscv64gc-unknown-none-elf", "spec_idx": 1, "rust_toolchain_idx": 2,
+      "target_idx": 1, "spec_idx": 1, "rust_toolchain_idx": 2,
       "features": [], "flags": []
     },
     {
       "package_idx": 0, "tool": "lockbud", "count": 1, "duration_ms": 1,
       "cmd": "cargo lockbud",
-      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0, "rust_toolchain_idx": 2,
+      "target_idx": 0, "spec_idx": 0, "rust_toolchain_idx": 2,
       "features": [], "flags": []
     }
   ],
@@ -119,14 +123,12 @@
 ```json
 {
   "host": {
-    "rustc": {
-      "version": "...",
-      "commit_hash": "...",
-      "commit_date": "...",
-      "host": "...",
-      "release": "...",
-      "llvm_version": "...",
-    }
+    "version": "...",
+    "commit_hash": "...",
+    "commit_date": "...",
+    "host": "...",
+    "release": "...",
+    "llvm_version": "...",
   },
   "installed": [
     { // 第 0 个是 host 工具链
