@@ -51,7 +51,7 @@ pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
         "请输入检查工具的执行文件名称或路径：命令切分的字长必须大于 2"
     );
 
-    let overriden = append_target(&mut words, pkg.target);
+    let overriden = set_toolchain_and_target(&mut words, pkg.target, None);
     let cmd_str = words.join(" ");
 
     // 构造命令、设置工作目录
@@ -108,10 +108,40 @@ fn extract_target(words: &[String]) -> Option<&str> {
     })
 }
 
-fn append_target(words: &mut Vec<String>, candidate_target: &str) -> Option<String> {
+/// 添加可能的工具链或者 target。
+/// 如果已经命令已经包含 target，则不设置；否则设置 target。
+/// 如果 set_toolchain 为 Some，则设置，否则不设置工具链。
+fn set_toolchain_and_target(
+    words: &mut Vec<String>,
+    candidate_target: &str,
+    set_toolchain: Option<&str>,
+) -> Option<String> {
     let overriden = extract_target(words).map(String::from);
-    if overriden.is_none() {
-        words.insert(2, format!("--target={candidate_target}"));
+    // `cargo +toolchain xxx (--target=...) rest...`
+    // or `cargo xxx (--target=...) rest...`
+    match words.as_mut_slice() {
+        [cargo, toolchain, _, ..] if cargo == "cargo" && toolchain.starts_with("+") => {
+            if let Some(set) = set_toolchain {
+                toolchain.clear();
+                toolchain.push('+');
+                toolchain.push_str(set);
+            }
+            if overriden.is_none() {
+                words.insert(3, format!("--target={candidate_target}"));
+            }
+        }
+        [cargo, _, ..] if cargo == "cargo" => {
+            let pos = if let Some(set) = set_toolchain {
+                words.insert(1, format!("+{set}"));
+                3
+            } else {
+                2
+            };
+            if overriden.is_none() {
+                words.insert(pos, format!("--target={candidate_target}"));
+            }
+        }
+        _ => panic!("Only `cargo +toolchain subcmd` or `cargo subcmd` is supported for now"),
     }
     overriden
 }
