@@ -11,6 +11,7 @@ use super::detect_targets::PackageTargets;
 // FIXME: 把 tag 和 path 分开
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TargetSource {
+    RustToolchainToml(Utf8PathBuf),
     CargoConfigToml(Utf8PathBuf),
     CargoTomlDocsrsInPkgDefault(Utf8PathBuf),
     CargoTomlDocsrsInWorkspaceDefault(Utf8PathBuf),
@@ -129,6 +130,10 @@ impl Targets {
         self.push(target, path, TargetSource::CargoTomlDocsrsInWorkspace);
     }
 
+    pub fn rust_toolchain_toml(&mut self, target: &str, path: &Utf8Path) {
+        self.push(target, path, TargetSource::RustToolchainToml);
+    }
+
     fn merge_more(&mut self, pkg_dir: &Utf8Path, repo: &Targets) -> Result<()> {
         if self.is_empty() {
             // 无指定的 targets
@@ -215,6 +220,7 @@ impl PackageInfo {
             pkg_name,
             pkg_dir,
             mut targets,
+            toolchain,
         } = pkg;
         targets.merge_more(&pkg_dir, repo_targets)?;
 

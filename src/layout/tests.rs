@@ -1,5 +1,5 @@
 use super::{
-    detect_targets::{CargoConfigToml, CargoConfigTomlTarget},
+    detect_targets::{CargoConfigToml, CargoConfigTomlTarget, RustToolchainToml},
     Layout,
 };
 use crate::Result;
@@ -69,5 +69,21 @@ fn cargo_config_toml_from_child_to_root() -> Result<()> {
         )
     "#]]
     .assert_debug_eq(&target);
+    Ok(())
+}
+
+#[test]
+fn rust_toolchain() -> Result<()> {
+    let path = "repos/arceos/rust-toolchain.toml".into();
+    let toolchain = RustToolchainToml::search(path, path)?;
+    dbg!(&toolchain);
+
+    let toolchain: RustToolchainToml = basic_toml::from_str(
+        r#"
+[toolchain]
+channel = "nightly-2024-05-02"
+"#,
+    )?;
+    dbg!(&toolchain);
     Ok(())
 }
