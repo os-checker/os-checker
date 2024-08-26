@@ -1,4 +1,5 @@
 use crate::{layout::RustToolchain, Result};
+use duct::cmd;
 use eyre::ContextCompat;
 use indexmap::IndexMap;
 use regex::Regex;
@@ -37,6 +38,8 @@ struct Global {
 impl Global {
     fn new() -> Self {
         let mut map = IndexMap::with_capacity(16);
+        // NOTE: 第 0 个是 host 工具链
+        map.insert(host_rust_toolchain().unwrap(), 0);
         Global {
             host: Rustc::new().unwrap(),
             installed: Mutex::new(map),
@@ -50,6 +53,14 @@ pub fn push_toolchain(val: RustToolchain) -> usize {
     let map = &mut *GLOBAL.installed.lock().unwrap();
     let index = map.len();
     *map.entry(val).or_insert(index)
+}
+
+/// 通过索引获取工具链信息。
+pub fn get_toolchain(index: usize, f: impl FnOnce(&RustToolchain)) {
+    let map = &mut *GLOBAL.installed.lock().unwrap();
+    if let Some((toolchain, _)) = map.get_index(index) {
+        f(toolchain);
+    }
 }
 
 pub fn host_target_triple() -> &'static str {
@@ -89,7 +100,7 @@ impl Rustc {
                 .to_owned())
         }
 
-        let src = &duct::cmd!("rustc", "-vV").read()?;
+        let src = &cmd!("rustc", "-vV").read()?;
         Ok(Rustc {
             version: parse("(?m)^rustc (.*)$", src)?,
             commit_hash: parse("(?m)^commit-hash: (.*)$", src)?,
@@ -114,5 +125,45 @@ fn rustc_verbose() -> Result<()> {
         }
     "#]]
     .assert_debug_eq(&Rustc::new()?);
+    Ok(())
+}
+
+enum RustupList {
+    Target,
+    Component,
+}
+
+impl RustupList {
+    fn name(self) -> &'static str {
+        match self {
+            RustupList::Target => "target",
+            RustupList::Component => "component",
+        }
+    }
+}
+
+/// arg: target or component
+fn get_installed(arg: RustupList) -> Result<Vec<String>> {
+    let list = cmd!("rustup", arg.name(), "list").read()?;
+    Ok(list
+        .lines()
+        .filter(|&l| l.ends_with("(installed)"))
+        .filter_map(|l| Some(l.split_once(" ")?.0.to_owned()))
+        .collect())
+}
+
+fn host_rust_toolchain() -> Result<RustToolchain> {
+    Ok(RustToolchain {
+        channel: cmd!("rustup", "default").read()?.into(),
+        profile: None,
+        targets: Some(get_installed(RustupList::Target)?),
+        components: Some(get_installed(RustupList::Target)?),
+        toml_path: Default::default(),
+    })
+}
+
+#[test]
+fn test_host_rust_toolchain() -> Result<()> {
+    dbg!(host_rust_toolchain()?);
     Ok(())
 }

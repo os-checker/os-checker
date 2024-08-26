@@ -289,7 +289,7 @@ pub struct RustToolchain {
     pub channel: XString,
     pub profile: Option<XString>,
     pub targets: Option<Vec<String>>,
-    pub components: Option<Vec<XString>>,
+    pub components: Option<Vec<String>>,
     #[serde(skip_deserializing)]
     pub toml_path: Utf8PathBuf,
 }

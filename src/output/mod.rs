@@ -5,7 +5,7 @@ use serde::Serialize;
 use std::time::SystemTime;
 
 mod toolchain;
-pub use toolchain::{host_target_triple, push_toolchain, RustToochains};
+pub use toolchain::{get_toolchain, host_target_triple, push_toolchain, RustToochains};
 
 #[derive(Debug, Serialize)]
 pub struct JsonOutput {
