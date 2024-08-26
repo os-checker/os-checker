@@ -36,7 +36,7 @@ pub struct PackageTargets {
     // NOTE: this can be empty if no target is specified in .cargo/config.toml,
     // in which case the host target should be implied when the empty value is handled.
     pub targets: Targets,
-    pub toolchain: Option<RustToolchainToml>,
+    pub toolchain: Option<RustToolchain>,
 }
 
 impl WorkspaceTargetTriples {
@@ -56,8 +56,8 @@ impl WorkspaceTargetTriples {
                 .map(|pkg| {
                     let mut targets = Targets::new();
                     let pkg_dir = pkg.manifest_path.parent().unwrap();
-                    let toolchain = RustToolchainToml::search(pkg_dir, repo_root).unwrap();
-                    if let Some(t) = toolchain.as_ref().and_then(RustToolchainToml::targets) {
+                    let toolchain = RustToolchain::search(pkg_dir, repo_root).unwrap();
+                    if let Some(t) = toolchain.as_ref().and_then(RustToolchain::targets) {
                         targets.merge(&t);
                     }
 
@@ -270,8 +270,6 @@ fn search_cargo_config_toml(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<
 #[derive(Deserialize, Debug)]
 pub struct RustToolchainToml {
     pub toolchain: RustToolchain,
-    #[serde(skip)]
-    pub toml_path: Utf8PathBuf,
 }
 
 impl RustToolchainToml {
@@ -279,16 +277,47 @@ impl RustToolchainToml {
         let bytes = std::fs::read(path).ok()?;
         basic_toml::from_slice(&bytes).ok()
     }
+}
+
+// [toolchain]
+// channel = "nightly-2020-07-10"
+// components = [ "rustfmt", "rustc-dev" ]
+// targets = [ "wasm32-unknown-unknown", "thumbv2-none-eabi" ]
+// profile = "minimal"
+#[derive(Deserialize, Serialize, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Clone)]
+pub struct RustToolchain {
+    pub channel: XString,
+    pub profile: Option<XString>,
+    pub targets: Option<Vec<String>>,
+    pub components: Option<Vec<XString>>,
+    #[serde(skip_deserializing)]
+    pub toml_path: Utf8PathBuf,
+}
+
+impl RustToolchain {
+    /// 将该工具链信息存到全局数组，返回唯一的索引
+    pub fn store(self) -> usize {
+        crate::output::push_toolchain(self)
+    }
+
+    pub fn targets(&self) -> Option<Targets> {
+        let v = self.targets.as_deref()?;
+        let mut targets = Targets::new();
+        for target in v {
+            targets.rust_toolchain_toml(target, &self.toml_path);
+        }
+        Some(targets)
+    }
 
     pub fn search(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<Option<Self>> {
-        let Some((mut toolchain, toml_path)) = search_from_child_to_root(
+        let Some((toolchain, toml_path)) = search_from_child_to_root(
             |path| {
                 path.set_file_name("rust-toolchain.toml");
-                if let Some(target) = Self::new(path) {
+                if let Some(target) = RustToolchainToml::new(path) {
                     return Some(target);
                 }
                 path.set_file_name("rust-toolchain");
-                if let Some(target) = Self::new(path) {
+                if let Some(target) = RustToolchainToml::new(path) {
                     return Some(target);
                 }
                 None
@@ -299,29 +328,8 @@ impl RustToolchainToml {
         else {
             return Ok(None);
         };
+        let mut toolchain = toolchain.toolchain;
         toolchain.toml_path = toml_path;
         Ok(Some(toolchain))
     }
-
-    pub fn targets(&self) -> Option<Targets> {
-        let v = self.toolchain.targets.as_deref()?;
-        let mut targets = Targets::new();
-        for target in v {
-            targets.rust_toolchain_toml(target, &self.toml_path);
-        }
-        Some(targets)
-    }
-}
-
-// [toolchain]
-// channel = "nightly-2020-07-10"
-// components = [ "rustfmt", "rustc-dev" ]
-// targets = [ "wasm32-unknown-unknown", "thumbv2-none-eabi" ]
-// profile = "minimal"
-#[derive(Deserialize, Debug)]
-pub struct RustToolchain {
-    pub channel: XString,
-    pub components: Option<Vec<XString>>,
-    pub targets: Option<Vec<String>>,
-    pub profile: Option<XString>,
 }

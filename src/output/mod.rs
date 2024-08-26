@@ -4,6 +4,9 @@ use cargo_metadata::camino::Utf8PathBuf;
 use serde::Serialize;
 use std::time::SystemTime;
 
+mod toolchain;
+pub use toolchain::{host_target_triple, push_toolchain, RustToochains};
+
 #[derive(Debug, Serialize)]
 pub struct JsonOutput {
     pub env: Env,

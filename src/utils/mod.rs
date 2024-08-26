@@ -1,10 +1,5 @@
-use crate::Result;
 use cargo_metadata::camino::Utf8PathBuf;
-use duct::cmd;
-use eyre::ContextCompat;
-use itertools::Itertools;
-use regex::Regex;
-use std::{path::Path, sync::LazyLock, time::Instant};
+use std::{path::Path, time::Instant};
 
 mod scan_for_targets;
 pub use scan_for_targets::scan_scripts_for_target;
@@ -45,77 +40,4 @@ pub fn execution_time_ms<T>(op: impl FnOnce() -> T) -> (u64, T) {
     let value = op();
     let duration_ms = now.elapsed().as_millis() as u64;
     (duration_ms, value)
-}
-
-pub struct GlobalInfo {
-    pub rustc: Rustc,
-}
-
-pub static GLOBAL_INFO: LazyLock<GlobalInfo> = LazyLock::new(|| GlobalInfo {
-    rustc: Rustc::new().unwrap(),
-});
-
-pub fn host_target_triple() -> &'static str {
-    &GLOBAL_INFO.rustc.host
-}
-
-#[allow(dead_code)]
-#[derive(Debug)]
-pub struct Rustc {
-    version: String,
-    commit_hash: String,
-    commit_date: String,
-    /// host target triple, usually as a default target
-    host: String,
-    release: String,
-    llvm_version: String,
-}
-
-impl Rustc {
-    // $ rustc -vV
-    // rustc 1.82.0-nightly (91376f416 2024-08-12)
-    // binary: rustc
-    // commit-hash: 91376f416222a238227c84a848d168835ede2cc3
-    // commit-date: 2024-08-12
-    // host: x86_64-unknown-linux-gnu
-    // release: 1.82.0-nightly
-    // LLVM version: 19.1.0
-    fn new() -> Result<Rustc> {
-        fn parse(pat: &str, src: &str) -> Result<String> {
-            let f = || format!("`{src:?}` doesn't contain `{pat}` pattern to get a value");
-            Ok(Regex::new(pat)
-                .unwrap()
-                .captures(src)
-                .with_context(f)?
-                .get(1)
-                .with_context(f)?
-                .as_str()
-                .to_owned())
-        }
-
-        let src = &cmd!("rustc", "-vV").read()?;
-        Ok(Rustc {
-            version: parse("(?m)^rustc (.*)$", src)?,
-            commit_hash: parse("(?m)^commit-hash: (.*)$", src)?,
-            commit_date: parse("(?m)^commit-date: (.*)$", src)?,
-            host: parse("(?m)^host: (.*)$", src)?,
-            release: parse("(?m)^release: (.*)$", src)?,
-            llvm_version: parse("(?m)^LLVM version: (.*)$", src)?,
-        })
-    }
-}
-
-#[test]
-fn rustc_verbose() -> Result<()> {
-    expect_test::expect![[r#"
-        Rustc {
-            version: "1.82.0-nightly (91376f416 2024-08-12)",
-            commit_hash: "91376f416222a238227c84a848d168835ede2cc3",
-            commit_date: "2024-08-12",
-            host: "x86_64-unknown-linux-gnu",
-            release: "1.82.0-nightly",
-            llvm_version: "19.1.0",
-        }
-    "#]].assert_debug_eq(&Rustc::new()?);
-    Ok(())
 }

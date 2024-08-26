@@ -63,7 +63,7 @@ impl Targets {
     }
 
     fn unspecified_default(&mut self) {
-        let target = crate::utils::host_target_triple();
+        let target = crate::output::host_target_triple();
         if let Some(source) = self.get_mut(target) {
             source.push(TargetSource::UnspecifiedDefaultToHostTarget);
         } else {
@@ -211,6 +211,7 @@ pub struct PackageInfo {
     /// i.e. manifest_dir
     pub pkg_dir: Utf8PathBuf,
     pub targets: Targets,
+    pub toolchain: Option<usize>,
     pub cargo_check_diagnostics: Box<[CargoCheckDiagnostics]>,
 }
 
@@ -233,6 +234,7 @@ impl PackageInfo {
             pkg_name,
             pkg_dir,
             targets,
+            toolchain: toolchain.map(|val| val.store()),
             cargo_check_diagnostics,
         })
     }

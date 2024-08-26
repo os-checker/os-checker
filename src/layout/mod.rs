@@ -16,6 +16,7 @@ mod targets;
 use targets::PackageInfo;
 
 mod detect_targets;
+pub use detect_targets::RustToolchain;
 
 /// 寻找仓库内所有 Cargo.toml 所在的路径
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
@@ -235,7 +236,7 @@ impl Packages {
 
     #[cfg(test)]
     pub fn test_new(pkgs: &[&str]) -> Self {
-        let host = crate::utils::host_target_triple().to_owned();
+        let host = crate::output::host_target_triple().to_owned();
         Packages {
             map: pkgs
                 .iter()
