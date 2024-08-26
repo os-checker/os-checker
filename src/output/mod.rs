@@ -7,6 +7,9 @@ use std::time::SystemTime;
 mod toolchain;
 pub use toolchain::{get_toolchain, host_target_triple, push_toolchain, RustToochains};
 
+mod targets;
+pub use targets::{get_target, push_target, Targets};
+
 #[derive(Debug, Serialize)]
 pub struct JsonOutput {
     pub env: Env,

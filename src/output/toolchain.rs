@@ -67,7 +67,7 @@ pub fn host_target_triple() -> &'static str {
     &GLOBAL.host.host
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, Serialize)]
 struct Rustc {
     version: String,
     commit_hash: String,
