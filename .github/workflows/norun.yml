@@ -9,5 +9,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: |
-          wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml
-          cargo r -- --config repos.yaml --emit json --norun
+          mkdir /check
+          wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O /check/repos.yaml
+          cargo install --path .
+          cd /check
+          os-checker --config repos.yaml --emit json --norun
