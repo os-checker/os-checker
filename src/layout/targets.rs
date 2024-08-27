@@ -1,7 +1,7 @@
 use crate::{Result, XString};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
-    CompilerMessage, Message,
+    // CompilerMessage, Message,
 };
 use indexmap::IndexMap;
 

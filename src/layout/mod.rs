@@ -1,6 +1,6 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
-use crate::{utils::walk_dir, Result, XString};
+use crate::{output::Norun, utils::walk_dir, Result, XString};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
@@ -189,6 +189,14 @@ impl Layout {
             bail!("暂不支持一个代码仓库中出现同名 packages：{duplicates:?}");
         }
         Ok(Packages { map })
+    }
+
+    pub fn norun(&self, norun: &mut Norun) {
+        for info in &self.packages_info {
+            for target in info.targets.keys() {
+                norun.update_target(target);
+            }
+        }
     }
 }
 

@@ -1,7 +1,13 @@
-use crate::{output::JsonOutput, repo::Config, run_checker::RepoOutput, Result};
+use crate::{
+    output::{JsonOutput, Norun},
+    repo::Config,
+    run_checker::{Repo, RepoOutput},
+    Result,
+};
 use argh::FromArgs;
 use cargo_metadata::camino::Utf8PathBuf;
 use rayon::prelude::*;
+use serde::Serialize;
 use std::{fs::File, time::SystemTime};
 
 pub fn args() -> Args {
@@ -22,6 +28,11 @@ pub struct Args {
     #[argh(option, default = "Emit::Json")]
     /// emit a JSON format containing the checking reports
     emit: Emit,
+
+    /// `--norun  --emit a.json` means emitting information like targets without running real
+    /// checkers
+    #[argh(switch)]
+    norun: bool,
 }
 
 /// 见 `../../assets/JSON-data-format.md`
@@ -57,7 +68,7 @@ impl Args {
             .map(RepoOutput::try_from))
     }
 
-    pub fn run(self) -> Result<()> {
+    fn run(&self) -> Result<()> {
         let start = SystemTime::now();
         let outs = self.repos_outputs()?.collect::<Result<Vec<_>>>()?;
         let finish = SystemTime::now();
@@ -65,6 +76,13 @@ impl Args {
         let mut json = JsonOutput::new(&outs);
         json.set_start_end_time(start, finish);
 
+        self.emit(&json)?;
+
+        debug!(?self.emit, "Output emitted");
+        Ok(())
+    }
+
+    fn emit(&self, json: &impl Serialize) -> Result<()> {
         // trick to have stacked dyn trait objects
         let (mut writer1, mut writer2);
         let writer: &mut dyn std::io::Write = match &self.emit {
@@ -77,9 +95,30 @@ impl Args {
                 &mut writer2
             }
         };
-        serde_json::to_writer_pretty(writer, &json)?;
+        serde_json::to_writer_pretty(writer, json)?;
 
-        debug!(?self.emit, "Output emitted");
         Ok(())
+    }
+
+    fn norun(&self) -> Result<()> {
+        let repos: Vec<_> = self
+            .configurations()?
+            .into_par_iter()
+            .map(Repo::try_from)
+            .collect::<Result<_>>()?;
+        let mut norun = Norun::new();
+        for repo in &repos {
+            repo.norun(&mut norun);
+        }
+        self.emit(&norun)?;
+        Ok(())
+    }
+
+    pub fn execute(self) -> Result<()> {
+        if self.norun {
+            self.norun()
+        } else {
+            self.run()
+        }
     }
 }

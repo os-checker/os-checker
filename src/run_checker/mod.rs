@@ -1,6 +1,6 @@
 use crate::{
     layout::Layout,
-    output::JsonOutput,
+    output::{JsonOutput, Norun},
     repo::{CheckerTool, Config, Resolve},
     Result, XString,
 };
@@ -87,6 +87,10 @@ impl Repo {
         // 由于已经按顺序执行，这里其实无需排序；如果以后引入并发，则需要排序
         // v.sort_unstable_by(|a, b| (&a.package_name, a.checker).cmp(&(&b.package_name, b.checker)));
         Ok(v)
+    }
+
+    pub fn norun(&self, norun: &mut Norun) {
+        self.layout.norun(norun);
     }
 }
 

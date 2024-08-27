@@ -7,15 +7,14 @@ use serde::Serialize;
 use std::sync::{LazyLock, Mutex};
 
 #[derive(Debug, Serialize)]
-#[serde(rename = "rust_toolchain")]
-pub struct RustToochains {
+pub struct RustToolchains {
     host: &'static Rustc,
     installed: Vec<RustToolchain>,
 }
 
-impl RustToochains {
-    fn new() -> Self {
-        RustToochains {
+impl RustToolchains {
+    pub fn new() -> Self {
+        RustToolchains {
             host: &GLOBAL.host,
             installed: {
                 let map = GLOBAL.installed.lock().unwrap();
@@ -24,6 +23,15 @@ impl RustToochains {
                 map.keys().cloned().collect()
             },
         }
+    }
+
+    /// Components required by all repos except host.
+    pub fn components(&self) -> impl Iterator<Item = &str> {
+        self.installed[1..]
+            .iter()
+            .flat_map(|val| val.components.as_deref())
+            .flatten()
+            .map(|s| &**s)
     }
 }
 
