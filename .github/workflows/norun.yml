@@ -35,4 +35,4 @@ jobs:
       - name: Run os-checker
         run: |
           cd ~/check
-          os-checker --config repos.yaml --emit json --norun
+          os-checker --config repos.yaml --emit json --norun --setup
