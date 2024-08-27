@@ -60,6 +60,7 @@ fn setup_lockbud(targets: &[&str]) -> Result<()> {
     let dir = "repos/lockbud";
     cmd!("git", "clone", url, dir).run()?;
     rustup_target_add(targets).dir(dir).run()?;
-    cmd!("rustup", "show").run()?;
+    cmd!("rustup", "show").dir(dir).run()?;
+    cmd!("cargo", "install", "--path", ".").dir(dir).run()?;
     Ok(())
 }
