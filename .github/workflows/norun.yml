@@ -1,9 +1,8 @@
-name: No Run Checkers
+name: Run Checkers
 on: [push]
 
 jobs:
-  norun:
-    name: Emit toolchain environment infomation needed from all repos
+  run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,10 +29,35 @@ jobs:
       - name: Install os-checker
         run: cargo install --path . --force
 
-      - name: Run os-checker
-        run: |
-          cd ~/check
-          os-checker --config repos.yaml --emit json --norun --setup
+      - name: Prepare toolchain environment needed from all repos and checkers
+        working-directory: ~/check
+        run: os-checker --config repos.yaml --emit json --norun --setup
+
+      - name: Run all checkers
+        working-directory: ~/check
+        run: os-checker --config repos.yaml --emit ui.json
+
+      # - name: Commit and push ui.json
+      #   working-directory: ~/check
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     # author zjp-CN, and commiter bot
+      #     git config --global user.name "zjp-CN"
+      #     git config --global user.email "jiping_zhou@foxmail.com"
+      #     git config --global committer.name "zjp-CN[bot]"
+      #     git config --global committer.email "zjp-CN[bot]@users.noreply.github.com"
+      #
+      #     echo "正在 clone os-checker/database"
+      #     git clone https://x-access-token:${{ secrets.ACCESS_TOKEN }}@github.com/os-checker/database.git
+      #     echo "成功 clone os-checker/database"
+      #     cd database
+      #     git pull --rebase # 防止二次运行 CI 时落后于远程分支
+      #
+      #     export BOT=1 UI_JSON=ui.json # database 仓库的 json 检查结果
+      #     cp ui.json $UI_JSON
+      #     # 运行 jq 生成 WebUI 所需的 JSON 文件，并推送到 database 仓库
+      #     sh ci.sh
 
       - name: Cache Save
         id: cache-cargo-save
