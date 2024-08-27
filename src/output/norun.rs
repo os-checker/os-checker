@@ -31,7 +31,7 @@ impl Norun {
     }
 
     pub fn setup(&self) -> Result<()> {
-        let list = self.targets.iter().join(",");
+        let list = self.targets.iter().join(" ");
         duct::cmd!("rustup", "target", "add", list).run()?;
         self.toolchains.setup()
     }
