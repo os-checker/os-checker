@@ -33,6 +33,19 @@ impl RustToolchains {
             .flatten()
             .map(|s| &**s)
     }
+
+    /// 进入每个 installed 搜集的目录，运行 `rustup show` 来安装仓库指定的工具链
+    // NOTE: rustup show 可能将来改为 rustup ensure 之类的命令来明确安装工具链。
+    pub fn setup(&self) -> Result<()> {
+        for toolchain in &self.installed[1..] {
+            // toml_path 带 rust-toolchain.toml，应去除
+            let dir = toolchain.toml_path.parent().unwrap();
+            let out = cmd!("rustup", "show").dir(dir).read()?;
+            println!("{dir}:{out}");
+        }
+
+        Ok(())
+    }
 }
 
 static GLOBAL: LazyLock<Global> = LazyLock::new(Global::new);

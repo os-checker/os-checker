@@ -1,4 +1,5 @@
 use super::RustToolchains;
+use crate::Result;
 use indexmap::IndexSet;
 use serde::Serialize;
 
@@ -26,6 +27,10 @@ impl Norun {
 
     pub fn update_target(&mut self, target: &str) {
         update_set(&mut self.targets, target);
+    }
+
+    pub fn setup(&self) -> Result<()> {
+        self.toolchains.setup()
     }
 }
 

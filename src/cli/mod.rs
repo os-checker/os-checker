@@ -29,10 +29,13 @@ pub struct Args {
     /// emit a JSON format containing the checking reports
     emit: Emit,
 
-    /// `--norun  --emit a.json` means emitting information like targets without running real
-    /// checkers
+    /// `--norun  --emit a.json` means emitting information like targets without running real checkers
     #[argh(switch)]
     norun: bool,
+
+    /// works with `--norun` to set up all rust-toolchains and checkers
+    #[argh(switch)]
+    setup: bool,
 }
 
 /// 见 `../../assets/JSON-data-format.md`
@@ -111,6 +114,9 @@ impl Args {
             repo.norun(&mut norun);
         }
         self.emit(&norun)?;
+        if self.setup {
+            norun.setup()?;
+        }
         Ok(())
     }
 
