@@ -15,9 +15,9 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly
 
-      - name: Cache
-        id: cache-cargo
-        uses: actions/cache@v4
+      - name: Cache Restore
+        id: cache-cargo-restore
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -25,7 +25,18 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**.rs') }}
+          key: ${{ runner.os }}-cargo
+      # - name: Cache
+      #   id: cache-cargo
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.cargo/bin/
+      #       ~/.cargo/registry/index/
+      #       ~/.cargo/registry/cache/
+      #       ~/.cargo/git/db/
+      #       target/
+      #     key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**.rs') }}
 
       - name: Build os-checker
         if: steps.cache-cargo.outputs.cache-hit != 'true'
@@ -36,3 +47,15 @@ jobs:
         run: |
           cd ~/check
           os-checker --config repos.yaml --emit json --norun --setup
+
+      - name: Cache Save
+        id: cache-cargo-save
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ steps.cache-cargo-restore.outputs.cache-primary-key }}
