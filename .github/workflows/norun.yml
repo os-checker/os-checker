@@ -8,12 +8,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@nightly
-
       - name: Download repos.yaml
         run: |
           mkdir ~/check
           wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O ~/check/repos.yaml
+
+      - uses: dtolnay/rust-toolchain@nightly
 
       - name: Cache
         id: cache-cargo
