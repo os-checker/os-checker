@@ -46,7 +46,7 @@
 {
   "env": {
     "tools": {
-      "rust_toolchain": {
+      "rust_toolchains": {
         "host": {...}, // 总是默认最新的 nightly Rust
         "installed": [...] // host 以及所有 repos、packages 和检查工具指定的 rust-toolchain 数组，repo/package/cmd 通过索引指向这
       }, 
@@ -110,7 +110,7 @@
 }
 ```
 
-# `rust_toolchain` 的格式
+# `rust_toolchains` 的格式
 
 信息主要来自
 * 主机默认的版本：`rustc -vV`；

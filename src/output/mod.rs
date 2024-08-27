@@ -56,12 +56,14 @@ pub struct Env {
 
 #[derive(Debug, Serialize)]
 pub struct Tools {
+    rust_toolchains: RustToolchains,
     os_checker: ToolOsChecker,
 }
 
 impl Tools {
     pub fn new() -> Self {
         Self {
+            rust_toolchains: RustToolchains::new(),
             os_checker: ToolOsChecker::new_without_duration(),
         }
     }

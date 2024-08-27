@@ -14,6 +14,7 @@ pub struct RustToolchains {
 }
 
 impl RustToolchains {
+    /// NOTE: 该函数应该在得到所有 repo::Repo 之后调用。
     pub fn new() -> Self {
         RustToolchains {
             host: &GLOBAL.host,
