@@ -38,13 +38,14 @@ jobs:
       #       target/
       #     key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**.rs') }}
 
-      - name: Build os-checker
-        if: steps.cache-cargo.outputs.cache-hit != 'true'
-        run: |
-          cargo install --path .
+      # - name: Build os-checker
+      #   if: steps.cache-cargo.outputs.cache-hit != 'true'
+      #   run: |
+      #     cargo install --path .
 
       - name: Run os-checker
         run: |
+          cargo install --path . --force
           cd ~/check
           os-checker --config repos.yaml --emit json --norun --setup
 
