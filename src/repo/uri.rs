@@ -50,7 +50,9 @@ impl Uri {
         debug!(self.key, "git clone {url} {target_dir}");
         let now = std::time::Instant::now();
         let output = if target_dir.exists() {
-            cmd!("git", "pull", "--recursive").dir(target_dir).run()?
+            cmd!("git", "pull", "--recurse-submodules")
+                .dir(target_dir)
+                .run()?
         } else {
             cmd!("git", "clone", "--recursive", url, target_dir).run()?
         };
