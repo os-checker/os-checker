@@ -103,12 +103,17 @@ fn unix_timestamp(time: SystemTime) -> u64 {
 pub struct Repo {
     pub user: XString,
     pub repo: XString,
+    /// 绝大部分情况下一个仓库要么没有设置工具链，要么设置一个，但也不排除诡异的多
+    /// workspace/pkg 会设置自己的工具链。因此此数组长度可能为 0、1、甚至更多。
+    pub rust_toolchain_idxs: Vec<usize>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct Package {
     pub name: XString,
     pub repo: PackageRepo,
+    /// 这里表示仓库设置给的 pkg 设置的工具链，如果没有设置，则为 None
+    pub rust_toolchain_idx: Option<usize>,
 }
 
 #[derive(Debug, Serialize)]
@@ -131,8 +136,12 @@ pub struct Cmd {
     pub cmd: String,
     pub count: usize,
     pub duration_ms: u64,
+    /// FIXME: 替换成 target_idx 之后，该字段应该被删除
     pub arch: XString,
+    /// FIXME: 替换成 target_idx
     pub target_triple: String,
+    /// 如果仓库没有指定工具链，则使用主机工具链
+    pub rust_toolchain_idx: usize,
     pub features: Vec<XString>,
     pub flags: Vec<XString>,
 }

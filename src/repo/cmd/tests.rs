@@ -64,6 +64,7 @@ fn custom_cmd() {
         name: "nothing",
         dir: cargo_metadata::camino::Utf8Path::new("."),
         target: "x86_64-unknown-linux-gnu",
+        toolchain: Some(0),
     };
     expect![[r#"
         Resolve {

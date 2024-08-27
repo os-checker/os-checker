@@ -22,7 +22,7 @@ pub enum TargetSource {
     DetectedByPkgScripts(Utf8PathBuf),
     DetectedByRepoGithub(Utf8PathBuf),
     DetectedByRepoScripts(Utf8PathBuf),
-    OverriddenInOsCheckerYaml,
+    // OverriddenInOsCheckerYaml, // 覆盖操作直接在生成 cmd 时进行，暂时不会被记录
 }
 
 /// A list of target triples obtained from multiple sources.

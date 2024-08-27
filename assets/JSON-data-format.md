@@ -71,11 +71,11 @@
       {"arch": "riscv64", "cpu": "generic-rv64", ...},
     ],
     "repos": [
-      {"user": "arceos-org", "repo": "arceos", "cargo_layout": [...], "info": {...}, "rust_toolchain_idx": 2}
+      {"user": "arceos-org", "repo": "arceos", "cargo_layout": [...], "info": {...}, "rust_toolchain_idxs": []}
     ],
     "packages": [ // repo_idx 指向 .env.repos 数组中的一项
       {
-        "name": "axstd", "rust_toolchain_idx": "...", // 注意：package 有可能设置和 repo 不一样的 rustc 版本
+        "name": "axstd", "rust_toolchain_idx": null, // 注意：package 的工具链，如果仓库自己设置，则为空
         "repo": {"repo_idx": 0, "user": "arceos-org", "repo": "arceos", "branch": "main"},
         "cargo": {"targets": [...], "features": [...]}
       }
@@ -148,6 +148,15 @@
 ```
 
 [#29]: https://github.com/os-checker/os-checker/issues/29#issuecomment-2308639316
+
+注意：虽然 repos、packages 和 cmds 数组元素都含有指向 rust_toolchains 的索引，其含义有所不同
+* repo 的 rust_toolchain_idxs 表示所有 packages 自己设置工具链。绝大部分情况下一个仓库要么没有设置工具链，要么设置一个，但也不排除诡异的多
+  workspace/pkg 会设置自己的工具链。因此此数组长度可能为 0、1、甚至更多。该值保证为数组，不会为 null。
+  * 代表 host 的索引 0 不包括在这个索引数组内，如果数组为空，则表示完全使用 host 工具链。
+  * 如果该索引不为空，也不一定表示其内 package 不使用 host 工具链。
+  * 因此这个数组仅仅为仓库自己设置的工具链信息。
+* package 的 rust_toolchain_idx 表示 package 自己设置的工具链信息，因此没有设置工具链时，为 null。
+* cmd 的 rust_toolchain_idx 一定不为 null，因为每个命令来自一个工具链：检查工具设置，或者仓库设置，或者默认的 host 工具链。
 
 # Misc：使用 Github API 获取仓库基础信息
 

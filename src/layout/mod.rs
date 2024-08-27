@@ -6,6 +6,7 @@ use cargo_metadata::{
     Metadata, MetadataCommand,
 };
 use indexmap::{IndexMap, IndexSet};
+use itertools::Itertools;
 use std::{collections::BTreeMap, fmt};
 
 #[cfg(test)]
@@ -176,6 +177,7 @@ impl Layout {
                     PackageInfoShared {
                         pkg_dir: info.pkg_dir.clone(),
                         targets: info.targets.keys().cloned().collect(),
+                        toolchain: info.toolchain,
                     },
                 )
             })
@@ -197,6 +199,11 @@ impl Layout {
                 norun.update_target(target);
             }
         }
+    }
+
+    pub fn rust_toolchain_idxs(&self) -> Vec<usize> {
+        let toolchains = self.packages_info.iter().filter_map(|p| p.toolchain);
+        toolchains.sorted().dedup().collect()
     }
 }
 
@@ -225,6 +232,7 @@ impl Packages {
                 name: k,
                 dir: &v.pkg_dir,
                 target,
+                toolchain: v.toolchain,
             })
             .collect()
     }
@@ -237,6 +245,7 @@ impl Packages {
                     name,
                     dir: &info.pkg_dir,
                     target,
+                    toolchain: info.toolchain,
                 })
             })
             .collect()
@@ -254,6 +263,7 @@ impl Packages {
                         PackageInfoShared {
                             pkg_dir: Utf8PathBuf::new(),
                             targets: vec![host.clone()],
+                            toolchain: Some(0),
                         },
                     )
                 })
@@ -267,10 +277,12 @@ struct PackageInfoShared {
     /// manifest_dir, i.e. manifest_path without Cargo.toml
     pkg_dir: Utf8PathBuf,
     targets: Vec<String>,
+    toolchain: Option<usize>,
 }
 
 pub struct Pkg<'a> {
     pub name: &'a str,
     pub dir: &'a Utf8Path,
     pub target: &'a str,
+    pub toolchain: Option<usize>,
 }

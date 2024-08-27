@@ -55,13 +55,19 @@ impl RepoOutput {
                     user: user.clone(),
                     repo: repo.clone(),
                 },
+                rust_toolchain_idx: pkg.outputs.first().and_then(|o| o.resolve.toolchain),
             });
             for raw in &pkg.outputs {
                 utils::push_idx_and_data(pkg_idx, raw, &mut json.cmd, &mut json.data);
             }
         }
 
-        json.env.repos.push(Repo { user, repo });
+        let rust_toolchain_idxs = self.repo.layout.rust_toolchain_idxs();
+        json.env.repos.push(Repo {
+            user,
+            repo,
+            rust_toolchain_idxs,
+        });
     }
 }
 
