@@ -7,9 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
       - run: |
-          mkdir /check
+          sudo mkdir /check
           wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O /check/repos.yaml
           cargo install --path .
           cd /check
