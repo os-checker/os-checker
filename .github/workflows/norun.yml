@@ -25,7 +25,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', 'src/**.rs') }}
 
       - name: Build os-checker
         if: steps.cache-cargo.outputs.cache-hit != 'true'
