@@ -1,0 +1,13 @@
+name: No Run Checkers
+on: [push]
+
+jobs:
+  norun:
+    name: emit toolchain environment infomation needed from all repos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: |
+          wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml
+          cargo r -- --config repos.yaml --emit json --norun
