@@ -32,8 +32,8 @@ jobs:
       - name: Prepare toolchain environment needed from all repos and checkers
         run: cd ~/check && os-checker --config repos.yaml --emit json --norun --setup
 
-      - name: Run all checkers
-        run: cd ~/check && os-checker --config repos.yaml --emit ui.json
+      - name: Run All Checkers
+        run: cd ~/check && RUST_LOG=debug os-checker --config repos.yaml --emit ui.json
 
       # - name: Commit and push ui.json
       #   env:
