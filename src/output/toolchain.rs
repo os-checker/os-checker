@@ -1,4 +1,5 @@
 use crate::{layout::RustToolchain, Result};
+use color_eyre::owo_colors::OwoColorize;
 use duct::cmd;
 use eyre::ContextCompat;
 use indexmap::IndexMap;
@@ -41,7 +42,7 @@ impl RustToolchains {
             // toml_path 带 rust-toolchain.toml，应去除
             let dir = toolchain.toml_path.parent().unwrap();
             let out = cmd!("rustup", "show").dir(dir).read()?;
-            println!("{dir}:\n{out}");
+            println!("\n{}:\n{out}\n", dir.yellow());
         }
 
         Ok(())
