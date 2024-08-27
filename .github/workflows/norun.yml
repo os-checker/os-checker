@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
       - run: |
-          su
+          sudo -i
           mkdir /check
           wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O /check/repos.yaml
           cargo install --path .
