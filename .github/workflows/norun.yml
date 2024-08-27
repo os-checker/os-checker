@@ -1,5 +1,8 @@
 name: Run Checkers
-on: [push]
+# on: [push]
+on:
+  push:
+    branches: [ main ]
 
 jobs:
   run:
