@@ -41,7 +41,7 @@ impl RustToolchains {
             // toml_path 带 rust-toolchain.toml，应去除
             let dir = toolchain.toml_path.parent().unwrap();
             let out = cmd!("rustup", "show").dir(dir).read()?;
-            println!("{dir}:{out}");
+            println!("{dir}:\n{out}");
         }
 
         Ok(())
