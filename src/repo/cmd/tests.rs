@@ -17,7 +17,10 @@ fn custom_target() -> Result<()> {
         "#]]
     .assert_debug_eq(&words);
     assert_eq!(target, extract_target(&words).unwrap_or("???"));
-    assert_eq!(target, append_target(&mut words, "???").unwrap_or_default());
+    assert_eq!(
+        target,
+        set_toolchain_and_target(&mut words, "???", None).unwrap_or_default()
+    );
 
     // 但 --target=... 不一样
     let line = "cargo clippy --target=x86_64-unknown-linux-gnu";
@@ -31,7 +34,10 @@ fn custom_target() -> Result<()> {
         "#]]
     .assert_debug_eq(&words);
     assert_eq!(target, extract_target(&words).unwrap_or("???"));
-    assert_eq!(target, append_target(&mut words, "???").unwrap_or_default());
+    assert_eq!(
+        target,
+        set_toolchain_and_target(&mut words, "???", None).unwrap_or_default()
+    );
 
     Ok(())
 }
@@ -43,7 +49,10 @@ fn custom_without_target() -> Result<()> {
 
     let target = "riscv64gc-unknown-none-elf";
     assert_eq!("???", extract_target(&words).unwrap_or("???"));
-    assert_eq!("", append_target(&mut words, target).unwrap_or_default());
+    assert_eq!(
+        "",
+        set_toolchain_and_target(&mut words, target, None).unwrap_or_default()
+    );
     assert_eq!(target, extract_target(&words).unwrap_or("???"));
 
     Ok(())
@@ -55,6 +64,7 @@ fn custom_cmd() {
         name: "nothing",
         dir: cargo_metadata::camino::Utf8Path::new("."),
         target: "x86_64-unknown-linux-gnu",
+        toolchain: Some(0),
     };
     expect![[r#"
         Resolve {

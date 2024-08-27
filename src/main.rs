@@ -24,5 +24,5 @@ mod utils;
 
 fn main() -> Result<()> {
     logger::init();
-    cli::args().run()
+    cli::args().execute()
 }

@@ -1,5 +1,8 @@
-use super::{cmd, Itertools, LazyLock, Result, Utf8PathBuf};
+use crate::Result;
+use cargo_metadata::camino::Utf8PathBuf;
+use itertools::Itertools;
 use regex::bytes::Regex;
+use std::sync::LazyLock;
 
 pub fn scan_scripts_for_target(
     files: &[Utf8PathBuf],
@@ -17,7 +20,7 @@ pub fn scan_scripts_for_target(
 }
 
 fn pattern_target_list() -> String {
-    let target_list = cmd!("rustc", "--print=target-list").read().unwrap();
+    let target_list = duct::cmd!("rustc", "--print=target-list").read().unwrap();
     let target_formatter = target_list
         .lines()
         .format_with("|", |target, f| f(&format_args!("({target})")));

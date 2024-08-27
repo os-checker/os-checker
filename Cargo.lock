@@ -1087,9 +1087,9 @@ dependencies = [
 
 [[package]]
 name = "yash-syntax"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2923adaa08d45feae1ebb4db4a1fd95a31942c928c551a28691891f60949f8ec"
+checksum = "9b5c7aa0b84da3ce8ed09533d04c22999b6af5c64c721229bee47956091248cd"
 dependencies = [
  "async-trait",
  "futures-util",

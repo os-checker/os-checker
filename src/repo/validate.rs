@@ -19,6 +19,7 @@ pub struct Resolve {
     pub target: String,
     /// 仅当自定义检查命令出现 --target 时为 true
     pub target_overriden: bool,
+    pub toolchain: Option<usize>,
     pub checker: CheckerTool,
     /// 完整的检查命令字符串（一定包含 --target）：
     /// 来自 os-checker 生成或者配置文件自定义
@@ -35,6 +36,7 @@ impl Resolve {
             pkg_dir: pkg.dir.to_owned(),
             target: pkg.target.to_owned(),
             target_overriden: false,
+            toolchain: pkg.toolchain,
             checker,
             cmd,
             expr,
@@ -54,6 +56,7 @@ impl Resolve {
             pkg_dir: pkg.dir.to_owned(),
             target,
             target_overriden: true,
+            toolchain: pkg.toolchain,
             checker,
             cmd,
             expr,

@@ -36,6 +36,7 @@ pub struct PackageTargets {
     // NOTE: this can be empty if no target is specified in .cargo/config.toml,
     // in which case the host target should be implied when the empty value is handled.
     pub targets: Targets,
+    pub toolchain: Option<RustToolchain>,
 }
 
 impl WorkspaceTargetTriples {
@@ -53,8 +54,14 @@ impl WorkspaceTargetTriples {
                 .workspace_packages()
                 .iter()
                 .map(|pkg| {
+                    let mut targets = Targets::new();
                     let pkg_dir = pkg.manifest_path.parent().unwrap();
-                    let mut targets = search_cargo_config_toml(pkg_dir, repo_root).unwrap();
+                    let toolchain = RustToolchain::search(pkg_dir, repo_root).unwrap();
+                    if let Some(t) = toolchain.as_ref().and_then(RustToolchain::targets) {
+                        targets.merge(&t);
+                    }
+
+                    targets.merge(&search_cargo_config_toml(pkg_dir, repo_root).unwrap());
 
                     let pkg_targets = pkg_targets(pkg).unwrap_or_default();
 
@@ -65,6 +72,7 @@ impl WorkspaceTargetTriples {
                         pkg_name: XString::from(&*pkg.name),
                         pkg_dir: pkg_dir.to_owned(),
                         targets,
+                        toolchain,
                     }
                 })
                 .collect(),
@@ -200,26 +208,43 @@ impl CargoConfigTomlTarget {
     }
 
     pub fn search(child: &Utf8Path, root: &Utf8Path) -> Result<Option<(Self, Utf8PathBuf)>> {
-        let child = child.canonicalize_utf8()?;
-        let root = root.canonicalize_utf8()?;
-        let mut path = Utf8PathBuf::new();
-        for parent in child.ancestors() {
-            path.extend(parent);
-            path.extend([".cargo", "config.toml"]);
-            if let Ok(target) = CargoConfigTomlTarget::new(&path) {
-                return Ok(Some((target, path)));
-            }
-            path.set_file_name("config");
-            if let Ok(target) = CargoConfigTomlTarget::new(&path) {
-                return Ok(Some((target, path)));
-            }
-            if parent == root {
-                break;
-            }
-            path.clear();
-        }
-        Ok(None)
+        search_from_child_to_root(
+            |path| {
+                path.extend([".cargo", "config.toml"]);
+                if let Ok(target) = CargoConfigTomlTarget::new(path) {
+                    return Some(target);
+                }
+                path.set_file_name("config");
+                if let Ok(target) = CargoConfigTomlTarget::new(path) {
+                    return Some(target);
+                }
+                None
+            },
+            child,
+            root,
+        )
     }
+}
+
+fn search_from_child_to_root<T>(
+    mut f: impl FnMut(&mut Utf8PathBuf) -> Option<T>,
+    child: &Utf8Path,
+    root: &Utf8Path,
+) -> Result<Option<(T, Utf8PathBuf)>> {
+    let child = child.canonicalize_utf8()?;
+    let root = root.canonicalize_utf8()?;
+    let mut path = Utf8PathBuf::new();
+    for parent in child.ancestors() {
+        path.extend(parent);
+        if let Some(ret) = f(&mut path) {
+            return Ok(Some((ret, path)));
+        }
+        if parent == root {
+            break;
+        }
+        path.clear();
+    }
+    Ok(None)
 }
 
 /// 搜索从 package dir 开始往父级到 repo_root 的 .cargo/ 目录下的
@@ -240,4 +265,71 @@ fn search_cargo_config_toml(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<
         None => (),
     }
     Ok(targets)
+}
+
+#[derive(Deserialize, Debug)]
+pub struct RustToolchainToml {
+    pub toolchain: RustToolchain,
+}
+
+impl RustToolchainToml {
+    fn new(path: &Utf8Path) -> Option<Self> {
+        let bytes = std::fs::read(path).ok()?;
+        basic_toml::from_slice(&bytes).ok()
+    }
+}
+
+// [toolchain]
+// channel = "nightly-2020-07-10"
+// components = [ "rustfmt", "rustc-dev" ]
+// targets = [ "wasm32-unknown-unknown", "thumbv2-none-eabi" ]
+// profile = "minimal"
+#[derive(Deserialize, Serialize, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Clone)]
+pub struct RustToolchain {
+    pub channel: XString,
+    pub profile: Option<XString>,
+    pub targets: Option<Vec<String>>,
+    pub components: Option<Vec<String>>,
+    #[serde(skip_deserializing)]
+    pub toml_path: Utf8PathBuf,
+}
+
+impl RustToolchain {
+    /// 将该工具链信息存到全局数组，返回唯一的索引
+    pub fn store(self) -> usize {
+        crate::output::push_toolchain(self)
+    }
+
+    pub fn targets(&self) -> Option<Targets> {
+        let v = self.targets.as_deref()?;
+        let mut targets = Targets::new();
+        for target in v {
+            targets.rust_toolchain_toml(target, &self.toml_path);
+        }
+        Some(targets)
+    }
+
+    pub fn search(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<Option<Self>> {
+        let Some((toolchain, toml_path)) = search_from_child_to_root(
+            |path| {
+                path.set_file_name("rust-toolchain.toml");
+                if let Some(target) = RustToolchainToml::new(path) {
+                    return Some(target);
+                }
+                path.set_file_name("rust-toolchain");
+                if let Some(target) = RustToolchainToml::new(path) {
+                    return Some(target);
+                }
+                None
+            },
+            pkg_dir,
+            repo_root,
+        )?
+        else {
+            return Ok(None);
+        };
+        let mut toolchain = toolchain.toolchain;
+        toolchain.toml_path = toml_path;
+        Ok(Some(toolchain))
+    }
 }

@@ -27,6 +27,7 @@ pub fn push_idx_and_data(
             .map(|(arch, _)| arch.into())
             .unwrap_or_default(),
         target_triple: raw.resolve.target.clone(),
+        rust_toolchain_idx: raw.resolve.toolchain.unwrap_or(0),
         features,
         flags,
     };

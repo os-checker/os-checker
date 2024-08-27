@@ -46,9 +46,12 @@
 {
   "env": {
     "tools": {
-      "rust": {"version": "1.82.0-nightly (91376f416 2024-08-12)"},
+      "rust_toolchains": {
+        "host": {...}, // 总是默认最新的 nightly Rust
+        "installed": [...] // host 以及所有 repos、packages 和检查工具指定的 rust-toolchain 数组，repo/package/cmd 通过索引指向这
+      }, 
       "clippy": {"version": "clippy 0.1.82 (91376f4 2024-08-12)"},
-      "lockbud": {"version": "sha...", "date": "...", "rust_toolchain": "..."}, // lockbud 需要固定工具链
+      "lockbud": {"version": "sha...", "date": "...", "rust_toolchain_idx": 1}, // lockbud 需要固定工具链
       "os_checker": {"start": "...", "finish": "...", "duration_ms": 3, "git_time": "...", "git_sha": "..."}
     },
     "kinds": {
@@ -59,16 +62,20 @@
       }
     },
     "host": {"arch": "x86_64", "kernel": "..."}, // arch 命令和 cat /proc/version
-    "target_spec": [ // 完整示例见 https://github.com/os-checker/os-checker/issues/25
+    "targets": [ // target_idx 指向这
+      {"triple": "x86_64-unknown-linux-gnu", "arch": "x86_64"},
+      {"triple": "riscv64gc-unknown-none-elf", "arch": "riscv64gc"}
+    ],
+    "target_spec": [ // 尚未确定；完整示例见 https://github.com/os-checker/os-checker/issues/25
       {"arch": "x86_64", "cpu": "x86-64", ...},
       {"arch": "riscv64", "cpu": "generic-rv64", ...},
     ],
     "repos": [
-      {"user": "arceos-org", "repo": "arceos", "cargo_layout": [...], "info": {...}}
+      {"user": "arceos-org", "repo": "arceos", "cargo_layout": [...], "info": {...}, "rust_toolchain_idxs": []}
     ],
     "packages": [ // repo_idx 指向 .env.repos 数组中的一项
       {
-        "name": "axstd",
+        "name": "axstd", "rust_toolchain_idx": null, // 注意：package 的工具链，如果仓库自己设置，则为空
         "repo": {"repo_idx": 0, "user": "arceos-org", "repo": "arceos", "branch": "main"},
         "cargo": {"targets": [...], "features": [...]}
       }
@@ -78,20 +85,20 @@
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --no-deps --message-format=json",
-      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0,
+      "target_idx": 0, "spec_idx": 0, "rust_toolchain_idx": 2,
       "features": ["a", "b"],
       "flags": ["--cfg=...", "-Z...", "-C..."]
     },
     {
       "package_idx": 0, "tool": "clippy", "count": 1, "duration_ms": 1,
       "cmd": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json",
-      "arch": "riscv64", "triple": "riscv64gc-unknown-none-elf", "spec_idx": 1,
+      "target_idx": 1, "spec_idx": 1, "rust_toolchain_idx": 2,
       "features": [], "flags": []
     },
     {
       "package_idx": 0, "tool": "lockbud", "count": 1, "duration_ms": 1,
       "cmd": "cargo lockbud",
-      "arch": "x86_64", "triple": "x86_64-unknown-linux-gnu", "spec_idx": 0,
+      "target_idx": 0, "spec_idx": 0, "rust_toolchain_idx": 2,
       "features": [], "flags": []
     }
   ],
@@ -102,6 +109,54 @@
   ]
 }
 ```
+
+# `rust_toolchains` 的格式
+
+信息主要来自
+* 主机默认的版本：`rustc -vV`；
+* 查找并解析 `rust-toolchain.{,toml}` 文件，这是 os-checker 的做法。有一些其他方式，但并不采用它们：
+  * `cargo rustc -- -vV` 需要编译才能得到 rustc 的版本信息，因此不使用此命令
+  * `rustup toolchain list` 命令不需要编译，可以搜索出现 `(override)` 的那一行，但前提是安装了工具链才行，因此也不使用此命令
+  * `rustup show` 会自动安装工具链，并报告当前所需的工具链版本，但缺点它直接打印清单，将来可能会变化，所以不建议依赖它的输出，此外它虽然输出当前工具链安装的 
+     targets，但不一定适用于 package：比如默认工具链现在安装了所有 targets，当这个工具链作用于 package，并不意味着个 package 需要所有的 targets。（ [#29]）
+
+```json
+{
+  "host": {
+    "version": "...",
+    "commit_hash": "...",
+    "commit_date": "...",
+    "host": "...",
+    "release": "...",
+    "llvm_version": "...",
+  },
+  "installed": [
+    { // 第 0 个是 host 工具链
+      "channel": "nightly",
+      "profile": "minimal",
+      "components": ["rustfmt", "clippy"],
+      "targets": ["all"]
+    },
+    {
+      "channel": "nightly-2024-05-02",
+      "profile": "minimal",
+      "components": ["rust-src", "llvm-tools", "rustfmt", "clippy"],
+      "targets": ["x86_64-unknown-none", "riscv64gc-unknown-none-elf", "aarch64-unknown-none", "aarch64-unknown-none-softfloat"]
+    }
+  ]
+}
+```
+
+[#29]: https://github.com/os-checker/os-checker/issues/29#issuecomment-2308639316
+
+注意：虽然 repos、packages 和 cmds 数组元素都含有指向 rust_toolchains 的索引，其含义有所不同
+* repo 的 rust_toolchain_idxs 表示所有 packages 自己设置工具链。绝大部分情况下一个仓库要么没有设置工具链，要么设置一个，但也不排除诡异的多
+  workspace/pkg 会设置自己的工具链。因此此数组长度可能为 0、1、甚至更多。该值保证为数组，不会为 null。
+  * 代表 host 的索引 0 不包括在这个索引数组内，如果数组为空，则表示完全使用 host 工具链。
+  * 如果该索引不为空，也不一定表示其内 package 不使用 host 工具链。
+  * 因此这个数组仅仅为仓库自己设置的工具链信息。
+* package 的 rust_toolchain_idx 表示 package 自己设置的工具链信息，因此没有设置工具链时，为 null。
+* cmd 的 rust_toolchain_idx 一定不为 null，因为每个命令来自一个工具链：检查工具设置，或者仓库设置，或者默认的 host 工具链。
 
 # Misc：使用 Github API 获取仓库基础信息
 

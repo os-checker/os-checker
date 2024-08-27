@@ -1,11 +1,12 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
-use crate::{utils::walk_dir, Result, XString};
+use crate::{output::Norun, utils::walk_dir, Result, XString};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
 use indexmap::{IndexMap, IndexSet};
+use itertools::Itertools;
 use std::{collections::BTreeMap, fmt};
 
 #[cfg(test)]
@@ -16,6 +17,7 @@ mod targets;
 use targets::PackageInfo;
 
 mod detect_targets;
+pub use detect_targets::RustToolchain;
 
 /// 寻找仓库内所有 Cargo.toml 所在的路径
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
@@ -175,6 +177,7 @@ impl Layout {
                     PackageInfoShared {
                         pkg_dir: info.pkg_dir.clone(),
                         targets: info.targets.keys().cloned().collect(),
+                        toolchain: info.toolchain,
                     },
                 )
             })
@@ -188,6 +191,19 @@ impl Layout {
             bail!("暂不支持一个代码仓库中出现同名 packages：{duplicates:?}");
         }
         Ok(Packages { map })
+    }
+
+    pub fn norun(&self, norun: &mut Norun) {
+        for info in &self.packages_info {
+            for target in info.targets.keys() {
+                norun.update_target(target);
+            }
+        }
+    }
+
+    pub fn rust_toolchain_idxs(&self) -> Vec<usize> {
+        let toolchains = self.packages_info.iter().filter_map(|p| p.toolchain);
+        toolchains.sorted().dedup().collect()
     }
 }
 
@@ -216,6 +232,7 @@ impl Packages {
                 name: k,
                 dir: &v.pkg_dir,
                 target,
+                toolchain: v.toolchain,
             })
             .collect()
     }
@@ -228,6 +245,7 @@ impl Packages {
                     name,
                     dir: &info.pkg_dir,
                     target,
+                    toolchain: info.toolchain,
                 })
             })
             .collect()
@@ -235,7 +253,7 @@ impl Packages {
 
     #[cfg(test)]
     pub fn test_new(pkgs: &[&str]) -> Self {
-        let host = crate::utils::host_target_triple().to_owned();
+        let host = crate::output::host_target_triple().to_owned();
         Packages {
             map: pkgs
                 .iter()
@@ -245,6 +263,7 @@ impl Packages {
                         PackageInfoShared {
                             pkg_dir: Utf8PathBuf::new(),
                             targets: vec![host.clone()],
+                            toolchain: Some(0),
                         },
                     )
                 })
@@ -258,10 +277,12 @@ struct PackageInfoShared {
     /// manifest_dir, i.e. manifest_path without Cargo.toml
     pkg_dir: Utf8PathBuf,
     targets: Vec<String>,
+    toolchain: Option<usize>,
 }
 
 pub struct Pkg<'a> {
     pub name: &'a str,
     pub dir: &'a Utf8Path,
     pub target: &'a str,
+    pub toolchain: Option<usize>,
 }

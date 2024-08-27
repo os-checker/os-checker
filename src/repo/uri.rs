@@ -1,5 +1,5 @@
 use crate::{Result, XString};
-use cargo_metadata::camino::Utf8PathBuf;
+use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
 use eyre::ContextCompat;
 use regex::Regex;
@@ -38,20 +38,24 @@ impl Uri {
 
         // NOTE: 测试需要 git clone 的代码库时采用临时目录，非测试则直接放入当前目录下
         #[cfg(test)]
-        let target_dir = {
-            use cargo_metadata::camino::Utf8Path;
+        let target_dir = &{
             let dir = tempfile::tempdir()?;
             let target = Utf8Path::from_path(dir.path()).unwrap().join(&*self.repo);
             self._local_tmp_dir = Some(dir);
             target
         };
         #[cfg(not(test))]
-        let target_dir = self.repo.as_str().into();
+        let target_dir = Utf8Path::new(self.repo.as_str());
 
-        // FIXME: 如何处理目标目录已经存在的错误？
         debug!(self.key, "git clone {url} {target_dir}");
         let now = std::time::Instant::now();
-        let output = cmd!("git", "clone", "--recursive", url, &target_dir).run()?;
+        let output = if target_dir.exists() {
+            cmd!("git", "pull", "--recurse-submodules")
+                .dir(target_dir)
+                .run()?
+        } else {
+            cmd!("git", "clone", "--recursive", url, target_dir).run()?
+        };
         debug!(self.key, time_elapsed_ms = now.elapsed().as_millis());
 
         ensure!(
@@ -62,7 +66,7 @@ impl Uri {
             String::from_utf8_lossy(&output.stdout),
         );
 
-        Ok(target_dir)
+        Ok(target_dir.to_owned())
     }
 
     pub fn repo_name(&self) -> &str {
