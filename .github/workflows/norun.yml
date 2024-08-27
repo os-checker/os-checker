@@ -30,15 +30,12 @@ jobs:
         run: cargo install --path . --force
 
       - name: Prepare toolchain environment needed from all repos and checkers
-        working-directory: ~/check
-        run: os-checker --config repos.yaml --emit json --norun --setup
+        run: cd ~/check && os-checker --config repos.yaml --emit json --norun --setup
 
       - name: Run all checkers
-        working-directory: ~/check
-        run: os-checker --config repos.yaml --emit ui.json
+        run: cd ~/check && os-checker --config repos.yaml --emit ui.json
 
       # - name: Commit and push ui.json
-      #   working-directory: ~/check
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #   run: |
@@ -55,7 +52,7 @@ jobs:
       #     git pull --rebase # 防止二次运行 CI 时落后于远程分支
       #
       #     export BOT=1 UI_JSON=ui.json # database 仓库的 json 检查结果
-      #     cp ui.json $UI_JSON
+      #     cp ~/check/ui.json $UI_JSON
       #     # 运行 jq 生成 WebUI 所需的 JSON 文件，并推送到 database 仓库
       #     sh ci.sh
 
