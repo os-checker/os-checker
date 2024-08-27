@@ -145,65 +145,65 @@ impl Targets {
     }
 }
 
-pub struct CargoCheckDiagnostics {
-    pub target_triple: String,
-    pub compiler_messages: Box<[CompilerMessage]>,
-    pub duration_ms: u64,
-}
+// pub struct CargoCheckDiagnostics {
+//     pub target_triple: String,
+//     pub compiler_messages: Box<[CompilerMessage]>,
+//     pub duration_ms: u64,
+// }
+//
+// impl CargoCheckDiagnostics {
+//     pub fn new(pkg_dir: &Utf8Path, pkg_name: &str, target_triple: &str) -> Result<Self> {
+//         let (duration_ms, out) = crate::utils::execution_time_ms(|| {
+//             duct::cmd!(
+//                 "cargo",
+//                 "check",
+//                 "--message-format=json",
+//                 "--target",
+//                 target_triple
+//             )
+//             .dir(pkg_dir)
+//             .stdout_capture()
+//             .unchecked()
+//             .run()
+//         });
+//
+//         Ok(CargoCheckDiagnostics {
+//             target_triple: target_triple.to_owned(),
+//             compiler_messages: Message::parse_stream(out?.stdout.as_slice())
+//                 .filter_map(|mes| match mes.ok()? {
+//                     Message::CompilerMessage(mes) if mes.target.name == pkg_name => Some(mes),
+//                     _ => None,
+//                 })
+//                 .collect(),
+//             duration_ms,
+//         })
+//     }
+// }
 
-impl CargoCheckDiagnostics {
-    pub fn new(pkg_dir: &Utf8Path, pkg_name: &str, target_triple: &str) -> Result<Self> {
-        let (duration_ms, out) = crate::utils::execution_time_ms(|| {
-            duct::cmd!(
-                "cargo",
-                "check",
-                "--message-format=json",
-                "--target",
-                target_triple
-            )
-            .dir(pkg_dir)
-            .stdout_capture()
-            .unchecked()
-            .run()
-        });
-
-        Ok(CargoCheckDiagnostics {
-            target_triple: target_triple.to_owned(),
-            compiler_messages: Message::parse_stream(out?.stdout.as_slice())
-                .filter_map(|mes| match mes.ok()? {
-                    Message::CompilerMessage(mes) if mes.target.name == pkg_name => Some(mes),
-                    _ => None,
-                })
-                .collect(),
-            duration_ms,
-        })
-    }
-}
-
-impl std::fmt::Debug for CargoCheckDiagnostics {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        #[cfg(test)]
-        {
-            f.debug_struct("CargoCheckDiagnostics")
-                .field("target_triple", &self.target_triple)
-                .field(
-                    "compiler_messages",
-                    &self
-                        .compiler_messages
-                        .iter()
-                        .map(|d| d.message.to_string())
-                        .collect::<Vec<_>>(),
-                )
-                .finish()
-        }
-        #[cfg(not(test))]
-        f.debug_struct("CargoCheckDiagnostics")
-            .field("target_triple", &self.target_triple)
-            .field("duration_ms", &self.duration_ms)
-            .field("compiler_messages.len", &self.compiler_messages.len())
-            .finish()
-    }
-}
+// impl std::fmt::Debug for CargoCheckDiagnostics {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         #[cfg(test)]
+//         {
+//             f.debug_struct("CargoCheckDiagnostics")
+//                 .field("target_triple", &self.target_triple)
+//                 .field(
+//                     "compiler_messages",
+//                     &self
+//                         .compiler_messages
+//                         .iter()
+//                         .map(|d| d.message.to_string())
+//                         .collect::<Vec<_>>(),
+//                 )
+//                 .finish()
+//         }
+//         #[cfg(not(test))]
+//         f.debug_struct("CargoCheckDiagnostics")
+//             .field("target_triple", &self.target_triple)
+//             .field("duration_ms", &self.duration_ms)
+//             .field("compiler_messages.len", &self.compiler_messages.len())
+//             .finish()
+//     }
+// }
 
 #[derive(Debug)]
 pub struct PackageInfo {
@@ -212,7 +212,7 @@ pub struct PackageInfo {
     pub pkg_dir: Utf8PathBuf,
     pub targets: Targets,
     pub toolchain: Option<usize>,
-    pub cargo_check_diagnostics: Box<[CargoCheckDiagnostics]>,
+    // pub cargo_check_diagnostics: Box<[CargoCheckDiagnostics]>,
 }
 
 impl PackageInfo {
@@ -226,16 +226,16 @@ impl PackageInfo {
         targets.merge_more(&pkg_dir, repo_targets)?;
 
         debug!(?targets);
-        let cargo_check_diagnostics = targets
-            .keys()
-            .map(|target| CargoCheckDiagnostics::new(&pkg_dir, &pkg_name, target))
-            .collect::<Result<_>>()?;
+        // let cargo_check_diagnostics = targets
+        //     .keys()
+        //     .map(|target| CargoCheckDiagnostics::new(&pkg_dir, &pkg_name, target))
+        //     .collect::<Result<_>>()?;
         Ok(PackageInfo {
             pkg_name,
             pkg_dir,
             targets,
             toolchain: toolchain.map(|val| val.store()),
-            cargo_check_diagnostics,
+            // cargo_check_diagnostics,
         })
     }
 }
