@@ -17,7 +17,11 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly
 
-      - run: echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.5
+
+      - name: Set Up Github Environment Variables
+        run: echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
 
       - name: Cache Restore
         id: cache-cargo-restore
@@ -32,12 +36,21 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ env.RUSTC_VERSION }}
 
       - name: Install os-checker
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
         run: cargo install --path . --force
 
       - name: Prepare toolchain environment needed from all repos and checkers
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
         run: cd ~/check && os-checker --config repos.yaml --emit json --norun --setup
 
       - name: Run All Checkers
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
         run: cd ~/check && RUST_LOG=debug os-checker --config repos.yaml --emit ui.json
 
       - name: Commit And Push ui.json
