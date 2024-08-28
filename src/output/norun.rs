@@ -61,6 +61,8 @@ fn setup_lockbud(targets: &[&str]) -> Result<()> {
     cmd!("git", "clone", url, dir).run()?;
     rustup_target_add(targets).dir(dir).run()?;
     cmd!("rustup", "show").dir(dir).run()?;
-    cmd!("cargo", "install", "--path", ".").dir(dir).run()?;
+    cmd!("cargo", "install", "--path", ".", "--force")
+        .dir(dir)
+        .run()?;
     Ok(())
 }
