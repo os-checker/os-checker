@@ -43,6 +43,38 @@ pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
     Resolve::new(pkg, CheckerTool::Clippy, cmd, expr)
 }
 
+/// 默认运行 cargo lockbud 的命令
+pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
+    let target = pkg.target;
+
+    // // 由于 cargo build 进行增量编译时，不输出旧 MIR，
+    // // lockbud 无法检查。因此要么不增量编译，要么 cargo clean，要么
+    // // 单独放置编译目录放置来不影响别的检查的增量编译。
+    // let mut lockbud_dir = pkg.dir.to_owned();
+    // lockbud_dir.extend(["__lockbud__", pkg.target]);
+
+    let expr = cmd!(
+        "cargo",
+        "+nightly-2024-05-21",
+        "lockbud",
+        "-k",
+        "all",
+        "--",
+        "--target",
+        target,
+        // "--target-dir",
+        // &lockbud_dir
+    )
+    .dir(pkg.dir);
+    debug!(?expr);
+    // let cmd = format!(
+    //     "cargo +nightly-2024-05-21 lockbud -k all \
+    //      -- --target {target} --target-dir={lockbud_dir}"
+    // );
+    let cmd = format!("cargo +nightly-2024-05-21 lockbud -k all -- --target {target}");
+    Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
+}
+
 /// 自定义检查命令。
 pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
     let (input, mut words) = parse_cmd(line)?;
@@ -114,7 +146,7 @@ fn extract_target(words: &[String]) -> Option<&str> {
 fn set_toolchain_and_target(
     words: &mut Vec<String>,
     candidate_target: &str,
-    set_toolchain: Option<&str>,
+    set_toolchain: Option<&str>, // FIXME: 考虑 lockbud 设置的工具链
 ) -> Option<String> {
     let overriden = extract_target(words).map(String::from);
     // `cargo +toolchain xxx (--target=...) rest...`

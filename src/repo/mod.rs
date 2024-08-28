@@ -216,6 +216,12 @@ impl RepoConfig {
             Some(Action::Lines(lines)) => Resolve::custom(pkgs, lines, Clippy, &mut v)?,
             _ => (),
         }
+        match &self.lockbud {
+            Some(Action::Perform(true)) => Resolve::lockbud(pkgs, &mut v),
+            None if all => Resolve::lockbud(pkgs, &mut v),
+            Some(Action::Lines(lines)) => Resolve::custom(pkgs, lines, Lockbud, &mut v)?,
+            _ => (),
+        }
 
         Ok(v)
     }

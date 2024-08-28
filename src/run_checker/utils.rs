@@ -49,6 +49,16 @@ fn push_data(out: &RawOutput, with: WithData) {
     match &out.parsed {
         OutputParsed::Fmt(v) => push_unformatted(v, with),
         OutputParsed::Clippy(v) => push_clippy(v, with),
+        OutputParsed::Lockbud(s) => {
+            if !s.is_empty() {
+                with.data.push(Data {
+                    cmd_idx: with.cmd_idx,
+                    file: "Not supported to display yet.".into(),
+                    kind: Kind::Lockbud,
+                    raw: s.clone(),
+                });
+            }
+        }
     };
 }
 
