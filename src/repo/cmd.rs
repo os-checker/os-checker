@@ -43,6 +43,24 @@ pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
     Resolve::new(pkg, CheckerTool::Clippy, cmd, expr)
 }
 
+/// 默认运行 cargo lockbud 的命令
+pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
+    let target = pkg.target;
+    // 只分析传入 toml path 指向的 package，不分析其依赖
+    let expr = cmd!(
+        "cargo",
+        "+nightly-2024-05-21",
+        "lockbud",
+        "--",
+        "--target",
+        target,
+    )
+    .dir(pkg.dir);
+    debug!(?expr);
+    let cmd = format!("cargo +nightly-2024-05-21 lockbud -- --target {target}");
+    Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
+}
+
 /// 自定义检查命令。
 pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
     let (input, mut words) = parse_cmd(line)?;
@@ -114,7 +132,7 @@ fn extract_target(words: &[String]) -> Option<&str> {
 fn set_toolchain_and_target(
     words: &mut Vec<String>,
     candidate_target: &str,
-    set_toolchain: Option<&str>,
+    set_toolchain: Option<&str>, // FIXME: 考虑 lockbud 设置的工具链
 ) -> Option<String> {
     let overriden = extract_target(words).map(String::from);
     // `cargo +toolchain xxx (--target=...) rest...`
