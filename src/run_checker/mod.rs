@@ -11,6 +11,7 @@ use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
 
+mod lockbud;
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
 
@@ -179,9 +180,9 @@ fn run_check(resolve: Resolve) -> Result<Output> {
                 })
                 .collect::<Result<_>>()?,
         ),
+        CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
         CheckerTool::Miri => todo!(),
         CheckerTool::SemverChecks => todo!(),
-        CheckerTool::Lockbud => todo!(),
     };
     let count = parsed.count();
     Ok(Output {
@@ -197,6 +198,7 @@ fn run_check(resolve: Resolve) -> Result<Output> {
 pub enum OutputParsed {
     Fmt(Box<[FmtMessage]>),
     Clippy(Box<[ClippyMessage]>),
+    Lockbud(String),
 }
 
 impl OutputParsed {
@@ -232,6 +234,13 @@ impl OutputParsed {
                     _ => None,
                 })
                 .sum(),
+            OutputParsed::Lockbud(s) => {
+                if s.is_empty() {
+                    0
+                } else {
+                    1
+                }
+            }
         }
     }
 }

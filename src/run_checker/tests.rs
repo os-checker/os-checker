@@ -75,3 +75,10 @@ fn jq_count(json_bytes: &[u8]) -> Result<String> {
 
     Ok(String::from_utf8(out1.stdout)?)
 }
+
+#[test]
+fn lockbud_output() -> Result<()> {
+    let s = super::lockbud::get_lockbud_result()?;
+    println!("{s}");
+    Ok(())
+}

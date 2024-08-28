@@ -46,18 +46,32 @@ pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
 /// 默认运行 cargo lockbud 的命令
 pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
     let target = pkg.target;
-    // 只分析传入 toml path 指向的 package，不分析其依赖
+
+    // // 由于 cargo build 进行增量编译时，不输出旧 MIR，
+    // // lockbud 无法检查。因此要么不增量编译，要么 cargo clean，要么
+    // // 单独放置编译目录放置来不影响别的检查的增量编译。
+    // let mut lockbud_dir = pkg.dir.to_owned();
+    // lockbud_dir.extend(["__lockbud__", pkg.target]);
+
     let expr = cmd!(
         "cargo",
         "+nightly-2024-05-21",
         "lockbud",
+        "-k",
+        "all",
         "--",
         "--target",
         target,
+        // "--target-dir",
+        // &lockbud_dir
     )
     .dir(pkg.dir);
     debug!(?expr);
-    let cmd = format!("cargo +nightly-2024-05-21 lockbud -- --target {target}");
+    // let cmd = format!(
+    //     "cargo +nightly-2024-05-21 lockbud -k all \
+    //      -- --target {target} --target-dir={lockbud_dir}"
+    // );
+    let cmd = format!("cargo +nightly-2024-05-21 lockbud -k all -- --target {target}");
     Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
 }
 
