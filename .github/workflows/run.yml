@@ -82,7 +82,7 @@ jobs:
           sh ci.sh
 
       - name: Save Rustup Cache
-        id: cache-cargo-save
+        id: cache-rustup-save
         uses: actions/cache/save@v4
         with:
           path: ~/.rustup/
