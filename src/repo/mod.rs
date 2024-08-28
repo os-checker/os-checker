@@ -90,6 +90,7 @@ const TOOLS: usize = 4; // 目前支持的检查工具数量
 
 /// 检查工具
 #[derive(Debug, Serialize, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
+#[serde(rename_all = "snake_case")]
 pub enum CheckerTool {
     Fmt,
     Clippy,

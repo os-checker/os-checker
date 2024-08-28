@@ -170,7 +170,6 @@ pub enum Kind {
     Miri,
     /// semver-checks
     SemverViolation,
-    /// TODO
     Lockbud,
 }
 
@@ -183,10 +182,12 @@ struct Kinds {
 impl Kinds {
     fn new() -> Kinds {
         use Kind::*;
+        // 工具名小写的 snake_case，但类别名为 PascalCase
         Kinds {
-            order: vec![ClippyError, ClippyWarn, Unformatted],
+            order: vec![ClippyError, ClippyWarn, Lockbud, Unformatted],
             mapping: serde_json::json!({
                 "clippy": [ClippyError, ClippyWarn],
+                "lockbud": [Lockbud],
                 "fmt": [Unformatted]
             }),
         }
