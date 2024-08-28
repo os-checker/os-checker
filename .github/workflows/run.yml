@@ -23,7 +23,14 @@ jobs:
       - name: Set Up Github Environment Variables
         run: echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
 
-      - name: Cache Restore
+      - name: Restore Rustup Cache 
+        id: cache-rustup-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.rustup/
+          key: ${{ runner.os }}-rustup-${{ env.RUSTC_VERSION }}
+
+      - name: Restore Cargo Cache 
         id: cache-cargo-restore
         uses: actions/cache/restore@v4
         with:
@@ -74,7 +81,14 @@ jobs:
           # 运行 jq 生成 WebUI 所需的 JSON 文件，并推送到 database 仓库
           sh ci.sh
 
-      - name: Cache Save
+      - name: Save Rustup Cache
+        id: cache-cargo-save
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.rustup/
+          key: ${{ steps.cache-rustup-restore.outputs.cache-primary-key }}
+
+      - name: Save Cargo Cache
         id: cache-cargo-save
         uses: actions/cache/save@v4
         with:
@@ -85,3 +99,4 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ steps.cache-cargo-restore.outputs.cache-primary-key }}
+
