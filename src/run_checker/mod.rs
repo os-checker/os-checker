@@ -5,6 +5,7 @@ use crate::{
     Result, XString,
 };
 use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message as CargoMessage};
+use color_eyre::owo_colors::OwoColorize;
 use eyre::Context;
 use itertools::Itertools;
 use regex::Regex;
@@ -147,10 +148,20 @@ fn run_check(resolve: Resolve) -> Result<Output> {
     });
     let raw = raw?;
 
+    let (success, fail);
     trace!(
-        ?resolve,
-        success = raw.status.success(),
-        stderr = %String::from_utf8_lossy(&raw.stderr),
+        success = %(if raw.status.success() {
+            success = "true".bright_green();
+            &success as &dyn std::fmt::Display
+        } else {
+            fail = "false".bright_red();
+            &fail
+        }),
+        resolve.cmd = %resolve.cmd.bright_black().italic()
+    );
+    trace!(
+        "stderr=\n{}\n",
+        String::from_utf8_lossy(&raw.stderr).bright_black()
     );
 
     let stdout: &[_] = &raw.stdout;

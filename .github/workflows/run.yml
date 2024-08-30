@@ -58,7 +58,7 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        run: cd ~/check && RUST_LOG=debug os-checker --config repos.yaml --emit ui.json
+        run: cd ~/check && RUST_LOG=trace os-checker --config repos.yaml --emit ui.json
 
       - name: Commit And Push ui.json
         env:
