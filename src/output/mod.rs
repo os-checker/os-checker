@@ -171,6 +171,7 @@ pub enum Kind {
     /// semver-checks
     SemverViolation,
     Lockbud,
+    Cargo,
 }
 
 #[derive(Debug, Serialize)]
@@ -184,8 +185,9 @@ impl Kinds {
         use Kind::*;
         // 工具名小写的 snake_case，但类别名为 PascalCase
         Kinds {
-            order: vec![ClippyError, ClippyWarn, Lockbud, Unformatted],
+            order: vec![Cargo, ClippyError, ClippyWarn, Lockbud, Unformatted],
             mapping: serde_json::json!({
+                "cargo": [Cargo],
                 "clippy": [ClippyError, ClippyWarn],
                 "lockbud": [Lockbud],
                 "fmt": [Unformatted]

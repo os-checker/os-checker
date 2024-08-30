@@ -63,6 +63,20 @@ impl Resolve {
         }
     }
 
+    /// 由于 CheckerTool::Cargo 是虚拟的，因此有些字段并不具备实际的含义
+    pub fn new_cargo(&self) -> Self {
+        Resolve {
+            pkg_name: self.pkg_name.clone(),
+            pkg_dir: self.pkg_dir.clone(),
+            target: self.target.clone(),
+            target_overriden: self.target_overriden, // 无实际含义
+            toolchain: self.toolchain,
+            checker: CheckerTool::Cargo,
+            cmd: String::from("VRITUAL=1 cargo"),
+            expr: duct::cmd!("false"), // 无实际含义
+        }
+    }
+
     pub fn fmt(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
         resolved.extend(pkgs.iter().map(cargo_fmt));
     }

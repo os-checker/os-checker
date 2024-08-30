@@ -24,6 +24,7 @@ prettydiff = { version = "0.7.0", default-features = false }
 
 serde_json = { version = "1.0.125", features = ["preserve_order"] }
 indexmap = { version = "2.4.0", features = ["serde"] }
+strip-ansi-escapes = "0.2"
 
 # error handling
 eyre = "0.6.12"

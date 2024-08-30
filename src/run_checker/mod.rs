@@ -7,7 +7,6 @@ use crate::{
 use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message as CargoMessage};
 use color_eyre::owo_colors::OwoColorize;
 use eyre::Context;
-use itertools::Itertools;
 use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
@@ -16,23 +15,15 @@ mod lockbud;
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
 
+mod packages_outputs;
+use packages_outputs::PackagesOutputs;
+
 #[cfg(test)]
 mod tests;
 
 pub struct RepoOutput {
     repo: Repo,
-    outputs: Vec<PackageOutput>,
-}
-
-struct PackageOutput {
-    pkg_name: XString,
-    outputs: Vec<Output>,
-}
-
-impl PackageOutput {
-    pub fn counts(&self) -> usize {
-        self.outputs.iter().map(|out| out.count).sum()
-    }
+    outputs: PackagesOutputs,
 }
 
 impl RepoOutput {
@@ -42,25 +33,24 @@ impl RepoOutput {
         let repo = XString::new(self.repo.config.repo_name());
         let repo_idx = json.env.repos.len();
 
-        let pkg_outputs = &self.outputs;
+        let outputs = &self.outputs;
         // 预留足够的空间
         // TODO: 应该可以在初始化 json.data 的时候就一次性预留空间
-        json.data
-            .reserve(pkg_outputs.iter().map(PackageOutput::counts).sum());
+        json.data.reserve(outputs.count());
 
-        for pkg in pkg_outputs {
+        for (pkg_name, v) in &**outputs {
             let pkg_idx = json.env.packages.len();
             json.env.packages.push(Package {
-                name: pkg.pkg_name.clone(),
+                name: pkg_name.into(),
                 repo: PackageRepo {
                     repo_idx,
                     user: user.clone(),
                     repo: repo.clone(),
                 },
-                rust_toolchain_idx: pkg.outputs.first().and_then(|o| o.resolve.toolchain),
+                rust_toolchain_idx: v.as_slice().first().and_then(|o| o.resolve.toolchain),
             });
-            for raw in &pkg.outputs {
-                utils::push_idx_and_data(pkg_idx, raw, &mut json.cmd, &mut json.data);
+            for o in v.as_slice() {
+                utils::push_idx_and_data(pkg_idx, o, &mut json.cmd, &mut json.data);
             }
         }
 
@@ -90,11 +80,12 @@ impl Repo {
         self.config.resolve(&self.layout.packages()?)
     }
 
-    pub fn run_check(&self) -> Result<Vec<Output>> {
-        let v: Vec<_> = self.resolve()?.into_iter().map(run_check).try_collect()?;
-        // 由于已经按顺序执行，这里其实无需排序；如果以后引入并发，则需要排序
-        // v.sort_unstable_by(|a, b| (&a.package_name, a.checker).cmp(&(&b.package_name, b.checker)));
-        Ok(v)
+    pub fn run_check(&self) -> Result<PackagesOutputs> {
+        let mut outputs = PackagesOutputs::new();
+        for resolve in self.resolve()? {
+            run_check(resolve, &mut outputs)?;
+        }
+        Ok(outputs)
     }
 
     pub fn norun(&self, norun: &mut Norun) {
@@ -116,21 +107,12 @@ impl TryFrom<Config> for RepoOutput {
 
     fn try_from(config: Config) -> Result<RepoOutput> {
         let repo = Repo::try_from(config)?;
-        let all_outputs = repo.run_check()?;
-        let outputs = all_outputs
-            .into_iter()
-            .chunk_by(|out| out.resolve.pkg_name.clone())
-            .into_iter()
-            .map(|(pkg_name, outs)| PackageOutput {
-                pkg_name,
-                outputs: outs.collect_vec(),
-            })
-            .collect_vec();
+        let mut outputs = repo.run_check()?;
+        outputs.sort_by_name_and_checkers();
         Ok(RepoOutput { repo, outputs })
     }
 }
 
-#[allow(dead_code)]
 pub struct Output {
     raw: RawOutput,
     parsed: OutputParsed,
@@ -140,24 +122,44 @@ pub struct Output {
     resolve: Resolve,
 }
 
+impl Output {
+    /// NOTE: &self 应该为非 Cargo checker，即来自实际检查工具的输出
+    fn new_cargo(&self, stderr_parsed: String) -> Self {
+        Output {
+            raw: RawOutput {
+                // 这个不太重要
+                status: self.raw.status,
+                stdout: Vec::new(),
+                // NOTE: 为了保持 stderr 和 parsed 一致，这里应该为
+                // stderr_stripped，但考虑到可能需要合并 parsed，以及
+                // stderr string 将来添加 CheckerTool 信息，保持一致需要更多代码，
+                // 可实际上有了 parsed，暂时不太需要 RawOutput，因此这里简单为空。
+                stderr: Vec::new(),
+            },
+            parsed: OutputParsed::Cargo(vec![(self.resolve.checker, stderr_parsed)]),
+            count: 1, // 因为这是产生第一个 cargo 诊断的方法
+            duration_ms: self.duration_ms,
+            resolve: self.resolve.new_cargo(),
+        }
+    }
+
+    fn update_cargo(&mut self, stderr_parsed: String, non_cargo: &Self) {
+        if let OutputParsed::Cargo(v) = &mut self.parsed {
+            v.push((non_cargo.resolve.checker, stderr_parsed));
+        }
+        self.count += 1;
+        self.duration_ms += non_cargo.duration_ms;
+        // 不再更新 raw 和 resolve
+    }
+}
+
 /// 以子进程方式执行检查
-fn run_check(resolve: Resolve) -> Result<Output> {
+fn run_check(resolve: Resolve, outputs: &mut PackagesOutputs) -> Result<()> {
     let expr = resolve.expr.clone();
     let (duration_ms, raw) = crate::utils::execution_time_ms(|| {
         expr.stderr_capture().stdout_capture().unchecked().run()
     });
     let raw = raw?;
-
-    trace!(%resolve.pkg_name, %resolve.pkg_dir);
-    trace!(
-        success = %(if raw.status.success() {
-            "true".bright_green().to_string()
-        } else {
-            "false".bright_red().to_string()
-        }),
-        resolve.cmd = %resolve.cmd.bright_black().italic()
-    );
-    trace!("stderr=\n{}\n", String::from_utf8_lossy(&raw.stderr));
 
     let stdout: &[_] = &raw.stdout;
     let parsed = match resolve.checker {
@@ -189,15 +191,21 @@ fn run_check(resolve: Resolve) -> Result<Output> {
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
         CheckerTool::Miri => todo!(),
         CheckerTool::SemverChecks => todo!(),
+        // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
+        CheckerTool::Cargo => panic!("Don't specify cargo as a checker. It's a virtual one."),
     };
     let count = parsed.count();
-    Ok(Output {
+    let output = Output {
         raw,
         parsed,
         count,
         duration_ms,
         resolve,
-    })
+    };
+
+    outputs.push_output_with_cargo(output);
+
+    Ok(())
 }
 
 #[derive(Debug)]
@@ -205,6 +213,7 @@ pub enum OutputParsed {
     Fmt(Box<[FmtMessage]>),
     Clippy(Box<[ClippyMessage]>),
     Lockbud(String),
+    Cargo(Vec<(CheckerTool, String)>),
 }
 
 impl OutputParsed {
@@ -247,6 +256,10 @@ impl OutputParsed {
                     1
                 }
             }
+            // NOTE: 这个计数不准确，但也不能调用 Vec:::len，因为它包含的 Vec 是动态的，
+            // 而最终输出到 JSON 的计数并不调用此方法，因此这里简单的设置为 0，
+            // 虽然从最终计数看，cargo 的诊断数量应为 Vec::len。
+            OutputParsed::Cargo(_) => 0,
         }
     }
 }

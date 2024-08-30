@@ -59,6 +59,16 @@ fn push_data(out: &RawOutput, with: WithData) {
                 });
             }
         }
+        OutputParsed::Cargo(v) => {
+            for (checker, stderr) in v {
+                with.data.push(Data {
+                    cmd_idx: with.cmd_idx,
+                    file: checker.name().into(),
+                    kind: Kind::Cargo,
+                    raw: stderr.clone(),
+                });
+            }
+        }
     };
 }
 

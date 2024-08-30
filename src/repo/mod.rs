@@ -86,7 +86,7 @@ impl Config {
     }
 }
 
-const TOOLS: usize = 4; // 目前支持的检查工具数量
+pub const TOOLS: usize = 6; // 目前支持的检查工具数量
 
 /// 检查工具
 #[derive(Debug, Serialize, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
@@ -97,6 +97,8 @@ pub enum CheckerTool {
     Miri,
     SemverChecks,
     Lockbud,
+    /// 这是一个虚拟的检查工具，它表示 stderr 中含 `^error:` 的情况
+    Cargo,
 }
 
 impl CheckerTool {
@@ -107,6 +109,7 @@ impl CheckerTool {
             CheckerTool::Miri => "miri",
             CheckerTool::SemverChecks => "semver-checks",
             CheckerTool::Lockbud => "lockbud",
+            CheckerTool::Cargo => "cargo",
         }
     }
 }
