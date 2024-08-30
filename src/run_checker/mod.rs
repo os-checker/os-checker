@@ -149,6 +149,7 @@ fn run_check(resolve: Resolve) -> Result<Output> {
     let raw = raw?;
 
     let (success, fail);
+    trace!(%resolve.pkg_name, %resolve.pkg_dir);
     trace!(
         success = %(if raw.status.success() {
             success = "true".bright_green();
