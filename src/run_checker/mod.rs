@@ -148,22 +148,16 @@ fn run_check(resolve: Resolve) -> Result<Output> {
     });
     let raw = raw?;
 
-    let (success, fail);
     trace!(%resolve.pkg_name, %resolve.pkg_dir);
     trace!(
         success = %(if raw.status.success() {
-            success = "true".bright_green();
-            &success as &dyn std::fmt::Display
+            "true".bright_green().to_string()
         } else {
-            fail = "false".bright_red();
-            &fail
+            "false".bright_red().to_string()
         }),
         resolve.cmd = %resolve.cmd.bright_black().italic()
     );
-    trace!(
-        "stderr=\n{}\n",
-        String::from_utf8_lossy(&raw.stderr).bright_black()
-    );
+    trace!("stderr=\n{}\n", String::from_utf8_lossy(&raw.stderr));
 
     let stdout: &[_] = &raw.stdout;
     let parsed = match resolve.checker {
