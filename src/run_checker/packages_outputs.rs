@@ -1,4 +1,4 @@
-use super::{CheckerTool, Output};
+use super::{CheckerTool, Output, Resolve};
 use crate::repo::TOOLS;
 use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
@@ -106,7 +106,27 @@ fn cargo_stderr_stripped(output: &Output) -> Option<String> {
     let stderr_stripped = strip_ansi_escapes::strip(raw_stderr);
     let stderr = String::from_utf8_lossy(&stderr_stripped);
     // stderr 包含额外的 error: 信息，那么将所有 stderr 内容 作为 cargo 的检查结果
-    RE.is_match(&stderr).then(|| stderr.into_owned())
+    RE.is_match(&stderr).then(|| extra_header(&stderr, resolve))
+}
+
+// 在原始的 Cargo 输出的顶部增加必要的信息，方便浏览
+fn extra_header(stderr: &str, resolve: &Resolve) -> String {
+    let Resolve {
+        pkg_name,
+        pkg_dir,
+        target,
+        checker,
+        cmd,
+        ..
+    } = resolve;
+    let toolchain = resolve.toolchain();
+    format!(
+        "// pkg_name={pkg_name}, checker={checker:?}\n\
+         // toolchain={toolchain}, target={target}\n\
+         // pkg_dir={pkg_dir}\n\
+         // cmd={cmd}\n\
+         {stderr}"
+    )
 }
 
 static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("\nerror: ").unwrap());

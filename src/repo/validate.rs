@@ -110,4 +110,12 @@ impl Resolve {
         }
         Ok(())
     }
+
+    pub fn toolchain(&self) -> String {
+        // 0 表示 host toolchain
+        let index = self.toolchain.unwrap_or(0);
+        let mut toolchain = String::new();
+        crate::output::get_toolchain(index, |t| toolchain.push_str(&t.channel));
+        toolchain
+    }
 }
