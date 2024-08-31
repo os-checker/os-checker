@@ -54,7 +54,12 @@ fn push_data(out: &RawOutput, with: WithData) {
                 with.data.push(Data {
                     cmd_idx: with.cmd_idx,
                     file: "Not supported to display yet.".into(),
-                    kind: Kind::Lockbud,
+                    // FIXME: 目前 lockbud 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
+                    kind: if s.contains(r#""possibility": "Possibly","#) {
+                        Kind::LockbudPossibly
+                    } else {
+                        Kind::LockbudProbably
+                    },
                     raw: s.clone(),
                 });
             }
