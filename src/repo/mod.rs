@@ -15,6 +15,8 @@ mod uri;
 mod validate;
 pub use validate::Resolve;
 
+mod merge_from_json;
+
 #[cfg(test)]
 mod tests;
 
@@ -50,7 +52,7 @@ impl Config {
             .collect()
     }
 
-    pub fn from_path<'a>(path: impl Into<&'a Utf8Path>) -> Result<Vec<Config>> {
+    pub fn from_yaml_path<'a>(path: impl Into<&'a Utf8Path>) -> Result<Vec<Config>> {
         let path = path.into();
         let yaml = std::fs::read_to_string(path)
             .with_context(|| format!("从 `{path}` 读取配置内容失败！请输入正确的 yaml 路径。"))?;
@@ -117,7 +119,7 @@ impl CheckerTool {
 /// Configuration for single repo.
 ///
 /// Invalid field key will just be ignored without error.
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
 pub struct RepoConfig {
     all: CheckerAction,
     fmt: CheckerAction,

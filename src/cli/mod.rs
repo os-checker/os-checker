@@ -61,7 +61,7 @@ impl std::str::FromStr for Emit {
 
 impl Args {
     fn configurations(&self) -> Result<Vec<Config>> {
-        Config::from_path(&*self.config)
+        Config::from_yaml_path(&*self.config)
     }
 
     fn repos_outputs(&self) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {

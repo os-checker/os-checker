@@ -12,7 +12,6 @@ pub enum UriTag {
     Local(Utf8PathBuf),
 }
 
-#[derive(Debug)]
 pub struct Uri {
     /// 代码库的来源
     tag: UriTag,
@@ -23,8 +22,37 @@ pub struct Uri {
     /// 暂时用于临时测试存放需要下载的代码库
     #[cfg(test)]
     _local_tmp_dir: Option<tempfile::TempDir>,
-    /// yaml config 中表示代码库来源的键
+    /// yaml config 中表示代码库来源的键；或者 json 数组中 github 的 user/repo 代码库
     key: String,
+}
+
+impl std::fmt::Debug for Uri {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.tag.fmt(f)
+    }
+}
+
+/// 由于 IndexMap 需要 Eq + Ord + Hash，在合并多个配置文件时，只看 key
+impl PartialEq<Self> for Uri {
+    fn eq(&self, other: &Self) -> bool {
+        self.key == other.key
+    }
+}
+impl Eq for Uri {}
+impl PartialOrd for Uri {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for Uri {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.key.cmp(&other.key)
+    }
+}
+impl std::hash::Hash for Uri {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.key.hash(state);
+    }
 }
 
 impl Uri {
