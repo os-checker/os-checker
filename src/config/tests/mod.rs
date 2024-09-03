@@ -92,14 +92,14 @@ fn uri() -> Result<()> {
     // 1. 本地路径以 file:// 开头，支持绝对路径和相对路径
     // 2. 任何 git repo url
     // 3. 对于 github git repo url，简化成 user/repo
-    let yaml = r#"
+    let json = r#"
 {
   "file:///rust/my/os-checker/repos/os-checker-test-suite": { },
   "file://repos/arceos": { },
   "https://github.com/os-checker/os-checker-test-suite.git": { },
   "os-checker/os-checker": { }
 }"#;
-    let configs = serde_json::from_str::<Configs>(yaml)?;
+    let configs = serde_json::from_str::<Configs>(json)?;
     let join = configs.0.iter().map(|c| format!("{:?}", c.uri)).join("\n");
     let expected = expect![[r#"
         Local("/rust/my/os-checker/repos/os-checker-test-suite")

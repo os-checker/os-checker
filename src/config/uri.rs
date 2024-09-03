@@ -23,7 +23,7 @@ pub struct Uri {
     /// 暂时用于临时测试存放需要下载的代码库
     #[cfg(test)]
     _local_tmp_dir: Option<tempfile::TempDir>,
-    /// yaml config 中表示代码库来源的键；或者 json 数组中 github 的 user/repo 代码库
+    /// JSON config 中表示代码库来源的键
     key: String,
 }
 

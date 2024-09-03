@@ -1,9 +1,3 @@
-//! 从只含 "user/repo" 的 JSON 数组中合并到现有的 YAML 配置。
-//! 这些数组默认以 `all: true` 方式应用所有检查，但如果在 YAML
-//! 中单独配置了，则完全按照 YAML 的配置应用检查。
-//! 如果 JSON 中不包含 YAML 配置的仓库，则也完全按照 YAML
-//! 配置应用检查到该仓库。
-
 use super::{uri::Uri, Config, Configs, RepoConfig};
 use crate::Result;
 use cargo_metadata::camino::Utf8Path;

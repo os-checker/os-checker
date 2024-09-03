@@ -1,4 +1,4 @@
-//! 校验 YAML 配置文件：
+//! 校验 JSON 配置文件：
 //! * 校验自定义命令：
 //!     * 每条自定义命令必须包含工具名称
 //!     * 如果指定 target，则校验是否与 rustc 的 target triple 匹配：需要存储 rustc target triple 列表
