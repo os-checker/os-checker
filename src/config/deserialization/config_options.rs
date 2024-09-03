@@ -23,18 +23,18 @@ impl EnableOrCustom {
     /// 检查自定义命令是否包含 checker name：
     /// 当返回值为 Some 时，表示不包含，并返回这个 checker name；
     /// 当返回值为 None 时，表示检查通过，该命令包含 checker name。
-    pub fn validate_checker_name(&self, checker: &str) -> Option<&str> {
+    pub fn validate_checker_name(&self, checker: &str) -> Result<(), &str> {
         match self {
-            EnableOrCustom::Enable(_) => None,
-            EnableOrCustom::Single(s) => (!s.contains(checker)).then_some(s),
+            EnableOrCustom::Single(s) if !s.contains(checker) => Err(s),
             EnableOrCustom::Multi(v) => {
                 for s in v {
                     if !s.contains(checker) {
-                        return Some(s);
+                        return Err(s);
                     }
                 }
-                None
+                Ok(())
             }
+            _ => Ok(()),
         }
     }
 

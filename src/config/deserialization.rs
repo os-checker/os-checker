@@ -6,11 +6,9 @@ use crate::{
 };
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::fmt::Debug;
 
 mod repo;
-pub use repo::Repo;
 
 mod config_options;
 use config_options::{Cmds, Setup, Targets};
@@ -30,10 +28,6 @@ pub struct RepoConfig {
 }
 
 impl RepoConfig {
-    // pub fn from_json(json: &str) -> Result<(String, RepoConfig)> {
-    //     Repo::from_json(json)
-    // }
-
     /// 每个 package 及其对应的检查命令
     pub fn resolve(&self, repo: &str, pkgs: &Packages) -> Result<Vec<Resolve>> {
         // validate pkg names in packages
@@ -116,12 +110,30 @@ impl RepoConfig {
     }
 
     /// 检查自定义命令是否与 checker 匹配
-    fn validate_checker_name(&self, repo: &str) -> Result<()> {
+    pub fn validate_checker_name(&self, repo: &str) -> Result<()> {
         for (checker, cmd) in &*self.cmds {
             let name = checker.name();
             // NOTE: 如果采用 make 脚本运行检查，则可以写 `make clippy`。
-            if let Some(failed_cmd) = cmd.validate_checker_name(name) {
-                bail!("For {repo}, `{failed_cmd}` doesn't contain the corresponding checker name `{name}`");
+            if let Err(failed_cmd) = cmd.validate_checker_name(name) {
+                bail!("For repo `{repo}`, `{failed_cmd}` doesn't contain the corresponding checker name `{name}`");
+            }
+        }
+        // valide pkg's checkers in cmds
+        for (pkg_name, pkg_config) in &self.packages {
+            pkg_config.validate_checker_name_in_pkg(repo, pkg_name)?;
+        }
+        Ok(())
+    }
+
+    // self is a pkg config
+    pub fn validate_checker_name_in_pkg(&self, repo: &str, pkg: &str) -> Result<()> {
+        for (checker, cmd) in &*self.cmds {
+            let name = checker.name();
+            if let Err(failed_cmd) = cmd.validate_checker_name(name) {
+                bail!(
+                    "For pkg `{pkg}` in repo `{repo}`, `{failed_cmd}` \
+                     doesn't contain the corresponding checker name `{name}`"
+                );
             }
         }
         Ok(())

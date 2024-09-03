@@ -60,6 +60,7 @@ impl TryFrom<Value> for Config {
             // assert_eq!(config.len(), 1);
             if let Some((repo, deserializer)) = obj.into_iter().next() {
                 if let Ok(config) = RepoConfig::deserialize(deserializer) {
+                    config.validate_checker_name(&repo)?;
                     return Ok(Config {
                         uri: uri::uri(repo)?,
                         config: Box::new(config),
@@ -129,6 +130,7 @@ impl TryFrom<Value> for Configs {
                 .map(|(repo, deserializer)| {
                     let config =
                         RepoConfig::deserialize(deserializer).with_context(|| PARSE_JSON_ERROR)?;
+                    config.validate_checker_name(&repo)?;
                     Ok(Config {
                         uri: uri::uri(repo)?,
                         config: Box::new(config),

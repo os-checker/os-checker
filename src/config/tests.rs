@@ -55,27 +55,26 @@ fn bad_check() {
     let bad1 = r#"
 {
   "user/repo": {
-    "clippy": ["cargo miri run"]
+    "cmds": { "clippy": ["cargo miri run"] }
   }
 }
 "#;
     let err = format!("{}", Config::from_json(bad1).unwrap_err());
-    expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"].assert_eq(&err);
+    expect!["For repo `user/repo`, `cargo miri run` doesn't contain the corresponding checker name `clippy`"].assert_eq(&err);
 
     let bad2 = r#"
 {
   "user/repo": {
     "packages": {
       "crate1": {
-        "clippy": "cargo miri run"
+        "cmds": { "clippy": "cargo miri run" }
       }
     }
   }
 }
 "#;
     let err = format!("{}", Config::from_json(bad2).unwrap_err());
-    // FIXME: 或许可以更好的错误报告，比如在哪个仓库哪个库的命令上不匹配
-    expect!["命令 `cargo miri run` 与检查工具 `clippy` 不匹配"].assert_eq(&err);
+    expect!["For pkg `crate1` in repo `user/repo`, `cargo miri run` doesn't contain the corresponding checker name `clippy`"].assert_eq(&err);
 }
 
 #[test]
