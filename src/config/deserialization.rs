@@ -41,7 +41,7 @@ impl RepoConfig {
         let mut v = Vec::<Resolve>::with_capacity(pkgs.len() * TOOLS);
 
         let targets_for_all_pkgs = self.targets.as_ref().map(|val| val.as_slice());
-        for (pkg_name, info) in pkgs.inner_ref() {
+        for (pkg_name, info) in &**pkgs {
             // set cmds from repo
             cmds.merge(&self.cmds);
 
@@ -70,10 +70,9 @@ impl RepoConfig {
     }
 
     fn validate_pkgs(&self, repo: &str, pkgs: &Packages) -> Result<()> {
-        let map = pkgs.inner_ref();
         for pkg_name in self.packages.keys() {
             ensure!(
-                map.contains_key(&**pkg_name),
+                pkgs.contains_key(&**pkg_name),
                 "The package `{pkg_name}` is not in the repo `{repo}`."
             );
         }

@@ -5,7 +5,7 @@ use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 use itertools::Itertools;
 use std::{collections::BTreeMap, fmt};
 
@@ -214,43 +214,6 @@ pub struct Packages {
 }
 
 impl Packages {
-    pub fn package_set(&self) -> IndexSet<&str> {
-        self.map.keys().map(|name| name.as_str()).collect()
-    }
-
-    pub fn len(&self) -> usize {
-        self.map.len()
-    }
-
-    pub fn single_vec_of_pkg(&self, name: &str) -> Vec<Pkg> {
-        let Some((_, k, v)) = self.map.get_full(name) else {
-            return vec![];
-        };
-        v.targets
-            .iter()
-            .map(move |target| Pkg {
-                name: k,
-                dir: &v.pkg_dir,
-                target,
-                toolchain: v.toolchain,
-            })
-            .collect()
-    }
-
-    pub fn all_vec_of_pkg(&self) -> Vec<Pkg> {
-        self.map
-            .iter()
-            .flat_map(|(name, info)| {
-                info.targets.iter().map(move |target| Pkg {
-                    name,
-                    dir: &info.pkg_dir,
-                    target,
-                    toolchain: info.toolchain,
-                })
-            })
-            .collect()
-    }
-
     #[cfg(test)]
     pub fn test_new(pkgs: &[&str]) -> Self {
         let host = crate::output::host_target_triple().to_owned();
@@ -270,24 +233,12 @@ impl Packages {
                 .collect(),
         }
     }
+}
 
-    // JSON 指定的 targets 覆盖 os-checker 搜索和仓库中的 targets
-    pub fn merge_targets<'a>(&'a self, name: &str, targets: &'a [String]) -> Vec<Pkg<'a>> {
-        let Some((_, name, info)) = self.map.get_full(name) else {
-            return vec![];
-        };
-        targets
-            .iter()
-            .map(|target| Pkg {
-                name,
-                dir: &info.pkg_dir,
-                target,
-                toolchain: info.toolchain,
-            })
-            .collect()
-    }
+impl std::ops::Deref for Packages {
+    type Target = IndexMap<XString, PackageInfoShared>;
 
-    pub fn inner_ref(&self) -> &IndexMap<XString, PackageInfoShared> {
+    fn deref(&self) -> &Self::Target {
         &self.map
     }
 }
