@@ -65,7 +65,6 @@
   "kern-crates/zcore-linux-syscall": {},
   "kern-crates/rboot": {},
   "kern-crates/zcore-zircon-object": {},
-  "kern-crates/libc-test": {},
   "kern-crates/zcore-zircon-user": {},
   "kern-crates/zcore-tests": {},
   "kern-crates/zcore-linux-object": {},
