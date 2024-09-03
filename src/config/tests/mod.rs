@@ -8,6 +8,7 @@ const JSON_PATH: &str = "src/config/tests/a.json";
 #[test]
 fn parse_assets() -> Result<()> {
     Configs::from_json_path("assets/repos-ui.json")?;
+    Configs::from_json_path("assets/repos-default.json")?;
     Ok(())
 }
 
@@ -91,6 +92,17 @@ fn bad_check() {
             .unwrap()
     );
     expect!["Checker `miri` is not supported in cmds of repo `user/repo`"].assert_eq(&err);
+
+    let bad4 = r#"
+{
+  "a/b": {
+    "cmds": { "clippy:": "cargo clippy --no-deps" }
+  }
+}
+"#;
+    let err = format!("{}", Config::from_json(bad4).unwrap_err());
+    // FIXME: 这里没有将错误指向 cmds 内
+    expect![[r#"Should be an object like `{"user/repo": {...}}`"#]].assert_eq(&err);
 }
 
 #[test]
