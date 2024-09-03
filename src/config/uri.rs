@@ -3,6 +3,7 @@ use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
 use eyre::ContextCompat;
 use regex::Regex;
+use serde::Serialize;
 use std::sync::LazyLock;
 
 #[derive(Debug)]
@@ -12,7 +13,6 @@ pub enum UriTag {
     Local(Utf8PathBuf),
 }
 
-#[derive(Debug)]
 pub struct Uri {
     /// 代码库的来源
     tag: UriTag,
@@ -23,8 +23,46 @@ pub struct Uri {
     /// 暂时用于临时测试存放需要下载的代码库
     #[cfg(test)]
     _local_tmp_dir: Option<tempfile::TempDir>,
-    /// yaml config 中表示代码库来源的键
+    /// JSON config 中表示代码库来源的键
     key: String,
+}
+
+impl Serialize for Uri {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.key)
+    }
+}
+
+impl std::fmt::Debug for Uri {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.tag.fmt(f)
+    }
+}
+
+/// 由于 IndexMap 需要 Eq + Ord + Hash，在合并多个配置文件时，只看 key
+impl PartialEq<Self> for Uri {
+    fn eq(&self, other: &Self) -> bool {
+        self.key == other.key
+    }
+}
+impl Eq for Uri {}
+impl PartialOrd for Uri {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for Uri {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.key.cmp(&other.key)
+    }
+}
+impl std::hash::Hash for Uri {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.key.hash(state);
+    }
 }
 
 impl Uri {
@@ -75,6 +113,10 @@ impl Uri {
 
     pub fn user_name(&self) -> &str {
         &self.user
+    }
+
+    pub fn key(&self) -> &str {
+        &self.key
     }
 }
 

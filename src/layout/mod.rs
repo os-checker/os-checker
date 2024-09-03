@@ -5,7 +5,7 @@ use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 use itertools::Itertools;
 use std::{collections::BTreeMap, fmt};
 
@@ -214,43 +214,6 @@ pub struct Packages {
 }
 
 impl Packages {
-    pub fn package_set(&self) -> IndexSet<&str> {
-        self.map.keys().map(|name| name.as_str()).collect()
-    }
-
-    pub fn len(&self) -> usize {
-        self.map.len()
-    }
-
-    pub fn single_vec_of_pkg(&self, name: &str) -> Vec<Pkg> {
-        let Some((_, k, v)) = self.map.get_full(name) else {
-            return vec![];
-        };
-        v.targets
-            .iter()
-            .map(move |target| Pkg {
-                name: k,
-                dir: &v.pkg_dir,
-                target,
-                toolchain: v.toolchain,
-            })
-            .collect()
-    }
-
-    pub fn all_vec_of_pkg(&self) -> Vec<Pkg> {
-        self.map
-            .iter()
-            .flat_map(|(name, info)| {
-                info.targets.iter().map(move |target| Pkg {
-                    name,
-                    dir: &info.pkg_dir,
-                    target,
-                    toolchain: info.toolchain,
-                })
-            })
-            .collect()
-    }
-
     #[cfg(test)]
     pub fn test_new(pkgs: &[&str]) -> Self {
         let host = crate::output::host_target_triple().to_owned();
@@ -272,12 +235,35 @@ impl Packages {
     }
 }
 
+impl std::ops::Deref for Packages {
+    type Target = IndexMap<XString, PackageInfoShared>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.map
+    }
+}
+
 #[derive(Debug)]
-struct PackageInfoShared {
+pub struct PackageInfoShared {
     /// manifest_dir, i.e. manifest_path without Cargo.toml
     pkg_dir: Utf8PathBuf,
     targets: Vec<String>,
     toolchain: Option<usize>,
+}
+
+impl PackageInfoShared {
+    pub fn pkgs<'a>(&'a self, name: &'a str, targets: Option<&'a [String]>) -> Vec<Pkg<'a>> {
+        targets
+            .unwrap_or(&self.targets)
+            .iter()
+            .map(|target| Pkg {
+                name,
+                dir: &self.pkg_dir,
+                target,
+                toolchain: self.toolchain,
+            })
+            .collect()
+    }
 }
 
 pub struct Pkg<'a> {

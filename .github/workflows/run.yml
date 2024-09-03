@@ -10,10 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download repos.yaml
+      - name: Download repos-ui.json
         run: |
           mkdir ~/check
-          wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O ~/check/repos.yaml
+          cp assets/repos-ui.json ~/check/repos-ui.json
+          # wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O ~/check/repos.yaml
 
       - uses: dtolnay/rust-toolchain@nightly
 
@@ -52,7 +53,7 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        run: cd ~/check && os-checker --config repos.yaml --emit json --norun --setup
+        run: cd ~/check && os-checker --config repos-ui.json --emit json --norun --setup
 
       - name: Run All Checkers
         env:
@@ -62,7 +63,7 @@ jobs:
           cd ~/check
           echo "查看是否安装了 libclang"
           dpkg -l | grep libclang
-          RUST_LOG=trace os-checker --config repos.yaml --emit ui.json
+          RUST_LOG=trace os-checker --config repos-ui.json --emit ui.json
 
       - name: Commit And Push ui.json
         env:

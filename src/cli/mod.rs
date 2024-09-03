@@ -1,11 +1,12 @@
 use crate::{
+    config::{Config, Configs},
     output::{JsonOutput, Norun},
-    repo::Config,
     run_checker::{Repo, RepoOutput},
     Result,
 };
 use argh::FromArgs;
 use cargo_metadata::camino::Utf8PathBuf;
+use eyre::ContextCompat;
 use rayon::prelude::*;
 use serde::Serialize;
 use std::{fs::File, time::SystemTime};
@@ -20,10 +21,10 @@ pub fn args() -> Args {
 /// Run a collection of checkers targeting Rust crates, and report
 /// bad checking results and statistics.
 pub struct Args {
-    /// A path to yaml configuration file. Refer to https://github.com/os-checker/os-checker/issues/5
+    /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
     /// for the defined format.
-    #[argh(option, default = r#"Utf8PathBuf::from("repos.yaml")"#)]
-    config: Utf8PathBuf,
+    #[argh(option)]
+    config: Vec<String>,
 
     #[argh(option, default = "Emit::Json")]
     /// emit a JSON format containing the checking reports
@@ -61,7 +62,22 @@ impl std::str::FromStr for Emit {
 
 impl Args {
     fn configurations(&self) -> Result<Vec<Config>> {
-        Config::from_path(&*self.config)
+        const DEFAULT: &str = "repos.json";
+        let config = match &self.config[..] {
+            [] => Configs::from_json_path(DEFAULT)?,
+            [path] => Configs::from_json_path(path.as_str())?,
+            paths => {
+                let configs = paths
+                    .iter()
+                    .map(|path| Configs::from_json_path(path.as_str()))
+                    .collect::<Result<Vec<_>>>()?;
+                configs
+                    .into_iter()
+                    .reduce(Configs::merge)
+                    .with_context(|| format!("无法从 {paths:?} 合并到一个 Configs"))?
+            }
+        };
+        Ok(config.into_inner())
     }
 
     fn repos_outputs(&self) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {

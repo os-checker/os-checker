@@ -1,5 +1,5 @@
 use super::{CheckerTool, Output, Resolve};
-use crate::repo::TOOLS;
+use crate::config::TOOLS;
 use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
 use regex::Regex;

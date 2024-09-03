@@ -1,0 +1,160 @@
+[
+    Resolve {
+        pkg_name: "package1",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Fmt,
+        cmd: "cargo fmt -p package1 -- --emit=json",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "fmt",
+                    "-p",
+                    "package1",
+                    "--",
+                    "--emit=json",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "package1",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Clippy,
+        cmd: "cargo clippy --target=x86_64-unknown-linux-gnu -F a,b,c",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "clippy",
+                    "--target=x86_64-unknown-linux-gnu",
+                    "-F",
+                    "a,b,c",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "package1",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Lockbud,
+        cmd: "cargo +nightly-2024-05-21 lockbud -k all -- --target x86_64-unknown-linux-gnu",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "+nightly-2024-05-21",
+                    "lockbud",
+                    "-k",
+                    "all",
+                    "--",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "package2",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Fmt,
+        cmd: "cargo fmt -p package2 -- --emit=json",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "fmt",
+                    "-p",
+                    "package2",
+                    "--",
+                    "--emit=json",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "package2",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Clippy,
+        cmd: "cargo clippy --target=x86_64-unknown-linux-gnu -F a,b,c",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "clippy",
+                    "--target=x86_64-unknown-linux-gnu",
+                    "-F",
+                    "a,b,c",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "package2",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Lockbud,
+        cmd: "cargo +nightly-2024-05-21 lockbud -k all -- --target x86_64-unknown-linux-gnu",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "+nightly-2024-05-21",
+                    "lockbud",
+                    "-k",
+                    "all",
+                    "--",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                ],
+            ),
+        ),
+    },
+]

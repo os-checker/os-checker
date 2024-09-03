@@ -1,7 +1,7 @@
 use crate::{
+    config::{CheckerTool, Config, Resolve},
     layout::Layout,
     output::{JsonOutput, Norun},
-    repo::{CheckerTool, Config, Resolve},
     Result, XString,
 };
 use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message as CargoMessage};

@@ -1,0 +1,60 @@
+Configs(
+    [
+        Config {
+            uri: Github(
+                "user1/repo",
+            ),
+            config: RepoConfig {
+                setup: None,
+                targets: None,
+                cmds: Cmds {
+                    map: {
+                        Fmt: false,
+                    },
+                },
+                packages: {},
+            },
+        },
+        Config {
+            uri: Github(
+                "user2/repo",
+            ),
+            config: RepoConfig {
+                setup: None,
+                targets: None,
+                cmds: Cmds {
+                    map: {
+                        Clippy: "cargo clippy",
+                    },
+                },
+                packages: {},
+            },
+        },
+        Config {
+            uri: Github(
+                "user3/repo",
+            ),
+            config: RepoConfig {
+                setup: None,
+                targets: None,
+                cmds: Cmds {
+                    map: {},
+                },
+                packages: {
+                    "a": RepoConfig {
+                        setup: None,
+                        targets: Some(
+                            Targets(
+                                "x86_64-unknown-linux-gnu",
+                            ),
+                        ),
+                        cmds: Cmds {
+                            map: {},
+                        },
+                        packages: {},
+                    },
+                },
+            },
+        },
+    ],
+)

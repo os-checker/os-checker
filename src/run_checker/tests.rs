@@ -2,17 +2,20 @@ use super::*;
 use expect_test::expect_file;
 use serde_json::to_string_pretty;
 
-fn config(yaml: &str) -> Config {
-    Config::from_yaml(yaml).unwrap().pop().unwrap()
+fn config(json: &str) -> Config {
+    Config::from_json(json).unwrap()
 }
 
 #[test]
 fn test_suite() -> Result<()> {
     let output: RepoOutput = config(
-        "
-file://repos/os-checker-test-suite:
-  all: true
-",
+        r#"
+{
+  "file://repos/os-checker-test-suite": {
+    "all": true
+  }
+}
+"#,
     )
     .try_into()?;
 
@@ -30,10 +33,13 @@ file://repos/os-checker-test-suite:
 #[test]
 fn arceos() -> Result<()> {
     let output: RepoOutput = config(
-        "
-file://repos/arceos:
-  all: true
-",
+        r#"
+{
+  "file://repos/arceos": {
+    "all": true
+  }
+}
+"#,
     )
     .try_into()?;
 

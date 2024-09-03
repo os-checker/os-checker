@@ -1,0 +1,355 @@
+[
+    Resolve {
+        pkg_name: "crate0",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Fmt,
+        cmd: "cargo fmt -p crate0 -- --emit=json",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "fmt",
+                    "-p",
+                    "crate0",
+                    "--",
+                    "--emit=json",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate0",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Clippy,
+        cmd: "cargo clippy --target x86_64-unknown-linux-gnu --no-deps --message-format=json",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "clippy",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                    "--no-deps",
+                    "--message-format=json",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate0",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Lockbud,
+        cmd: "cargo +nightly-2024-05-21 lockbud -k all -- --target x86_64-unknown-linux-gnu",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "+nightly-2024-05-21",
+                    "lockbud",
+                    "-k",
+                    "all",
+                    "--",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate1",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Clippy,
+        cmd: "cargo clippy --target x86_64-unknown-linux-gnu --no-deps --message-format=json",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "clippy",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                    "--no-deps",
+                    "--message-format=json",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate1",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Lockbud,
+        cmd: "cargo +nightly-2024-05-21 lockbud -k all -- --target x86_64-unknown-linux-gnu",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "+nightly-2024-05-21",
+                    "lockbud",
+                    "-k",
+                    "all",
+                    "--",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate2",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Fmt,
+        cmd: "cargo fmt -p crate2 -- --emit=json",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "fmt",
+                    "-p",
+                    "crate2",
+                    "--",
+                    "--emit=json",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate2",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Clippy,
+        cmd: "cargo clippy --target=x86_64-unknown-linux-gnu --no-deps --message-format=json",
+        expr: Io(
+            Env(
+                "RUSTFLAGS",
+                "-cfg=abc",
+            ),
+            Io(
+                Dir(
+                    "",
+                ),
+                Cmd(
+                    [
+                        "cargo",
+                        "clippy",
+                        "--target=x86_64-unknown-linux-gnu",
+                        "--no-deps",
+                        "--message-format=json",
+                    ],
+                ),
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate2",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Lockbud,
+        cmd: "cargo +nightly-2024-05-21 lockbud -k all -- --target x86_64-unknown-linux-gnu",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "+nightly-2024-05-21",
+                    "lockbud",
+                    "-k",
+                    "all",
+                    "--",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate3",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Fmt,
+        cmd: "cargo fmt -p crate3 -- --emit=json",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "fmt",
+                    "-p",
+                    "crate3",
+                    "--",
+                    "--emit=json",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate3",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Clippy,
+        cmd: "cargo clippy --target x86_64-unknown-linux-gnu --no-deps --message-format=json",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "clippy",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                    "--no-deps",
+                    "--message-format=json",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate3",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Lockbud,
+        cmd: "cargo +nightly-2024-05-21 lockbud -k all -- --target x86_64-unknown-linux-gnu",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "+nightly-2024-05-21",
+                    "lockbud",
+                    "-k",
+                    "all",
+                    "--",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate4",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Fmt,
+        cmd: "cargo fmt -p crate4 -- --emit=json",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "fmt",
+                    "-p",
+                    "crate4",
+                    "--",
+                    "--emit=json",
+                ],
+            ),
+        ),
+    },
+    Resolve {
+        pkg_name: "crate4",
+        pkg_dir: "",
+        target: "x86_64-unknown-linux-gnu",
+        target_overriden: false,
+        toolchain: Some(
+            0,
+        ),
+        checker: Lockbud,
+        cmd: "cargo +nightly-2024-05-21 lockbud -k all -- --target x86_64-unknown-linux-gnu",
+        expr: Io(
+            Dir(
+                "",
+            ),
+            Cmd(
+                [
+                    "cargo",
+                    "+nightly-2024-05-21",
+                    "lockbud",
+                    "-k",
+                    "all",
+                    "--",
+                    "--target",
+                    "x86_64-unknown-linux-gnu",
+                ],
+            ),
+        ),
+    },
+]

@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::{repo::CheckerTool, run_checker::RepoOutput, XString};
+use crate::{config::CheckerTool, run_checker::RepoOutput, XString};
 use cargo_metadata::camino::Utf8PathBuf;
 use serde::Serialize;
 use std::time::SystemTime;
