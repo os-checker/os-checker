@@ -66,7 +66,6 @@
   "kern-crates/zcore-tests": {},
   "kern-crates/zcore-linux-object": {},
   "kern-crates/flatten_objects": {},
-  "kern-crates/zCore": {},
   "kern-crates/axio": {},
   "kern-crates/ratio": {},
   "kern-crates/crate_interface": {},
