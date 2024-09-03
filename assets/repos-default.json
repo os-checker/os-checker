@@ -99,7 +99,6 @@
   "kern-crates/safe-virtio-drivers": {},
   "kern-crates/syscall-table": {},
   "kern-crates/uart16550": {},
-  "kern-crates/test-test-repo": {},
   "kern-crates/axbacktrace": {},
   "Byte-OS/lose-net-stack": {}
 }
