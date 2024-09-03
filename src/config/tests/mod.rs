@@ -6,6 +6,12 @@ use itertools::Itertools;
 const JSON_PATH: &str = "src/config/tests/a.json";
 
 #[test]
+fn parse_assets() -> Result<()> {
+    Configs::from_json_path("assets/repos-ui.json")?;
+    Ok(())
+}
+
+#[test]
 fn parse_and_resolve() -> Result<()> {
     let parsed = Configs::from_json_path(JSON_PATH)?.0;
     expect_file!["./snapshots/parse-a-json.txt"].assert_debug_eq(&parsed);

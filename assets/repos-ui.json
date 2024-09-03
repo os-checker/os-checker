@@ -41,7 +41,7 @@
   },
   "kern-crates/sel4_cspace": {
     "cmds": {
-      "clippy:": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json"
+      "clippy": "cargo clippy --target riscv64gc-unknown-none-elf --no-deps --message-format=json"
     }
   },
   "elliott10/e1000-driver": {},
