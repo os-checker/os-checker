@@ -1,16 +1,14 @@
 {
   "os-checker/os-checker": {
-    "fmt": true,
-    "clippy": "cargo clippy -F a,b,c",
-    "miri": [
-      "cargo miri run",
-      "cargo miri test -- a_test_fn"
-    ],
-    "semver-checks": false
+    "cmds": {
+      "lockbud": true,
+      "clippy": "cargo clippy -F a,b,c"
+    }
   },
   "user/repo": {
-    "all": true,
-    "lockbud": false,
+    "cmds": {
+      "lockbud": false
+    },
     "packages": {
       "crate1": {
         "miri": false

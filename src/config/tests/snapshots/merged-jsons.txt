@@ -1,0 +1,19 @@
+{
+  "user1/repo": {
+    "cmds": {
+      "fmt": false
+    }
+  },
+  "user2/repo": {
+    "cmds": {
+      "clippy": "cargo clippy"
+    }
+  },
+  "user3/repo": {
+    "packages": {
+      "a": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
+    }
+  }
+}

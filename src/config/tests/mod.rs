@@ -3,16 +3,15 @@ use crate::{layout::Packages, Result};
 use expect_test::{expect, expect_file};
 use itertools::Itertools;
 
+const JSON_PATH: &str = "src/config/tests/a.json";
+
 #[test]
-fn parse_a() -> Result<()> {
-    let parsed = Configs::from_json_path("./tests/a.json".into())?.0;
+fn parse_and_resolve() -> Result<()> {
+    let parsed = Configs::from_json_path(JSON_PATH.into())?.0;
     expect_file!["./snapshots/parse-a-json.txt"].assert_debug_eq(&parsed);
 
-    //
-    // let v = parsed[0]
-    //     .config
-    //     .pkg_checker_action(&Packages::test_new(&["package1", "package2"]))?;
-    // expect_file!["./snapshots/parse-a-json_resolve.txt"].assert_debug_eq(&v);
+    let v = parsed[0].resolve(&Packages::test_new(&["package1", "package2"]))?;
+    expect_file!["./snapshots/parse-a-json_resolve.txt"].assert_debug_eq(&v);
 
     Ok(())
 }
@@ -70,6 +69,22 @@ fn bad_check() {
 "#;
     let err = format!("{}", Config::from_json(bad2).unwrap_err());
     expect!["For pkg `crate1` in repo `user/repo`, `cargo miri run` doesn't contain the corresponding checker name `clippy`"].assert_eq(&err);
+
+    let bad3 = r#"
+{
+  "user/repo": { "cmds": { "miri": false } }
+}
+"#;
+    let err = format!(
+        "{}",
+        Config::from_json(bad3)
+            .unwrap()
+            .resolve(&Packages::test_new(&["a"]))
+            .unwrap_err()
+            .source()
+            .unwrap()
+    );
+    expect!["Checker `miri` is not supported in cmds of repo `user/repo`"].assert_eq(&err);
 }
 
 #[test]
@@ -116,10 +131,10 @@ fn merge_configs() -> Result<()> {
 "#;
     let configs = Configs::merge(Configs::from_json(a)?, Configs::from_json(b)?)?;
     let configs_debug = format!("{configs:#?}");
-    // expect_file!["./snapshots/merge-two-jsons.txt"].assert_eq(&configs_debug);
+    expect_file!["./snapshots/merge-configs.txt"].assert_eq(&configs_debug);
 
     let json = serde_json::to_string_pretty(&configs)?;
-    println!("{json}");
+    expect_file!["./snapshots/merged-jsons.txt"].assert_eq(&json);
     let configs_debug2 = format!("{:#?}", Configs::from_json(&json)?);
     assert_eq!(configs_debug, configs_debug2);
 
@@ -128,19 +143,11 @@ fn merge_configs() -> Result<()> {
 
 #[test]
 fn parse_cmds() -> Result<()> {
-    // single cmd
-    dbg!(Config::from_json(
-        r#"{"user/repo": {"cmds": {"clippy": "cargo clippy"}}}"#
+    expect_file!["./snapshots/single-cmd.txt"].assert_debug_eq(&Config::from_json(
+        r#"{"user/repo": {"cmds": {"clippy": "cargo clippy"}}}"#,
     )?);
-    // array of cmds
-    dbg!(Config::from_json(
-        r#"{"user/repo": {"cmds": {"clippy": ["cargo clippy"]}}}"#
+    expect_file!["./snapshots/array-of-cmds.txt"].assert_debug_eq(&Config::from_json(
+        r#"{"user/repo": {"cmds": {"clippy": ["cargo clippy"]}}}"#,
     )?);
-    Ok(())
-}
-
-#[test]
-fn parse_configs() -> Result<()> {
-    dbg!(Configs::from_json_path("src/config/tests/a.json".into())?);
     Ok(())
 }
