@@ -50,7 +50,6 @@
   "kern-crates/rvfs": {},
   "kern-crates/tracer": {},
   "kern-crates/rtc": {},
-  "kern-crates/rCoreloongArch": {},
   "kern-crates/pager": {},
   "kern-crates/sel4_ipc": {},
   "kern-crates/sel4_vspace": {},
