@@ -55,7 +55,6 @@
   "kern-crates/sel4_common": {},
   "guoweikang/osl": {},
   "kern-crates/sel4_task": {},
-  "kern-crates/rboot": {},
   "kern-crates/flatten_objects": {},
   "kern-crates/axio": {},
   "kern-crates/ratio": {},
