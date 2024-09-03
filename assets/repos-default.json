@@ -85,7 +85,6 @@
   "kern-crates/arm_gic": {},
   "kern-crates/axfs_ramfs": {},
   "kern-crates/kernel_guard": {},
-  "kern-crates/slab_allocator": {},
   "kern-crates/axstd": {},
   "kern-crates/axtrap": {},
   "kern-crates/axfeat": {},
