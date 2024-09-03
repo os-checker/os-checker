@@ -6,7 +6,7 @@
 //!     * 如果指定包名，则校验是否定义于仓库内：需要 repo layout 信息
 //!     * 如果指定 features，则校验是否定义于 package 内：需要 cargo metadata 信息
 
-use super::{cargo_clippy, cargo_fmt, cargo_lockbud, custom, CheckerTool};
+use super::{cargo_clippy, cargo_fmt, cargo_lockbud, checker::CheckerTool, custom};
 use crate::{layout::Pkg, Result, XString};
 use cargo_metadata::camino::Utf8PathBuf;
 use duct::Expression;

@@ -1,6 +1,6 @@
 use crate::{
+    config::{Config, Configs},
     output::{JsonOutput, Norun},
-    repo::Config,
     run_checker::{Repo, RepoOutput},
     Result,
 };
@@ -61,7 +61,7 @@ impl std::str::FromStr for Emit {
 
 impl Args {
     fn configurations(&self) -> Result<Vec<Config>> {
-        Config::from_yaml_path(&*self.config)
+        Ok(Configs::from_json_path(&self.config)?.into_inner())
     }
 
     fn repos_outputs(&self) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {

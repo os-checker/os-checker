@@ -3,6 +3,7 @@ use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
 use eyre::ContextCompat;
 use regex::Regex;
+use serde::Serialize;
 use std::sync::LazyLock;
 
 #[derive(Debug)]
@@ -24,6 +25,15 @@ pub struct Uri {
     _local_tmp_dir: Option<tempfile::TempDir>,
     /// yaml config 中表示代码库来源的键；或者 json 数组中 github 的 user/repo 代码库
     key: String,
+}
+
+impl Serialize for Uri {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.key)
+    }
 }
 
 impl std::fmt::Debug for Uri {
@@ -103,6 +113,10 @@ impl Uri {
 
     pub fn user_name(&self) -> &str {
         &self.user
+    }
+
+    pub fn key(&self) -> &str {
+        &self.key
     }
 }
 

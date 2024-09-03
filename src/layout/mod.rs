@@ -270,14 +270,49 @@ impl Packages {
                 .collect(),
         }
     }
+
+    // JSON 指定的 targets 覆盖 os-checker 搜索和仓库中的 targets
+    pub fn merge_targets<'a>(&'a self, name: &str, targets: &'a [String]) -> Vec<Pkg<'a>> {
+        let Some((_, name, info)) = self.map.get_full(name) else {
+            return vec![];
+        };
+        targets
+            .iter()
+            .map(|target| Pkg {
+                name,
+                dir: &info.pkg_dir,
+                target,
+                toolchain: info.toolchain,
+            })
+            .collect()
+    }
+
+    pub fn inner_ref(&self) -> &IndexMap<XString, PackageInfoShared> {
+        &self.map
+    }
 }
 
 #[derive(Debug)]
-struct PackageInfoShared {
+pub struct PackageInfoShared {
     /// manifest_dir, i.e. manifest_path without Cargo.toml
     pkg_dir: Utf8PathBuf,
     targets: Vec<String>,
     toolchain: Option<usize>,
+}
+
+impl PackageInfoShared {
+    pub fn pkgs<'a>(&'a self, name: &'a str, targets: Option<&'a [String]>) -> Vec<Pkg<'a>> {
+        targets
+            .unwrap_or(&self.targets)
+            .iter()
+            .map(|target| Pkg {
+                name,
+                dir: &self.pkg_dir,
+                target,
+                toolchain: self.toolchain,
+            })
+            .collect()
+    }
 }
 
 pub struct Pkg<'a> {

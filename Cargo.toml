@@ -14,13 +14,15 @@ walkdir = "2.5.0" # recursively search Cargo.toml for finding packages
 basic-toml = "0.1"
 
 serde = { version = "1", features = ["derive"] }
-marked-yaml = { version = "0.7.1", features = ["serde-path"] } # parse yaml file
 cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 regex = "1.10.5"
 compact_str = { version = "0.8.0", features = ["serde"] }
 itertools = "0.13.0"
 rayon = "1.10.0"
 prettydiff = { version = "0.7.0", default-features = false }
+
+either = "1"
+hashbrown = { version = "0.14", features = ["default"]}
 
 serde_json = { version = "1.0.125", features = ["preserve_order"] }
 indexmap = { version = "2.4.0", features = ["serde"] }

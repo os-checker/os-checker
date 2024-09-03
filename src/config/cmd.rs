@@ -1,6 +1,6 @@
 use crate::{
+    config::{CheckerTool, Resolve},
     layout::Pkg,
-    repo::{CheckerTool, Resolve},
     Result,
 };
 use duct::cmd;
