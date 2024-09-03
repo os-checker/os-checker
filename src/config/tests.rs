@@ -85,26 +85,18 @@ fn uri() -> Result<()> {
     // 3. 对于 github git repo url，简化成 user/repo
     let yaml = r#"
 {
-  "file:///rust/my/os-checker/repos/os-checker-test-suite": {
-    "all": true
-  },
-  "file://repos/arceos": {
-    "all": true
-  },
-  "https://github.com/os-checker/os-checker-test-suite.git": {
-    "all": true
-  },
-  "os-checker/os-checker": {
-    "all": true
-  }
+  "file:///rust/my/os-checker/repos/os-checker-test-suite": { },
+  "file://repos/arceos": { },
+  "https://github.com/os-checker/os-checker-test-suite.git": { },
+  "os-checker/os-checker": { }
 }"#;
     let configs = serde_json::from_str::<Configs>(yaml)?;
     let join = configs.0.iter().map(|c| format!("{:?}", c.uri)).join("\n");
     let expected = expect![[r#"
-        Uri { tag: Local("/rust/my/os-checker/repos/os-checker-test-suite"), user: "repos", repo: "os-checker-test-suite", _local_tmp_dir: None, key: "file:///rust/my/os-checker/repos/os-checker-test-suite" }
-        Uri { tag: Local("repos/arceos"), user: "repos", repo: "arceos", _local_tmp_dir: None, key: "file://repos/arceos" }
-        Uri { tag: Url("https://github.com/os-checker/os-checker-test-suite.git"), user: "os-checker", repo: "os-checker-test-suite", _local_tmp_dir: None, key: "https://github.com/os-checker/os-checker-test-suite.git" }
-        Uri { tag: Github("os-checker/os-checker"), user: "os-checker", repo: "os-checker", _local_tmp_dir: None, key: "os-checker/os-checker" }"#]];
+        Local("/rust/my/os-checker/repos/os-checker-test-suite")
+        Local("repos/arceos")
+        Url("https://github.com/os-checker/os-checker-test-suite.git")
+        Github("os-checker/os-checker")"#]];
     expected.assert_eq(&join);
 
     Ok(())
