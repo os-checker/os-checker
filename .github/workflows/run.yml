@@ -62,9 +62,7 @@ jobs:
           RUSTC_WRAPPER: "sccache"
         run: |
           cd ~/check
-          echo "查看是否安装了 libclang"
-          dpkg -l | grep libclang
-          RUST_LOG=trace os-checker --config repos-ui.json --emit ui.json
+          RUST_LOG=trace os-checker --config repos-default.json --config repos-ui.json --emit ui.json
 
       - name: Commit And Push ui.json
         env:
