@@ -57,7 +57,6 @@
   "kern-crates/sel4_common": {},
   "guoweikang/osl": {},
   "kern-crates/sel4_task": {},
-  "kern-crates/r4l": {},
   "kern-crates/zcore-zircon-syscall": {},
   "kern-crates/zcore-loader": {},
   "kern-crates/zcore-kernel-hal": {},
