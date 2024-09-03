@@ -10,6 +10,7 @@ use cargo_metadata::camino::Utf8Path;
 use eyre::Context;
 use indexmap::IndexMap;
 
+#[allow(dead_code)]
 impl Config {
     pub fn from_json(json: &str) -> Result<Config> {
         Ok(serde_json::from_str(json)?)
@@ -19,20 +20,18 @@ impl Config {
     pub fn from_json_path(json: &Utf8Path) -> Result<Config> {
         let json = std::fs::read_to_string(json)
             .with_context(|| format!("从 `{json}` 读取仓库列表失败！请输入正确的 json 路径。"))?;
-        // FIXME: json not json array
         Config::from_json(&json)
     }
 }
 
 impl Configs {
     // b 覆盖 a
-    pub fn merge(Configs(a): Self, Configs(b): Self) -> Result<Self> {
+    pub fn merge(Configs(a): Self, Configs(b): Self) -> Self {
         let mut merge = Merge::with_capacity(a.len() + b.len());
         for Config { uri, config } in a.into_iter().chain(b) {
             merge.push_or_update(uri, config);
         }
-
-        Ok(Configs(merge.into_configs()))
+        Configs(merge.into_configs())
     }
 }
 

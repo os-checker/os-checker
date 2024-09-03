@@ -93,9 +93,10 @@ impl Configs {
     }
 
     /// 序列化一个仓库配置
-    pub fn from_json_path(json: &Utf8Path) -> Result<Self> {
-        let json = std::fs::read_to_string(json)
-            .with_context(|| format!("从 `{json}` 读取仓库列表失败！请输入正确的 json 路径。"))?;
+    pub fn from_json_path<'p>(path: impl Into<&'p Utf8Path>) -> Result<Self> {
+        let path = path.into();
+        let json = std::fs::read_to_string(path)
+            .with_context(|| format!("从 `{path}` 读取仓库列表失败！请输入正确的 json 路径。"))?;
         // FIXME: json not json array
         Self::from_json(&json)
     }

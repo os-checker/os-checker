@@ -84,11 +84,11 @@ impl Targets {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Setup(MaybeMulti);
 
-impl Setup {
-    pub fn as_slice(&self) -> &[String] {
-        self.0.as_slice()
-    }
-}
+// impl Setup {
+//     pub fn as_slice(&self) -> &[String] {
+//         self.0.as_slice()
+//     }
+// }
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(transparent)]

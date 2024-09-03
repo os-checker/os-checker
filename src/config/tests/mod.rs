@@ -7,7 +7,7 @@ const JSON_PATH: &str = "src/config/tests/a.json";
 
 #[test]
 fn parse_and_resolve() -> Result<()> {
-    let parsed = Configs::from_json_path(JSON_PATH.into())?.0;
+    let parsed = Configs::from_json_path(JSON_PATH)?.0;
     expect_file!["./snapshots/parse-a-json.txt"].assert_debug_eq(&parsed);
 
     let v = parsed[0].resolve(&Packages::test_new(&["package1", "package2"]))?;
@@ -129,7 +129,7 @@ fn merge_configs() -> Result<()> {
   }
 }
 "#;
-    let configs = Configs::merge(Configs::from_json(a)?, Configs::from_json(b)?)?;
+    let configs = Configs::merge(Configs::from_json(a)?, Configs::from_json(b)?);
     let configs_debug = format!("{configs:#?}");
     expect_file!["./snapshots/merge-configs.txt"].assert_eq(&configs_debug);
 
