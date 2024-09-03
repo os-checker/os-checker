@@ -82,7 +82,7 @@ impl Serialize for Config {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(try_from = "serde_json::Value")]
 pub struct Configs(Vec<Config>);
 
@@ -101,6 +101,20 @@ impl Configs {
 
     pub fn into_inner(self) -> Vec<Config> {
         self.0
+    }
+}
+
+impl Serialize for Configs {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let v = &self.0;
+        let mut map = serializer.serialize_map(Some(v.len()))?;
+        for config in v {
+            map.serialize_entry(config.uri.key(), &*config.config)?;
+        }
+        map.end()
     }
 }
 

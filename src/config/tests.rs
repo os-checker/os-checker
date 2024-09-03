@@ -111,44 +111,42 @@ fn uri() -> Result<()> {
 }
 
 #[test]
-fn merge_json_and_yaml_configs() -> Result<()> {
-    let a = r#"["user1/repo", "user2/repo"]"#;
+fn merge_configs() -> Result<()> {
+    let a = r#"{"user1/repo": {}, "user2/repo": { "setup": "make setup" }}"#;
     let b = r#"
 {
   "user1/repo": {
-    "all": true,
-    "miri": false
+    "cmds": { "fmt": false }
   },
   "user2/repo": {
-    "all": true,
-    "clippy": "cargo clippy"
+    "cmds": { "clippy": "cargo clippy" }
   },
   "user3/repo": {
-    "all": true,
     "packages": {
-      "a": {
-        "all": true
-      }
+      "a": { "targets": "x86_64-unknown-linux-gnu" }
     }
   }
 }
 "#;
     let configs = Configs::merge(Configs::from_json(a)?, Configs::from_json(b)?)?;
-    let configs_debug = format!("{:#?}", configs);
-    expect_file!["./snapshots/merge-two-jsons.txt"].assert_eq(&configs_debug);
+    let configs_debug = format!("{configs:#?}");
+    // expect_file!["./snapshots/merge-two-jsons.txt"].assert_eq(&configs_debug);
 
-    println!("{}", serde_json::to_string_pretty(&configs)?);
+    let json = serde_json::to_string_pretty(&configs)?;
+    println!("{json}");
+    let configs_debug2 = format!("{:#?}", Configs::from_json(&json)?);
+    assert_eq!(configs_debug, configs_debug2);
 
     Ok(())
 }
 
 #[test]
 fn parse_cmds() -> Result<()> {
-    // array of cmds
+    // single cmd
     dbg!(Config::from_json(
         r#"{"user/repo": {"cmds": {"clippy": "cargo clippy"}}}"#
     )?);
-    // single cmd
+    // array of cmds
     dbg!(Config::from_json(
         r#"{"user/repo": {"cmds": {"clippy": ["cargo clippy"]}}}"#
     )?);

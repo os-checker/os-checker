@@ -17,11 +17,15 @@ use config_options::{Cmds, Setup, Targets};
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct RepoConfig {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub setup: Option<Setup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub targets: Option<Targets>,
     #[serde(default)]
+    #[serde(skip_serializing_if = "Cmds::is_empty")]
     pub cmds: Cmds,
     #[serde(default)]
+    #[serde(skip_serializing_if = "IndexMap::is_empty")]
     pub packages: IndexMap<String, RepoConfig>,
 }
 

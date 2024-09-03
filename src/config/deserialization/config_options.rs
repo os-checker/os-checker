@@ -124,6 +124,10 @@ impl Cmds {
     pub fn merge(&mut self, other: &Self) {
         self.extend(other.iter().map(|(&key, val)| (key, val.clone())));
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.map.is_empty()
+    }
 }
 
 impl std::ops::Deref for Cmds {
