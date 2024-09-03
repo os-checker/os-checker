@@ -1,5 +1,5 @@
 use super::{Config, Configs};
-use crate::Result;
+use crate::{layout::Packages, Result};
 use expect_test::{expect, expect_file};
 use itertools::Itertools;
 
@@ -18,34 +18,29 @@ fn parse_a() -> Result<()> {
 }
 
 #[test]
-fn pkg_checker_action_only_fmt_clippy() -> Result<()> {
+fn resolve() -> Result<()> {
     let json = r#"
 {
   "user/repo": {
-    "all": true,
     "packages": {
       "crate1": {
-        "fmt": false
+        "cmds": { "fmt": false }
       },
       "crate2": {
-        "clippy": ["RUSTFLAGS=-cfg=abc cargo clippy"]
+        "cmds": { "clippy": ["RUSTFLAGS=-cfg=abc cargo clippy --no-deps --message-format=json"] }
       },
-      "crate3": {
-        "all": false
-      },
+      "crate3": { },
       "crate4": {
-        "clippy": false
+        "cmds": { "clippy": false }
       }
     }
   }
 }
 "#;
-    // let v = Config::from_json(json)?
-    //     .config
-    //     .pkg_checker_action(&Packages::test_new(&[
-    //         "crate0", "crate1", "crate2", "crate3", "crate4",
-    //     ]))?;
-    // expect_file!["./snapshots/pkg_checker_action-fmt_clippy_only.txt"].assert_debug_eq(&v);
+    let v = Config::from_json(json)?.resolve(&Packages::test_new(&[
+        "crate0", "crate1", "crate2", "crate3", "crate4",
+    ]))?;
+    expect_file!["./snapshots/resolve.txt"].assert_debug_eq(&v);
 
     Ok(())
 }
