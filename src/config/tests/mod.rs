@@ -14,11 +14,13 @@ fn parse_assets() -> Result<()> {
 
 #[test]
 fn parse_and_resolve() -> Result<()> {
-    let parsed = Configs::from_json_path(JSON_PATH)?.0;
-    expect_file!["./snapshots/parse-a-json.txt"].assert_debug_eq(&parsed);
+    let configs = Configs::from_json_path(JSON_PATH)?;
+    expect_file!["./snapshots/parse-a-json.txt"].assert_debug_eq(&configs.0);
 
-    let v = parsed[0].resolve(&Packages::test_new(&["package1", "package2"]))?;
+    let v = configs.0[0].resolve(&Packages::test_new(&["package1", "package2"]))?;
     expect_file!["./snapshots/parse-a-json_resolve.txt"].assert_debug_eq(&v);
+
+    expect_file!["./snapshots/batch1.txt"].assert_debug_eq(&configs.batch(1));
 
     Ok(())
 }

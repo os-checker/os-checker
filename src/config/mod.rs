@@ -1,6 +1,7 @@
 use crate::{layout::Packages, Result};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::Context;
+use itertools::Itertools;
 use serde::{ser::SerializeMap, Deserialize, Serialize, Serializer};
 
 mod cmd;
@@ -103,6 +104,18 @@ impl Configs {
 
     pub fn into_inner(self) -> Vec<Config> {
         self.0
+    }
+
+    pub fn batch(self, size: usize) -> Vec<Self> {
+        if size == 0 {
+            return vec![self];
+        }
+        self.0
+            .into_iter()
+            .chunks(size)
+            .into_iter()
+            .map(|chunk| Self(chunk.collect()))
+            .collect()
     }
 }
 
