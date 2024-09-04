@@ -1,7 +1,7 @@
 BASE_DIR ?= ~/check
 BATCH_DIR ?= $(BASE_DIR)/batch
 OUTPUI_DIR ?= $(BASE_DIR)/output
-CONFIGS ?= repos.json repos-ui.json
+CONFIGS ?= repos-default.json repos-ui.json
 ARGS_CONFIGS ?= $(shell echo "$(CONFIGS)" | awk '{for(i=1;i<=NF;i++) printf("--config %s ", $$i)}')
 
 BATCH_CONFIGS := $(wildcard $(BATCH_DIR)/*.json)
@@ -20,7 +20,7 @@ define run_each
 endef
 
 define make_batch
-	os-checker batch $(ARGS_CONFIGS) --out-dir $(BATCH_DIR) --size 4;
+	os-checker batch $(ARGS_CONFIGS) --out-dir $(BATCH_DIR) --size 8;
 
 endef
 
