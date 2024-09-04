@@ -98,7 +98,7 @@ impl Configs {
         let path = path.into();
         let json = std::fs::read_to_string(path)
             .with_context(|| format!("从 `{path}` 读取仓库列表失败！请输入正确的 json 路径。"))?;
-        // FIXME: json not json array
+        trace!(json);
         Self::from_json(&json)
     }
 
