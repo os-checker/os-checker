@@ -1,0 +1,30 @@
+{
+  "arceos-org/arceos": {
+    "packages": {
+      "bwbench-client": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "deptool": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "arceos-shell": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "arceos-httpserver": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "arceos-httpclient": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "arceos-helloworld": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
+    }
+  },
+  "kern-crates/sel4_cspace": {
+    "targets": "riscv64gc-unknown-none-elf"
+  },
+  "elliott10/e1000-driver": {},
+  "kern-crates/ByteOS": {},
+  "shilei-massclouds/axdtb": {}
+}
