@@ -54,9 +54,8 @@ jobs:
         run: |
           mkdir ~/check
           cp Makefile ~/check
-          cp assets/repos.json ~/check
           cd ~/check
-          ls -alh ~/check
+          echo '{ "os-checker/os-checker-test-suite": {} }' > repos.json
           make batch
 
       - name: Run All Checkers
