@@ -24,6 +24,7 @@
   "kern-crates/sel4_cspace": {
     "targets": "riscv64gc-unknown-none-elf"
   },
+  "elliott10/e1000-driver": {},
   "kern-crates/ByteOS": {},
   "shilei-massclouds/axdtb": {}
 }
