@@ -1,5 +1,5 @@
 use crate::{cli::repos_base_dir, utils::git_clone, Result, XString};
-use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
+use cargo_metadata::camino::Utf8PathBuf;
 use eyre::ContextCompat;
 use regex::Regex;
 use serde::Serialize;

@@ -27,15 +27,24 @@ pub struct Args {
 
 impl Args {
     pub fn execute(self) -> Result<()> {
+        init_repos_base_dir(self.first_config());
         match self.sub_args {
             SubArgs::Setup(setup) => setup.execute()?,
-            SubArgs::Run(run) => {
-                init_repos_base_dir(run.config.first().unwrap());
-                run.execute()?
-            }
+            SubArgs::Run(run) => run.execute()?,
             SubArgs::Batch(batch) => batch.execute()?,
         }
         Ok(())
+    }
+
+    fn first_config(&self) -> &str {
+        match &self.sub_args {
+            SubArgs::Setup(setup) => &setup.config[..],
+            SubArgs::Run(run) => &run.config,
+            SubArgs::Batch(batch) => &batch.config,
+        }
+        .first()
+        .map(|s| &**s)
+        .unwrap_or("repos")
     }
 }
 
