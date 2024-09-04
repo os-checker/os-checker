@@ -4,6 +4,7 @@ use expect_test::{expect, expect_file};
 use itertools::Itertools;
 
 const JSON_PATH: &str = "src/config/tests/a.json";
+const LARGE_JSON_PATH: &str = "src/config/tests/large.json";
 
 #[test]
 fn parse_assets() -> Result<()> {
@@ -21,6 +22,23 @@ fn parse_and_resolve() -> Result<()> {
     expect_file!["./snapshots/parse-a-json_resolve.txt"].assert_debug_eq(&v);
 
     expect_file!["./snapshots/batch1.txt"].assert_debug_eq(&configs.chunk(1));
+
+    Ok(())
+}
+
+fn make_batch(f: impl FnOnce(usize) -> usize) -> Vec<Configs> {
+    let configs = Configs::from_json_path(LARGE_JSON_PATH).unwrap();
+    let size = f(configs.0.len());
+    configs.chunk(size)
+}
+
+#[test]
+fn batch() -> Result<()> {
+    let batches = make_batch(|len| len / 2);
+    expect_file!["./snapshots/large-batch-split-by-half.txt"].assert_debug_eq(&batches);
+
+    let batches = make_batch(|_| 3);
+    expect_file!["./snapshots/large-batch-3.txt"].assert_debug_eq(&batches);
 
     Ok(())
 }
