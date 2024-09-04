@@ -1,4 +1,4 @@
-use crate::{utils::git_clone, Result, XString};
+use crate::{cli::repos_base_dir, utils::git_clone, Result, XString};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::ContextCompat;
 use regex::Regex;
@@ -82,7 +82,11 @@ impl Uri {
             target
         };
         #[cfg(not(test))]
-        let target_dir = Utf8Path::new(self.repo.as_str());
+        let target_dir = &{
+            let mut dir = repos_base_dir();
+            dir.push(self.repo.as_str());
+            dir
+        };
 
         debug!(self.key, "git clone {url} {target_dir}");
         let (_, time_elapsed_ms) = git_clone(target_dir, &url)?;

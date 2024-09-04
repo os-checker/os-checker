@@ -9,7 +9,7 @@ use cargo_metadata::camino::Utf8PathBuf;
 use eyre::ContextCompat;
 use rayon::prelude::*;
 use serde::Serialize;
-use std::{fs::File, time::SystemTime};
+use std::{fs::File, sync::Mutex, time::SystemTime};
 
 pub fn args() -> Args {
     let arguments = argh::from_env();
@@ -29,7 +29,10 @@ impl Args {
     pub fn execute(self) -> Result<()> {
         match self.sub_args {
             SubArgs::Setup(setup) => setup.execute()?,
-            SubArgs::Run(run) => run.execute()?,
+            SubArgs::Run(run) => {
+                init_repos_base_dir(run.config.first().unwrap());
+                run.execute()?
+            }
             SubArgs::Batch(batch) => batch.execute()?,
         }
         Ok(())
@@ -209,4 +212,27 @@ impl ArgsBatch {
         configs.batch(self.size, &self.out_dir)?;
         Ok(())
     }
+}
+
+static REPOS_BASE_DIR: Mutex<Option<Utf8PathBuf>> = Mutex::new(None);
+
+fn init_repos_base_dir(config: &str) {
+    let mut path = Utf8PathBuf::from(config);
+    let file_stem = path.file_stem().expect("配置文件不含 file stem").to_owned();
+    // 按照 config.json 设置目录名为 config
+    path.set_file_name(file_stem);
+    if !path.exists() {
+        std::fs::create_dir(&path).unwrap()
+    }
+    *REPOS_BASE_DIR.lock().unwrap() = Some(path);
+}
+
+/// 所有 clone 的仓库放置到该目录下
+pub fn repos_base_dir() -> Utf8PathBuf {
+    REPOS_BASE_DIR
+        .lock()
+        .expect("无法获取 REPOS_BASE_DIR")
+        .as_ref()
+        .expect("REPOS_BASE_DIR 尚未设置值")
+        .clone()
 }
