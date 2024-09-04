@@ -50,7 +50,11 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        run: cp Makefile ~/check && cd ~/check && make batch
+        run: |
+          mkdir ~/check
+          cp Makefile ~/check
+          cd ~/check
+          make batch
 
       - name: Run All Checkers
         env:
