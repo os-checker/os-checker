@@ -53,7 +53,7 @@ jobs:
         run: |
           mkdir ~/check
           cp Makefile ~/check
-          cp assets/repos-ui.json ~/check
+          cp assets/repos.json ~/check
           cd ~/check
           make batch
 
@@ -61,7 +61,7 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        run: cd ~/check && make run
+        run: cd ~/check && make run && ls -alh output
 
       - name: Commit And Push batch json
         env:
@@ -81,6 +81,7 @@ jobs:
           git pull --rebase # 防止二次运行 CI 时落后于远程分支
 
           cp ~/check/output batch -r
+          ls -alh batch
           sh batch.sh
 
       - name: Save Rustup Cache
