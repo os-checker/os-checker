@@ -106,7 +106,7 @@ impl Configs {
         self.0
     }
 
-    pub fn batch(self, size: usize) -> Vec<Self> {
+    fn chunk(self, size: usize) -> Vec<Self> {
         if size == 0 {
             return vec![self];
         }
@@ -116,6 +116,32 @@ impl Configs {
             .into_iter()
             .map(|chunk| Self(chunk.collect()))
             .collect()
+    }
+
+    pub fn batch(self, size: usize, dir: &Utf8Path) -> Result<()> {
+        use std::fmt::Write;
+        let mut path = Utf8PathBuf::from(dir);
+
+        if !path.exists() {
+            std::fs::create_dir_all(&mut path)?;
+            trace!(%path, "successfully created the batch directory");
+        }
+
+        let mut file_name = String::new();
+        let chunks = self.chunk(size);
+
+        for (idx, configs) in chunks.into_iter().enumerate() {
+            file_name.clear();
+            write!(&mut file_name, "batch_{}.json", idx + 1).unwrap();
+            path.push(&file_name);
+
+            let writer = std::fs::File::create(&path)?;
+            serde_json::to_writer_pretty(writer, &configs)?;
+            trace!(%path, "successfully wrote a batch json config");
+            path.pop();
+        }
+
+        Ok(())
     }
 }
 

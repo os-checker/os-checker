@@ -1,5 +1,5 @@
 use crate::{
-    config::{Config, Configs},
+    config::Configs,
     output::{JsonOutput, Norun},
     run_checker::{Repo, RepoOutput},
     Result,
@@ -30,7 +30,7 @@ impl Args {
         match self.sub_args {
             SubArgs::Setup(setup) => setup.execute()?,
             SubArgs::Run(run) => run.execute()?,
-            SubArgs::Batch(batch) => (),
+            SubArgs::Batch(batch) => batch.execute()?,
         }
         Ok(())
     }
@@ -76,7 +76,7 @@ pub struct ArgsRun {
 
 /// Merge configs and split it into batches.
 ///
-/// `os-checker batch --config a.json --config b.json --out-dir batch -n 10`
+/// `os-checker batch --config a.json --config b.json --out-dir batch --size 10`
 /// will yield multiple json configs in `batch/`, each containing at most 10 repos.
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "batch")]
@@ -91,9 +91,10 @@ struct ArgsBatch {
     #[argh(option)]
     out_dir: Utf8PathBuf,
 
-    /// at most n repos in each batch json config
-    #[argh(option, short = 'n')]
-    number: usize,
+    /// `--size n` generates at most n repos in each batch json config.
+    /// `--size 0` generates a single json merged from all repos.
+    #[argh(option)]
+    size: usize,
 }
 
 /// 见 `assets/JSON-data-format.md`
@@ -140,7 +141,7 @@ impl std::str::FromStr for Emit {
 /// 从配置文件路径中读取配置。
 /// 如果指定多个配置文件，则合并成一个大的配置文件。
 /// 返回值表示每个仓库的合并之后的配置信息。
-fn configurations(configs: &[String]) -> Result<Vec<Config>> {
+fn configurations(configs: &[String]) -> Result<Configs> {
     const DEFAULT: &str = "repos.json";
     let config = match configs {
         [] => Configs::from_json_path(DEFAULT)?,
@@ -156,12 +157,13 @@ fn configurations(configs: &[String]) -> Result<Vec<Config>> {
                 .with_context(|| format!("无法从 {paths:?} 合并到一个 Configs"))?
         }
     };
-    Ok(config.into_inner())
+    Ok(config)
 }
 
 /// 读取和合并配置，然后以并行方式，在每个仓库上执行检查。
 fn repos_outputs(configs: &[String]) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {
     Ok(configurations(configs)?
+        .into_inner()
         .into_par_iter()
         .map(RepoOutput::try_from))
 }
@@ -181,10 +183,12 @@ impl ArgsRun {
         Ok(())
     }
 }
+
 impl ArgsSetup {
+    /// 只生成 Repo，识别仓库布局、工具链之类的基本信息，并不执行检查
     fn execute(&self) -> Result<()> {
-        // 这里只生成 Repo，识别仓库布局、工具链之类的基本信息，并不执行检查
         let repos: Vec<_> = configurations(&self.config)?
+            .into_inner()
             .into_par_iter()
             .map(Repo::try_from)
             .collect::<Result<_>>()?;
@@ -194,6 +198,15 @@ impl ArgsSetup {
         }
         self.emit.emit(&norun)?;
         norun.setup()?;
+        Ok(())
+    }
+}
+
+impl ArgsBatch {
+    /// 只生成分批的配置文件
+    fn execute(&self) -> Result<()> {
+        let configs = configurations(&self.config)?;
+        configs.batch(self.size, &self.out_dir)?;
         Ok(())
     }
 }

@@ -20,7 +20,7 @@ fn parse_and_resolve() -> Result<()> {
     let v = configs.0[0].resolve(&Packages::test_new(&["package1", "package2"]))?;
     expect_file!["./snapshots/parse-a-json_resolve.txt"].assert_debug_eq(&v);
 
-    expect_file!["./snapshots/batch1.txt"].assert_debug_eq(&configs.batch(1));
+    expect_file!["./snapshots/batch1.txt"].assert_debug_eq(&configs.chunk(1));
 
     Ok(())
 }
