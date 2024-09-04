@@ -21,6 +21,46 @@ pub fn args() -> Args {
 /// Run a collection of checkers targeting Rust crates, and report
 /// bad checking results and statistics.
 pub struct Args {
+    #[argh(subcommand)]
+    sub_args: SubArgs,
+}
+
+impl Args {
+    pub fn execute(self) -> Result<()> {
+        match self.sub_args {
+            SubArgs::Setup(setup) => setup.execute()?,
+            SubArgs::Run(run) => run.execute()?,
+        }
+        Ok(())
+    }
+}
+
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand)]
+enum SubArgs {
+    Setup(ArgsSetup),
+    Run(ArgsRun),
+}
+
+/// set up all rust-toolchains and checkers without running real checkers
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand, name = "setup")]
+struct ArgsSetup {
+    /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
+    /// for the defined format.
+    #[argh(option)]
+    config: Vec<String>,
+
+    #[argh(option, default = "Emit::Json")]
+    /// emit a JSON output containing information like targets
+    emit: Emit,
+}
+
+/// Run a collection of checkers targeting Rust crates, and report
+/// bad checking results and statistics.
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand, name = "run")]
+pub struct ArgsRun {
     /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
     /// for the defined format.
     #[argh(option)]
@@ -29,23 +69,35 @@ pub struct Args {
     #[argh(option, default = "Emit::Json")]
     /// emit a JSON format containing the checking reports
     emit: Emit,
-
-    /// `--norun  --emit a.json` means emitting information like targets without running real checkers
-    #[argh(switch)]
-    norun: bool,
-
-    /// works with `--norun` to set up all rust-toolchains and checkers
-    #[argh(switch)]
-    setup: bool,
 }
 
-/// 见 `../../assets/JSON-data-format.md`
-#[derive(Debug)]
+/// 见 `assets/JSON-data-format.md`
+#[derive(Debug, PartialEq)]
 pub enum Emit {
     /// Print to stdout.
     Json,
     /// Save as a json file.
     JsonFile(Utf8PathBuf),
+}
+
+impl Emit {
+    fn emit(&self, json: &impl Serialize) -> Result<()> {
+        // trick to have stacked dyn trait objects
+        let (mut writer1, mut writer2);
+        let writer: &mut dyn std::io::Write = match &self {
+            Emit::Json => {
+                writer1 = std::io::stdout();
+                &mut writer1
+            }
+            Emit::JsonFile(p) => {
+                writer2 = File::create(p)?;
+                &mut writer2
+            }
+        };
+        serde_json::to_writer_pretty(writer, json)?;
+
+        Ok(())
+    }
 }
 
 impl std::str::FromStr for Emit {
@@ -60,68 +112,54 @@ impl std::str::FromStr for Emit {
     }
 }
 
-impl Args {
-    fn configurations(&self) -> Result<Vec<Config>> {
-        const DEFAULT: &str = "repos.json";
-        let config = match &self.config[..] {
-            [] => Configs::from_json_path(DEFAULT)?,
-            [path] => Configs::from_json_path(path.as_str())?,
-            paths => {
-                let configs = paths
-                    .iter()
-                    .map(|path| Configs::from_json_path(path.as_str()))
-                    .collect::<Result<Vec<_>>>()?;
-                configs
-                    .into_iter()
-                    .reduce(Configs::merge)
-                    .with_context(|| format!("无法从 {paths:?} 合并到一个 Configs"))?
-            }
-        };
-        Ok(config.into_inner())
-    }
+/// 从配置文件路径中读取配置。
+/// 如果指定多个配置文件，则合并成一个大的配置文件。
+/// 返回值表示每个仓库的合并之后的配置信息。
+fn configurations(configs: &[String]) -> Result<Vec<Config>> {
+    const DEFAULT: &str = "repos.json";
+    let config = match configs {
+        [] => Configs::from_json_path(DEFAULT)?,
+        [path] => Configs::from_json_path(path.as_str())?,
+        paths => {
+            let configs = paths
+                .iter()
+                .map(|path| Configs::from_json_path(path.as_str()))
+                .collect::<Result<Vec<_>>>()?;
+            configs
+                .into_iter()
+                .reduce(Configs::merge)
+                .with_context(|| format!("无法从 {paths:?} 合并到一个 Configs"))?
+        }
+    };
+    Ok(config.into_inner())
+}
 
-    fn repos_outputs(&self) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {
-        Ok(self
-            .configurations()?
-            .into_par_iter()
-            .map(RepoOutput::try_from))
-    }
+/// 读取和合并配置，然后以并行方式，在每个仓库上执行检查。
+fn repos_outputs(configs: &[String]) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {
+    Ok(configurations(configs)?
+        .into_par_iter()
+        .map(RepoOutput::try_from))
+}
 
-    fn run(&self) -> Result<()> {
+impl ArgsRun {
+    fn execute(&self) -> Result<()> {
         let start = SystemTime::now();
-        let outs = self.repos_outputs()?.collect::<Result<Vec<_>>>()?;
+        let outs = repos_outputs(&self.config)?.collect::<Result<Vec<_>>>()?;
         let finish = SystemTime::now();
         debug!("Got statistics and start to run and emit output.");
         let mut json = JsonOutput::new(&outs);
         json.set_start_end_time(start, finish);
 
-        self.emit(&json)?;
+        self.emit.emit(&json)?;
 
         debug!(?self.emit, "Output emitted");
         Ok(())
     }
-
-    fn emit(&self, json: &impl Serialize) -> Result<()> {
-        // trick to have stacked dyn trait objects
-        let (mut writer1, mut writer2);
-        let writer: &mut dyn std::io::Write = match &self.emit {
-            Emit::Json => {
-                writer1 = std::io::stdout();
-                &mut writer1
-            }
-            Emit::JsonFile(p) => {
-                writer2 = File::create(p)?;
-                &mut writer2
-            }
-        };
-        serde_json::to_writer_pretty(writer, json)?;
-
-        Ok(())
-    }
-
-    fn norun(&self) -> Result<()> {
-        let repos: Vec<_> = self
-            .configurations()?
+}
+impl ArgsSetup {
+    fn execute(&self) -> Result<()> {
+        // 这里只生成 Repo，识别仓库布局、工具链之类的基本信息，并不执行检查
+        let repos: Vec<_> = configurations(&self.config)?
             .into_par_iter()
             .map(Repo::try_from)
             .collect::<Result<_>>()?;
@@ -129,18 +167,8 @@ impl Args {
         for repo in &repos {
             repo.norun(&mut norun);
         }
-        self.emit(&norun)?;
-        if self.setup {
-            norun.setup()?;
-        }
+        self.emit.emit(&norun)?;
+        norun.setup()?;
         Ok(())
-    }
-
-    pub fn execute(self) -> Result<()> {
-        if self.norun {
-            self.norun()
-        } else {
-            self.run()
-        }
     }
 }

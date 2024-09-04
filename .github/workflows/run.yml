@@ -13,7 +13,7 @@ jobs:
       - name: Download repos-ui.json
         run: |
           mkdir ~/check
-          cp assets/repos-ui-targets.json ~/check/repos-ui-targets.json
+          cp assets/repos-ui.json ~/check/repos-ui.json
           # cp assets/repos-ui.json ~/check/repos-ui.json
           # cp assets/repos-default.json ~/check/repos-default.json
           # wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O ~/check/repos.yaml
@@ -56,7 +56,7 @@ jobs:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
         # run: cd ~/check && RUST_LOG=trace os-checker --config repos-default.json --config repos-ui.json --emit json --norun --setup
-        run: cd ~/check && RUST_LOG=trace os-checker --config repos-ui-targets.json --emit json --norun --setup
+        run: cd ~/check && RUST_LOG=trace os-checker setup --config repos-ui.json --emit json
 
       - name: Run All Checkers
         env:
@@ -65,7 +65,7 @@ jobs:
         run: |
           cd ~/check
           # RUST_LOG=trace os-checker --config repos-default.json --config repos-ui.json --emit ui.json
-          RUST_LOG=trace os-checker --config repos-ui-targets.json --emit ui.json
+          RUST_LOG=trace os-checker run --config repos-ui.json --emit ui.json
 
       - name: Commit And Push ui.json
         env:
