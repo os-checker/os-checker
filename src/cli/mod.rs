@@ -30,6 +30,7 @@ impl Args {
         match self.sub_args {
             SubArgs::Setup(setup) => setup.execute()?,
             SubArgs::Run(run) => run.execute()?,
+            SubArgs::Batch(batch) => (),
         }
         Ok(())
     }
@@ -40,14 +41,16 @@ impl Args {
 enum SubArgs {
     Setup(ArgsSetup),
     Run(ArgsRun),
+    Batch(ArgsBatch),
 }
 
-/// set up all rust-toolchains and checkers without running real checkers
+/// Set up all rust-toolchains and checkers without running real checkers.
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "setup")]
 struct ArgsSetup {
     /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
-    /// for the defined format.
+    /// for the defined format. This can be specified multiple times like
+    /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]
     config: Vec<String>,
 
@@ -56,19 +59,41 @@ struct ArgsSetup {
     emit: Emit,
 }
 
-/// Run a collection of checkers targeting Rust crates, and report
-/// bad checking results and statistics.
+/// Run checkers on all repos.
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "run")]
 pub struct ArgsRun {
     /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
-    /// for the defined format.
+    /// for the defined format. This can be specified multiple times like
+    /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]
     config: Vec<String>,
 
     #[argh(option, default = "Emit::Json")]
     /// emit a JSON format containing the checking reports
     emit: Emit,
+}
+
+/// Merge configs and split it into batches.
+///
+/// `os-checker batch --config a.json --config b.json --out-dir batch -n 10`
+/// will yield multiple json configs in `batch/`, each containing at most 10 repos.
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand, name = "batch")]
+struct ArgsBatch {
+    /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
+    /// for the defined format. This can be specified multiple times like
+    /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
+    #[argh(option)]
+    config: Vec<String>,
+
+    /// a dir to store the generated batch json config
+    #[argh(option)]
+    out_dir: Utf8PathBuf,
+
+    /// at most n repos in each batch json config
+    #[argh(option, short = 'n')]
+    number: usize,
 }
 
 /// 见 `assets/JSON-data-format.md`
