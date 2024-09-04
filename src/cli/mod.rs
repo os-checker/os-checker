@@ -5,7 +5,7 @@ use crate::{
     Result,
 };
 use argh::FromArgs;
-use cargo_metadata::camino::Utf8PathBuf;
+use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::ContextCompat;
 use rayon::prelude::*;
 use serde::Serialize;
@@ -226,10 +226,9 @@ impl ArgsBatch {
 static REPOS_BASE_DIR: Mutex<Option<Utf8PathBuf>> = Mutex::new(None);
 
 fn init_repos_base_dir(config: &str) {
-    let mut path = Utf8PathBuf::from(config);
-    let file_stem = path.file_stem().expect("配置文件不含 file stem").to_owned();
+    let config = Utf8Path::new(config);
+    let path = Utf8PathBuf::from(config.file_stem().expect("配置文件不含 file stem"));
     // 按照 config.json 设置目录名为 config
-    path.set_file_name(file_stem);
     if !path.exists() {
         std::fs::create_dir(&path).unwrap()
     }
