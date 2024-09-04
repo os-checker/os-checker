@@ -30,7 +30,15 @@ impl Args {
         init_repos_base_dir(self.first_config());
         match self.sub_args {
             SubArgs::Setup(setup) => setup.execute()?,
-            SubArgs::Run(run) => run.execute()?,
+            SubArgs::Run(run) => {
+                run.execute()?;
+
+                // clean repo_dir to save disk space in CI
+                let repos_dir = repos_base_dir();
+                debug!(%repos_dir, "正在清理所有下载的仓库目录");
+                std::fs::remove_dir_all(&repos_dir)?;
+                debug!(%repos_dir, "清理成功");
+            }
             SubArgs::Batch(batch) => batch.execute()?,
         }
         Ok(())
@@ -230,9 +238,12 @@ fn init_repos_base_dir(config: &str) {
     let path = Utf8PathBuf::from(config.file_stem().expect("配置文件不含 file stem"));
     // 按照 config.json 设置目录名为 config
     if !path.exists() {
-        std::fs::create_dir(&path).unwrap()
+        debug!(%path, "创建 REPOS_BASE_DIR");
+        std::fs::create_dir(&path).unwrap();
     }
+    trace!(%path, "正在初始化 REPOS_BASE_DIR");
     *REPOS_BASE_DIR.lock().unwrap() = Some(path);
+    trace!("初始化 REPOS_BASE_DIR 成功");
 }
 
 /// 所有 clone 的仓库放置到该目录下
