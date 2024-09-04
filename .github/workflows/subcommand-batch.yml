@@ -83,7 +83,7 @@ jobs:
 
           cp ~/check/output batch -r
           ls -alh batch
-          sh batch.sh
+          BOT=1 sh batch.sh
 
       - name: Save Rustup Cache
         id: cache-rustup-save
