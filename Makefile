@@ -27,7 +27,7 @@ echo:
 	echo "$(BASE_DIR)"
 
 batch:
-	@$(foreach config,$(CONFIGS),$(call make_batch,$(config)))
+	$(foreach config,$(CONFIGS),$(call make_batch,$(config)))
 
 run:
-	@$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(OUTPUI_DIR)/$(shell basename $(config))))
+	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(OUTPUI_DIR)/$(shell basename $(config))))

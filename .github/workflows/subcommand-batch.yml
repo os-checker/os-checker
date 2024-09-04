@@ -55,6 +55,7 @@ jobs:
           cp Makefile ~/check
           cp assets/repos.json ~/check
           cd ~/check
+          ls -alh ~/check
           make batch
 
       - name: Run All Checkers
