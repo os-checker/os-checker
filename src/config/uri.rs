@@ -1,6 +1,5 @@
-use crate::{Result, XString};
+use crate::{utils::git_clone, Result, XString};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
-use duct::cmd;
 use eyre::ContextCompat;
 use regex::Regex;
 use serde::Serialize;
@@ -86,23 +85,8 @@ impl Uri {
         let target_dir = Utf8Path::new(self.repo.as_str());
 
         debug!(self.key, "git clone {url} {target_dir}");
-        let now = std::time::Instant::now();
-        let output = if target_dir.exists() {
-            cmd!("git", "pull", "--recurse-submodules")
-                .dir(target_dir)
-                .run()?
-        } else {
-            cmd!("git", "clone", "--recursive", url, target_dir).run()?
-        };
-        debug!(self.key, time_elapsed_ms = now.elapsed().as_millis());
-
-        ensure!(
-            output.status.success(),
-            "git 获取 {:?} 失败\nstderr={}\nstdout={}",
-            self.tag,
-            String::from_utf8_lossy(&output.stderr),
-            String::from_utf8_lossy(&output.stdout),
-        );
+        let (_, time_elapsed_ms) = git_clone(target_dir, &url)?;
+        debug!(self.key, time_elapsed_ms);
 
         Ok(target_dir.to_owned())
     }

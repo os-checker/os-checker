@@ -1,5 +1,9 @@
 use super::RustToolchains;
-use crate::Result;
+use crate::{
+    utils::{git_clone, BASE_DIR_CHECKERS},
+    Result,
+};
+use cargo_metadata::camino::Utf8PathBuf;
 use duct::cmd;
 use indexmap::IndexSet;
 use itertools::Itertools;
@@ -57,8 +61,8 @@ fn rustup_target_add(targets: &[&str]) -> duct::Expression {
 
 fn setup_lockbud(targets: &[&str]) -> Result<()> {
     let url = "https://github.com/BurtonQin/lockbud.git";
-    let dir = "repos/lockbud";
-    cmd!("git", "clone", url, dir).run()?;
+    let dir = &Utf8PathBuf::from_iter([BASE_DIR_CHECKERS, "lockbud"]);
+    git_clone(dir, url)?;
     rustup_target_add(targets).dir(dir).run()?;
     cmd!("rustup", "show").dir(dir).run()?;
     cmd!("cargo", "install", "--path", ".", "--force")
