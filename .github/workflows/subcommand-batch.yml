@@ -6,6 +6,7 @@ on:
 
 env:
   RUST_LOG: trace
+  RUST_LIB_BACKTRACE: full
 
 jobs:
   run:
