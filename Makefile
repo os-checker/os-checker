@@ -1,6 +1,7 @@
 BASE_DIR ?= ~/check
 BATCH_DIR ?= $(BASE_DIR)/batch
 OUTPUI_DIR ?= $(BASE_DIR)/output
+CONFIGS ?= repos-ui.json
 
 BATCH_CONFIGS := $(wildcard $(BATCH_DIR)/*.json)
 
@@ -17,11 +18,16 @@ define run_each
 
 endef
 
+define make_batch
+	os-checker batch --config $(1) --out-dir $(BATCH_DIR) --size 3;
+
+endef
+
 echo:
 	echo "$(BASE_DIR)"
 
 batch:
-	os-checker batch --config assets/repos-ui.json --out-dir $(BATCH_DIR) --size 3
+	@$(foreach config,$(CONFIGS),$(call make_batch,$(config)))
 
 run:
 	@mkdir -p $(OUTPUI_DIR)

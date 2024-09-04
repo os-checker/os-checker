@@ -46,13 +46,19 @@ jobs:
           RUSTC_WRAPPER: "sccache"
         run: cargo install --path . --force
 
+      - name: Set Up Checkers And Toolchains
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
+        run: cp Makefile ~/check && cd ~/check && make batch
+
       - name: Run All Checkers
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        run: make batch && make run
+        run: cd ~/check && make run
 
-      - name: Commit And Push ui.json
+      - name: Commit And Push batch json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
