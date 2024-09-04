@@ -53,6 +53,7 @@ jobs:
         run: |
           mkdir ~/check
           cp Makefile ~/check
+          cp assets/repos-ui.json ~/check
           cd ~/check
           make batch
 
