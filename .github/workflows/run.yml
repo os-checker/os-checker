@@ -56,7 +56,7 @@ jobs:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
         # run: cd ~/check && RUST_LOG=trace os-checker --config repos-default.json --config repos-ui.json --emit json --norun --setup
-        run: cd ~/check && RUST_LOG=trace os-checker --config repos-ui.json --emit json --norun --setup
+        run: cd ~/check && RUST_LOG=trace os-checker setup --config repos-ui.json --emit json
 
       - name: Run All Checkers
         env:
@@ -65,7 +65,7 @@ jobs:
         run: |
           cd ~/check
           # RUST_LOG=trace os-checker --config repos-default.json --config repos-ui.json --emit ui.json
-          RUST_LOG=trace os-checker --config repos-ui.json --emit ui.json
+          RUST_LOG=trace os-checker run --config repos-ui.json --emit ui.json
 
       - name: Commit And Push ui.json
         env:
