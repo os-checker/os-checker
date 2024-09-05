@@ -1,8 +1,32 @@
-use cargo_metadata::camino::Utf8PathBuf;
+use crate::Result;
+use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
+use duct::cmd;
 use std::{path::Path, time::Instant};
 
 mod scan_for_targets;
 pub use scan_for_targets::scan_scripts_for_target;
+
+/// Temp dir for os-checker, used for installing checkers.
+pub const BASE_DIR_CHECKERS: &str = "/tmp/os-checker/checkers";
+
+/// git clone 一个仓库到一个 dir。
+/// 如果该仓库已存在，则 git pull 拉取最新的代码。
+pub fn git_clone(dir: &Utf8Path, url: &str) -> Result<(std::process::Output, u64)> {
+    let now = std::time::Instant::now();
+    let output = if dir.exists() {
+        cmd!("git", "pull", "--recurse-submodules").dir(dir).run()?
+    } else {
+        cmd!("git", "clone", "--recursive", url, dir).run()?
+    };
+    let millis = now.elapsed().as_millis() as u64;
+    ensure!(
+        output.status.success(),
+        "git 获取 {url:?} 失败\nstderr={}\nstdout={}",
+        String::from_utf8_lossy(&output.stderr),
+        String::from_utf8_lossy(&output.stdout),
+    );
+    Ok((output, millis))
+}
 
 /// 遍历一个目录及其子目录的所有文件（但不进入 .git 和 target 目录）：
 /// * 需要设置一个最大递归深度（虽然可以不设置这个条件，但大部分情况下，os-checker 不需要深度递归）

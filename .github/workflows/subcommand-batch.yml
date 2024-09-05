@@ -1,0 +1,110 @@
+name: Run Checkers In Batch
+# on: [push]
+on:
+  push:
+    branches: [ feat/subcommand-batch ]
+
+env:
+  RUST_LOG: trace
+  RUST_LIB_BACKTRACE: full
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.5
+
+      - name: Set Up Github Environment Variables
+        run: echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
+
+      - name: Restore Rustup Cache 
+        id: cache-rustup-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.rustup/
+          key: ${{ runner.os }}-rustup-${{ env.RUSTC_VERSION }}
+
+      - name: Restore Cargo Cache 
+        id: cache-cargo-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ env.RUSTC_VERSION }}
+
+      - name: Install os-checker
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
+        run: cargo install --path . --force
+
+      - name: Set Up Checkers And Toolchains
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
+        run: |
+          mkdir ~/check
+          cp Makefile ~/check
+          cp assets/repos-ui.json ~/check/repos-ui.json
+          cp assets/repos-default.json ~/check/repos-default.json
+          cd ~/check
+          # echo '{ "os-checker/os-checker-test-suite": {} }' > repos.json
+          make batch
+          ls -alh .
+
+      - name: Run All Checkers
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
+        run: cd ~/check && mkdir output && make run && ls -alh output
+
+      - name: Commit And Push batch json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: |
+          # author zjp-CN, and commiter bot
+          git config --global user.name "zjp-CN"
+          git config --global user.email "jiping_zhou@foxmail.com"
+          git config --global committer.name "zjp-CN[bot]"
+          git config --global committer.email "zjp-CN[bot]@users.noreply.github.com"
+
+          echo "正在 clone os-checker/database"
+          git clone "https://x-access-token:$ACCESS_TOKEN@github.com/os-checker/database.git"
+          echo "成功 clone os-checker/database"
+          cd database
+          git pull --rebase # 防止二次运行 CI 时落后于远程分支
+
+          rm batch -r || true # 删除旧的数据
+          cp ~/check/output batch -r
+          ls -alh batch
+          BOT=1 sh batch.sh
+
+      - name: Save Rustup Cache
+        id: cache-rustup-save
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.rustup/
+          key: ${{ steps.cache-rustup-restore.outputs.cache-primary-key }}
+
+      - name: Save Cargo Cache
+        id: cache-cargo-save
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ steps.cache-cargo-restore.outputs.cache-primary-key }}
+

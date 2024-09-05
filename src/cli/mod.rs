@@ -1,15 +1,15 @@
 use crate::{
-    config::{Config, Configs},
+    config::Configs,
     output::{JsonOutput, Norun},
     run_checker::{Repo, RepoOutput},
     Result,
 };
 use argh::FromArgs;
-use cargo_metadata::camino::Utf8PathBuf;
+use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::ContextCompat;
 use rayon::prelude::*;
 use serde::Serialize;
-use std::{fs::File, time::SystemTime};
+use std::{fs::File, sync::Mutex, time::SystemTime};
 
 pub fn args() -> Args {
     let arguments = argh::from_env();
@@ -27,11 +27,32 @@ pub struct Args {
 
 impl Args {
     pub fn execute(self) -> Result<()> {
+        init_repos_base_dir(self.first_config());
         match self.sub_args {
             SubArgs::Setup(setup) => setup.execute()?,
-            SubArgs::Run(run) => run.execute()?,
+            SubArgs::Run(run) => {
+                run.execute()?;
+
+                // clean repo_dir to save disk space in CI
+                let repos_dir = repos_base_dir();
+                debug!(%repos_dir, "正在清理所有下载的仓库目录");
+                std::fs::remove_dir_all(&repos_dir)?;
+                debug!(%repos_dir, "清理成功");
+            }
+            SubArgs::Batch(batch) => batch.execute()?,
         }
         Ok(())
+    }
+
+    fn first_config(&self) -> &str {
+        match &self.sub_args {
+            SubArgs::Setup(setup) => &setup.config[..],
+            SubArgs::Run(run) => &run.config,
+            SubArgs::Batch(batch) => &batch.config,
+        }
+        .first()
+        .map(|s| &**s)
+        .unwrap_or("repos")
     }
 }
 
@@ -40,14 +61,16 @@ impl Args {
 enum SubArgs {
     Setup(ArgsSetup),
     Run(ArgsRun),
+    Batch(ArgsBatch),
 }
 
-/// set up all rust-toolchains and checkers without running real checkers
+/// Set up all rust-toolchains and checkers without running real checkers.
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "setup")]
 struct ArgsSetup {
     /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
-    /// for the defined format.
+    /// for the defined format. This can be specified multiple times like
+    /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]
     config: Vec<String>,
 
@@ -56,19 +79,42 @@ struct ArgsSetup {
     emit: Emit,
 }
 
-/// Run a collection of checkers targeting Rust crates, and report
-/// bad checking results and statistics.
+/// Run checkers on all repos.
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "run")]
 pub struct ArgsRun {
     /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
-    /// for the defined format.
+    /// for the defined format. This can be specified multiple times like
+    /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]
     config: Vec<String>,
 
     #[argh(option, default = "Emit::Json")]
     /// emit a JSON format containing the checking reports
     emit: Emit,
+}
+
+/// Merge configs and split it into batches.
+///
+/// `os-checker batch --config a.json --config b.json --out-dir batch --size 10`
+/// will yield multiple json configs in `batch/`, each containing at most 10 repos.
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand, name = "batch")]
+struct ArgsBatch {
+    /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
+    /// for the defined format. This can be specified multiple times like
+    /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
+    #[argh(option)]
+    config: Vec<String>,
+
+    /// a dir to store the generated batch json config
+    #[argh(option)]
+    out_dir: Utf8PathBuf,
+
+    /// `--size n` generates at most n repos in each batch json config.
+    /// `--size 0` generates a single json merged from all repos.
+    #[argh(option)]
+    size: usize,
 }
 
 /// 见 `assets/JSON-data-format.md`
@@ -115,7 +161,7 @@ impl std::str::FromStr for Emit {
 /// 从配置文件路径中读取配置。
 /// 如果指定多个配置文件，则合并成一个大的配置文件。
 /// 返回值表示每个仓库的合并之后的配置信息。
-fn configurations(configs: &[String]) -> Result<Vec<Config>> {
+fn configurations(configs: &[String]) -> Result<Configs> {
     const DEFAULT: &str = "repos.json";
     let config = match configs {
         [] => Configs::from_json_path(DEFAULT)?,
@@ -131,12 +177,13 @@ fn configurations(configs: &[String]) -> Result<Vec<Config>> {
                 .with_context(|| format!("无法从 {paths:?} 合并到一个 Configs"))?
         }
     };
-    Ok(config.into_inner())
+    Ok(config)
 }
 
 /// 读取和合并配置，然后以并行方式，在每个仓库上执行检查。
 fn repos_outputs(configs: &[String]) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {
     Ok(configurations(configs)?
+        .into_inner()
         .into_par_iter()
         .map(RepoOutput::try_from))
 }
@@ -156,10 +203,12 @@ impl ArgsRun {
         Ok(())
     }
 }
+
 impl ArgsSetup {
+    /// 只生成 Repo，识别仓库布局、工具链之类的基本信息，并不执行检查
     fn execute(&self) -> Result<()> {
-        // 这里只生成 Repo，识别仓库布局、工具链之类的基本信息，并不执行检查
         let repos: Vec<_> = configurations(&self.config)?
+            .into_inner()
             .into_par_iter()
             .map(Repo::try_from)
             .collect::<Result<_>>()?;
@@ -171,4 +220,38 @@ impl ArgsSetup {
         norun.setup()?;
         Ok(())
     }
+}
+
+impl ArgsBatch {
+    /// 只生成分批的配置文件
+    fn execute(&self) -> Result<()> {
+        let configs = configurations(&self.config)?;
+        configs.batch(self.size, &self.out_dir)?;
+        Ok(())
+    }
+}
+
+static REPOS_BASE_DIR: Mutex<Option<Utf8PathBuf>> = Mutex::new(None);
+
+fn init_repos_base_dir(config: &str) {
+    let config = Utf8Path::new(config);
+    let path = Utf8PathBuf::from(config.file_stem().expect("配置文件不含 file stem"));
+    // 按照 config.json 设置目录名为 config
+    if !path.exists() {
+        debug!(%path, "创建 REPOS_BASE_DIR");
+        std::fs::create_dir(&path).unwrap();
+    }
+    trace!(%path, "正在初始化 REPOS_BASE_DIR");
+    *REPOS_BASE_DIR.lock().unwrap() = Some(path);
+    trace!("初始化 REPOS_BASE_DIR 成功");
+}
+
+/// 所有 clone 的仓库放置到该目录下
+pub fn repos_base_dir() -> Utf8PathBuf {
+    REPOS_BASE_DIR
+        .lock()
+        .expect("无法获取 REPOS_BASE_DIR")
+        .as_ref()
+        .expect("REPOS_BASE_DIR 尚未设置值")
+        .clone()
 }

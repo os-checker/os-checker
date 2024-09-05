@@ -1,6 +1,5 @@
-use crate::{Result, XString};
-use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
-use duct::cmd;
+use crate::{cli::repos_base_dir, utils::git_clone, Result, XString};
+use cargo_metadata::camino::Utf8PathBuf;
 use eyre::ContextCompat;
 use regex::Regex;
 use serde::Serialize;
@@ -20,9 +19,6 @@ pub struct Uri {
     user: XString,
     /// 代码库的名字（解析自 key）
     repo: XString,
-    /// 暂时用于临时测试存放需要下载的代码库
-    #[cfg(test)]
-    _local_tmp_dir: Option<tempfile::TempDir>,
     /// JSON config 中表示代码库来源的键
     key: String,
 }
@@ -74,37 +70,16 @@ impl Uri {
             UriTag::Local(p) => return Ok(p.clone()),
         };
 
-        // NOTE: 测试需要 git clone 的代码库时采用临时目录，非测试则直接放入当前目录下
-        #[cfg(test)]
-        let target_dir = &{
-            let dir = tempfile::tempdir()?;
-            let target = Utf8Path::from_path(dir.path()).unwrap().join(&*self.repo);
-            self._local_tmp_dir = Some(dir);
-            target
-        };
-        #[cfg(not(test))]
-        let target_dir = Utf8Path::new(self.repo.as_str());
+        let mut dir = repos_base_dir();
+        // 为了防止 repo 名在本地造成冲突，目录加上 user
+        dir.push(self.user.as_str());
+        dir.push(self.repo.as_str());
 
-        debug!(self.key, "git clone {url} {target_dir}");
-        let now = std::time::Instant::now();
-        let output = if target_dir.exists() {
-            cmd!("git", "pull", "--recurse-submodules")
-                .dir(target_dir)
-                .run()?
-        } else {
-            cmd!("git", "clone", "--recursive", url, target_dir).run()?
-        };
-        debug!(self.key, time_elapsed_ms = now.elapsed().as_millis());
+        debug!(self.key, "git clone {url} {dir}");
+        let (_, time_elapsed_ms) = git_clone(&dir, &url)?;
+        debug!(self.key, time_elapsed_ms);
 
-        ensure!(
-            output.status.success(),
-            "git 获取 {:?} 失败\nstderr={}\nstdout={}",
-            self.tag,
-            String::from_utf8_lossy(&output.stderr),
-            String::from_utf8_lossy(&output.stdout),
-        );
-
-        Ok(target_dir.to_owned())
+        Ok(dir)
     }
 
     pub fn repo_name(&self) -> &str {
@@ -149,8 +124,6 @@ pub fn uri(key: String) -> Result<Uri> {
         user,
         repo,
         key,
-        #[cfg(test)]
-        _local_tmp_dir: None,
     })
 }
 

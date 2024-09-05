@@ -1,6 +1,7 @@
 use crate::{layout::Packages, Result};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::Context;
+use itertools::Itertools;
 use serde::{ser::SerializeMap, Deserialize, Serialize, Serializer};
 
 mod cmd;
@@ -97,12 +98,49 @@ impl Configs {
         let path = path.into();
         let json = std::fs::read_to_string(path)
             .with_context(|| format!("从 `{path}` 读取仓库列表失败！请输入正确的 json 路径。"))?;
-        // FIXME: json not json array
         Self::from_json(&json)
     }
 
     pub fn into_inner(self) -> Vec<Config> {
         self.0
+    }
+
+    fn chunk(self, size: usize) -> Vec<Self> {
+        if size == 0 {
+            return vec![self];
+        }
+        self.0
+            .into_iter()
+            .chunks(size)
+            .into_iter()
+            .map(|chunk| Self(chunk.collect()))
+            .collect()
+    }
+
+    pub fn batch(self, size: usize, dir: &Utf8Path) -> Result<()> {
+        use std::fmt::Write;
+        let mut path = Utf8PathBuf::from(dir);
+
+        if !path.exists() {
+            std::fs::create_dir_all(&mut path)?;
+            trace!(%path, "successfully created the batch directory");
+        }
+
+        let mut file_name = String::new();
+        let chunks = self.chunk(size);
+
+        for (idx, configs) in chunks.into_iter().enumerate() {
+            file_name.clear();
+            write!(&mut file_name, "batch_{}.json", idx + 1).unwrap();
+            path.push(&file_name);
+
+            let writer = std::fs::File::create(&path)?;
+            serde_json::to_writer_pretty(writer, &configs)?;
+            trace!(%path, "successfully wrote a batch json config");
+            path.pop();
+        }
+
+        Ok(())
     }
 }
 
