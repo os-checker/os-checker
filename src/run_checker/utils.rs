@@ -14,7 +14,7 @@ pub fn push_idx_and_data(
 ) {
     // TODO: 这些等会解决
     let (features, flags) = Default::default();
-    let idx_item = Cmd {
+    let cmd_item = Cmd {
         package_idx,
         tool: raw.resolve.checker,
         count: raw.count,
@@ -32,7 +32,7 @@ pub fn push_idx_and_data(
         flags,
     };
     let cmd_idx = cmds.len();
-    cmds.push(idx_item);
+    cmds.push(cmd_item);
 
     let with = WithData {
         data,
@@ -64,15 +64,13 @@ fn push_data(out: &RawOutput, with: WithData) {
                 });
             }
         }
-        OutputParsed::Cargo(v) => {
-            for (checker, stderr) in v {
-                with.data.push(Data {
-                    cmd_idx: with.cmd_idx,
-                    file: checker.name().into(),
-                    kind: Kind::Cargo,
-                    raw: stderr.clone(),
-                });
-            }
+        OutputParsed::Cargo { checker, stderr } => {
+            with.data.push(Data {
+                cmd_idx: with.cmd_idx,
+                file: checker.name().into(),
+                kind: Kind::Cargo,
+                raw: stderr.clone(),
+            });
         }
     };
 }

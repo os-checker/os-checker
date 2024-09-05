@@ -135,20 +135,14 @@ impl Output {
                 // 可实际上有了 parsed，暂时不太需要 RawOutput，因此这里简单为空。
                 stderr: Vec::new(),
             },
-            parsed: OutputParsed::Cargo(vec![(self.resolve.checker, stderr_parsed)]),
-            count: 1, // 因为这是产生第一个 cargo 诊断的方法
+            parsed: OutputParsed::Cargo {
+                checker: self.resolve.checker,
+                stderr: stderr_parsed,
+            },
+            count: 1, // 因为每个 checker 最多产生一个 cargo 诊断的方法
             duration_ms: self.duration_ms,
             resolve: self.resolve.new_cargo(),
         }
-    }
-
-    fn update_cargo(&mut self, stderr_parsed: String, non_cargo: &Self) {
-        if let OutputParsed::Cargo(v) = &mut self.parsed {
-            v.push((non_cargo.resolve.checker, stderr_parsed));
-        }
-        self.count += 1;
-        self.duration_ms += non_cargo.duration_ms;
-        // 不再更新 raw 和 resolve
     }
 }
 
@@ -212,7 +206,10 @@ pub enum OutputParsed {
     Fmt(Box<[FmtMessage]>),
     Clippy(Box<[ClippyMessage]>),
     Lockbud(String),
-    Cargo(Vec<(CheckerTool, String)>),
+    Cargo {
+        checker: CheckerTool,
+        stderr: String,
+    },
 }
 
 impl OutputParsed {
@@ -258,7 +255,7 @@ impl OutputParsed {
             // NOTE: 这个计数不准确，但也不能调用 Vec:::len，因为它包含的 Vec 是动态的，
             // 而最终输出到 JSON 的计数并不调用此方法，因此这里简单的设置为 0，
             // 虽然从最终计数看，cargo 的诊断数量应为 Vec::len。
-            OutputParsed::Cargo(_) => 0,
+            OutputParsed::Cargo { .. } => 0,
         }
     }
 }
@@ -307,6 +304,7 @@ fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
 
     static REGEX: LazyLock<ClippySummary> = LazyLock::new(|| ClippySummary {
         warnings: Regex::new(r#"(?P<warn>\d+) warnings?"#).unwrap(),
+        // FIXME: 貌似有时候输出为 \d+( previous)? errors?
         errors: Regex::new(r#"(?P<error>\d+)( \w+)? errors?"#).unwrap(),
     });
 

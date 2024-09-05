@@ -1,4 +1,4 @@
-use super::{CheckerTool, Output, Resolve};
+use super::{Output, Resolve};
 use crate::config::TOOLS;
 use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
@@ -60,15 +60,7 @@ impl PackagesOutputs {
         let pkg_name = output.resolve.pkg_name.as_str();
         if let Some(v) = self.get_mut(pkg_name) {
             if let Some(stderr_parsed) = cargo_stderr_stripped(&output) {
-                if let Some(cargo) = v
-                    .inner
-                    .iter_mut()
-                    .find(|o| o.resolve.checker == CheckerTool::Cargo)
-                {
-                    cargo.update_cargo(stderr_parsed, &output);
-                } else {
-                    v.push(output.new_cargo(stderr_parsed));
-                }
+                v.push(output.new_cargo(stderr_parsed));
             }
 
             v.push(output);
