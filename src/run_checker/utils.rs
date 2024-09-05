@@ -67,7 +67,7 @@ fn push_data(out: &RawOutput, with: WithData) {
         OutputParsed::Cargo { checker, stderr } => {
             with.data.push(Data {
                 cmd_idx: with.cmd_idx,
-                file: checker.name().into(),
+                file: format!("(virtual) {}", checker.name()).into(),
                 kind: Kind::Cargo,
                 raw: stderr.clone(),
             });

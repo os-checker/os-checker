@@ -72,7 +72,7 @@ impl Resolve {
             target_overriden: self.target_overriden, // 无实际含义
             toolchain: self.toolchain,
             checker: CheckerTool::Cargo,
-            cmd: String::from("VRITUAL=1 cargo"),
+            cmd: format!("VRITUAL={} cargo", self.checker.name()),
             expr: duct::cmd!("false"), // 无实际含义
         }
     }
