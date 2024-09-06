@@ -4,14 +4,14 @@ pub use prelude::*;
 mod toolchain;
 pub use toolchain::*;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JsonOutput {
     pub env: Env,
     pub cmd: Vec<Cmd>,
     pub data: Vec<Data>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Env {
     pub tools: Tools,
     pub kinds: Kinds,
@@ -19,13 +19,13 @@ pub struct Env {
     pub packages: Vec<Package>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Tools {
     pub rust_toolchains: RustToolchains,
     pub os_checker: ToolOsChecker,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ToolOsChecker {
     pub start: u64,
     pub finish: u64,
@@ -36,7 +36,7 @@ pub struct ToolOsChecker {
     pub git_sha: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Repo {
     pub user: XString,
     pub repo: XString,
@@ -45,7 +45,7 @@ pub struct Repo {
     pub rust_toolchain_idxs: Vec<usize>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Package {
     pub name: XString,
     pub repo: PackageRepo,
@@ -53,20 +53,20 @@ pub struct Package {
     pub rust_toolchain_idx: Option<usize>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PackageRepo {
     pub repo_idx: usize,
     pub user: XString,
     pub repo: XString,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PackageCargo {
     pub targets: Vec<XString>,
     pub features: Vec<XString>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Cmd {
     pub package_idx: usize,
     pub tool: CheckerTool,
@@ -83,7 +83,7 @@ pub struct Cmd {
     pub flags: Vec<XString>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Data {
     /// idx referring to `Vec<Idx>`
     pub cmd_idx: usize,
@@ -93,7 +93,7 @@ pub struct Data {
 }
 
 /// The kind a checker reports.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Kind {
     /// fmt
     Unformatted,
@@ -114,7 +114,7 @@ pub enum Kind {
     Cargo,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Kinds {
     order: Vec<Kind>,
     mapping: serde_json::Value,
