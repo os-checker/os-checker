@@ -1,9 +1,0 @@
-[submodule "repos/arceos"]
-	path = repos/arceos
-	url = https://github.com/arceos-org/arceos.git
-[submodule "repos/os-checker-test-suite"]
-	path = repos/os-checker-test-suite
-	url = https://github.com/os-checker/os-checker-test-suite.git
-[submodule "repos/e1000-driver"]
-	path = repos/e1000-driver
-	url = git@github.com:os-checker/MODIFIED-e1000-driver.git
