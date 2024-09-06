@@ -467,6 +467,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "os-checker-types"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "os_pipe"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

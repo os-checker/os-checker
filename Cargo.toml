@@ -13,7 +13,6 @@ argh = "0.1.12"   # cli argument parser
 walkdir = "2.5.0" # recursively search Cargo.toml for finding packages
 basic-toml = "0.1"
 
-serde = { version = "1", features = ["derive"] }
 cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 regex = "1.10.5"
 compact_str = { version = "0.8.0", features = ["serde"] }
@@ -24,6 +23,7 @@ prettydiff = { version = "0.7.0", default-features = false }
 either = "1"
 hashbrown = { version = "0.14", features = ["default"]}
 
+serde = { workspace = true }
 serde_json = { version = "1.0.125", features = ["preserve_order"] }
 indexmap = { version = "2.4.0", features = ["serde"] }
 strip-ansi-escapes = "0.2"
@@ -48,8 +48,12 @@ expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
 duct = "0.13.7" # better subprocess, pipe, redirct
 color-eyre = "0.6.3"
 
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+
 [workspace]
 exclude = ["repos/**"]
+members = ["os-checker-types"]
 
 # The profile that 'cargo dist' will build with
 [profile.dist]
