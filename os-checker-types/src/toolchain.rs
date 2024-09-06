@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RustToolchains {
     // FIXME: 这个和 main.rs 中的 &'static 不一致
     pub host: Rustc,
@@ -21,7 +21,7 @@ pub struct RustToolchain {
     pub toml_path: Utf8PathBuf,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Rustc {
     pub version: String,
     pub commit_hash: String,
