@@ -93,7 +93,7 @@ pub struct Data {
 }
 
 /// The kind a checker reports.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum Kind {
     /// fmt
     Unformatted,
