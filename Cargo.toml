@@ -15,7 +15,6 @@ basic-toml = "0.1"
 
 cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 regex = "1.10.5"
-compact_str = { version = "0.8.0", features = ["serde"] }
 itertools = "0.13.0"
 rayon = "1.10.0"
 prettydiff = { version = "0.7.0", default-features = false }
@@ -24,7 +23,9 @@ either = "1"
 hashbrown = { version = "0.14", features = ["default"]}
 
 serde = { workspace = true }
-serde_json = { version = "1.0.125", features = ["preserve_order"] }
+serde_json = { workspace = true }
+compact_str = { workspace = true }
+
 indexmap = { version = "2.4.0", features = ["serde"] }
 strip-ansi-escapes = "0.2"
 
@@ -37,7 +38,7 @@ tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 # shell commands
-duct = "0.13.7" # better subprocess, pipe, redirct
+duct = { workspace = true }
 yash-syntax = "0.11.0" # shell lang parsing
 
 [dev-dependencies]
@@ -45,11 +46,15 @@ expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
 # tempfile = "3"
 
 [build-dependencies]
-duct = "0.13.7" # better subprocess, pipe, redirct
+duct = { workspace = true } # better subprocess, pipe, redirct
 color-eyre = "0.6.3"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1.0.125", features = ["preserve_order"] }
+compact_str = { version = "0.8.0", features = ["serde"] }
+duct = "0.13.7" # better subprocess, pipe, redirct
+camino = { version = "1.1.9", features = ["serde1"] } # Utf8 Path
 
 [workspace]
 exclude = ["repos/**"]
