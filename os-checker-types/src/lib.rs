@@ -93,7 +93,7 @@ pub struct Data {
 }
 
 /// The kind a checker reports.
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum Kind {
     /// fmt
     Unformatted,
@@ -136,7 +136,7 @@ pub struct Kinds {
     pub mapping: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub enum CheckerTool {
     Fmt,
