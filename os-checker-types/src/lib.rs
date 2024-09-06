@@ -116,8 +116,8 @@ pub enum Kind {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Kinds {
-    order: Vec<Kind>,
-    mapping: serde_json::Value,
+    pub order: Vec<Kind>,
+    pub mapping: serde_json::Value,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
