@@ -114,6 +114,22 @@ pub enum Kind {
     Cargo,
 }
 
+impl Kind {
+    /// 这是序列化的内容
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Kind::Unformatted => "Unformatted",
+            Kind::ClippyWarn => "Clippy(Warn)",
+            Kind::ClippyError => "Clippy(Error)",
+            Kind::Miri => "Miri",
+            Kind::SemverViolation => "SemverViolation",
+            Kind::LockbudProbably => "Lockbud(Probably)",
+            Kind::LockbudPossibly => "Lockbud(Possibly)",
+            Kind::Cargo => "Cargo",
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Kinds {
     pub order: Vec<Kind>,
