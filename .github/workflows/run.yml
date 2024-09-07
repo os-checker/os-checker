@@ -4,6 +4,9 @@ on:
   push:
     branches: [ main ]
 
+env:
+  RUST_LOG: trace
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -55,8 +58,8 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        # run: cd ~/check && RUST_LOG=trace os-checker --config repos-default.json --config repos-ui.json --emit json --norun --setup
-        run: cd ~/check && RUST_LOG=trace os-checker setup --config repos-ui.json --emit json
+        run: cd ~/check && os-checker setup --config repos-default.json --config repos-ui.json --emit json
+        # run: cd ~/check && RUST_LOG=trace os-checker setup --config repos-ui.json --emit json
 
       - name: Run All Checkers
         env:
@@ -65,26 +68,26 @@ jobs:
         run: |
           cd ~/check
           # RUST_LOG=trace os-checker --config repos-default.json --config repos-ui.json --emit ui.json
-          RUST_LOG=trace os-checker run --config repos-ui.json --emit ui.json
+          # RUST_LOG=trace os-checker run --config repos-ui.json --emit ui.json
 
       - name: Commit And Push ui.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # author zjp-CN, and commiter bot
-          git config --global user.name "zjp-CN"
-          git config --global user.email "jiping_zhou@foxmail.com"
-          git config --global committer.name "zjp-CN[bot]"
-          git config --global committer.email "zjp-CN[bot]@users.noreply.github.com"
+          # git config --global user.name "zjp-CN"
+          # git config --global user.email "jiping_zhou@foxmail.com"
+          # git config --global committer.name "zjp-CN[bot]"
+          # git config --global committer.email "zjp-CN[bot]@users.noreply.github.com"
+          #
+          # echo "正在 clone os-checker/database"
+          # git clone https://x-access-token:${{ secrets.ACCESS_TOKEN }}@github.com/os-checker/database.git
+          # echo "成功 clone os-checker/database"
+          # cd database
+          # git pull --rebase # 防止二次运行 CI 时落后于远程分支
 
-          echo "正在 clone os-checker/database"
-          git clone https://x-access-token:${{ secrets.ACCESS_TOKEN }}@github.com/os-checker/database.git
-          echo "成功 clone os-checker/database"
-          cd database
-          git pull --rebase # 防止二次运行 CI 时落后于远程分支
-
-          export BOT=1 UI_JSON=ui.json # database 仓库的 json 检查结果
-          cp ~/check/ui.json $UI_JSON
+          # export BOT=1 UI_JSON=ui.json # database 仓库的 json 检查结果
+          # cp ~/check/ui.json $UI_JSON
           # 运行 jq 生成 WebUI 所需的 JSON 文件，并推送到 database 仓库
           # sh ci.sh
 
