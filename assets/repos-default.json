@@ -6,7 +6,6 @@
   "Byte-OS/polyhal": {},
   "shilei-massclouds/early_console": {},
   "kern-crates/ByteOS": {},
-  "shilei-massclouds/axdtb": {},
   "shilei-massclouds/arch_boot": {},
   "yuoo655/ext4libtest": {},
   "kern-crates/lwext4": {},
