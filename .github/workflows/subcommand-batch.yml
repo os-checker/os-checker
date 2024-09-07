@@ -2,7 +2,7 @@ name: Run Checkers In Batch
 # on: [push]
 on:
   push:
-    branches: [ feat/subcommand-batch ]
+    branches: [ batch ]
 
 env:
   RUST_LOG: trace
