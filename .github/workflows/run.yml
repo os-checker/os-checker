@@ -58,7 +58,7 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        run: cd ~/check && os-checker setup --config repos-default.json --config repos-ui.json --emit json
+        run: cd ~/assets && os-checker setup --config repos-default.json --config repos-ui.json --emit json
         # run: cd ~/check && RUST_LOG=trace os-checker setup --config repos-ui.json --emit json
 
       - name: Run All Checkers
