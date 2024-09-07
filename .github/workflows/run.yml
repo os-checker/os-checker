@@ -86,7 +86,7 @@ jobs:
           export BOT=1 UI_JSON=ui.json # database 仓库的 json 检查结果
           cp ~/check/ui.json $UI_JSON
           # 运行 jq 生成 WebUI 所需的 JSON 文件，并推送到 database 仓库
-          sh ci.sh
+          # sh ci.sh
 
       - name: Save Rustup Cache
         id: cache-rustup-save
