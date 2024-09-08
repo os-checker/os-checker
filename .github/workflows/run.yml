@@ -17,8 +17,7 @@ jobs:
         run: |
           mkdir ~/check
           cp assets/repos-ui.json ~/check/repos-ui.json
-          # cp assets/repos-ui.json ~/check/repos-ui.json
-          # cp assets/repos-default.json ~/check/repos-default.json
+          cp assets/repos-default.json ~/check/repos-default.json
           # wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O ~/check/repos.yaml
 
       - uses: dtolnay/rust-toolchain@nightly
@@ -58,8 +57,7 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        run: cd assets && os-checker setup --config repos-default.json --config repos-ui.json --emit json
-        # run: cd ~/check && RUST_LOG=trace os-checker setup --config repos-ui.json --emit json
+        run: cd ~/check && os-checker setup --config repos-default.json --config repos-ui.json --emit json
 
       - name: Run All Checkers
         env:
