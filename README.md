@@ -45,6 +45,24 @@
 
 ## 其他
 
-* [开发日志](./assets/development-logs.md)
 * 目前仅支持 fmt/clippy/lockbud。其他功能正在开发中。
+
+```rust
+$ os-checker --help
+Usage: os-checker <command> [<args>]
+
+Run a collection of checkers targeting Rust crates, and report bad checking results and statistics.
+
+Options:
+  --help            display usage information
+
+Commands:
+  setup             Set up all rust-toolchains and checkers without running real
+                    checkers.
+  run               Run checkers on all repos.
+  batch             Merge configs and split it into batches. `os-checker batch
+                    --config a.json --config b.json --out-dir batch --size 10`
+                    will yield multiple json configs in `batch/`, each
+                    containing at most 10 repos.
+```
 
