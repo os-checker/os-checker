@@ -80,8 +80,10 @@ impl RepoConfig {
     }
 
     /// cmds is from new_with_all_checkers_enabled
+    ///
+    /// 这个其实可以做到解析 JSON 那个步骤，但为了更好的错误报告，在这附加 repo 或者 pkg 信息
     fn validate_checker(&self, repo: &str, cmds: &Cmds) -> Result<()> {
-        // valide repo's checkers in cmds
+        // validate repo's checkers in cmds
         for cmd in self.cmds.keys() {
             ensure!(
                 cmds.contains_key(cmd),
@@ -89,7 +91,7 @@ impl RepoConfig {
                 cmd.name()
             );
         }
-        // valide pkg's checkers in cmds
+        // validate pkg's checkers in cmds
         for (pkg_name, pkg_config) in &self.packages {
             pkg_config.validate_checker_in_pkg(repo, pkg_name, cmds)?;
         }
