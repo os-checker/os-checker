@@ -1,6 +1,7 @@
 {
+  "$schema": "./schema.json",
   "shilei-massclouds/axdtb": {
-    "package": {
+    "packages": {
       "not-exists": {}
     }
   }

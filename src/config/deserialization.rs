@@ -4,6 +4,7 @@ use crate::{
     layout::{Packages, Pkg},
     Result,
 };
+use cargo_metadata::camino::Utf8Path;
 use indexmap::IndexMap;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -162,5 +163,21 @@ fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Re
         }
     }
 
+    Ok(())
+}
+
+/// Generate JSON schema
+pub fn gen_schema(path: &Utf8Path) -> Result<()> {
+    use schemars::generate::SchemaSettings;
+    use std::io::Write;
+
+    let settings = SchemaSettings::draft07().with(|s| {
+        s.option_nullable = true;
+        s.option_add_null_type = false;
+    });
+    let generator = settings.into_generator();
+    let schema = generator.into_root_schema_for::<IndexMap<String, RepoConfig>>();
+    let json = serde_json::to_string_pretty(&schema)?;
+    std::fs::File::create(path)?.write_all(json.as_bytes())?;
     Ok(())
 }

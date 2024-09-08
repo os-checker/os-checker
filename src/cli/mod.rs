@@ -1,5 +1,5 @@
 use crate::{
-    config::Configs,
+    config::{gen_schema, Configs},
     output::{JsonOutput, Norun},
     run_checker::{Repo, RepoOutput},
     Result,
@@ -40,6 +40,7 @@ impl Args {
                 debug!(%repos_dir, "清理成功");
             }
             SubArgs::Batch(batch) => batch.execute()?,
+            SubArgs::Schema(schema) => gen_schema(&schema.path)?,
         }
         Ok(())
     }
@@ -49,6 +50,7 @@ impl Args {
             SubArgs::Setup(setup) => &setup.config[..],
             SubArgs::Run(run) => &run.config,
             SubArgs::Batch(batch) => &batch.config,
+            _ => &[],
         }
         .first()
         .map(|s| &**s)
@@ -62,6 +64,7 @@ enum SubArgs {
     Setup(ArgsSetup),
     Run(ArgsRun),
     Batch(ArgsBatch),
+    Schema(ArgsSchema),
 }
 
 /// Set up all rust-toolchains and checkers without running real checkers.
@@ -115,6 +118,16 @@ struct ArgsBatch {
     /// `--size 0` generates a single json merged from all repos.
     #[argh(option)]
     size: usize,
+}
+
+/// Generate a JSON schema file used to validate JSON config.
+/// i.e. `{{ "$schema": "./schema.json", /* write config with JSON LSP */ }}`.
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand, name = "schema")]
+struct ArgsSchema {
+    /// path to emitted json, default to schema.json
+    #[argh(option, default = r#"Utf8PathBuf::from("schema.json")"#)]
+    path: Utf8PathBuf,
 }
 
 /// 见 `assets/JSON-data-format.md`
