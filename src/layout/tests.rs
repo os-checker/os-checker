@@ -74,8 +74,9 @@ fn cargo_config_toml_from_child_to_root() -> Result<()> {
 
 #[test]
 fn rust_toolchain() -> Result<()> {
-    let path = "repos/arceos/rust-toolchain.toml".into();
-    let toolchain = RustToolchain::search(path, path)?;
+    let pkg_dir = "/rust/tmp/os-checker/kern-crates/repos/shilei-massclouds/axdtb/rt_axdtb";
+    let root_dir = "/rust/tmp/os-checker/kern-crates/repos/shilei-massclouds";
+    let toolchain = RustToolchain::search(pkg_dir.into(), root_dir.into())?;
     dbg!(&toolchain);
 
     let toolchain: RustToolchainToml = basic_toml::from_str(

@@ -312,7 +312,7 @@ impl RustToolchain {
     pub fn search(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<Option<Self>> {
         let Some((toolchain, toml_path)) = search_from_child_to_root(
             |path| {
-                path.set_file_name("rust-toolchain.toml");
+                path.push("rust-toolchain.toml");
                 if let Some(target) = RustToolchainToml::new(path) {
                     return Some(target);
                 }
