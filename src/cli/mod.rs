@@ -214,7 +214,7 @@ impl ArgsSetup {
             .collect::<Result<_>>()?;
         let mut norun = Norun::new();
         for repo in &repos {
-            repo.norun(&mut norun);
+            repo.norun(&mut norun)?;
         }
         self.emit.emit(&norun)?;
         norun.setup()?;

@@ -5,15 +5,17 @@ use crate::{
     Result,
 };
 use indexmap::IndexMap;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
-mod repo;
+#[cfg(test)]
+mod tests;
 
 mod config_options;
 use config_options::{Cmds, Setup, Targets};
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 pub struct RepoConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup: Option<Setup>,

@@ -1,8 +1,11 @@
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 pub const TOOLS: usize = 6; // 目前支持的检查工具数量
 
 /// 检查工具
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, JsonSchema,
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum CheckerTool {
     Fmt,
