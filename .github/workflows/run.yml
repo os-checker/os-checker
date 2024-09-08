@@ -25,6 +25,8 @@ jobs:
           # wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O ~/check/repos.yaml
 
       - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
 
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@v0.0.5
