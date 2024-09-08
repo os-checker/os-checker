@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Download repos-ui.json
         run: |
@@ -58,7 +61,8 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        run: cd ~/check && os-checker setup --config repos-default.json --config repos-ui.json --emit json
+        run: cd ~/check && os-checker setup --config repos.json --emit json
+        # run: cd ~/check && os-checker setup --config repos-default.json --config repos-ui.json --emit json
 
       - name: Run All Checkers
         env:
