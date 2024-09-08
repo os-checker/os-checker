@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Map_of_RepoConfig",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/RepoConfig"
+  },
+  "definitions": {
+    "RepoConfig": {
+      "type": "object",
+      "properties": {
+        "setup": {
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "#/definitions/Setup"
+            }
+          ]
+        },
+        "targets": {
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "#/definitions/Targets"
+            }
+          ]
+        },
+        "cmds": {
+          "$ref": "#/definitions/Cmds"
+        },
+        "packages": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/RepoConfig"
+          }
+        }
+      }
+    },
+    "Setup": {
+      "$ref": "#/definitions/MaybeMulti"
+    },
+    "MaybeMulti": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "Targets": {
+      "$ref": "#/definitions/MaybeMulti"
+    },
+    "Cmds": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

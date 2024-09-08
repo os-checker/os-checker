@@ -1,7 +1,7 @@
 use super::*;
 use CheckerTool::*;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum EnableOrCustom {
     Enable(bool),
@@ -47,7 +47,7 @@ impl EnableOrCustom {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(untagged)]
 pub enum MaybeMulti {
     Single(String),
@@ -72,7 +72,7 @@ impl Debug for MaybeMulti {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct Targets(MaybeMulti);
 
 impl Targets {
@@ -81,7 +81,7 @@ impl Targets {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct Setup(MaybeMulti);
 
 // impl Setup {
@@ -94,6 +94,16 @@ pub struct Setup(MaybeMulti);
 #[serde(transparent)]
 pub struct Cmds {
     map: IndexMap<CheckerTool, EnableOrCustom>,
+}
+
+impl JsonSchema for Cmds {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        std::borrow::Cow::Borrowed("Cmds")
+    }
+
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        serde_json::Map::<String, serde_json::Value>::json_schema(generator)
+    }
 }
 
 const ENABLED: EnableOrCustom = EnableOrCustom::Enable(true);

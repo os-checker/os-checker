@@ -26,6 +26,8 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 compact_str = { workspace = true }
 
+schemars = { version = "1.0.0-alpha.15", features = ["preserve_order", "indexmap2"] }
+
 indexmap = { version = "2.4.0", features = ["serde"] }
 strip-ansi-escapes = "0.2"
 
