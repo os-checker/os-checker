@@ -1,3 +1,7 @@
 {
-  "shilei-massclouds/axdtb": {}
+  "shilei-massclouds/axdtb": {
+    "package": {
+      "not-exists": {}
+    }
+  }
 }
