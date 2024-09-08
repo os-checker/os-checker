@@ -1,6 +1,6 @@
 use crate::{cli::repos_base_dir, utils::git_clone, Result, XString};
 use cargo_metadata::camino::Utf8PathBuf;
-use eyre::ContextCompat;
+use eyre::{Context, ContextCompat};
 use regex::Regex;
 use serde::Serialize;
 use std::sync::LazyLock;
@@ -70,16 +70,29 @@ impl Uri {
             UriTag::Local(p) => return Ok(p.clone()),
         };
 
-        let mut dir = repos_base_dir();
-        // 为了防止 repo 名在本地造成冲突，目录加上 user
-        dir.push(self.user.as_str());
-        dir.push(self.repo.as_str());
+        let repo_dir = self.repo_dir();
 
-        debug!(self.key, "git clone {url} {dir}");
-        let (_, time_elapsed_ms) = git_clone(&dir, &url)?;
+        debug!(self.key, "git clone {url} {repo_dir}");
+        let (_, time_elapsed_ms) = git_clone(&repo_dir, &url)?;
         debug!(self.key, time_elapsed_ms);
 
-        Ok(dir)
+        Ok(repo_dir)
+    }
+
+    fn repo_dir(&self) -> Utf8PathBuf {
+        let mut dir = repos_base_dir();
+        // 为了防止 repo 名在本地造成冲突，目录加上 user
+        dir.extend([&*self.user, &*self.repo]);
+        dir
+    }
+
+    pub fn clean_repo_dir(&self) -> Result<()> {
+        let repo_dir = self.repo_dir();
+        trace!(?repo_dir, "正在删除仓库目录");
+        std::fs::remove_dir_all(&repo_dir)
+            .with_context(|| format!("删除仓库目录失败 {repo_dir}"))?;
+        info!(?repo_dir, "成功删除仓库目录");
+        Ok(())
     }
 
     pub fn repo_name(&self) -> &str {

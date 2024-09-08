@@ -84,6 +84,7 @@ impl Repo {
         for resolve in self.resolve()? {
             run_check(resolve, &mut outputs)?;
         }
+        self.config.clean_repo_dir()?; // 提前删除仓库目录
         Ok(outputs)
     }
 

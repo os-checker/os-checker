@@ -18,7 +18,8 @@ mod checker;
 pub use checker::{CheckerTool, TOOLS};
 
 mod deserialization;
-pub use deserialization::{gen_schema, RepoConfig};
+pub use deserialization::gen_schema;
+use deserialization::RepoConfig;
 
 #[cfg(test)]
 mod tests;
@@ -50,6 +51,10 @@ impl Config {
         self.config
             .resolve(self.uri.key(), pkgs)
             .with_context(|| format!("解析 `{:?}` 仓库的检查命令出错", self.uri))
+    }
+
+    pub fn clean_repo_dir(&self) -> Result<()> {
+        self.uri.clean_repo_dir()
     }
 }
 
@@ -177,10 +182,9 @@ impl TryFrom<Value> for Configs {
                 })
                 .collect::<Result<Vec<_>>>()?;
             v.sort_by(|a, b| a.uri.cmp(&b.uri));
-            Ok(Configs(v))
-        } else {
-            bail!("{PARSE_JSON_ERROR}")
+            return Ok(Configs(v));
         }
+        bail!("{PARSE_JSON_ERROR}")
     }
 }
 
