@@ -14,6 +14,9 @@ env:
   # false means run with json stdout emitted, and no interaction with database;
   # true means run with json file emitted, and push it to database.
   PUSH: false
+  # use which configs
+  CONFIGS: repos.json # for debug single repo
+  # CONFIGS: repos-default.json repos-ui.json # full repo list
 
 jobs:
   run:
@@ -31,7 +34,6 @@ jobs:
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
-          # wget https://raw.githubusercontent.com/os-checker/os-checker.github.io/main/repos.yaml -O ~/check/repos.yaml
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
@@ -72,14 +74,14 @@ jobs:
       - name: Prepare toolchain environment needed from all repos and checkers
         run: |
           cd ~/check 
-          os-checker setup --config repos.json 
-          # make setup
+          # os-checker setup --config repos.json 
+          make setup
 
       - name: Run All Checkers
         run: |
           cd ~/check
-          os-checker run --config repos.json --emit batch/single.json
-          # make run
+          # os-checker run --config repos.json --emit batch/single.json
+          make run
 
       - name: Commit And Push To database repo
         if: ${{ env.PUSH == 'true' }}
