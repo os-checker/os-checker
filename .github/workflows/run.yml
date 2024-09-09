@@ -84,7 +84,9 @@ jobs:
         run: |
           cd ~/check 
           # os-checker setup --config repos.json 
-          make setup
+          make setup -k
+          cd /home/runner/check/repos/kern-crates/rCoreloongArch
+          git lfs logs last
 
       - name: Run All Checkers
         run: |
