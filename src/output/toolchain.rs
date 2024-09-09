@@ -186,8 +186,15 @@ fn get_installed(arg: RustupList) -> Result<Vec<String>> {
 }
 
 fn host_rust_toolchain() -> Result<RustToolchain> {
+    let channel = cmd!("rustup", "default").read()?;
+    // e.g. nightly-x86_64-unknown-linux-gnu (default)
+    // nightly-2024-09-09-x86_64-unknown-linux-gnu (default)
+    ensure!(
+        channel.starts_with("nightly"),
+        "host toolchain {channel:?} is not a nightly toolchain"
+    );
     Ok(RustToolchain {
-        channel: cmd!("rustup", "default").read()?.into(),
+        channel,
         profile: None,
         targets: Some(get_installed(RustupList::Target)?),
         components: Some(get_installed(RustupList::Target)?),

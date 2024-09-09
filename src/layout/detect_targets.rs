@@ -286,7 +286,7 @@ impl RustToolchainToml {
 // profile = "minimal"
 #[derive(Deserialize, Serialize, Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct RustToolchain {
-    pub channel: XString,
+    pub channel: String,
     pub profile: Option<XString>,
     pub targets: Option<Vec<String>>,
     pub components: Option<Vec<String>>,
