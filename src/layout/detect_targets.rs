@@ -292,6 +292,9 @@ pub struct RustToolchain {
     pub components: Option<Vec<String>>,
     #[serde(skip_deserializing)]
     pub toml_path: Utf8PathBuf,
+    /// 如果仓库的工具链没写 clippy，那么 os-checker 安装成之后，该字段为 true
+    #[serde(default)]
+    pub install_clippy: bool,
 }
 
 impl RustToolchain {
@@ -330,6 +333,42 @@ impl RustToolchain {
         };
         let mut toolchain = toolchain.toolchain;
         toolchain.toml_path = toml_path;
+        toolchain.check_components()?;
         Ok(Some(toolchain))
+    }
+
+    /// 检查自定义工具链是否包含必要的组件（比如 clippy），如果未安装，则本地安装它。
+    /// 注意：我们已经强制让 fmt 使用主机的 nightly 工具链，因此不检查它。
+    fn check_components(&mut self) -> Result<()> {
+        let has_clippy = self
+            .components
+            .as_deref()
+            .map(|v| v.iter().any(|c| c.contains("clippy")))
+            .unwrap_or(false);
+        if !has_clippy {
+            let output = duct::cmd!(
+                "rustup",
+                "component",
+                "add",
+                "clippy",
+                "--toolchain",
+                &self.channel
+            )
+            .run()?;
+
+            ensure!(
+                output.status.success(),
+                "无法给仓库设置的工具链安装 clippy；RustToolchain = {self:#?}"
+            );
+
+            info!("仓库设置的工具链不含 clippy，os-checker 自动安装它；RustToolchain = {self:#?}");
+            self.install_clippy = true;
+
+            match self.components.as_mut() {
+                Some(v) => v.push("clippy".to_owned()),
+                None => self.components = Some(vec!["clippy".to_owned()]),
+            }
+        }
+        Ok(())
     }
 }
