@@ -45,7 +45,7 @@ jobs:
           cp assets/repos-default.json ~/check/
 
       - name: Restore Rustup Cache 
-        if: ${{ env.update_toolchain != 'true' }}
+        # if: ${{ env.update_toolchain != 'true' }}
         id: cache-rustup-restore
         uses: actions/cache/restore@v4
         with:
