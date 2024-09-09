@@ -11,8 +11,11 @@ env:
   BOT: 1
   # enable sccache cache
   cache: false
-  # false means run with json stdout emitted, and no interaction with database;
-  # true means run with json file emitted, and push it to database.
+  # false: enable toolchain downloading, and disable .rustup dir caching
+  # true: disable toolchain downloading, and enable .rustup dir caching
+  update_toolchain: true
+  # false: run with json stdout emitted, and no interaction with database;
+  # true: run with json file emitted, and push it to database.
   PUSH: false
   # use which configs
   CONFIGS: repos.json # for debug single repo
@@ -36,6 +39,7 @@ jobs:
           cp assets/repos-default.json ~/check/
 
       - uses: dtolnay/rust-toolchain@master
+        if: ${{ env.update_toolchain == 'true' }}
         with:
           toolchain: nightly-2024-09-09
           components: rustfmt, clippy
@@ -63,6 +67,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ env.RUSTC_VERSION }}
 
       - name: Restore Rustup Cache 
+        if: ${{ env.update_toolchain != 'true' }}
         id: cache-rustup-restore
         uses: actions/cache/restore@v4
         with:
