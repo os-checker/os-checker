@@ -13,7 +13,7 @@ env:
   cache: false
   # false: enable toolchain downloading, and disable .rustup dir caching
   # true: disable toolchain downloading, and enable .rustup dir caching
-  update_toolchain: true
+  update_toolchain: false
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
   PUSH: false
@@ -67,7 +67,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ env.RUSTC_VERSION }}
 
       - name: Restore Rustup Cache 
-        if: ${{ env.update_toolchain != 'true' }}
+        # if: ${{ env.update_toolchain != 'true' }}
         id: cache-rustup-restore
         uses: actions/cache/restore@v4
         with:
