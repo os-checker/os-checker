@@ -27,8 +27,15 @@ endef
 echo:
 	echo "$(BASE_DIR)"
 
+# setup and run in batch
 batch:
 	@$(call make_batch)
-
-run:
+batch_run:
 	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(OUTPUI_DIR)/$(shell basename $(config))))
+
+# setup and run for all
+setup:
+	@os-checker setup $(ARGS_CONFIGS)
+run:
+	@os-checker run $(ARGS_CONFIGS) --emit $(OUTPUI_DIR)/result.json
+

@@ -65,7 +65,7 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
-        run: cd ~/check && mkdir output && make run && ls -alh output
+        run: cd ~/check && mkdir output && make batch_run && ls -alh output
 
       - name: Commit And Push batch json
         env:
