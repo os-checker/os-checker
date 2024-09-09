@@ -159,14 +159,17 @@ fn run_check(resolve: Resolve, outputs: &mut PackagesOutputs) -> Result<()> {
     let raw = raw?;
 
     let stdout: &[_] = &raw.stdout;
+    let stderr: &[_] = &raw.stderr;
     let parsed = match resolve.checker {
         CheckerTool::Fmt => {
             let fmt = serde_json::from_slice(stdout).with_context(|| {
                 format!(
-                    "无法解析 rustfmt 的标准输出：stdout={:?}\n原始命令为：`{:?}`（即 `{:?}`）",
+                    "无法解析 rustfmt 的标准输出：stdout={:?}\n原始命令为：\
+                    `{:?}`（即 `{:?}`）\nstderr={}",
                     String::from_utf8_lossy(stdout),
                     resolve.cmd,
                     resolve.expr,
+                    String::from_utf8_lossy(stderr),
                 )
             })?;
             OutputParsed::Fmt(fmt)
@@ -176,10 +179,12 @@ fn run_check(resolve: Resolve, outputs: &mut PackagesOutputs) -> Result<()> {
                 .map(|mes| {
                     mes.map(ClippyMessage::from).with_context(|| {
                         format!(
-                            "解析 Clippy Json 输出失败：stdout={:?}\n原始命令为：`{}`（即 `{:?}`）",
+                            "解析 Clippy Json 输出失败：stdout={:?}\n原始命令为：\
+                            `{:?}`（即 `{:?}`）\nstderr={}",
                             String::from_utf8_lossy(stdout),
                             resolve.cmd,
                             resolve.expr,
+                            String::from_utf8_lossy(stderr),
                         )
                     })
                 })
