@@ -293,7 +293,7 @@ pub struct RustToolchain {
     pub components: Option<Vec<String>>,
     #[serde(skip_deserializing)]
     pub toml_path: Utf8PathBuf,
-    /// 如果仓库的工具链没写 clippy，那么 os-checker 安装成之后，该字段为 true
+    /// 如果仓库的工具链没写 clippy，那么该字段为 true，表示 os-checker 会安装它
     #[serde(default)]
     pub install_clippy: bool,
 }
@@ -347,6 +347,7 @@ impl RustToolchain {
             .map(|v| v.iter().any(|c| c.contains("clippy")))
             .unwrap_or(false);
         if !has_clippy {
+            self.install_clippy = true;
             let output = cmd!(
                 "rustup",
                 "component",
@@ -364,7 +365,6 @@ impl RustToolchain {
             );
 
             info!("仓库设置的工具链不含 clippy，os-checker 自动安装它；RustToolchain = {self:#?}");
-            self.install_clippy = true;
 
             match self.components.as_mut() {
                 Some(v) => v.push("clippy".to_owned()),
