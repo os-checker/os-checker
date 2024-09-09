@@ -18,11 +18,8 @@ env:
   CONFIGS: repos.json # for debug single repo
   # CONFIGS: repos-default.json repos-ui.json # full repo list
 
-  # false: enable toolchain downloading, and disable .rustup dir caching
-  # true: disable toolchain downloading, and enable .rustup dir caching
-  update_toolchain: false
   rust_toolchain: nightly-2024-09-09
-  # set from dtolnay/rust-toolchain, in case update_toolchain is false
+  # set from dtolnay/rust-toolchain, in case rustup cache is used
   CARGO_HOME: /home/runner/.cargo
   CARGO_INCREMENTAL: 0
   CARGO_TERM_COLOR: always
@@ -51,7 +48,6 @@ jobs:
           [ ${{ env.cache }} = 'true' ] && echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV && echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV || true
 
       - name: Restore Rustup Cache 
-        # if: ${{ env.update_toolchain != 'true' }}
         id: cache-rustup-restore
         uses: actions/cache/restore@v4
         with:
@@ -59,7 +55,7 @@ jobs:
           key: ${{ runner.os }}-rustup-${{ env.cache_key }}
 
       - uses: dtolnay/rust-toolchain@master
-        if: ${{ env.update_toolchain == 'true' }}
+        if: steps.cache-rustup-restore.outputs.cache-hit != 'true'
         with:
           toolchain: ${{ env.rust_toolchain }}
           components: rustfmt, clippy
