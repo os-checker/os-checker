@@ -7,6 +7,7 @@ on:
 env:
   RUST_LOG: trace
   BOT: 1
+  cache: false
 
 jobs:
   run:
@@ -31,6 +32,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Run sccache-cache
+        if: env.cache
         uses: mozilla-actions/sccache-action@v0.0.5
 
       - name: Set Up Github Environment Variables
@@ -64,6 +66,7 @@ jobs:
           # make setup
 
       - name: Restore Rustup Cache 
+        if: env.cache
         id: cache-rustup-restore
         uses: actions/cache/restore@v4
         with:
