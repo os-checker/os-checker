@@ -26,6 +26,7 @@ env:
   CARGO_HOME: /home/runner/.cargo
   CARGO_INCREMENTAL: 0
   CARGO_TERM_COLOR: always
+  cache_key: ${{ env.rust_toolchain }}-${{ hashFile('assets/repos*.json', 'Cargo.lock') }}
 
 jobs:
   run:
@@ -50,7 +51,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.rustup/
-          key: ${{ runner.os }}-rustup-${{ env.rust_toolchain }}
+          key: ${{ runner.os }}-rustup-${{ env.cache_key }}
 
       - uses: dtolnay/rust-toolchain@master
         if: ${{ env.update_toolchain == 'true' }}
@@ -78,7 +79,7 @@ jobs:
             ~/.cargo/git/db/
             target/
             /tmp/os-checker/checkers
-          key: ${{ runner.os }}-cargo-${{ env.rust_toolchain }}
+          key: ${{ runner.os }}-cargo-${{ env.cache_key }}
 
       - name: Install os-checker
         run: cargo install --path . --force
