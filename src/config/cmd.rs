@@ -1,6 +1,7 @@
 use crate::{
     config::{CheckerTool, Resolve},
     layout::Pkg,
+    output::host_toolchain,
     Result,
 };
 use duct::cmd;
@@ -18,10 +19,11 @@ use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 // Usage: cargo fmt [OPTIONS] [-- <rustfmt_options>...]
 // For more information, try '--help'.
 pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
+    let toolchain = host_toolchain();
     let name = pkg.name;
-    let expr = cmd!("cargo", "+nightly", "fmt", "-p", name, "--", "--emit=json").dir(pkg.dir);
+    let expr = cmd!("cargo", &toolchain, "fmt", "-p", name, "--", "--emit=json").dir(pkg.dir);
     debug!(?expr);
-    let cmd = format!("cargo +nightly fmt -p {name} -- --emit=json");
+    let cmd = format!("cargo {toolchain} fmt -p {name} -- --emit=json");
     Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
 }
 

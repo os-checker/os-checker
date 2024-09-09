@@ -5,7 +5,9 @@ use serde::Serialize;
 use std::time::SystemTime;
 
 mod toolchain;
-pub use toolchain::{get_toolchain, host_target_triple, push_toolchain, RustToolchains};
+pub use toolchain::{
+    get_toolchain, host_target_triple, host_toolchain, push_toolchain, RustToolchains,
+};
 
 mod targets;
 pub use targets::{get_target, push_target, Targets};
