@@ -21,6 +21,11 @@ env:
   CONFIGS: repos.json # for debug single repo
   # CONFIGS: repos-default.json repos-ui.json # full repo list
 
+  # set from dtolnay/rust-toolchain, in case update_toolchain is false
+  CARGO_HOME: /home/runner/.cargo
+  CARGO_INCREMENTAL: 0
+  CARGO_TERM_COLOR: always
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -37,6 +42,14 @@ jobs:
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
+
+      - name: Restore Rustup Cache 
+        if: ${{ env.update_toolchain != 'true' }}
+        id: cache-rustup-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.rustup/
+          key: ${{ runner.os }}-rustup-${{ env.RUSTC_VERSION }}
 
       - uses: dtolnay/rust-toolchain@master
         if: ${{ env.update_toolchain == 'true' }}
@@ -65,14 +78,6 @@ jobs:
             target/
             /tmp/os-checker/checkers
           key: ${{ runner.os }}-cargo-${{ env.RUSTC_VERSION }}
-
-      - name: Restore Rustup Cache 
-        # if: ${{ env.update_toolchain != 'true' }}
-        id: cache-rustup-restore
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.rustup/
-          key: ${{ runner.os }}-rustup-${{ env.RUSTC_VERSION }}
 
       - name: Install os-checker
         run: cargo install --path . --force
