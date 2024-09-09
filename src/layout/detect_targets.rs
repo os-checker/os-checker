@@ -22,6 +22,7 @@ use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata,
 };
+use duct::cmd;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -346,7 +347,7 @@ impl RustToolchain {
             .map(|v| v.iter().any(|c| c.contains("clippy")))
             .unwrap_or(false);
         if !has_clippy {
-            let output = duct::cmd!(
+            let output = cmd!(
                 "rustup",
                 "component",
                 "add",
@@ -358,7 +359,8 @@ impl RustToolchain {
 
             ensure!(
                 output.status.success(),
-                "无法给仓库设置的工具链安装 clippy；RustToolchain = {self:#?}"
+                "RustToolchain = {self:#?}\n无法给仓库设置的工具链安装 clippy：\nstderr={}",
+                String::from_utf8_lossy(&output.stderr)
             );
 
             info!("仓库设置的工具链不含 clippy，os-checker 自动安装它；RustToolchain = {self:#?}");
@@ -369,6 +371,18 @@ impl RustToolchain {
                 None => self.components = Some(vec!["clippy".to_owned()]),
             }
         }
+        Ok(())
+    }
+
+    /// 虽然主机工具链很可能安装了 rustfmt，但检查一遍也是好的。
+    /// 此函数用于主机工具链检查，而不是仓库工具链。
+    pub fn install_rustfmt(&self) -> Result<()> {
+        let output = cmd!("rustup", "component", "add", "rustfmt").run()?;
+        ensure!(
+            output.status.success(),
+            "RustToolchain = {self:#?}\n无法给仓库设置的工具链安装 clippy：\nstderr={}",
+            String::from_utf8_lossy(&output.stderr)
+        );
         Ok(())
     }
 }
