@@ -205,7 +205,7 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         profile: None,
         targets: Some(get_installed(RustupList::Target)?),
         components: Some(get_installed(RustupList::Target)?),
-        toml_path: Default::default(),
+        toml_path: ".".into(),
         install_clippy: false,
     };
     toolchain.check_components()?;

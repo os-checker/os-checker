@@ -348,6 +348,15 @@ impl RustToolchain {
             .unwrap_or(false);
         if !has_clippy {
             self.install_clippy = true;
+
+            let repo_dir = self.toml_path.parent().unwrap();
+            let output = cmd!("rustup", "show").dir(repo_dir).run()?;
+            ensure!(
+                output.status.success(),
+                "安装工具链失败；RustToolchain = {self:#?}\nstderr={}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+
             let output = cmd!(
                 "rustup",
                 "component",
