@@ -1,10 +1,17 @@
 BASE_DIR ?= ~/check
 BATCH_DIR ?= $(BASE_DIR)/batch
-OUTPUI_DIR ?= $(BASE_DIR)/output
+CONFIG_DIR ?= $(BASE_DIR)/config
 CONFIGS ?= repos-default.json repos-ui.json
 ARGS_CONFIGS ?= $(shell echo "$(CONFIGS)" | awk '{for(i=1;i<=NF;i++) printf("--config %s ", $$i)}')
 
-BATCH_CONFIGS := $(wildcard $(BATCH_DIR)/*.json)
+BATCH_CONFIGS := $(wildcard $(CONFIG_DIR)/*.json)
+
+ifeq ($(PUSH),true)
+	# push to database with 
+  SINGLE_JSON = $(BATCH_DIR)/single.json
+else
+  SINGLE_JSON = json
+endif
 
 # arg1: config json path
 # arg2: output json path
@@ -20,7 +27,7 @@ define run_each
 endef
 
 define make_batch
-	os-checker batch $(ARGS_CONFIGS) --out-dir $(BATCH_DIR) --size 8;
+	os-checker batch $(ARGS_CONFIGS) --out-dir $(CONFIG_DIR) --size 8;
 
 endef
 
@@ -31,13 +38,13 @@ echo:
 batch:
 	@$(call make_batch)
 batch_run:
-	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(OUTPUI_DIR)/$(shell basename $(config))))
+	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(BATCH_DIR)/$(shell basename $(config))))
 
 # setup and run for all
 setup:
 	@os-checker setup $(ARGS_CONFIGS)
 run:
-	@os-checker run $(ARGS_CONFIGS) --emit $(OUTPUI_DIR)/result.json
+	@os-checker run $(ARGS_CONFIGS) --emit $(SINGLE_JSON)
 
 # author zjp-CN, and commiter bot
 clone_database:

@@ -5,9 +5,15 @@ on:
     branches: [ main ]
 
 env:
+  # os-checker log level
   RUST_LOG: trace
+  # flag a bot commit
   BOT: 1
+  # enable sccache cache
   cache: false
+  # false means run with json stdout emitted, and no interaction with database;
+  # true means run with json file emitted, and push it to database.
+  PUSH: false
 
 jobs:
   run:
@@ -75,11 +81,13 @@ jobs:
           os-checker run --config repos.json --emit batch/single.json
           # make run
 
-      - name: Commit And Push ui.json
+      - name: Commit And Push To database repo
+        if: ${{ env.PUSH == 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
+          cd ~/check
           make clone_database
           cd database
           git switch debug
@@ -89,11 +97,6 @@ jobs:
           rm -rf batch # 移除旧的 batch 数据
           cp -r ~/check/batch . # 更新新的 batch 数据
           sh push.sh
-
-          # export BOT=1 UI_JSON=ui.json # database 仓库的 json 检查结果
-          # cp ~/check/ui.json $UI_JSON
-          # 运行 jq 生成 WebUI 所需的 JSON 文件，并推送到 database 仓库
-          # sh ci.sh
 
       - name: Save Rustup Cache
         id: cache-rustup-save
