@@ -26,7 +26,6 @@ env:
   CARGO_HOME: /home/runner/.cargo
   CARGO_INCREMENTAL: 0
   CARGO_TERM_COLOR: always
-  cache_key: ${{ env.rust_toolchain }}-${{ hashFile('assets/repos*.json', 'Cargo.lock') }}
 
 jobs:
   run:
@@ -45,6 +44,12 @@ jobs:
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
 
+      - name: Set Up Github Environment Variables
+        run: |
+          # echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
+          echo "cache_key=${{ env.rust_toolchain }}-${{ hashFile('assets/repos*.json', 'Cargo.lock') }}" >> $GITHUB_ENV
+          [ ${{ env.cache }} = 'true' ] && echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV && echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV || true
+
       - name: Restore Rustup Cache 
         # if: ${{ env.update_toolchain != 'true' }}
         id: cache-rustup-restore
@@ -62,11 +67,6 @@ jobs:
       - name: Run sccache-cache
         if: ${{ env.cache == 'true' }}
         uses: mozilla-actions/sccache-action@v0.0.5
-
-      - name: Set Up Github Environment Variables
-        run: |
-          echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
-          [ ${{ env.cache }} = 'true' ] && echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV && echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV || true
 
       - name: Restore Cargo Cache 
         id: cache-cargo-restore
