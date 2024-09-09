@@ -86,11 +86,13 @@ pub fn get_toolchain(index: usize, f: impl FnOnce(&RustToolchain)) {
     }
 }
 
-/// 此函数为 +host_toolchain，而不是单纯的 host_toolchain。
-/// 目前主要用于设置 fmt。
+/// 此函数为 +host_toolchain，并去除了末尾的 ` (default)`，而不是单纯的 host_toolchain。
+/// 目前主要用于传递给 cargo，在主机的 nightly 工具链上使用 fmt。
 pub fn host_toolchain() -> String {
     let mut channel = String::new();
-    get_toolchain(0, |t| channel = format!("+{}", t.channel));
+    get_toolchain(0, |t| {
+        channel = format!("+{}", t.channel.trim_end_matches(" (default)"))
+    });
     channel
 }
 
