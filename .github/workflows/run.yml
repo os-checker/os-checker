@@ -58,6 +58,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
+            /tmp/os-checker/checkers
           key: ${{ runner.os }}-cargo-${{ env.RUSTC_VERSION }}
 
       - name: Restore Rustup Cache 
