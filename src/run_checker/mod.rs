@@ -25,6 +25,15 @@ pub struct RepoOutput {
     outputs: PackagesOutputs,
 }
 
+impl std::fmt::Debug for RepoOutput {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RepoOutput")
+            .field("repo", &self.repo)
+            // .field("outputs", &self.outputs)
+            .finish()
+    }
+}
+
 impl RepoOutput {
     pub fn with_json_output(&self, json: &mut JsonOutput) {
         use crate::output::*;
@@ -60,6 +69,12 @@ impl RepoOutput {
             rust_toolchain_idxs,
         });
     }
+
+    /// 提前删除仓库目录
+    #[instrument]
+    pub fn clean_repo_dir(&self) -> Result<()> {
+        self.repo.config.clean_repo_dir()
+    }
 }
 
 #[derive(Debug)]
@@ -87,8 +102,13 @@ impl Repo {
         for resolve in self.resolve()? {
             run_check(resolve, &mut outputs)?;
         }
-        self.config.clean_repo_dir()?; // 提前删除仓库目录
         Ok(outputs)
+    }
+
+    /// 提前删除仓库目录
+    #[instrument]
+    pub fn clean_repo_dir(&self) -> Result<()> {
+        self.config.clean_repo_dir()
     }
 
     #[instrument]

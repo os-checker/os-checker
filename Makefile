@@ -44,7 +44,7 @@ batch_run:
 setup:
 	@os-checker setup $(ARGS_CONFIGS)
 run:
-	@os-checker run $(ARGS_CONFIGS) --emit $(SINGLE_JSON)
+	@os-checker run $(ARGS_CONFIGS) --clean-repo --emit $(SINGLE_JSON)
 
 # author zjp-CN, and commiter bot
 clone_database:

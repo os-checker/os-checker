@@ -96,6 +96,10 @@ pub struct ArgsRun {
     #[argh(option, default = "Emit::Json")]
     /// emit a JSON format containing the checking reports
     emit: Emit,
+
+    /// clean the repo once the checks on it are done
+    #[argh(switch)]
+    clean_repo: bool,
 }
 
 /// Merge configs and split it into batches.
@@ -213,7 +217,15 @@ impl ArgsRun {
     #[instrument]
     fn execute(&self) -> Result<()> {
         let start = SystemTime::now();
-        let outs = repos_outputs(&self.config)?.collect::<Result<Vec<_>>>()?;
+        let outs = repos_outputs(&self.config)?
+            .map(|out| {
+                let out = out?;
+                if self.clean_repo {
+                    out.clean_repo_dir()?;
+                }
+                Ok(out)
+            })
+            .collect::<Result<Vec<_>>>()?;
         let finish = SystemTime::now();
         debug!("Got statistics and start to run and emit output.");
         let mut json = JsonOutput::new(&outs);
