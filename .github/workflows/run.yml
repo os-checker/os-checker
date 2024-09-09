@@ -130,5 +130,6 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
+            /tmp/os-checker/checkers
           key: ${{ steps.cache-cargo-restore.outputs.cache-primary-key }}
 
