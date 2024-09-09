@@ -201,13 +201,16 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         channel.starts_with("nightly"),
         "host toolchain {channel:?} is not a nightly toolchain"
     );
-    Ok(RustToolchain {
+    let mut toolchain = RustToolchain {
         channel,
         profile: None,
         targets: Some(get_installed(RustupList::Target)?),
         components: Some(get_installed(RustupList::Target)?),
         toml_path: Default::default(),
-    })
+        install_clippy: false,
+    };
+    toolchain.check_components()?;
+    Ok(toolchain)
 }
 
 #[test]
