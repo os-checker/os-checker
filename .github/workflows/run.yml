@@ -52,21 +52,6 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ env.RUSTC_VERSION }}
 
-      - name: Install os-checker
-        # env:
-        #   SCCACHE_GHA_ENABLED: "true"
-        #   RUSTC_WRAPPER: "sccache"
-        run: cargo install --path . --force
-
-      - name: Prepare toolchain environment needed from all repos and checkers
-        env:
-          SCCACHE_GHA_ENABLED: "true"
-          RUSTC_WRAPPER: "sccache"
-        run: |
-          cd ~/check 
-          os-checker setup --config repos.json 
-          # make setup
-
       - name: Restore Rustup Cache 
         if: ${{ env.cache == 'true' }}
         id: cache-rustup-restore
@@ -75,10 +60,16 @@ jobs:
           path: ~/.rustup/
           key: ${{ runner.os }}-rustup-${{ env.RUSTC_VERSION }}
 
+      - name: Install os-checker
+        run: cargo install --path . --force
+
+      - name: Prepare toolchain environment needed from all repos and checkers
+        run: |
+          cd ~/check 
+          os-checker setup --config repos.json 
+          # make setup
+
       - name: Run All Checkers
-        # env:
-        #   SCCACHE_GHA_ENABLED: "true"
-        #   RUSTC_WRAPPER: "sccache"
         run: |
           cd ~/check
           os-checker run --config repos.json --emit batch/single.json
