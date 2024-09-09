@@ -1,4 +1,5 @@
 use crate::{layout::RustToolchain, Result};
+use cargo_metadata::camino::Utf8Path;
 use color_eyre::owo_colors::OwoColorize;
 use duct::cmd;
 use eyre::ContextCompat;
@@ -205,7 +206,7 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         profile: None,
         targets: Some(get_installed(RustupList::Target)?),
         components: Some(get_installed(RustupList::Target)?),
-        toml_path: ".".into(),
+        toml_path: Utf8Path::new(".").canonicalize_utf8()?,
         install_clippy: false,
     };
     toolchain.check_components()?;
