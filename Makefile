@@ -39,3 +39,13 @@ setup:
 run:
 	@os-checker run $(ARGS_CONFIGS) --emit $(OUTPUI_DIR)/result.json
 
+# author zjp-CN, and commiter bot
+clone_database:
+	@git config --global user.name "zjp-CN"
+	@git config --global user.email "jiping_zhou@foxmail.com"
+	@git config --global committer.name "zjp-CN[bot]"
+	@git config --global committer.email "zjp-CN[bot]@users.noreply.github.com"
+	@
+	@echo "正在 clone os-checker/database"
+	@git clone https://x-access-token:$(ACCESS_TOKEN)@github.com/os-checker/database.git
+	@echo "成功 clone os-checker/database"

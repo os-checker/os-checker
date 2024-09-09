@@ -82,16 +82,9 @@ jobs:
       - name: Commit And Push ui.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          # author zjp-CN, and commiter bot
-          git config --global user.name "zjp-CN"
-          git config --global user.email "jiping_zhou@foxmail.com"
-          git config --global committer.name "zjp-CN[bot]"
-          git config --global committer.email "zjp-CN[bot]@users.noreply.github.com"
-
-          echo "正在 clone os-checker/database"
-          git clone https://x-access-token:${{ secrets.ACCESS_TOKEN }}@github.com/os-checker/database.git
-          echo "成功 clone os-checker/database"
+          make clone_database
           cd database
           git switch debug
           echo "切换到 debug 分支"
