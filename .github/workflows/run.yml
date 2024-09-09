@@ -35,8 +35,9 @@ jobs:
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
 
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: nightly-2024-09-09
           components: rustfmt, clippy
 
       - name: Run sccache-cache
@@ -62,7 +63,6 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ env.RUSTC_VERSION }}
 
       - name: Restore Rustup Cache 
-        if: ${{ env.cache == 'true' }}
         id: cache-rustup-restore
         uses: actions/cache/restore@v4
         with:
