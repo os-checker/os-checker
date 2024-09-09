@@ -24,5 +24,6 @@ mod utils;
 
 fn main() -> Result<()> {
     logger::init();
+    output::init_toolchain_info();
     cli::args().execute()
 }

@@ -70,6 +70,14 @@ impl Global {
     }
 }
 
+/// 此函数打印主机工具链，尤其校验默认是否为 nightly，应尽可能早调用。
+pub fn init_toolchain_info() {
+    let global = &*GLOBAL;
+    let host = &global.host;
+    let installed = &global.installed.lock().unwrap()[0];
+    info!("host = {host:#?}\ninstalled = {installed:#?}");
+}
+
 /// 将工具链放入全局“数组”，并返回其索引。
 /// 如果该工具链信息已经存在，则不会推入到数组，并返回已存在的那个索引。
 pub fn push_toolchain(val: RustToolchain) -> usize {
