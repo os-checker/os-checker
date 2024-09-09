@@ -193,6 +193,7 @@ fn get_installed(arg: RustupList) -> Result<Vec<String>> {
         .collect())
 }
 
+#[instrument]
 fn host_rust_toolchain() -> Result<RustToolchain> {
     let channel = cmd!("rustup", "default").read()?;
     // e.g. nightly-x86_64-unknown-linux-gnu (default)

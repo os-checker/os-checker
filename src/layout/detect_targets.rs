@@ -340,6 +340,7 @@ impl RustToolchain {
 
     /// 检查自定义工具链是否包含必要的组件（比如 clippy），如果未安装，则本地安装它。
     /// 注意：我们已经强制让 fmt 使用主机的 nightly 工具链，因此不检查它。
+    #[instrument]
     pub fn check_components(&mut self) -> Result<()> {
         let has_clippy = self
             .components
@@ -385,6 +386,7 @@ impl RustToolchain {
 
     /// 虽然主机工具链很可能安装了 rustfmt，但检查一遍也是好的。
     /// 此函数用于主机工具链检查，而不是仓库工具链。
+    #[instrument]
     pub fn install_rustfmt(&self) -> Result<()> {
         let output = cmd!("rustup", "component", "add", "rustfmt").run()?;
         ensure!(

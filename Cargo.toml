@@ -38,6 +38,7 @@ color-eyre = "0.6.3"
 # logger
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+tracing-error = "0.2"
 
 # shell commands
 duct = { workspace = true }

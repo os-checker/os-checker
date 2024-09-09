@@ -468,6 +468,7 @@ dependencies = [
  "serde_json",
  "strip-ansi-escapes",
  "tracing",
+ "tracing-error",
  "tracing-subscriber",
  "walkdir",
  "yash-syntax",

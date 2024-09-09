@@ -22,6 +22,7 @@ mod run_checker;
 /// some helper functions
 mod utils;
 
+#[instrument]
 fn main() -> Result<()> {
     logger::init();
     output::init_toolchain_info();
