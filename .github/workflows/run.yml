@@ -20,7 +20,7 @@ env:
 
   # false: enable toolchain downloading, and disable .rustup dir caching
   # true: disable toolchain downloading, and enable .rustup dir caching
-  update_toolchain: true
+  update_toolchain: false
   rust_toolchain: nightly-2024-09-09
   # set from dtolnay/rust-toolchain, in case update_toolchain is false
   CARGO_HOME: /home/runner/.cargo
