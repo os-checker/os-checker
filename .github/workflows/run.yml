@@ -32,11 +32,13 @@ jobs:
           components: rustfmt, clippy
 
       - name: Run sccache-cache
-        if: env.cache
+        if: ${{ env.cache == 'true' }}
         uses: mozilla-actions/sccache-action@v0.0.5
 
       - name: Set Up Github Environment Variables
-        run: echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
+        run: |
+          echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
+          [ ${{ env.cache }} = 'true' ] && echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV && echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV || true
 
       - name: Restore Cargo Cache 
         id: cache-cargo-restore
@@ -51,9 +53,9 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ env.RUSTC_VERSION }}
 
       - name: Install os-checker
-        env:
-          SCCACHE_GHA_ENABLED: "true"
-          RUSTC_WRAPPER: "sccache"
+        # env:
+        #   SCCACHE_GHA_ENABLED: "true"
+        #   RUSTC_WRAPPER: "sccache"
         run: cargo install --path . --force
 
       - name: Prepare toolchain environment needed from all repos and checkers
@@ -66,7 +68,7 @@ jobs:
           # make setup
 
       - name: Restore Rustup Cache 
-        if: env.cache
+        if: ${{ env.cache == 'true' }}
         id: cache-rustup-restore
         uses: actions/cache/restore@v4
         with:
@@ -74,9 +76,9 @@ jobs:
           key: ${{ runner.os }}-rustup-${{ env.RUSTC_VERSION }}
 
       - name: Run All Checkers
-        env:
-          SCCACHE_GHA_ENABLED: "true"
-          RUSTC_WRAPPER: "sccache"
+        # env:
+        #   SCCACHE_GHA_ENABLED: "true"
+        #   RUSTC_WRAPPER: "sccache"
         run: |
           cd ~/check
           os-checker run --config repos.json --emit batch/single.json
