@@ -74,7 +74,8 @@ impl Global {
 pub fn init_toolchain_info() {
     let global = &*GLOBAL;
     let host = &global.host;
-    let installed = &global.installed.lock().unwrap()[0];
+    let index_map = &*global.installed.lock().unwrap();
+    let installed = &index_map.get_index(0).unwrap().0;
     info!("host = {host:#?}\ninstalled = {installed:#?}");
 }
 
