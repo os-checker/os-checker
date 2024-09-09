@@ -47,7 +47,7 @@ jobs:
       - name: Set Up Github Environment Variables
         run: |
           # echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
-          echo "cache_key=${{ env.rust_toolchain }}-${{ hashFile('assets/repos*.json', 'Cargo.lock') }}" >> $GITHUB_ENV
+          echo "cache_key=${{ env.rust_toolchain }}-${{ hashFiles('assets/repos*.json', 'Cargo.lock') }}" >> $GITHUB_ENV
           [ ${{ env.cache }} = 'true' ] && echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV && echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV || true
 
       - name: Restore Rustup Cache 
