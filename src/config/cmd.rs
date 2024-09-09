@@ -19,9 +19,9 @@ use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 // For more information, try '--help'.
 pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
     let name = pkg.name;
-    let expr = cmd!("cargo", "fmt", "-p", name, "--", "--emit=json").dir(pkg.dir);
+    let expr = cmd!("cargo", "+nightly", "fmt", "-p", name, "--", "--emit=json").dir(pkg.dir);
     debug!(?expr);
-    let cmd = format!("cargo fmt -p {name} -- --emit=json");
+    let cmd = format!("cargo +nightly fmt -p {name} -- --emit=json");
     Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
 }
 
