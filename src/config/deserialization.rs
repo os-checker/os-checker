@@ -32,6 +32,7 @@ pub struct RepoConfig {
 
 impl RepoConfig {
     /// 每个 package 及其对应的检查命令
+    #[instrument]
     pub fn resolve(&self, repo: &str, pkgs: &Packages) -> Result<Vec<Resolve>> {
         // validate pkg names in packages
         self.validate_pkgs(repo, pkgs)?;
@@ -72,6 +73,7 @@ impl RepoConfig {
         Ok(v)
     }
 
+    #[instrument]
     fn validate_pkgs(&self, repo: &str, pkgs: &Packages) -> Result<()> {
         for pkg_name in self.packages.keys() {
             ensure!(
@@ -85,6 +87,7 @@ impl RepoConfig {
     /// cmds is from new_with_all_checkers_enabled
     ///
     /// 这个其实可以做到解析 JSON 那个步骤，但为了更好的错误报告，在这附加 repo 或者 pkg 信息
+    #[instrument]
     fn validate_checker(&self, repo: &str, cmds: &Cmds) -> Result<()> {
         // validate repo's checkers in cmds
         for cmd in self.cmds.keys() {
@@ -102,6 +105,7 @@ impl RepoConfig {
     }
 
     // self is a pkg config
+    #[instrument]
     fn validate_checker_in_pkg(&self, repo: &str, pkg: &str, cmds: &Cmds) -> Result<()> {
         for cmd in self.cmds.keys() {
             ensure!(
@@ -114,6 +118,7 @@ impl RepoConfig {
     }
 
     /// 检查自定义命令是否与 checker 匹配
+    #[instrument]
     pub fn validate_checker_name(&self, repo: &str) -> Result<()> {
         for (checker, cmd) in &*self.cmds {
             let name = checker.name();
@@ -130,6 +135,7 @@ impl RepoConfig {
     }
 
     // self is a pkg config
+    #[instrument]
     pub fn validate_checker_name_in_pkg(&self, repo: &str, pkg: &str) -> Result<()> {
         for (checker, cmd) in &*self.cmds {
             let name = checker.name();
@@ -148,6 +154,7 @@ impl RepoConfig {
 }
 
 /// TODO: 其他工具待完成
+#[instrument]
 fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Result<()> {
     use either::{Left, Right};
     use CheckerTool::*;
@@ -167,6 +174,7 @@ fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Re
 }
 
 /// Generate JSON schema
+#[instrument]
 pub fn gen_schema(path: &Utf8Path) -> Result<()> {
     use schemars::generate::SchemaSettings;
     use std::io::Write;

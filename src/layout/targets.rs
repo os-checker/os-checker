@@ -134,6 +134,7 @@ impl Targets {
         self.push(target, path, TargetSource::RustToolchainToml);
     }
 
+    #[instrument]
     fn merge_more(&mut self, pkg_dir: &Utf8Path, repo: &Targets) -> Result<()> {
         if self.is_empty() {
             // 无指定的 targets

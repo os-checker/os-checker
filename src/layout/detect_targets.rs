@@ -127,6 +127,7 @@ fn metadata_targets(value: &Value, mut f: impl FnMut(&str)) {
     }
 }
 
+#[instrument]
 pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
     let mut targets = Targets::new();
     scripts_in_dir(repo_root, |target, path| {
@@ -163,6 +164,7 @@ fn scripts_in_dir(dir: &Utf8Path, f: impl FnMut(&str, Utf8PathBuf)) -> Result<()
     scan_scripts_for_target(&scripts, f)
 }
 
+#[instrument]
 pub fn scripts_in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
     scripts_in_dir(pkg_dir, |target, path| {
         targets.detected_by_pkg_scripts(target, path);
@@ -202,12 +204,14 @@ pub enum CargoConfigTomlTarget {
 }
 
 impl CargoConfigTomlTarget {
+    #[instrument]
     fn new(path: &Utf8Path) -> Result<Self> {
         let bytes = std::fs::read(path)?;
         let config: CargoConfigToml = basic_toml::from_slice(&bytes)?;
         Ok(config.build.target)
     }
 
+    #[instrument]
     pub fn search(child: &Utf8Path, root: &Utf8Path) -> Result<Option<(Self, Utf8PathBuf)>> {
         search_from_child_to_root(
             |path| {
@@ -254,6 +258,7 @@ fn search_from_child_to_root<T>(
 /// 注意：一旦找到一个更高优先级的配置文件中的 build.target，那么不再进行搜索
 /// * 子级优于父级
 /// * config.toml 文件优于 config 文件
+#[instrument]
 fn search_cargo_config_toml(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<Targets> {
     let mut targets = Targets::default();
     match CargoConfigTomlTarget::search(pkg_dir, repo_root)? {
@@ -313,6 +318,7 @@ impl RustToolchain {
         Some(targets)
     }
 
+    #[instrument]
     pub fn search(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<Option<Self>> {
         let Some((toolchain, toml_path)) = search_from_child_to_root(
             |path| {

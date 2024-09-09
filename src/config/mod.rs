@@ -34,6 +34,7 @@ pub struct Config {
 
 impl Config {
     /// 获取该代码库的本地路径：如果指定 Github 或者 Url，则调用 git clone 命令下载
+    #[instrument]
     pub fn local_root_path_with_git_clone(&mut self) -> Result<Utf8PathBuf> {
         self.uri.local_root_path_with_git_clone()
     }
@@ -47,12 +48,14 @@ impl Config {
     }
 
     /// 解析该仓库所有 package 的检查执行命令
+    #[instrument]
     pub fn resolve(&self, pkgs: &Packages) -> Result<Vec<Resolve>> {
         self.config
             .resolve(self.uri.key(), pkgs)
             .with_context(|| format!("解析 `{:?}` 仓库的检查命令出错", self.uri))
     }
 
+    #[instrument]
     pub fn clean_repo_dir(&self) -> Result<()> {
         self.uri.clean_repo_dir()
     }
@@ -61,6 +64,7 @@ impl Config {
 impl TryFrom<Value> for Config {
     type Error = eyre::Error;
 
+    #[instrument]
     fn try_from(value: Value) -> Result<Self> {
         if let Value::Object(obj) = value {
             // assert_eq!(config.len(), 1);
@@ -94,13 +98,14 @@ impl Serialize for Config {
 pub struct Configs(Vec<Config>);
 
 impl Configs {
+    #[instrument]
     pub fn from_json(json: &str) -> Result<Self> {
         Ok(serde_json::from_str(json)?)
     }
 
     /// 序列化一个仓库配置
-    pub fn from_json_path<'p>(path: impl Into<&'p Utf8Path>) -> Result<Self> {
-        let path = path.into();
+    #[instrument]
+    pub fn from_json_path(path: &Utf8Path) -> Result<Self> {
         let json = std::fs::read_to_string(path)
             .with_context(|| format!("从 `{path}` 读取仓库列表失败！请输入正确的 json 路径。"))?;
         Self::from_json(&json)
@@ -122,6 +127,7 @@ impl Configs {
             .collect()
     }
 
+    #[instrument]
     pub fn batch(self, size: usize, dir: &Utf8Path) -> Result<()> {
         use std::fmt::Write;
         let mut path = Utf8PathBuf::from(dir);
@@ -166,6 +172,7 @@ impl Serialize for Configs {
 impl TryFrom<Value> for Configs {
     type Error = eyre::Error;
 
+    #[instrument]
     fn try_from(value: Value) -> Result<Self> {
         if let Value::Object(obj) = value {
             // assert_eq!(config.len(), 1);

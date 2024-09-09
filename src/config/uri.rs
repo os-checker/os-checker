@@ -63,6 +63,7 @@ impl std::hash::Hash for Uri {
 
 impl Uri {
     /// 获取该代码库的本地路径：如果指定 Github 或者 Url，则调用 git 命令下载
+    #[instrument]
     pub fn local_root_path_with_git_clone(&mut self) -> Result<Utf8PathBuf> {
         let url = match &self.tag {
             UriTag::Github(user_repo) => format!("https://github.com/{user_repo}.git"),
@@ -86,6 +87,7 @@ impl Uri {
         dir
     }
 
+    #[instrument]
     pub fn clean_repo_dir(&self) -> Result<()> {
         let repo_dir = self.repo_dir();
         trace!(?repo_dir, "正在删除仓库目录");
@@ -111,6 +113,7 @@ impl Uri {
 static USER_REPO: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(.*/)*(?P<user>.*?)/(?P<repo>.*?)(\.git)?$"#).unwrap());
 
+#[instrument]
 pub fn uri(key: String) -> Result<Uri> {
     let ((user, repo), tag) = match key.strip_prefix("file://") {
         Some(path) => {
@@ -140,6 +143,7 @@ pub fn uri(key: String) -> Result<Uri> {
     })
 }
 
+#[instrument]
 fn user_repo(key: &str) -> Result<(XString, XString)> {
     let f = || format!("无法从 `{key}` 中解析 user/repo");
     let cap = USER_REPO.captures(key).with_context(f)?;

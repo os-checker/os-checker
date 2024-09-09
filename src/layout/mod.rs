@@ -38,6 +38,7 @@ fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf
 type Workspaces = BTreeMap<Utf8PathBuf, Metadata>;
 
 /// 解析所有 Cargo.toml 所在的 Package 的 metadata 来获取仓库所有的 Workspaces
+#[instrument]
 fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
     let mut map = BTreeMap::new();
     for cargo_toml in cargo_tomls {
@@ -122,6 +123,7 @@ impl fmt::Debug for Layout {
 }
 
 impl Layout {
+    #[instrument]
     pub fn parse(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
         let root_path = Utf8PathBuf::from(repo_root);
 
@@ -160,6 +162,7 @@ impl Layout {
         Ok(layout)
     }
 
+    #[instrument]
     pub fn packages(&self) -> Result<Packages> {
         // FIXME: 这里开始假设一个仓库不存在同名 package；这其实不正确：
         // 如果具有多个 workspaces，那么可能存在同名 package。
@@ -266,6 +269,7 @@ impl PackageInfoShared {
     }
 }
 
+#[derive(Debug)]
 pub struct Pkg<'a> {
     pub name: &'a str,
     pub dir: &'a Utf8Path,

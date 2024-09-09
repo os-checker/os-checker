@@ -11,6 +11,7 @@ pub const BASE_DIR_CHECKERS: &str = "/tmp/os-checker/checkers";
 
 /// git clone 一个仓库到一个 dir。
 /// 如果该仓库已存在，则 git pull 拉取最新的代码。
+#[instrument]
 pub fn git_clone(dir: &Utf8Path, url: &str) -> Result<(std::process::Output, u64)> {
     let now = std::time::Instant::now();
     let output = if dir.exists() {

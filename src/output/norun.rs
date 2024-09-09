@@ -35,6 +35,7 @@ impl Norun {
         update_set(&mut self.targets, target);
     }
 
+    #[instrument]
     pub fn setup(&self) -> Result<()> {
         let list = self.targets.iter().map(|s| s.as_str()).collect_vec();
 
@@ -59,6 +60,7 @@ fn rustup_target_add(targets: &[&str]) -> duct::Expression {
     cmd("rustup", ["target", "add"].iter().chain(targets))
 }
 
+#[instrument]
 fn setup_lockbud(targets: &[&str]) -> Result<()> {
     let url = "https://github.com/BurtonQin/lockbud.git";
     let dir = &Utf8PathBuf::from_iter([BASE_DIR_CHECKERS, "lockbud"]);

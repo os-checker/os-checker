@@ -8,14 +8,14 @@ const LARGE_JSON_PATH: &str = "src/config/tests/large.json";
 
 #[test]
 fn parse_assets() -> Result<()> {
-    Configs::from_json_path("assets/repos-ui.json")?;
-    Configs::from_json_path("assets/repos-default.json")?;
+    Configs::from_json_path("assets/repos-ui.json".into())?;
+    Configs::from_json_path("assets/repos-default.json".into())?;
     Ok(())
 }
 
 #[test]
 fn parse_and_resolve() -> Result<()> {
-    let configs = Configs::from_json_path(JSON_PATH)?;
+    let configs = Configs::from_json_path(JSON_PATH.into())?;
     expect_file!["./snapshots/parse-a-json.txt"].assert_debug_eq(&configs.0);
 
     let v = configs.0[0].resolve(&Packages::test_new(&["package1", "package2"]))?;
@@ -27,7 +27,7 @@ fn parse_and_resolve() -> Result<()> {
 }
 
 fn make_batch(f: impl FnOnce(usize) -> usize) -> Vec<Configs> {
-    let configs = Configs::from_json_path(LARGE_JSON_PATH).unwrap();
+    let configs = Configs::from_json_path(LARGE_JSON_PATH.into()).unwrap();
     let size = f(configs.0.len());
     configs.chunk(size)
 }

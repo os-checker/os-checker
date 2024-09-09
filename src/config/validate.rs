@@ -89,6 +89,7 @@ impl Resolve {
         resolved.extend(pkgs.iter().map(cargo_lockbud));
     }
 
+    #[instrument]
     pub fn custom(
         pkgs: &[Pkg],
         lines: &[String],

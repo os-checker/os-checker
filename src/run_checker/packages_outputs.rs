@@ -7,6 +7,7 @@ use std::sync::LazyLock;
 
 pub type PackageName = String;
 
+#[derive(Debug)]
 pub struct Outputs {
     inner: Vec<Output>,
 }
@@ -31,6 +32,7 @@ impl Outputs {
     }
 }
 
+#[derive(Debug)]
 pub struct PackagesOutputs {
     // key 为 pkg_name, value 为 outputs
     map: IndexMap<PackageName, Outputs>,

@@ -39,6 +39,7 @@ impl RustToolchains {
 
     /// 进入每个 installed 搜集的目录，运行 `rustup show` 来安装仓库指定的工具链
     // NOTE: rustup show 可能将来改为 rustup ensure 之类的命令来明确安装工具链。
+    #[instrument]
     pub fn setup(&self) -> Result<()> {
         for toolchain in &self.installed[1..] {
             // toml_path 带 rust-toolchain.toml，应去除
@@ -128,6 +129,7 @@ impl Rustc {
     // host: x86_64-unknown-linux-gnu
     // release: 1.82.0-nightly
     // LLVM version: 19.1.0
+    #[instrument]
     fn new() -> Result<Rustc> {
         fn parse(pat: &str, src: &str) -> Result<String> {
             let f = || format!("`{src:?}` doesn't contain `{pat}` pattern to get a value");
@@ -154,6 +156,7 @@ impl Rustc {
 }
 
 #[test]
+#[instrument]
 fn rustc_verbose() -> Result<()> {
     expect_test::expect![[r#"
         Rustc {
@@ -169,6 +172,7 @@ fn rustc_verbose() -> Result<()> {
     Ok(())
 }
 
+#[derive(Debug)]
 enum RustupList {
     Target,
     Component,
@@ -184,6 +188,7 @@ impl RustupList {
 }
 
 /// arg: target or component
+#[instrument]
 fn get_installed(arg: RustupList) -> Result<Vec<String>> {
     let list = cmd!("rustup", arg.name(), "list").read()?;
     Ok(list
@@ -216,6 +221,7 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
 }
 
 #[test]
+#[instrument]
 fn test_host_rust_toolchain() -> Result<()> {
     dbg!(host_rust_toolchain()?);
     Ok(())
