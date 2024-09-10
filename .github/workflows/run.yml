@@ -83,7 +83,7 @@ jobs:
       - name: Display Repos Layouts
         run: |
           cd ~/check 
-          make layout
+          RUST_LOG=error make layout
 
       # - name: Prepare toolchain environment needed from all repos and checkers
       #   run: |
