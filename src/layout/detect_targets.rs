@@ -146,6 +146,7 @@ pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
         targets.detected_by_repo_github(target, path);
     })?;
 
+    targets.remove_peculiar_targets();
     Ok(targets)
 }
 
