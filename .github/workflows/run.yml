@@ -18,7 +18,7 @@ env:
   CONFIGS: repos.json # for debug single repo
   # CONFIGS: repos-default.json repos-ui.json # full repo list
 
-  rust_toolchain: nightly-2024-09-10
+  rust_toolchain: nightly-2024-09-09
   # set from dtolnay/rust-toolchain, in case rustup cache is used
   CARGO_HOME: /home/runner/.cargo
   CARGO_INCREMENTAL: 0
