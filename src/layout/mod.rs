@@ -167,11 +167,14 @@ impl Layout {
 
     /// NOTE: 此函数在 parse 失败时调用
     pub fn empty(repo_root: &str, err: eyre::Error) -> Self {
+        // 回溯错误应使用 `{:?}`，并携带了 ansi 转义字符
+        let err = format!("{err:?}");
+        info!("{repo_root} 仓库在解析项目布局时遇到解析错误：\n{err:?}");
+        let parse_error = strip_ansi_escapes::strip_str(err).into_boxed_str();
+
         let root_path = Utf8PathBuf::from(repo_root);
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, &[]);
         let (workspaces, packages_info) = Default::default();
-        let parse_error = strip_ansi_escapes::strip_str(format!("{err:?}")).into_boxed_str();
-        info!("{repo_root} 仓库在解析项目布局时遇到解析错误：\n{parse_error}");
         Layout {
             root_path,
             cargo_tomls,
