@@ -169,7 +169,7 @@ impl Layout {
     pub fn empty(repo_root: &str, err: eyre::Error) -> Self {
         // 回溯错误应使用 `{:?}`，并携带了 ansi 转义字符
         let err = format!("{err:?}");
-        info!("{repo_root} 仓库在解析项目布局时遇到解析错误：\n{err:?}");
+        info!("{repo_root} 仓库在解析项目布局时遇到解析错误：\n{err}");
         let parse_error = strip_ansi_escapes::strip_str(err).into_boxed_str();
 
         let root_path = Utf8PathBuf::from(repo_root);
