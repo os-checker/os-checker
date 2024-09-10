@@ -1,4 +1,4 @@
-use crate::{layout::RustToolchain, utils::install_toolchain, Result};
+use crate::{cli::need_setup, layout::RustToolchain, utils::install_toolchain, Result};
 use cargo_metadata::camino::Utf8Path;
 use color_eyre::owo_colors::OwoColorize;
 use duct::cmd;
@@ -217,8 +217,10 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         install_clippy: false,
         peculiar_targets: None,
     };
-    toolchain.check_components()?;
-    toolchain.install_rustfmt()?;
+    if need_setup() {
+        toolchain.check_components()?;
+        toolchain.install_rustfmt()?;
+    }
     Ok(toolchain)
 }
 

@@ -15,6 +15,7 @@
 
 use super::targets::Targets;
 use crate::{
+    cli::need_setup,
     utils::{install_toolchain, scan_scripts_for_target, walk_dir},
     Result, XString,
 };
@@ -344,8 +345,10 @@ impl RustToolchain {
         };
         let mut toolchain = toolchain.toolchain;
         toolchain.toml_path = toml_path;
-        toolchain.check_components()?;
-        toolchain.check_peculiar_targets();
+        if need_setup() {
+            toolchain.check_components()?;
+            toolchain.check_peculiar_targets();
+        }
         Ok(Some(toolchain))
     }
 

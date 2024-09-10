@@ -9,7 +9,14 @@ use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::ContextCompat;
 use rayon::prelude::*;
 use serde::Serialize;
-use std::{fs::File, sync::Mutex, time::SystemTime};
+use std::{
+    fs::File,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Mutex,
+    },
+    time::SystemTime,
+};
 
 pub fn args() -> Args {
     let arguments = argh::from_env();
@@ -266,9 +273,18 @@ fn norun(configs: &[String]) -> Result<(Vec<Repo>, Norun)> {
     Ok((repos, norun))
 }
 
+/// 是否安装工具链和检查工具；仅在 layout 子命令时为 false
+static SETUP: AtomicBool = AtomicBool::new(true);
+
+/// 是否安装工具链和检查工具；仅在 layout 子命令时为 false
+pub fn need_setup() -> bool {
+    SETUP.load(Ordering::Relaxed)
+}
+
 impl ArgsLayout {
     #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
+        SETUP.store(false, Ordering::Relaxed);
         let (repos, norun) = norun(&self.config)?;
         dbg!(repos, norun);
         Ok(())
