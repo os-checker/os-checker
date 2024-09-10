@@ -6,7 +6,7 @@ on:
 
 env:
   # os-checker log level
-  RUST_LOG: debug
+  RUST_LOG: trace
   # flag a bot commit
   BOT: 1
   # enable sccache cache
