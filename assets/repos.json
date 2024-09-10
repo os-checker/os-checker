@@ -1,3 +1,4 @@
 {
-  "kern-crates/libc-test": {}
+  "kern-crates/libc-test": {},
+  "kern-crates/test-test-repo": {}
 }
