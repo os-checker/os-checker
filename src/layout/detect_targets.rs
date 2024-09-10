@@ -15,7 +15,7 @@
 
 use super::targets::Targets;
 use crate::{
-    utils::{scan_scripts_for_target, walk_dir},
+    utils::{install_toolchain, scan_scripts_for_target, walk_dir},
     Result, XString,
 };
 use cargo_metadata::{
@@ -357,12 +357,7 @@ impl RustToolchain {
             self.install_clippy = true;
 
             let repo_dir = self.toml_path.parent().unwrap();
-            let output = cmd!("rustup", "show").dir(repo_dir).run()?;
-            ensure!(
-                output.status.success(),
-                "安装工具链失败；RustToolchain = {self:#?}\nstderr={}",
-                String::from_utf8_lossy(&output.stderr)
-            );
+            install_toolchain(repo_dir)?;
 
             let output = cmd!(
                 "rustup",

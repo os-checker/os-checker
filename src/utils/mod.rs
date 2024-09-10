@@ -29,6 +29,19 @@ pub fn git_clone(dir: &Utf8Path, url: &str) -> Result<(std::process::Output, u64
     Ok((output, millis))
 }
 
+/// 安装工具链。dir 一般指向 rust-toolchain 所在的目录。
+/// 安装成功时，返回 stdout 的字节（即 rustup show 的输出。
+#[instrument(level = "trace")]
+pub fn install_toolchain(dir: &Utf8Path) -> Result<Vec<u8>> {
+    let output = cmd!("rustup", "show").dir(dir).run()?;
+    ensure!(
+        output.status.success(),
+        "安装工具链失败\nstderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    Ok(output.stdout)
+}
+
 /// 遍历一个目录及其子目录的所有文件（但不进入 .git 和 target 目录）：
 /// * 需要设置一个最大递归深度（虽然可以不设置这个条件，但大部分情况下，os-checker 不需要深度递归）
 /// * op_on_file 为一个回调函数，其参数保证为一个文件路径，且返回值为 Some 时表示把它的值推到 Vec

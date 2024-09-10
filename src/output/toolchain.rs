@@ -1,4 +1,4 @@
-use crate::{layout::RustToolchain, Result};
+use crate::{layout::RustToolchain, utils::install_toolchain, Result};
 use cargo_metadata::camino::Utf8Path;
 use color_eyre::owo_colors::OwoColorize;
 use duct::cmd;
@@ -44,7 +44,8 @@ impl RustToolchains {
         for toolchain in &self.installed[1..] {
             // toml_path 带 rust-toolchain.toml，应去除
             let dir = toolchain.toml_path.parent().unwrap();
-            let out = cmd!("rustup", "show").dir(dir).read()?;
+            let stdout = install_toolchain(dir)?;
+            let out = String::from_utf8_lossy(&stdout);
             println!("\n{}:\n{out}\n", dir.yellow());
         }
 
