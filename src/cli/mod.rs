@@ -13,7 +13,7 @@ use std::{fs::File, sync::Mutex, time::SystemTime};
 
 pub fn args() -> Args {
     let arguments = argh::from_env();
-    trace!(?arguments);
+    debug!(?arguments);
     arguments
 }
 
@@ -277,9 +277,9 @@ fn init_repos_base_dir(config: &str) {
         debug!(%path, "创建 REPOS_BASE_DIR");
         std::fs::create_dir(&path).unwrap();
     }
-    trace!(%path, "正在初始化 REPOS_BASE_DIR");
+    debug!(%path, "正在初始化 REPOS_BASE_DIR");
     *REPOS_BASE_DIR.lock().unwrap() = Some(path);
-    trace!("初始化 REPOS_BASE_DIR 成功");
+    debug!("初始化 REPOS_BASE_DIR 成功");
 }
 
 /// 所有 clone 的仓库放置到该目录下

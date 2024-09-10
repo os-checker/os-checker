@@ -86,8 +86,8 @@ fn cargo_stderr_stripped(output: &Output) -> Option<String> {
     let raw_stderr = output.raw.stderr.as_slice();
     let stderr = String::from_utf8_lossy(raw_stderr);
 
-    trace!(%resolve.pkg_name, %resolve.pkg_dir);
-    trace!(
+    debug!(%resolve.pkg_name, %resolve.pkg_dir);
+    debug!(
         success = %(if output.raw.status.success() {
             "true".bright_green().to_string()
         } else {
@@ -95,7 +95,7 @@ fn cargo_stderr_stripped(output: &Output) -> Option<String> {
         }),
         resolve.cmd = %resolve.cmd.bright_black().italic()
     );
-    trace!("stderr=\n{stderr}\n");
+    debug!("stderr=\n{stderr}\n");
 
     let stderr_stripped = strip_ansi_escapes::strip(raw_stderr);
     let stderr = String::from_utf8_lossy(&stderr_stripped);

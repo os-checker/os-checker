@@ -115,7 +115,7 @@ impl Repo {
     pub fn norun(&self, norun: &mut Norun) -> Result<()> {
         self.layout.norun(norun);
         // validate pkgs and checkers in cmds
-        trace!("resolve = {:#?}", self.resolve()?);
+        debug!("resolve = {:#?}", self.resolve()?);
         Ok(())
     }
 }
