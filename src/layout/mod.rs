@@ -170,7 +170,7 @@ impl Layout {
         let root_path = Utf8PathBuf::from(repo_root);
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, &[]);
         let (workspaces, packages_info) = Default::default();
-        let parse_error = format!("{err:?}").into_boxed_str();
+        let parse_error = strip_ansi_escapes::strip_str(format!("{err:?}")).into_boxed_str();
         info!("{repo_root} 仓库在解析项目布局时遇到解析错误：\n{parse_error}");
         Layout {
             root_path,

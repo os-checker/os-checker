@@ -13,7 +13,7 @@ env:
   cache: false
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
-  PUSH: false
+  PUSH: true
   # use which configs
   CONFIGS: repos.json # for debug single repo
   # CONFIGS: repos-default.json repos-ui.json # full repo list
