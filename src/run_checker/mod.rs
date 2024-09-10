@@ -4,7 +4,12 @@ use crate::{
     output::{JsonOutput, Norun},
     Result, XString,
 };
-use cargo_metadata::{camino::Utf8PathBuf, diagnostic::DiagnosticLevel, Message as CargoMessage};
+use cargo_metadata::{
+    camino::{Utf8Path, Utf8PathBuf},
+    diagnostic::DiagnosticLevel,
+    Message as CargoMessage,
+};
+use either::Either;
 use eyre::Context;
 use regex::Regex;
 use serde::Deserialize;
@@ -84,23 +89,50 @@ pub struct Repo {
 }
 
 impl Repo {
-    #[instrument(level = "trace")]
-    pub fn new(repo_root: &str, dirs_excluded: &[&str], config: Config) -> Result<Repo> {
+    // #[instrument(level = "trace")]
+    // pub fn new(repo_root: &str, dirs_excluded: &[&str], config: Config) -> Result<Repo> {
+    //     let layout = Layout::parse(repo_root, dirs_excluded)
+    //         .with_context(|| eyre!("无法解析 `{repo_root}` 内的 Rust 项目布局"))?;
+    //     Ok(Self { layout, config })
+    // }
+
+    fn new_or_empty(repo_root: &str, dirs_excluded: &[&str], config: Config) -> Repo {
         let layout = Layout::parse(repo_root, dirs_excluded)
-            .with_context(|| eyre!("无法解析 `{repo_root}` 内的 Rust 项目布局"))?;
-        Ok(Self { layout, config })
+            .with_context(|| eyre!("无法解析 `{repo_root}` 内的 Rust 项目布局"));
+        match layout {
+            Ok(layout) => Self { layout, config },
+            Err(err) => Self {
+                layout: Layout::empty(repo_root, err),
+                config,
+            },
+        }
     }
 
     #[instrument(level = "trace")]
-    pub fn resolve(&self) -> Result<Vec<Resolve>> {
-        self.config.resolve(&self.layout.packages()?)
+    fn resolve(&self) -> Result<Either<Vec<Resolve>, &str>> {
+        match self.layout.get_parse_error() {
+            Some(err) => Ok(Either::Right(err)),
+            None => Ok(Either::Left(self.config.resolve(&self.layout.packages()?)?)),
+        }
     }
 
     #[instrument(level = "trace")]
-    pub fn run_check(&self) -> Result<PackagesOutputs> {
+    fn run_check(&self) -> Result<PackagesOutputs> {
         let mut outputs = PackagesOutputs::new();
-        for resolve in self.resolve()? {
-            run_check(resolve, &mut outputs)?;
+        let err_or_resolve = self.resolve()?;
+        match err_or_resolve {
+            Either::Left(resolve) => {
+                for resolve in resolve {
+                    run_check(resolve, &mut outputs)?;
+                }
+            }
+            Either::Right(err) => {
+                // NOTE: 无法从 repo 中知道 pkg 信息，因此
+                let pkg_name = String::new();
+                let repo_root = self.layout.repo_root();
+                let output = Output::new_cargo_from_layout_parse_error(&pkg_name, repo_root, err);
+                outputs.push_cargo_layout_parse_error(pkg_name, output);
+            }
         }
         Ok(outputs)
     }
@@ -126,7 +158,7 @@ impl TryFrom<Config> for Repo {
     #[instrument(level = "trace")]
     fn try_from(mut config: Config) -> Result<Repo> {
         let repo_root = config.local_root_path_with_git_clone()?;
-        Repo::new(repo_root.as_str(), &[], config)
+        Ok(Repo::new_or_empty(repo_root.as_str(), &[], config))
     }
 }
 
@@ -165,7 +197,7 @@ impl std::fmt::Debug for Output {
 
 impl Output {
     /// NOTE: &self 应该为非 Cargo checker，即来自实际检查工具的输出
-    fn new_cargo(&self, stderr_parsed: String) -> Self {
+    fn new_cargo_from_checker(&self, stderr_parsed: String) -> Self {
         Output {
             raw: RawOutput {
                 // 这个不太重要
@@ -178,7 +210,7 @@ impl Output {
                 stderr: Vec::new(),
             },
             parsed: OutputParsed::Cargo {
-                checker: self.resolve.checker,
+                source: CargoSource::Checker(self.resolve.checker),
                 stderr: stderr_parsed,
             },
             count: 1, // 因为每个 checker 最多产生一个 cargo 诊断的方法
@@ -186,6 +218,35 @@ impl Output {
             resolve: self.resolve.new_cargo(),
         }
     }
+
+    fn new_cargo_from_layout_parse_error(pkg_name: &str, repo_root: &Utf8Path, err: &str) -> Self {
+        let (status, stdout, stderr) = Default::default();
+        let raw = RawOutput {
+            status,
+            stdout,
+            stderr,
+        };
+        let parsed = OutputParsed::Cargo {
+            source: CargoSource::LayoutParseError(repo_root.into()),
+            stderr: err.to_owned(),
+        };
+        Output {
+            raw,
+            parsed,
+            count: 1,
+            duration_ms: 0,
+            resolve: Resolve::new_cargo_layout_parse(pkg_name, repo_root.into()),
+        }
+    }
+}
+
+/// 由于 Cargo 检查是虚拟的，它代表某种编译错误，来自运行 Cargo
+/// 命令或者运行其他检查工具的过程。
+#[derive(Debug)]
+enum CargoSource {
+    Checker(CheckerTool),
+    /// repo_root
+    LayoutParseError(Box<Utf8Path>),
 }
 
 /// 以子进程方式执行检查
@@ -252,14 +313,11 @@ fn run_check(resolve: Resolve, outputs: &mut PackagesOutputs) -> Result<()> {
 }
 
 #[derive(Debug)]
-pub enum OutputParsed {
+enum OutputParsed {
     Fmt(Box<[FmtMessage]>),
     Clippy(Box<[ClippyMessage]>),
     Lockbud(String),
-    Cargo {
-        checker: CheckerTool,
-        stderr: String,
-    },
+    Cargo { source: CargoSource, stderr: String },
 }
 
 impl OutputParsed {

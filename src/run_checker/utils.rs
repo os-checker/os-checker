@@ -1,5 +1,6 @@
 use super::{
-    CargoMessage, ClippyMessage, ClippyTag, FmtMessage, Output as RawOutput, OutputParsed,
+    CargoMessage, CargoSource, ClippyMessage, ClippyTag, FmtMessage, Output as RawOutput,
+    OutputParsed,
 };
 use crate::output::{Cmd, Data, Kind};
 use cargo_metadata::camino::Utf8Path;
@@ -64,10 +65,14 @@ fn push_data(out: &RawOutput, with: WithData) {
                 });
             }
         }
-        OutputParsed::Cargo { checker, stderr } => {
+        OutputParsed::Cargo { source, stderr } => {
+            let file = match source {
+                CargoSource::Checker(checker) => format!("(virtual) {}", checker.name()).into(),
+                CargoSource::LayoutParseError(repo_root) => (&**repo_root).into(),
+            };
             with.data.push(Data {
                 cmd_idx: with.cmd_idx,
-                file: format!("(virtual) {}", checker.name()).into(),
+                file,
                 kind: Kind::Cargo,
                 raw: stderr.clone(),
             });

@@ -87,6 +87,8 @@ pub struct Layout {
     workspaces: Workspaces,
     /// The order is by pkg name and dir path.
     packages_info: Box<[PackageInfo]>,
+    /// 当 parse 出现问题时的错误信息
+    parse_error: Option<Box<str>>,
 }
 
 impl fmt::Debug for Layout {
@@ -157,9 +159,34 @@ impl Layout {
             cargo_tomls,
             root_path,
             packages_info: pkg_info.into_boxed_slice(),
+            parse_error: None,
         };
         debug!("layout={layout:#?}");
         Ok(layout)
+    }
+
+    /// NOTE: 此函数在 parse 失败时调用
+    pub fn empty(repo_root: &str, err: eyre::Error) -> Self {
+        let root_path = Utf8PathBuf::from(repo_root);
+        let cargo_tomls = find_all_cargo_toml_paths(repo_root, &[]);
+        let (workspaces, packages_info) = Default::default();
+        let parse_error = err.to_string().into_boxed_str();
+        info!("{repo_root} 仓库在解析项目布局时遇到解析错误：\n{parse_error}");
+        Layout {
+            root_path,
+            cargo_tomls,
+            workspaces,
+            packages_info,
+            parse_error: Some(parse_error),
+        }
+    }
+
+    pub fn get_parse_error(&self) -> Option<&str> {
+        self.parse_error.as_deref()
+    }
+
+    pub fn repo_root(&self) -> &Utf8Path {
+        &self.root_path
     }
 
     #[instrument(level = "trace")]

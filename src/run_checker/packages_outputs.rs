@@ -62,7 +62,7 @@ impl PackagesOutputs {
         let pkg_name = output.resolve.pkg_name.as_str();
         if let Some(v) = self.get_mut(pkg_name) {
             if let Some(stderr_parsed) = cargo_stderr_stripped(&output) {
-                v.push(output.new_cargo(stderr_parsed));
+                v.push(output.new_cargo_from_checker(stderr_parsed));
             }
 
             v.push(output);
@@ -71,12 +71,21 @@ impl PackagesOutputs {
             let mut outputs = Outputs::new();
 
             if let Some(stderr_parsed) = cargo_stderr_stripped(&output) {
-                outputs.push(output.new_cargo(stderr_parsed));
+                outputs.push(output.new_cargo_from_checker(stderr_parsed));
             }
 
             outputs.push(output);
             self.insert(pkg_name, outputs);
         }
+    }
+
+    pub fn push_cargo_layout_parse_error(&mut self, key: String, output: Output) {
+        self.map.insert(
+            key,
+            Outputs {
+                inner: vec![output],
+            },
+        );
     }
 }
 

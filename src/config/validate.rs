@@ -7,7 +7,11 @@
 //!     * 如果指定 features，则校验是否定义于 package 内：需要 cargo metadata 信息
 
 use super::{cargo_clippy, cargo_fmt, cargo_lockbud, checker::CheckerTool, custom};
-use crate::{layout::Pkg, Result, XString};
+use crate::{
+    layout::Pkg,
+    output::{get_toolchain, host_target_triple},
+    Result, XString,
+};
 use cargo_metadata::camino::Utf8PathBuf;
 use duct::Expression;
 
@@ -77,6 +81,20 @@ impl Resolve {
         }
     }
 
+    /// 此函数仅表示 Layout 解析错误，不与 checker 对于。所有字段并不具备实际的含义。
+    pub fn new_cargo_layout_parse(pkg_name: &str, repo_root: Utf8PathBuf) -> Self {
+        Resolve {
+            pkg_name: pkg_name.into(), // 无实际含义
+            pkg_dir: repo_root,        // 无实际含义
+            target: host_target_triple().to_owned(),
+            target_overriden: false, // 无实际含义
+            toolchain: None,
+            checker: CheckerTool::Cargo,
+            cmd: "VRITUAL=LayoutParseError cargo".to_owned(),
+            expr: duct::cmd!("false"), // 无实际含义
+        }
+    }
+
     pub fn fmt(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
         resolved.extend(pkgs.iter().map(cargo_fmt));
     }
@@ -115,8 +133,12 @@ impl Resolve {
     pub fn toolchain(&self) -> String {
         // 0 表示 host toolchain
         let index = self.toolchain.unwrap_or(0);
-        let mut toolchain = String::new();
-        crate::output::get_toolchain(index, |t| toolchain.push_str(&t.channel));
-        toolchain
+        get_toolchain_string(index)
     }
+}
+
+fn get_toolchain_string(index: usize) -> String {
+    let mut toolchain = String::new();
+    get_toolchain(index, |t| toolchain.push_str(&t.channel));
+    toolchain
 }
