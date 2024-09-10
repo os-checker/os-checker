@@ -13,12 +13,12 @@ env:
   cache: false
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
-  PUSH: true
+  PUSH: false
   # use which configs
   CONFIGS: repos.json # for debug single repo
   # CONFIGS: repos-default.json repos-ui.json # full repo list
 
-  rust_toolchain: nightly-2024-09-09
+  rust_toolchain: nightly-2024-09-10
   # set from dtolnay/rust-toolchain, in case rustup cache is used
   CARGO_HOME: /home/runner/.cargo
   CARGO_INCREMENTAL: 0
