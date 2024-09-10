@@ -7,7 +7,7 @@ fn config(json: &str) -> Config {
 }
 
 #[test]
-#[instrument]
+#[instrument(level = "trace")]
 fn test_suite() -> Result<()> {
     let output: RepoOutput = config(
         r#"
@@ -32,7 +32,7 @@ fn test_suite() -> Result<()> {
 }
 
 #[test]
-#[instrument]
+#[instrument(level = "trace")]
 fn arceos() -> Result<()> {
     let output: RepoOutput = config(
         r#"
@@ -51,7 +51,7 @@ fn arceos() -> Result<()> {
     Ok(())
 }
 
-#[instrument]
+#[instrument(level = "trace")]
 fn jq_count(json_bytes: &[u8]) -> Result<String> {
     let query = "
 . as $x | .data | group_by(.cmd_idx) | map({
@@ -86,7 +86,7 @@ fn jq_count(json_bytes: &[u8]) -> Result<String> {
 }
 
 #[test]
-#[instrument]
+#[instrument(level = "trace")]
 fn lockbud_output() -> Result<()> {
     let s = super::lockbud::get_lockbud_result()?;
     println!("{s}");

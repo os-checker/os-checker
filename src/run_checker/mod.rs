@@ -71,7 +71,7 @@ impl RepoOutput {
     }
 
     /// 提前删除仓库目录
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn clean_repo_dir(&self) -> Result<()> {
         self.repo.config.clean_repo_dir()
     }
@@ -84,19 +84,19 @@ pub struct Repo {
 }
 
 impl Repo {
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn new(repo_root: &str, dirs_excluded: &[&str], config: Config) -> Result<Repo> {
         let layout = Layout::parse(repo_root, dirs_excluded)
             .with_context(|| eyre!("无法解析 `{repo_root}` 内的 Rust 项目布局"))?;
         Ok(Self { layout, config })
     }
 
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn resolve(&self) -> Result<Vec<Resolve>> {
         self.config.resolve(&self.layout.packages()?)
     }
 
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn run_check(&self) -> Result<PackagesOutputs> {
         let mut outputs = PackagesOutputs::new();
         for resolve in self.resolve()? {
@@ -106,12 +106,12 @@ impl Repo {
     }
 
     /// 提前删除仓库目录
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn clean_repo_dir(&self) -> Result<()> {
         self.config.clean_repo_dir()
     }
 
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn norun(&self, norun: &mut Norun) -> Result<()> {
         self.layout.norun(norun);
         // validate pkgs and checkers in cmds
@@ -123,7 +123,7 @@ impl Repo {
 impl TryFrom<Config> for Repo {
     type Error = eyre::Error;
 
-    #[instrument]
+    #[instrument(level = "trace")]
     fn try_from(mut config: Config) -> Result<Repo> {
         let repo_root = config.local_root_path_with_git_clone()?;
         Repo::new(repo_root.as_str(), &[], config)
@@ -133,7 +133,7 @@ impl TryFrom<Config> for Repo {
 impl TryFrom<Config> for RepoOutput {
     type Error = eyre::Error;
 
-    #[instrument]
+    #[instrument(level = "trace")]
     fn try_from(config: Config) -> Result<RepoOutput> {
         let repo = Repo::try_from(config)?;
         let mut outputs = repo.run_check()?;
@@ -189,7 +189,7 @@ impl Output {
 }
 
 /// 以子进程方式执行检查
-#[instrument]
+#[instrument(level = "trace")]
 fn run_check(resolve: Resolve, outputs: &mut PackagesOutputs) -> Result<()> {
     let expr = resolve.expr.clone();
     let (duration_ms, raw) = crate::utils::execution_time_ms(|| {

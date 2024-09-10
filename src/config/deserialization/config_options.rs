@@ -23,7 +23,7 @@ impl EnableOrCustom {
     /// 检查自定义命令是否包含 checker name：
     /// 当返回值为 Some 时，表示不包含，并返回这个 checker name；
     /// 当返回值为 None 时，表示检查通过，该命令包含 checker name。
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn validate_checker_name(&self, checker: &str) -> Result<(), &str> {
         match self {
             EnableOrCustom::Single(s) if !s.contains(checker) => Err(s),

@@ -78,7 +78,7 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
 }
 
 /// 自定义检查命令。
-#[instrument]
+#[instrument(level = "trace")]
 pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
     let (input, mut words) = parse_cmd(line)?;
     ensure!(
@@ -121,7 +121,7 @@ pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
 /// 每行检查命令只有一个 shell command。我们可以支持 `{ prerequisite1; prerequisite2; ...; tool cmd; }`
 /// 其中 prerequisite 不包含 tool name。暂时尚未编写一行检查命令中支持多条语句的代码，如需支持，则把
 /// SimpleCommand 换成 Command。
-#[instrument]
+#[instrument(level = "trace")]
 fn parse_cmd(line: &str) -> Result<(SimpleCommand, Vec<String>)> {
     let input: SimpleCommand = line.parse().map_err(|err| match err {
         Some(err) => {

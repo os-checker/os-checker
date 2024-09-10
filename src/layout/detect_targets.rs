@@ -127,7 +127,7 @@ fn metadata_targets(value: &Value, mut f: impl FnMut(&str)) {
     }
 }
 
-#[instrument]
+#[instrument(level = "trace")]
 pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
     let mut targets = Targets::new();
     scripts_in_dir(repo_root, |target, path| {
@@ -164,7 +164,7 @@ fn scripts_in_dir(dir: &Utf8Path, f: impl FnMut(&str, Utf8PathBuf)) -> Result<()
     scan_scripts_for_target(&scripts, f)
 }
 
-#[instrument]
+#[instrument(level = "trace")]
 pub fn scripts_in_pkg_dir(pkg_dir: &Utf8Path, targets: &mut Targets) -> Result<()> {
     scripts_in_dir(pkg_dir, |target, path| {
         targets.detected_by_pkg_scripts(target, path);
@@ -204,14 +204,14 @@ pub enum CargoConfigTomlTarget {
 }
 
 impl CargoConfigTomlTarget {
-    #[instrument]
+    #[instrument(level = "trace")]
     fn new(path: &Utf8Path) -> Result<Self> {
         let bytes = std::fs::read(path)?;
         let config: CargoConfigToml = basic_toml::from_slice(&bytes)?;
         Ok(config.build.target)
     }
 
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn search(child: &Utf8Path, root: &Utf8Path) -> Result<Option<(Self, Utf8PathBuf)>> {
         search_from_child_to_root(
             |path| {
@@ -258,7 +258,7 @@ fn search_from_child_to_root<T>(
 /// 注意：一旦找到一个更高优先级的配置文件中的 build.target，那么不再进行搜索
 /// * 子级优于父级
 /// * config.toml 文件优于 config 文件
-#[instrument]
+#[instrument(level = "trace")]
 fn search_cargo_config_toml(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<Targets> {
     let mut targets = Targets::default();
     match CargoConfigTomlTarget::search(pkg_dir, repo_root)? {
@@ -318,7 +318,7 @@ impl RustToolchain {
         Some(targets)
     }
 
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn search(pkg_dir: &Utf8Path, repo_root: &Utf8Path) -> Result<Option<Self>> {
         let Some((toolchain, toml_path)) = search_from_child_to_root(
             |path| {
@@ -346,7 +346,7 @@ impl RustToolchain {
 
     /// 检查自定义工具链是否包含必要的组件（比如 clippy），如果未安装，则本地安装它。
     /// 注意：我们已经强制让 fmt 使用主机的 nightly 工具链，因此不检查它。
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn check_components(&mut self) -> Result<()> {
         let has_clippy = self
             .components
@@ -392,7 +392,7 @@ impl RustToolchain {
 
     /// 虽然主机工具链很可能安装了 rustfmt，但检查一遍也是好的。
     /// 此函数用于主机工具链检查，而不是仓库工具链。
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn install_rustfmt(&self) -> Result<()> {
         let output = cmd!("rustup", "component", "add", "rustfmt").run()?;
         ensure!(

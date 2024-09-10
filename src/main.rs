@@ -22,7 +22,7 @@ mod run_checker;
 /// some helper functions
 mod utils;
 
-#[instrument]
+#[instrument(level = "trace")]
 fn main() -> Result<()> {
     logger::init();
     output::init_toolchain_info();

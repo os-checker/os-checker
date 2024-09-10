@@ -26,7 +26,7 @@ pub struct Args {
 }
 
 impl Args {
-    #[instrument]
+    #[instrument(level = "trace")]
     pub fn execute(self) -> Result<()> {
         init_repos_base_dir(self.first_config());
         match self.sub_args {
@@ -145,7 +145,7 @@ pub enum Emit {
 }
 
 impl Emit {
-    #[instrument]
+    #[instrument(level = "trace")]
     fn emit<T>(&self, json: &T) -> Result<()>
     where
         T: std::fmt::Debug + Serialize,
@@ -171,7 +171,7 @@ impl Emit {
 impl std::str::FromStr for Emit {
     type Err = eyre::Error;
 
-    #[instrument]
+    #[instrument(level = "trace")]
     fn from_str(s: &str) -> Result<Emit> {
         match s.trim() {
             "json" => Ok(Emit::Json),
@@ -184,7 +184,7 @@ impl std::str::FromStr for Emit {
 /// 从配置文件路径中读取配置。
 /// 如果指定多个配置文件，则合并成一个大的配置文件。
 /// 返回值表示每个仓库的合并之后的配置信息。
-#[instrument]
+#[instrument(level = "trace")]
 fn configurations(configs: &[String]) -> Result<Configs> {
     const DEFAULT: &str = "repos.json";
     let config = match configs {
@@ -205,7 +205,7 @@ fn configurations(configs: &[String]) -> Result<Configs> {
 }
 
 /// 读取和合并配置，然后以并行方式，在每个仓库上执行检查。
-#[instrument]
+#[instrument(level = "trace")]
 fn repos_outputs(configs: &[String]) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {
     Ok(configurations(configs)?
         .into_inner()
@@ -214,7 +214,7 @@ fn repos_outputs(configs: &[String]) -> Result<impl ParallelIterator<Item = Resu
 }
 
 impl ArgsRun {
-    #[instrument]
+    #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
         let start = SystemTime::now();
         let outs = repos_outputs(&self.config)?
@@ -240,7 +240,7 @@ impl ArgsRun {
 
 impl ArgsSetup {
     /// 只生成 Repo，识别仓库布局、工具链之类的基本信息，并不执行检查
-    #[instrument]
+    #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
         let repos: Vec<_> = configurations(&self.config)?
             .into_inner()
@@ -259,7 +259,7 @@ impl ArgsSetup {
 
 impl ArgsBatch {
     /// 只生成分批的配置文件
-    #[instrument]
+    #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
         let configs = configurations(&self.config)?;
         configs.batch(self.size, &self.out_dir)?;
