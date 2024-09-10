@@ -83,20 +83,20 @@ jobs:
       - name: Display Repos Layouts
         run: |
           cd ~/check 
-          RUST_LOG=error make layout
+          # RUST_LOG=error make layout
 
-      # - name: Prepare toolchain environment needed from all repos and checkers
-      #   run: |
-      #     cd ~/check 
-      #     # os-checker setup --config repos.json 
-      #     git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
-      #     make setup
+      - name: Prepare toolchain environment needed from all repos and checkers
+        run: |
+          cd ~/check 
+          # os-checker setup --config repos.json 
+          git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
+          make setup
 
-      # - name: Run All Checkers
-      #   run: |
-      #     cd ~/check
-      #     # os-checker run --config repos.json --emit batch/single.json
-      #     make run
+      - name: Run All Checkers
+        run: |
+          cd ~/check
+          # os-checker run --config repos.json --emit batch/single.json
+          make run
 
       - name: Commit And Push To database repo
         if: ${{ env.PUSH == 'true' }}
