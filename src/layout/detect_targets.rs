@@ -301,6 +301,10 @@ pub struct RustToolchain {
     /// 如果仓库的工具链没写 clippy，那么该字段为 true，表示 os-checker 会安装它
     #[serde(default)]
     pub install_clippy: bool,
+    /// 特殊的编译目标，比如 avr-unknown-gnu-atmega328、x86_64-fuchsia
+    /// 记录见 https://github.com/os-checker/os-checker/issues/77
+    #[serde(default)]
+    pub peculiar_targets: Option<Vec<String>>,
 }
 
 impl RustToolchain {
@@ -341,6 +345,7 @@ impl RustToolchain {
         let mut toolchain = toolchain.toolchain;
         toolchain.toml_path = toml_path;
         toolchain.check_components()?;
+        toolchain.check_peculiar_targets();
         Ok(Some(toolchain))
     }
 
@@ -383,6 +388,39 @@ impl RustToolchain {
             }
         }
         Ok(())
+    }
+
+    /// 将特殊的编译目标从 targets 移到 peculiar_targets。
+    /// 该函数还对 targets 进行字母表排序，保证这两个列表内的顺序。
+    #[instrument(level = "trace")]
+    fn check_peculiar_targets(&mut self) {
+        const TARGETS: &[&str] = &["x86_64-fuchsia", "avr-unknown-gnu-atmega328"];
+
+        if let Some(v) = &mut self.targets {
+            v.sort_unstable();
+            v.dedup();
+            let mut idx = 0;
+            loop {
+                if idx == v.len() {
+                    break;
+                }
+                let target = &*v[idx];
+                if TARGETS.contains(&target) {
+                    info!(
+                        target,
+                        "检查到不寻常的编译目标；os-checker 暂时不在该目标上运行检查"
+                    );
+                    let target = v.remove(idx);
+                    if let Some(p) = &mut self.peculiar_targets {
+                        p.push(target);
+                    } else {
+                        self.peculiar_targets = Some(vec![target]);
+                    }
+                } else {
+                    idx += 1;
+                }
+            }
+        }
     }
 
     /// 虽然主机工具链很可能安装了 rustfmt，但检查一遍也是好的。

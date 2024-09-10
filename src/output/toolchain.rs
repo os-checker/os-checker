@@ -215,6 +215,7 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         components: Some(get_installed(RustupList::Target)?),
         toml_path: Utf8Path::new(".").canonicalize_utf8()?,
         install_clippy: false,
+        peculiar_targets: None,
     };
     toolchain.check_components()?;
     toolchain.install_rustfmt()?;
