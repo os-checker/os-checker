@@ -235,7 +235,7 @@ impl Output {
             parsed,
             count: 1,
             duration_ms: 0,
-            resolve: Resolve::new_cargo_layout_parse(pkg_name, repo_root.into()),
+            resolve: Resolve::new_cargo_layout_parse_error(pkg_name, repo_root.into()),
         }
     }
 }

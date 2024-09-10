@@ -82,7 +82,7 @@ impl Resolve {
     }
 
     /// 此函数仅表示 Layout 解析错误，不与 checker 对于。所有字段并不具备实际的含义。
-    pub fn new_cargo_layout_parse(pkg_name: &str, repo_root: Utf8PathBuf) -> Self {
+    pub fn new_cargo_layout_parse_error(pkg_name: &str, repo_root: Utf8PathBuf) -> Self {
         Resolve {
             pkg_name: pkg_name.into(), // 无实际含义
             pkg_dir: repo_root,        // 无实际含义

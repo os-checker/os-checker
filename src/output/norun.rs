@@ -39,6 +39,11 @@ impl Norun {
     pub fn setup(&self) -> Result<()> {
         let list = self.targets.iter().map(|s| s.as_str()).collect_vec();
 
+        if list.is_empty() {
+            info!("不需要 target");
+            return Ok(());
+        }
+
         // install detected targets for host toolchain
         rustup_target_add(&list).run()?;
 
