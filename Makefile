@@ -59,4 +59,4 @@ clone_database:
 
 # print repos info without installing anything
 layout:
-	@os-checker layout $(ARGS_CONFIGS)
+	@os-checker layout $(ARGS_CONFIGS) | tee $(BATCH_DIR)/layout.txt
