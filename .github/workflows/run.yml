@@ -6,7 +6,7 @@ on:
 
 env:
   # os-checker log level
-  RUST_LOG: trace
+  RUST_LOG: error
   # flag a bot commit
   BOT: 1
   # enable sccache cache
@@ -80,18 +80,23 @@ jobs:
       - name: Install os-checker
         run: cargo install --path . --force
 
-      - name: Prepare toolchain environment needed from all repos and checkers
+      - name: Display Repos Layouts
         run: |
           cd ~/check 
-          # os-checker setup --config repos.json 
-          git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
-          make setup
+          make layout
 
-      - name: Run All Checkers
-        run: |
-          cd ~/check
-          # os-checker run --config repos.json --emit batch/single.json
-          make run
+      # - name: Prepare toolchain environment needed from all repos and checkers
+      #   run: |
+      #     cd ~/check 
+      #     # os-checker setup --config repos.json 
+      #     git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
+      #     make setup
+
+      # - name: Run All Checkers
+      #   run: |
+      #     cd ~/check
+      #     # os-checker run --config repos.json --emit batch/single.json
+      #     make run
 
       - name: Commit And Push To database repo
         if: ${{ env.PUSH == 'true' }}

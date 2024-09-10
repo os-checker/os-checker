@@ -56,3 +56,7 @@ clone_database:
 	@echo "正在 clone os-checker/database"
 	@git clone https://x-access-token:$(ACCESS_TOKEN)@github.com/os-checker/database.git
 	@echo "成功 clone os-checker/database"
+
+# print repos info without installing anything
+layout:
+	@os-checker layout $(ARGS_CONFIGS)
