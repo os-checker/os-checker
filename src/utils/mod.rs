@@ -9,6 +9,9 @@ pub use scan_for_targets::scan_scripts_for_target;
 /// Temp dir for os-checker, used for installing checkers.
 pub const BASE_DIR_CHECKERS: &str = "/tmp/os-checker/checkers";
 
+/// 特殊的编译目标，os-checker 目前不支持在这上面运行检查。
+pub const PECULIAR_TARGETS: &[&str] = &["x86_64-fuchsia", "avr-unknown-gnu-atmega328"];
+
 /// git clone 一个仓库到一个 dir。
 /// 如果该仓库已存在，则 git pull 拉取最新的代码。
 #[instrument(level = "trace")]

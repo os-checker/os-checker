@@ -1,4 +1,4 @@
-use crate::{Result, XString};
+use crate::{utils::PECULIAR_TARGETS, Result, XString};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     // CompilerMessage, Message,
@@ -143,6 +143,12 @@ impl Targets {
         super::detect_targets::scripts_in_pkg_dir(pkg_dir, self)?;
         self.merge(repo);
         Ok(())
+    }
+
+    pub fn remove_peculiar_targets(&mut self) {
+        for &peculiar in PECULIAR_TARGETS {
+            self.swap_remove(peculiar);
+        }
     }
 }
 

@@ -16,7 +16,7 @@
 use super::targets::Targets;
 use crate::{
     cli::need_setup,
-    utils::{install_toolchain, scan_scripts_for_target, walk_dir},
+    utils::{install_toolchain, scan_scripts_for_target, walk_dir, PECULIAR_TARGETS},
     Result, XString,
 };
 use cargo_metadata::{
@@ -69,6 +69,9 @@ impl WorkspaceTargetTriples {
 
                     targets.merge(&pkg_targets);
                     targets.merge(&ws_targets);
+
+                    // filter out peculiar targets
+                    targets.remove_peculiar_targets();
 
                     PackageTargets {
                         pkg_name: XString::from(&*pkg.name),
@@ -397,8 +400,6 @@ impl RustToolchain {
     /// 该函数还对 targets 进行字母表排序，保证这两个列表内的顺序。
     #[instrument(level = "trace")]
     fn check_peculiar_targets(&mut self) {
-        const TARGETS: &[&str] = &["x86_64-fuchsia", "avr-unknown-gnu-atmega328"];
-
         if let Some(v) = &mut self.targets {
             v.sort_unstable();
             v.dedup();
@@ -408,7 +409,7 @@ impl RustToolchain {
                     break;
                 }
                 let target = &*v[idx];
-                if TARGETS.contains(&target) {
+                if PECULIAR_TARGETS.contains(&target) {
                     info!(
                         target,
                         "检查到不寻常的编译目标；os-checker 暂时不在该目标上运行检查"
