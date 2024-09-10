@@ -141,6 +141,7 @@ impl Targets {
             self.unspecified_default();
         }
         super::detect_targets::scripts_in_pkg_dir(pkg_dir, self)?;
+        self.remove_peculiar_targets(); // 搜索的 pkg_dir 也会引入 peculiar_targets
         self.merge(repo);
         Ok(())
     }
