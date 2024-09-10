@@ -30,6 +30,7 @@ impl Args {
     pub fn execute(self) -> Result<()> {
         init_repos_base_dir(self.first_config());
         match self.sub_args {
+            SubArgs::Layout(layout) => layout.execute()?,
             SubArgs::Setup(setup) => setup.execute()?,
             SubArgs::Run(run) => {
                 run.execute()?;
@@ -62,10 +63,22 @@ impl Args {
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand)]
 enum SubArgs {
+    Layout(ArgsLayout),
     Setup(ArgsSetup),
     Run(ArgsRun),
     Batch(ArgsBatch),
     Schema(ArgsSchema),
+}
+
+/// Display the layouts without installing toolchains or checkers.
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand, name = "layout")]
+struct ArgsLayout {
+    /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
+    /// for the defined format. This can be specified multiple times like
+    /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
+    #[argh(option)]
+    config: Vec<String>,
 }
 
 /// Set up all rust-toolchains and checkers without running real checkers.
@@ -238,19 +251,35 @@ impl ArgsRun {
     }
 }
 
+/// 生成 Repo（比如下载、解析布局、校验配置等）和工具链信息。
+#[instrument(level = "trace")]
+fn norun(configs: &[String]) -> Result<(Vec<Repo>, Norun)> {
+    let repos: Vec<_> = configurations(configs)?
+        .into_inner()
+        .into_par_iter()
+        .map(Repo::try_from)
+        .collect::<Result<_>>()?;
+    let mut norun = Norun::new();
+    for repo in &repos {
+        repo.norun(&mut norun)?;
+    }
+    Ok((repos, norun))
+}
+
+impl ArgsLayout {
+    #[instrument(level = "trace")]
+    fn execute(&self) -> Result<()> {
+        let (repos, norun) = norun(&self.config)?;
+        dbg!(repos, norun);
+        Ok(())
+    }
+}
+
 impl ArgsSetup {
     /// 只生成 Repo，识别仓库布局、工具链之类的基本信息，并不执行检查
     #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
-        let repos: Vec<_> = configurations(&self.config)?
-            .into_inner()
-            .into_par_iter()
-            .map(Repo::try_from)
-            .collect::<Result<_>>()?;
-        let mut norun = Norun::new();
-        for repo in &repos {
-            repo.norun(&mut norun)?;
-        }
+        let (_, norun) = norun(&self.config)?;
         self.emit.emit(&norun)?;
         norun.setup()?;
         Ok(())
