@@ -44,6 +44,7 @@ impl RepoConfig {
 
         // 如果 all_packages 为 false，并且没提供 pkg，直接返回空数组
         if !self.all_packages() && selected.is_empty() {
+            warn!("该仓库无检查流程！");
             return Ok(vec![]);
         }
 
