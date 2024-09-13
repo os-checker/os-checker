@@ -28,6 +28,7 @@ endef
 
 define make_batch
 	os-checker batch $(ARGS_CONFIGS) --out-dir $(CONFIG_DIR) --size 8;
+	echo "batch done"
 
 endef
 
