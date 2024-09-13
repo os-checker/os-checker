@@ -13,6 +13,7 @@ pub const BASE_DIR_CHECKERS: &str = "/tmp/os-checker/checkers";
 pub const PECULIAR_TARGETS: &[&str] = &["x86_64-fuchsia", "avr-unknown-gnu-atmega328"];
 
 /// 检查工具固定的工具链
+pub const PLUS_TOOLCHAIN_LOCKBUD: &str = "+nightly-2024-05-21";
 pub const TOOLCHAIN_MIRAI: &str = "nightly-2023-12-30";
 pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2023-12-30";
 
