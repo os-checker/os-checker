@@ -13,7 +13,7 @@ env:
   cache: false
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
-  PUSH: true
+  PUSH: false
   # use which configs
   CONFIGS: repos.json # for debug single repo
   # CONFIGS: repos-default.json repos-ui.json # full repo list
@@ -92,6 +92,7 @@ jobs:
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           # make setup
           make batch
+          ls -alh ~/check/config
 
       - name: Run All Checkers
         run: |
