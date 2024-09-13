@@ -5,6 +5,7 @@ use crate::{
 };
 use cargo_metadata::camino::Utf8PathBuf;
 use duct::cmd;
+use eyre::Context;
 use indexmap::IndexSet;
 use itertools::Itertools;
 use serde::Serialize;
@@ -50,6 +51,9 @@ impl Norun {
         // install detected targets for toolchain required by lockbud
         setup_lockbud(&list)?;
 
+        // install toolchain and detected targets for mirai
+        setup_mirai(&list)?;
+
         // install toolchains required by all repos
         self.toolchains.setup()
     }
@@ -76,4 +80,29 @@ fn setup_lockbud(targets: &[&str]) -> Result<()> {
         .dir(dir)
         .run()?;
     Ok(())
+}
+
+#[instrument(level = "trace")]
+fn setup_mirai(targets: &[&str]) -> Result<()> {
+    const TOOLCHAIN: &str = "nightly-2023-12-30";
+    cmd!(
+        "curl",
+        "--proto",
+        "=https",
+        "--tlsv1.2",
+        "-LsSf",
+        "https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh"
+    )
+    .pipe(cmd!("sh"))
+    .run()
+    .with_context(|| "安装 mirai 失败")?;
+    cmd!(" rustup", "toolchain", "install", TOOLCHAIN).run()?;
+    rustup_toolchain_add_target(&format!("+{TOOLCHAIN}"), targets)
+        .run()
+        .with_context(|| format!("在 {TOOLCHAIN} 上安装 {targets:?} 失败"))?;
+    Ok(())
+}
+
+fn rustup_toolchain_add_target(toolchain: &str, targets: &[&str]) -> duct::Expression {
+    cmd("rustup", [toolchain, "target", "add"].iter().chain(targets))
 }
