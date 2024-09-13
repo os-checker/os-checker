@@ -159,7 +159,7 @@ fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Re
     use either::{Left, Right};
     use CheckerTool::*;
 
-    // apply cmds
+    // apply cmds：只有 true 或者包含自定义的命令才会执行相应的检查
     for (checker, cmd) in &**cmds {
         match (*checker, cmd.cmd()) {
             (Fmt, Left(true)) => Resolve::fmt(pkgs, v),

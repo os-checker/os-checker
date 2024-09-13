@@ -176,6 +176,8 @@
 }
 ```
 
+Tracking: [#81](https://github.com/os-checker/os-checker/issues/81)
+
 ### `features`
 
 这个暂时还在考虑是否要支持。我初步的想法是，只适用于 `packages`：
@@ -281,3 +283,17 @@
 }
 ```
 
+# `meta.all_packages`
+
+当它为 false 时，对所有 pkgs 禁用检查。
+
+```json
+{
+  "user/repo": {
+    "meta": { "all_packages": false }, // 先禁用所有检查
+    "packages": { ... } // 这里罗列的 pkgs 是应该检查的
+  }
+}
+```
+
+见 [#80](https://github.com/os-checker/os-checker/issues/80)
