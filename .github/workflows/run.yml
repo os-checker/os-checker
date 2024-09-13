@@ -47,17 +47,18 @@ jobs:
           echo "cache_key=${{ env.rust_toolchain }}-${{ hashFiles('assets/repos*.json', 'Cargo.lock') }}" >> $GITHUB_ENV
           [ ${{ env.cache }} = 'true' ] && echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV && echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV || true
 
-      - name: Restore Rustup Cache 
-        id: cache-rustup-restore
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.rustup/
-          key: ${{ runner.os }}-rustup-${{ env.cache_key }}
+      # - name: Restore Rustup Cache 
+      #   id: cache-rustup-restore
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     path: ~/.rustup/
+      #     key: ${{ runner.os }}-rustup-${{ env.cache_key }}
 
       - uses: dtolnay/rust-toolchain@master
-        if: steps.cache-rustup-restore.outputs.cache-hit != 'true'
+        # if: steps.cache-rustup-restore.outputs.cache-hit != 'true'
         with:
-          toolchain: ${{ env.rust_toolchain }}
+          # toolchain: ${{ env.rust_toolchain }}
+          toolchain: nightly
           components: rustfmt, clippy
 
       - name: Run sccache-cache
@@ -119,12 +120,12 @@ jobs:
           cp -r ~/check/batch . # 更新新的 batch 数据
           sh push.sh
 
-      - name: Save Rustup Cache
-        id: cache-rustup-save
-        uses: actions/cache/save@v4
-        with:
-          path: ~/.rustup/
-          key: ${{ steps.cache-rustup-restore.outputs.cache-primary-key }}
+      # - name: Save Rustup Cache
+      #   id: cache-rustup-save
+      #   uses: actions/cache/save@v4
+      #   with:
+      #     path: ~/.rustup/
+      #     key: ${{ steps.cache-rustup-restore.outputs.cache-primary-key }}
 
       - name: Save Cargo Cache
         id: cache-cargo-save
