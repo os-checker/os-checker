@@ -267,16 +267,23 @@ impl Packages {
         }
     }
 
-    pub fn select<'a, I>(&self, pkgs: I) -> Vec<(&str, &PackageInfoShared)>
+    pub fn select<'a, I>(&self, all_packages: bool, pkgs: I) -> Vec<(&str, &PackageInfoShared)>
     where
         I: Iterator<Item = &'a str>,
     {
         let mut v = Vec::with_capacity(self.len());
-        for pkg in pkgs {
-            // 已经校验过 pkg name 了
-            let (_, name, info) = self.get_full(pkg).unwrap();
-            v.push((name.as_str(), info));
+
+        if all_packages {
+            v.extend(self.iter().map(|(name, info)| (name.as_str(), info)));
+        } else {
+            // 禁用所有 pkgs 的检查，但指定了某些 pkgs 进行检查
+            for pkg in pkgs {
+                // 已经校验过 pkg name 了
+                let (_, name, info) = self.get_full(pkg).unwrap();
+                v.push((name.as_str(), info));
+            }
         }
+
         v
     }
 }

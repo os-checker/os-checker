@@ -40,13 +40,11 @@ impl RepoConfig {
         // validate pkg names in packages
         self.validate_pkgs(repo, packages)?;
 
-        let selected = packages.select(self.packages.keys().map(|s| s.as_str()));
-
-        // 如果 all_packages 为 false，并且没提供 pkg，直接返回空数组
-        if !self.all_packages() && selected.is_empty() {
-            warn!("该仓库无检查流程！");
-            return Ok(vec![]);
-        }
+        // 待检查的 pkgs
+        let selected_pkgs = packages.select(
+            self.all_packages(),
+            self.packages.keys().map(|s| s.as_str()),
+        );
 
         let mut cmds = Cmds::new_with_all_checkers_enabled();
 
@@ -56,7 +54,7 @@ impl RepoConfig {
         let mut v = Vec::<Resolve>::with_capacity(packages.len() * TOOLS);
 
         let targets_for_all_pkgs = self.targets.as_ref().map(|val| val.as_slice());
-        for (pkg_name, info) in selected {
+        for (pkg_name, info) in selected_pkgs {
             // set cmds from repo
             cmds.merge(&self.cmds);
 
