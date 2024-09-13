@@ -69,7 +69,7 @@ impl TryFrom<Value> for Config {
         if let Value::Object(obj) = value {
             // assert_eq!(config.len(), 1);
             if let Some((repo, deserializer)) = obj.into_iter().next() {
-                if let Ok(config) = RepoConfig::deserialize(deserializer) {
+                if let Ok(mut config) = RepoConfig::deserialize(deserializer) {
                     config.validate_checker_name(&repo)?;
                     config.sort_packages();
                     return Ok(Config {
