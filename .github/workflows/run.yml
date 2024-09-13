@@ -90,13 +90,15 @@ jobs:
           cd ~/check 
           # os-checker setup --config repos.json 
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
-          make setup
+          # make setup
+          make batch
 
       - name: Run All Checkers
         run: |
           cd ~/check
           # os-checker run --config repos.json --emit batch/single.json
-          make run
+          # make run
+          make batch_run
 
       - name: Commit And Push To database repo
         if: ${{ env.PUSH == 'true' }}
