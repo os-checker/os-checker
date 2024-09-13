@@ -1,12 +1,3 @@
 {
-  "kern-crates/zCore": {},
-  "kern-crates/zcore-zircon-user": {},
-  "kern-crates/zcore-zircon-syscall": {},
-  "kern-crates/zcore-loader": {},
-  "kern-crates/zcore-kernel-hal": {},
-  "kern-crates/zcore-drivers": {},
-  "kern-crates/zcore-linux-syscall": {},
-  "kern-crates/zcore-zircon-object": {},
-  "kern-crates/zcore-tests": {},
-  "kern-crates/zcore-linux-object": {}
+  "AsyncModules/embassy-priority": {}
 }
