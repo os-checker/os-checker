@@ -1,8 +1,11 @@
 use super::{
-    CargoMessage, CargoSource, ClippyMessage, ClippyTag, FmtMessage, Output as RawOutput,
-    OutputParsed,
+    CargoMessage, CargoSource, FmtMessage, Output as RawOutput, OutputParsed, RustcMessage,
+    RustcTag,
 };
-use crate::output::{Cmd, Data, Kind};
+use crate::{
+    config::CheckerTool,
+    output::{Cmd, Data, Kind},
+};
 use cargo_metadata::camino::Utf8Path;
 use std::fmt::Write;
 
@@ -49,7 +52,8 @@ fn push_data(out: &RawOutput, with: WithData) {
     // * 如果能保证都是绝对路径，那么不需要处理路径
     match &out.parsed {
         OutputParsed::Fmt(v) => push_unformatted(v, with),
-        OutputParsed::Clippy(v) => push_clippy(v, with),
+        OutputParsed::Clippy(v) => push_rustc_diagnostics(CheckerTool::Clippy, v, with),
+        OutputParsed::Mirai(v) => push_rustc_diagnostics(CheckerTool::Mirai, v, with),
         OutputParsed::Lockbud(s) => {
             if !s.is_empty() {
                 with.data.push(Data {
@@ -147,8 +151,8 @@ fn raw_message_fmt(mes: &FmtMessage) -> impl '_ + ExactSizeIterator<Item = Strin
     })
 }
 
-fn push_clippy(v: &[ClippyMessage], with: WithData) {
-    fn raw_message_clippy(mes: &ClippyMessage) -> Option<String> {
+fn push_rustc_diagnostics(checker: CheckerTool, v: &[RustcMessage], with: WithData) {
+    fn raw_message_clippy(mes: &RustcMessage) -> Option<String> {
         if let CargoMessage::CompilerMessage(cmes) = &mes.inner {
             if let Some(render) = &cmes.message.rendered {
                 return Some(render.clone());
@@ -164,27 +168,35 @@ fn push_clippy(v: &[ClippyMessage], with: WithData) {
         // package 内部还是外部。
         // NOTE: --no-deps 目前有 bug，见 https://github.com/os-checker/bug-MRE-clippy-no-deps
         match &mes.tag {
-            ClippyTag::WarnDetailed(paths) => {
+            RustcTag::WarnDetailed(paths) => {
                 for path in paths {
                     let file = strip_prefix(path, with.root);
                     if let Some(raw) = raw_message_clippy(mes) {
                         with.data.push(Data {
                             cmd_idx: with.cmd_idx,
                             file: file.to_owned(),
-                            kind: Kind::ClippyWarn,
+                            kind: match checker {
+                                CheckerTool::Clippy => Kind::ClippyWarn,
+                                CheckerTool::Mirai => Kind::Mirai,
+                                _ => unreachable!("该函数只针对 rustc 风格的诊断"),
+                            },
                             raw,
                         });
                     };
                 }
             }
-            ClippyTag::ErrorDetailed(paths) => {
+            RustcTag::ErrorDetailed(paths) => {
                 for path in paths {
                     let file = strip_prefix(path, with.root);
                     if let Some(raw) = raw_message_clippy(mes) {
                         with.data.push(Data {
                             cmd_idx: with.cmd_idx,
                             file: file.to_owned(),
-                            kind: Kind::ClippyError,
+                            kind: match checker {
+                                CheckerTool::Clippy => Kind::ClippyError,
+                                CheckerTool::Mirai => Kind::Mirai,
+                                _ => unreachable!("该函数只针对 rustc 风格的诊断"),
+                            },
                             raw,
                         });
                     };
