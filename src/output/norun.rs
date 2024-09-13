@@ -85,17 +85,12 @@ fn setup_lockbud(targets: &[&str]) -> Result<()> {
 #[instrument(level = "trace")]
 fn setup_mirai(targets: &[&str]) -> Result<()> {
     const TOOLCHAIN: &str = "nightly-2023-12-30";
-    cmd!(
-        "curl",
-        "--proto",
-        "=https",
-        "--tlsv1.2",
-        "-LsSf",
-        "https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh"
-    )
-    .pipe(cmd!("sh"))
-    .run()
-    .with_context(|| "安装 mirai 失败")?;
+    const URL: &str =
+        "https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh";
+    cmd!("curl", "--proto", "=https", "--tlsv1.2", "-LsSf", URL)
+        .pipe(cmd!("sh"))
+        .run()
+        .with_context(|| "安装 mirai 失败")?;
     cmd!("rustup", "toolchain", "install", TOOLCHAIN).run()?;
     rustup_toolchain_add_target(&format!("+{TOOLCHAIN}"), targets)
         .run()
