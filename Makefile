@@ -38,6 +38,7 @@ echo:
 
 # setup and run in batch
 batch:
+	echo "[start] os-checker batch"
 	@$(call make_batch)
 batch_run:
 	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(BATCH_DIR)/$(shell basename $(config))))
