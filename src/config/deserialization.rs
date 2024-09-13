@@ -14,10 +14,13 @@ use std::fmt::Debug;
 mod tests;
 
 mod config_options;
-use config_options::{Cmds, Setup, Targets};
+use config_options::{Cmds, Meta, Setup, Targets};
 
 #[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 pub struct RepoConfig {
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    meta: Option<Meta>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup: Option<Setup>,
     #[serde(skip_serializing_if = "Option::is_none")]

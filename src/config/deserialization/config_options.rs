@@ -97,6 +97,7 @@ pub struct Cmds {
     map: IndexMap<CheckerTool, EnableOrCustom>,
 }
 
+// TODO: remove me
 impl JsonSchema for Cmds {
     fn schema_name() -> std::borrow::Cow<'static, str> {
         std::borrow::Cow::Borrowed("Cmds")
@@ -152,5 +153,23 @@ impl std::ops::Deref for Cmds {
 impl std::ops::DerefMut for Cmds {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.map
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct Meta {
+    /// 当它为 false 时，对所有 pkgs 禁用检查。
+    /// 该选项只适用于 repo；如果在 packages 内设置，则无效
+    #[serde(default = "defalt_all_packages")]
+    all_packages: bool,
+}
+
+fn defalt_all_packages() -> bool {
+    true
+}
+
+impl Default for Meta {
+    fn default() -> Self {
+        Self { all_packages: true }
     }
 }

@@ -1,3 +1,7 @@
 {
-  "AsyncModules/embassy-priority": {}
+  "AsyncModules/embassy-priority": {
+    "meta": {
+      "all_packages": false
+    }
+  }
 }
