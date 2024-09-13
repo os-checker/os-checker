@@ -164,6 +164,12 @@ pub struct Meta {
     all_packages: bool,
 }
 
+impl Meta {
+    pub fn all_packages(&self) -> bool {
+        self.all_packages
+    }
+}
+
 fn defalt_all_packages() -> bool {
     true
 }

@@ -266,6 +266,19 @@ impl Packages {
                 .collect(),
         }
     }
+
+    pub fn select<'a, I>(&self, pkgs: I) -> Vec<(&str, &PackageInfoShared)>
+    where
+        I: Iterator<Item = &'a str>,
+    {
+        let mut v = Vec::with_capacity(self.len());
+        for pkg in pkgs {
+            // 已经校验过 pkg name 了
+            let (_, name, info) = self.get_full(pkg).unwrap();
+            v.push((name.as_str(), info));
+        }
+        v
+    }
 }
 
 impl std::ops::Deref for Packages {

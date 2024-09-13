@@ -71,6 +71,7 @@ impl TryFrom<Value> for Config {
             if let Some((repo, deserializer)) = obj.into_iter().next() {
                 if let Ok(config) = RepoConfig::deserialize(deserializer) {
                     config.validate_checker_name(&repo)?;
+                    config.sort_packages();
                     return Ok(Config {
                         uri: uri::uri(repo)?,
                         config: Box::new(config),

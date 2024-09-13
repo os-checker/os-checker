@@ -36,24 +36,31 @@ pub struct RepoConfig {
 impl RepoConfig {
     /// 每个 package 及其对应的检查命令
     #[instrument(level = "trace")]
-    pub fn resolve(&self, repo: &str, pkgs: &Packages) -> Result<Vec<Resolve>> {
+    pub fn resolve(&self, repo: &str, packages: &Packages) -> Result<Vec<Resolve>> {
         // validate pkg names in packages
-        self.validate_pkgs(repo, pkgs)?;
+        self.validate_pkgs(repo, packages)?;
+
+        let selected = packages.select(self.packages.keys().map(|s| s.as_str()));
+
+        // 如果 all_packages 为 false，并且没提供 pkg，直接返回空数组
+        if !self.all_packages() && selected.is_empty() {
+            return Ok(vec![]);
+        }
 
         let mut cmds = Cmds::new_with_all_checkers_enabled();
 
         // validate checkers in cmds
         self.validate_checker(repo, &cmds)?;
 
-        let mut v = Vec::<Resolve>::with_capacity(pkgs.len() * TOOLS);
+        let mut v = Vec::<Resolve>::with_capacity(packages.len() * TOOLS);
 
         let targets_for_all_pkgs = self.targets.as_ref().map(|val| val.as_slice());
-        for (pkg_name, info) in &**pkgs {
+        for (pkg_name, info) in selected {
             // set cmds from repo
             cmds.merge(&self.cmds);
 
             // pick targets configurated from pkg or repo
-            let targets = if let Some(pkg_config) = self.packages.get(pkg_name.as_str()) {
+            let targets = if let Some(pkg_config) = self.packages.get(pkg_name) {
                 // set cmds from pkg
                 cmds.merge(&pkg_config.cmds);
 
@@ -152,8 +159,19 @@ impl RepoConfig {
         Ok(())
     }
 
+    // TODO: validate targets
+
     // TODO: setup environment for repo
     // pub fn setup(&self) {}
+
+    fn all_packages(&self) -> bool {
+        self.meta.as_ref().map(|m| m.all_packages()).unwrap_or(true)
+    }
+
+    /// 将 packages 按名称排序
+    pub fn sort_packages(&mut self) {
+        self.packages.sort_unstable_keys();
+    }
 }
 
 /// TODO: 其他工具待完成
