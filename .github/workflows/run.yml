@@ -91,6 +91,7 @@ jobs:
           # os-checker setup --config repos.json 
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           # make setup
+          cat Makefile
           make batch -n
           ls -alh ~/check/config
 
