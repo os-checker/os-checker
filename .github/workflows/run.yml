@@ -6,7 +6,7 @@ on:
 
 env:
   # os-checker log level
-  RUST_LOG: info
+  RUST_LOG: error
   # flag a bot commit
   BOT: 1
   # enable sccache cache
@@ -15,8 +15,8 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # use which configs
-  CONFIGS: repos.json # for debug single repo
-  # CONFIGS: repos-default.json repos-ui.json # full repo list
+  # CONFIGS: repos.json # for debug single repo
+  CONFIGS: repos-default.json repos-ui.json # full repo list
 
   rust_toolchain: nightly-2024-09-09
   # set from dtolnay/rust-toolchain, in case rustup cache is used
