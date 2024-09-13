@@ -1,4 +1,42 @@
 {
+  "AsyncModules/embassy-priority": {
+    "meta": {
+      "all_packages": false
+    },
+    "packages": {
+      "embassy-boot": {},
+      "embassy-boot-nrf": {},
+      "embassy-boot-rp": {},
+      "embassy-boot-stm32": {},
+      "embassy-embedded-hal": {},
+      "embassy-executor": {},
+      "embassy-executor-macros": {},
+      "embassy-futures": {},
+      "embassy-hal-internal": {},
+      "embassy-net": {},
+      "embassy-net-adin1110": {},
+      "embassy-net-driver": {},
+      "embassy-net-driver-channel": {},
+      "embassy-net-enc28j60": {},
+      "embassy-net-esp-hosted": {},
+      "embassy-net-ppp": {},
+      "embassy-net-tuntap": {},
+      "embassy-net-wiznet": {},
+      "embassy-nrf": {},
+      "embassy-rp": {},
+      "embassy-stm32": {},
+      "embassy-stm32-wpan": {},
+      "embassy-sync": {},
+      "embassy-time": {},
+      "embassy-time-driver": {},
+      "embassy-time-queue-driver": {},
+      "embassy-usb": {},
+      "embassy-usb-dfu": {},
+      "embassy-usb-driver": {},
+      "embassy-usb-logger": {},
+      "embassy-usb-synopsys-otg": {}
+    }
+  },
   "arceos-org/arceos": {
     "packages": {
       "bwbench-client": {
