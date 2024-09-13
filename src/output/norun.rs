@@ -96,7 +96,7 @@ fn setup_mirai(targets: &[&str]) -> Result<()> {
     .pipe(cmd!("sh"))
     .run()
     .with_context(|| "安装 mirai 失败")?;
-    cmd!(" rustup", "toolchain", "install", TOOLCHAIN).run()?;
+    cmd!("rustup", "toolchain", "install", TOOLCHAIN).run()?;
     rustup_toolchain_add_target(&format!("+{TOOLCHAIN}"), targets)
         .run()
         .with_context(|| format!("在 {TOOLCHAIN} 上安装 {targets:?} 失败"))?;
