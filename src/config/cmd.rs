@@ -78,9 +78,17 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
 pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
     let target = pkg.target;
 
-    let expr = cmd!("cargo", PLUS_TOOLCHAIN_MIRAI, "mirai", "--target", target,).dir(pkg.dir);
+    let expr = cmd!(
+        "cargo",
+        PLUS_TOOLCHAIN_MIRAI,
+        "mirai",
+        "--target",
+        target,
+        "--message-format=json"
+    )
+    .dir(pkg.dir);
     debug!(?expr);
-    let cmd = format!("cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target}");
+    let cmd = format!("cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target} --message-format=json");
     Resolve::new(pkg, CheckerTool::Mirai, cmd, expr)
 }
 
