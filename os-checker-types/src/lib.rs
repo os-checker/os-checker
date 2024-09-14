@@ -107,6 +107,7 @@ pub enum Kind {
     Miri,
     /// semver-checks
     SemverViolation,
+    Mirai,
     #[serde(rename = "Lockbud(Probably)")]
     LockbudProbably,
     #[serde(rename = "Lockbud(Possibly)")]
@@ -123,6 +124,7 @@ impl Kind {
             Kind::ClippyError => "Clippy(Error)",
             Kind::Miri => "Miri",
             Kind::SemverViolation => "SemverViolation",
+            Kind::Mirai => "Mirai",
             Kind::LockbudProbably => "Lockbud(Probably)",
             Kind::LockbudPossibly => "Lockbud(Possibly)",
             Kind::Cargo => "Cargo",
