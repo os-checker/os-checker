@@ -65,18 +65,18 @@ jobs:
         if: ${{ env.cache == 'true' }}
         uses: mozilla-actions/sccache-action@v0.0.5
 
-      - name: Restore Cargo Cache 
-        id: cache-cargo-restore
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-            /tmp/os-checker/checkers
-          key: ${{ runner.os }}-cargo-${{ env.cache_key }}
+      # - name: Restore Cargo Cache 
+      #   id: cache-cargo-restore
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     path: |
+      #       ~/.cargo/bin/
+      #       ~/.cargo/registry/index/
+      #       ~/.cargo/registry/cache/
+      #       ~/.cargo/git/db/
+      #       target/
+      #       /tmp/os-checker/checkers
+      #     key: ${{ runner.os }}-cargo-${{ env.cache_key }}
 
       - name: Install os-checker
         run: cargo install --path . --force
@@ -127,16 +127,16 @@ jobs:
       #     path: ~/.rustup/
       #     key: ${{ steps.cache-rustup-restore.outputs.cache-primary-key }}
 
-      - name: Save Cargo Cache
-        id: cache-cargo-save
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-            /tmp/os-checker/checkers
-          key: ${{ steps.cache-cargo-restore.outputs.cache-primary-key }}
+      # - name: Save Cargo Cache
+      #   id: cache-cargo-save
+      #   uses: actions/cache/save@v4
+      #   with:
+      #     path: |
+      #       ~/.cargo/bin/
+      #       ~/.cargo/registry/index/
+      #       ~/.cargo/registry/cache/
+      #       ~/.cargo/git/db/
+      #       target/
+      #       /tmp/os-checker/checkers
+      #     key: ${{ steps.cache-cargo-restore.outputs.cache-primary-key }}
 
