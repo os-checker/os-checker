@@ -278,9 +278,26 @@ fn run_check(resolve: Resolve, outputs: &mut PackagesOutputs) -> Result<()> {
         CheckerTool::Clippy => OutputParsed::Clippy(
             CargoMessage::parse_stream(stdout)
                 .map(|mes| {
-                    mes.map(ClippyMessage::from).with_context(|| {
+                    mes.map(RustcMessage::from).with_context(|| {
                         format!(
                             "解析 Clippy Json 输出失败：stdout={}\n原始命令为：\
+                            `{}`（即 `{:?}`）\ntoolchain={}\nstderr={}",
+                            String::from_utf8_lossy(stdout),
+                            resolve.cmd,
+                            resolve.expr,
+                            resolve.toolchain(),
+                            String::from_utf8_lossy(stderr),
+                        )
+                    })
+                })
+                .collect::<Result<_>>()?,
+        ),
+        CheckerTool::Mirai => OutputParsed::Mirai(
+            CargoMessage::parse_stream(stdout)
+                .map(|mes| {
+                    mes.map(RustcMessage::from).with_context(|| {
+                        format!(
+                            "解析 Mirai Json 输出失败：stdout={}\n原始命令为：\
                             `{}`（即 `{:?}`）\ntoolchain={}\nstderr={}",
                             String::from_utf8_lossy(stdout),
                             resolve.cmd,
@@ -315,7 +332,8 @@ fn run_check(resolve: Resolve, outputs: &mut PackagesOutputs) -> Result<()> {
 #[derive(Debug)]
 enum OutputParsed {
     Fmt(Box<[FmtMessage]>),
-    Clippy(Box<[ClippyMessage]>),
+    Clippy(Box<[RustcMessage]>),
+    Mirai(Box<[RustcMessage]>),
     Lockbud(String),
     Cargo { source: CargoSource, stderr: String },
 }
@@ -336,10 +354,10 @@ impl OutputParsed {
         match self {
             // 一个文件可能含有多处未格式化的报告
             OutputParsed::Fmt(v) => v.iter().map(|f| f.mismatches.len()).sum(),
-            OutputParsed::Clippy(v) => v
+            OutputParsed::Clippy(v) | OutputParsed::Mirai(v) => v
                 .iter()
                 .filter_map(|mes| match &mes.tag {
-                    ClippyTag::WarnDetailed(p) | ClippyTag::ErrorDetailed(p) => {
+                    RustcTag::WarnDetailed(p) | RustcTag::ErrorDetailed(p) => {
                         // os-checker 根据每个可渲染内容的文件路径来发出原始输出
                         match &mes.inner {
                             CargoMessage::CompilerMessage(cmes)
@@ -388,7 +406,7 @@ pub struct FmtMismatch {
 // FIXME: 利用 summary 来检验数量
 #[allow(dead_code)]
 #[derive(Debug)]
-pub enum ClippyTag {
+pub enum RustcTag {
     /// non-summary / detailed message with primary span paths
     WarnDetailed(Box<[Utf8PathBuf]>),
     /// non-summary / detailed message with primary span paths
@@ -404,7 +422,7 @@ pub enum ClippyTag {
 }
 
 /// 提取/分类 clippy 的有效信息
-fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
+fn extract_cargo_message(mes: &CargoMessage) -> RustcTag {
     struct ClippySummary {
         warnings: Regex,
         errors: Regex,
@@ -451,29 +469,29 @@ fn extract_cargo_message(mes: &CargoMessage) -> ClippyTag {
                         paths = Box::new(["unkonwn-but-maybe-important".into()]);
                     }
                     if matches!(mes.message.level, DiagnosticLevel::Warning) {
-                        ClippyTag::WarnDetailed(paths)
+                        RustcTag::WarnDetailed(paths)
                     } else {
-                        ClippyTag::ErrorDetailed(paths)
+                        RustcTag::ErrorDetailed(paths)
                     }
                 }
-                (None, Some(e)) => ClippyTag::Error(e),
-                (Some(w), None) => ClippyTag::Warn(w),
-                (Some(w), Some(e)) => ClippyTag::WarnAndError(w, e),
+                (None, Some(e)) => RustcTag::Error(e),
+                (Some(w), None) => RustcTag::Warn(w),
+                (Some(w), Some(e)) => RustcTag::WarnAndError(w, e),
             }
         }
-        _ => ClippyTag::None,
+        _ => RustcTag::None,
     }
 }
 
 #[derive(Debug)]
-pub struct ClippyMessage {
+pub struct RustcMessage {
     inner: CargoMessage,
-    tag: ClippyTag,
+    tag: RustcTag,
 }
 
-impl From<CargoMessage> for ClippyMessage {
+impl From<CargoMessage> for RustcMessage {
     fn from(inner: CargoMessage) -> Self {
-        ClippyMessage {
+        RustcMessage {
             tag: extract_cargo_message(&inner),
             inner,
         }

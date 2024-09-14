@@ -2,6 +2,7 @@ use crate::{
     config::{CheckerTool, Resolve},
     layout::Pkg,
     output::host_toolchain,
+    utils::{PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI},
     Result,
 };
 use duct::cmd;
@@ -57,7 +58,7 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
 
     let expr = cmd!(
         "cargo",
-        "+nightly-2024-05-21",
+        PLUS_TOOLCHAIN_LOCKBUD,
         "lockbud",
         "-k",
         "all",
@@ -69,11 +70,17 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
     )
     .dir(pkg.dir);
     debug!(?expr);
-    // let cmd = format!(
-    //     "cargo +nightly-2024-05-21 lockbud -k all \
-    //      -- --target {target} --target-dir={lockbud_dir}"
-    // );
-    let cmd = format!("cargo +nightly-2024-05-21 lockbud -k all -- --target {target}");
+    let cmd = format!("cargo {PLUS_TOOLCHAIN_LOCKBUD} lockbud -k all -- --target {target}");
+    Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
+}
+
+/// 默认运行 cargo mirai 的命令
+pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
+    let target = pkg.target;
+
+    let expr = cmd!("cargo", PLUS_TOOLCHAIN_MIRAI, "mirai", "--target", target,).dir(pkg.dir);
+    debug!(?expr);
+    let cmd = format!("cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target}");
     Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
 }
 

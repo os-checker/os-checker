@@ -173,6 +173,7 @@ pub enum Kind {
     Miri,
     /// semver-checks
     SemverViolation,
+    Mirai,
     #[serde(rename = "Lockbud(Probably)")]
     LockbudProbably,
     #[serde(rename = "Lockbud(Possibly)")]

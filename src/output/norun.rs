@@ -1,6 +1,6 @@
 use super::RustToolchains;
 use crate::{
-    utils::{git_clone, BASE_DIR_CHECKERS},
+    utils::{git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_MIRAI, TOOLCHAIN_MIRAI},
     Result,
 };
 use cargo_metadata::camino::Utf8PathBuf;
@@ -84,17 +84,16 @@ fn setup_lockbud(targets: &[&str]) -> Result<()> {
 
 #[instrument(level = "trace")]
 fn setup_mirai(targets: &[&str]) -> Result<()> {
-    const TOOLCHAIN: &str = "nightly-2023-12-30";
     const URL: &str =
         "https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh";
     cmd!("curl", "--proto", "=https", "--tlsv1.2", "-LsSf", URL)
         .pipe(cmd!("sh"))
         .run()
         .with_context(|| "安装 mirai 失败")?;
-    cmd!("rustup", "toolchain", "install", TOOLCHAIN).run()?;
-    rustup_toolchain_add_target(&format!("+{TOOLCHAIN}"), targets)
+    cmd!("rustup", "toolchain", "install", TOOLCHAIN_MIRAI).run()?;
+    rustup_toolchain_add_target(PLUS_TOOLCHAIN_MIRAI, targets)
         .run()
-        .with_context(|| format!("在 {TOOLCHAIN} 上安装 {targets:?} 失败"))?;
+        .with_context(|| format!("在 {TOOLCHAIN_MIRAI} 上安装 {targets:?} 失败"))?;
     Ok(())
 }
 
