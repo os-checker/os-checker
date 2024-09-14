@@ -6,7 +6,7 @@
 //!     * 如果指定包名，则校验是否定义于仓库内：需要 repo layout 信息
 //!     * 如果指定 features，则校验是否定义于 package 内：需要 cargo metadata 信息
 
-use super::{cargo_clippy, cargo_fmt, cargo_lockbud, checker::CheckerTool, custom};
+use super::{cargo_clippy, cargo_fmt, cargo_lockbud, cargo_mirai, checker::CheckerTool, custom};
 use crate::{
     layout::Pkg,
     output::{get_toolchain, host_target_triple},
@@ -105,6 +105,10 @@ impl Resolve {
 
     pub fn lockbud(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
         resolved.extend(pkgs.iter().map(cargo_lockbud));
+    }
+
+    pub fn mirai(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
+        resolved.extend(pkgs.iter().map(cargo_mirai));
     }
 
     #[instrument(level = "trace")]
