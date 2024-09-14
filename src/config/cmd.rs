@@ -81,7 +81,7 @@ pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
     let expr = cmd!("cargo", PLUS_TOOLCHAIN_MIRAI, "mirai", "--target", target,).dir(pkg.dir);
     debug!(?expr);
     let cmd = format!("cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target}");
-    Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
+    Resolve::new(pkg, CheckerTool::Mirai, cmd, expr)
 }
 
 /// 自定义检查命令。
