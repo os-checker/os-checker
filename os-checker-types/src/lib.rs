@@ -145,6 +145,7 @@ pub enum CheckerTool {
     Clippy,
     Miri,
     SemverChecks,
+    Mirai,
     Lockbud,
     /// 这是一个虚拟的检查工具，它表示 stderr 中含 `^error:` 的情况
     Cargo,
