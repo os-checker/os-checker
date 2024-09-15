@@ -157,7 +157,7 @@ pub fn write_batch(src_dir: &Utf8Path, target_dir: &Utf8Path) -> Result<()> {
     let writer = std::io::BufWriter::new(file);
     serde_json::to_writer(writer, &batch_nodes)?;
 
-    println!("成功把 batch home 合并: src_dir={src_dir} merged={path}");
+    info!("成功把 batch home 合并: src_dir={src_dir} merged={path}");
     Ok(())
 }
 

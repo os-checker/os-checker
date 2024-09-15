@@ -8,6 +8,9 @@ use std::{
     io::{BufReader, BufWriter},
 };
 
+#[macro_use]
+extern crate tracing;
+
 /// 架构下拉框之类每个页面的基础信息
 mod basic;
 
@@ -20,8 +23,12 @@ mod file_tree;
 mod utils;
 pub use utils::Result;
 
+mod logger;
+
 #[cfg(feature = "batch")]
 fn main() -> Result<()> {
+    logger::init();
+
     let paths = json_paths("batch")?;
 
     clear_base_dir()?;
@@ -30,7 +37,7 @@ fn main() -> Result<()> {
         let json = &read_json(path)?;
         write_filetree(json)?;
 
-        let batch = dbg!(path.file_stem().unwrap());
+        let batch = path.file_stem().unwrap();
         write_batch_basic_home(json, batch)?;
     }
 
@@ -41,6 +48,7 @@ fn main() -> Result<()> {
         if !target_dir.exists() {
             fs::create_dir_all(target_dir)?;
         }
+        // ui/basic.json
         basic::write_batch(src_dir, target_dir)?;
     }
 
@@ -59,9 +67,9 @@ fn main() -> Result<()> {
     #[cfg(feature = "clear_batch")]
     {
         let batch_dir = Utf8PathBuf::from_iter([BASE_DIR, "batch"]);
-        println!("正在清除 {batch_dir}");
+        info!("正在清除 {batch_dir}");
         fs::remove_dir_all(&batch_dir)?;
-        println!("已清除 {batch_dir}");
+        info!("已清除 {batch_dir}");
     }
 
     Ok(())
@@ -126,9 +134,9 @@ fn read_json(path: &Utf8Path) -> Result<JsonOutput> {
 /// Clear old data
 fn clear_base_dir() -> Result<()> {
     if let Err(err) = fs::remove_dir_all(BASE_DIR) {
-        eprintln!("{err:?}");
+        einfo!("{err:?}");
     }
-    println!("清理 {BASE_DIR}");
+    info!("清理 {BASE_DIR}");
     Ok(())
 }
 
@@ -174,7 +182,7 @@ fn write_filetree(json: &JsonOutput) -> Result<()> {
 }
 
 fn print(t: &impl Serialize) {
-    println!("{}", serde_json::to_string_pretty(t).unwrap());
+    info!("{}", serde_json::to_string_pretty(t).unwrap());
 }
 
 const BASE_DIR: &str = "ui";
@@ -190,7 +198,7 @@ fn write_to_file<T: Serialize>(dir: &str, target: &str, t: &T) -> Result<()> {
     let file = fs::File::create(&path)?;
     serde_json::to_writer(BufWriter::new(file), t)?;
 
-    println!("{path} 写入成功");
+    info!("{path} 写入成功");
 
     Ok(())
 }

@@ -31,7 +31,7 @@ pub struct UserRepo<'a> {
 impl<'a> UserRepo<'a> {
     pub fn print(self) {
         let Self { user, repo } = self;
-        println!("{user}/{repo}");
+        info!("{user}/{repo}");
     }
 }
 
@@ -73,7 +73,7 @@ pub struct UserRepoPkg<'a> {
 impl<'a> UserRepoPkg<'a> {
     pub fn print(self) {
         let Self { user, repo, pkg } = self;
-        println!("{user}/{repo}#{pkg}");
+        info!("{user}/{repo}#{pkg}");
     }
 
     pub fn into_repo(self) -> UserRepo<'a> {

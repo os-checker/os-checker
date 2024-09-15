@@ -22,7 +22,7 @@ pub fn write_batch(src_dir: &Utf8Path, target_dir: &Utf8Path) -> crate::Result<(
     }
 
     if batch.is_empty() {
-        println!("无 batch basic 可合并");
+        info!("无 batch basic 可合并");
         return Ok(());
     }
 
@@ -35,7 +35,7 @@ pub fn write_batch(src_dir: &Utf8Path, target_dir: &Utf8Path) -> crate::Result<(
     let writer = std::io::BufWriter::new(file);
     serde_json::to_writer(writer, &merged)?;
 
-    println!("成功把 batch config 合并: src_dir={src_dir} merged={path}");
+    info!("成功把 batch config 合并: src_dir={src_dir} merged={path}");
     Ok(())
 }
 
@@ -47,7 +47,7 @@ pub struct Basic {
 
 impl Basic {
     pub fn print(&self) {
-        println!("{}", serde_json::to_string_pretty(self).unwrap());
+        info!("{}", serde_json::to_string_pretty(self).unwrap());
     }
 }
 
