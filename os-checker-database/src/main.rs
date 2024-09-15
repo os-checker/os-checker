@@ -26,6 +26,7 @@ pub use utils::Result;
 mod logger;
 
 #[cfg(feature = "batch")]
+#[instrument(level = "trace")]
 fn main() -> Result<()> {
     logger::init();
 
@@ -76,6 +77,7 @@ fn main() -> Result<()> {
 }
 
 /// 查找某个目录下面的 json 文件（不递归）
+#[instrument(level = "trace")]
 fn json_paths(dir: &str) -> Result<Vec<Utf8PathBuf>> {
     Ok(Utf8Path::new(dir)
         .read_dir_utf8()?
@@ -92,6 +94,7 @@ fn json_paths(dir: &str) -> Result<Vec<Utf8PathBuf>> {
 }
 
 /// 查找某个目录下面的目录（不递归）
+#[instrument(level = "trace")]
 fn subdir_paths(dir: &str) -> Result<Vec<Utf8PathBuf>> {
     Ok(Utf8Path::new(dir)
         .read_dir_utf8()?
@@ -107,6 +110,7 @@ fn subdir_paths(dir: &str) -> Result<Vec<Utf8PathBuf>> {
         .collect_vec())
 }
 
+#[instrument(level = "trace")]
 fn write_batch_basic_home(json: &JsonOutput, batch: &str) -> Result<()> {
     // Write basic JSON
     write_to_file("batch/basic", batch, &basic::all(json))?;
@@ -126,21 +130,24 @@ fn write_batch_basic_home(json: &JsonOutput, batch: &str) -> Result<()> {
     Ok(())
 }
 
+#[instrument(level = "trace")]
 fn read_json(path: &Utf8Path) -> Result<JsonOutput> {
     let file = fs::File::open(path)?;
     Ok(serde_json::from_reader(BufReader::new(file))?)
 }
 
 /// Clear old data
+#[instrument(level = "trace")]
 fn clear_base_dir() -> Result<()> {
     if let Err(err) = fs::remove_dir_all(BASE_DIR) {
-        einfo!("{err:?}");
+        error!("{err:?}");
     }
     info!("清理 {BASE_DIR}");
     Ok(())
 }
 
 #[cfg(feature = "single")]
+#[instrument(level = "trace")]
 fn main() -> Result<()> {
     let json = read_json("ui.json")?;
 
@@ -164,6 +171,7 @@ fn main() -> Result<()> {
 }
 
 /// 写入 filetree 和 repos 的 filetree 数据；这无需聚合
+#[instrument(level = "trace")]
 fn write_filetree(json: &JsonOutput) -> Result<()> {
     let file_tree_all = file_tree::all_targets(json);
     write_to_file(FILETREE_DIR, ALL_TARGETS, &file_tree_all)?;

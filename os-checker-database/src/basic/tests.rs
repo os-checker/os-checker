@@ -2,6 +2,7 @@ use super::*;
 use crate::Result;
 
 #[test]
+#[instrument(level = "trace")]
 fn print() -> Result<()> {
     let json = crate::utils::ui_json();
 
