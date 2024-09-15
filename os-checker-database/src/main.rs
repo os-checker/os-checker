@@ -27,7 +27,6 @@ fn main() -> Result<()> {
     clear_base_dir()?;
 
     for path in &paths {
-        dbg!(path);
         let json = &read_json(path)?;
         write_filetree(json)?;
 

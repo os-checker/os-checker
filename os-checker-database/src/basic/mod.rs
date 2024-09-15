@@ -177,7 +177,11 @@ struct Column {
 
 fn columns(order: &[Kind]) -> Vec<Column> {
     let rename = indexmap::indexmap! {
-        Kind::Unformatted => "未格式化"
+        Kind::Unformatted => "未格式化",
+        Kind::ClippyWarn => "Clippy (Warn)",
+        Kind::ClippyError => "Clippy (Error)",
+        Kind::LockbudPossibly => "Lockbud (Possibly)",
+        Kind::LockbudProbably => "Lockbud (Probably)",
     };
     let mut checkers = IndexMap::<_, _, ahash::RandomState>::from_iter(
         order.iter().map(|kind| (*kind, kind.as_str())),
