@@ -105,6 +105,10 @@ impl Targets {
         for (triple, cmds) in map {
             targets.push(triple, &cmds);
         }
+        // 降序排列
+        targets
+            .inner
+            .sort_unstable_by(|a, b| (b.count, &*a.triple).cmp(&(a.count, &*b.triple)));
         targets
     }
 
