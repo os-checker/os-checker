@@ -20,6 +20,9 @@ mod home;
 /// 文件树
 mod file_tree;
 
+/// 统计数字
+mod stats;
+
 mod utils;
 pub use utils::Result;
 
@@ -34,13 +37,20 @@ fn main() -> Result<()> {
 
     clear_base_dir()?;
 
+    let mut pass_count_repo = stats::PassCountRepo::zero();
+
     for path in &paths {
         let json = &read_json(path)?;
         write_filetree(json)?;
 
+        pass_count_repo.update(json);
+
         let batch = path.file_stem().unwrap();
         write_batch_basic_home(json, batch)?;
     }
+
+    // ui/pass_count_repo.json
+    pass_count_repo.write_to_file()?;
 
     // 把 batch config 合并
     {
