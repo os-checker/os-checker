@@ -96,6 +96,7 @@ fn inner<'a>(json: &'a JsonOutput, data: &[&RawData]) -> Vec<NodeRepo<'a>> {
         let node = NodeRepo {
             key: 0,
             data: NodeRepoData {
+                idx: 0,
                 repo,
                 total_count,
                 count,
@@ -106,7 +107,7 @@ fn inner<'a>(json: &'a JsonOutput, data: &[&RawData]) -> Vec<NodeRepo<'a>> {
     }
 
     sort_by_count(&mut nodes);
-    update_key(&mut nodes);
+    update_key_and_idx(&mut nodes);
 
     nodes
 }
@@ -119,12 +120,13 @@ fn sort_by_count(nodes: &mut [NodeRepo]) {
     });
 }
 
-/// 设置 repo 和 pkg 的 key。
+/// 设置 repo 的序号以及 repo 和 pkg 的 key。
 /// 这个函数是必要的，因为重新按照 count 排序导致无法在创建节点实例的时候按顺序确定 key；
-/// 此外，在合并 batch 的时候，key 需要重新生成。
-fn update_key(nodes: &mut [NodeRepo]) {
+/// 此外，在合并 batch 的时候，idx 和 key 需要重新生成。
+fn update_key_and_idx(nodes: &mut [NodeRepo]) {
     let mut key = 0;
-    for repo in nodes {
+    for (idx, repo) in nodes.iter_mut().enumerate() {
+        repo.data.idx = idx + 1;
         repo.key = key;
         key += 1;
 
@@ -150,7 +152,7 @@ pub fn write_batch(src_dir: &Utf8Path, target_dir: &Utf8Path) -> Result<()> {
     }
 
     sort_by_count(&mut batch_nodes);
-    update_key(&mut batch_nodes);
+    update_key_and_idx(&mut batch_nodes);
 
     let name = src_dir.file_name().unwrap();
     let path = target_dir.join(format!("{name}.json"));
@@ -172,6 +174,8 @@ pub struct NodeRepo<'a> {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct NodeRepoData<'a> {
+    /// 仓库序号
+    idx: usize,
     #[serde(flatten)]
     #[serde(borrow)]
     repo: UserRepo<'a>,
