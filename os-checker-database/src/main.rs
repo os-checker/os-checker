@@ -37,20 +37,22 @@ fn main() -> Result<()> {
 
     clear_base_dir()?;
 
-    let mut pass_count_repo = stats::PassCountRepo::zero();
+    let mut pass_count_repos = stats::PassCountRepos::new();
 
+    let mut jsons = Vec::with_capacity(paths.len());
     for path in &paths {
-        let json = &read_json(path)?;
-        write_filetree(json)?;
-
-        pass_count_repo.update(json);
+        let json = read_json(path)?;
+        write_filetree(&json)?;
 
         let batch = path.file_stem().unwrap();
-        write_batch_basic_home(json, batch)?;
+        write_batch_basic_home(&json, batch)?;
+
+        jsons.push(json);
     }
 
-    // ui/pass_count_repo.json
-    pass_count_repo.write_to_file()?;
+    // ui/pass_count_repo/target.json
+    jsons.iter().for_each(|json| pass_count_repos.update(json));
+    pass_count_repos.write_to_file()?;
 
     // 把 batch config 合并
     {
