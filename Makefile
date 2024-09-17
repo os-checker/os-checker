@@ -21,15 +21,13 @@ define run_each
 	echo "正在设置工具链和检查环境 $(1)";
 	os-checker setup --config $(1) --emit json
 	echo "设置工具链和检查环境成功 $(1)";
-	os-checker run --config $(1) --emit $(2);
+	os-checker run --config $(1) --emit $(2) --clean-repo
 	echo "完成 $(2)";
 
 endef
 
 define make_batch
-	echo "batch start"
 	os-checker batch $(ARGS_CONFIGS) --out-dir $(CONFIG_DIR) --size 8;
-	echo "batch done"
 
 endef
 
@@ -38,7 +36,6 @@ echo:
 
 # setup and run in batch
 batch:
-	echo "[start] os-checker batch"
 	@$(call make_batch)
 batch_run:
 	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(BATCH_DIR)/$(shell basename $(config))))
