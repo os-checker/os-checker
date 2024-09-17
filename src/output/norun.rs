@@ -37,7 +37,7 @@ impl Norun {
     }
 
     #[instrument(level = "trace")]
-    pub fn setup(&self) -> Result<()> {
+    pub fn setup(&self, override_checkers: bool) -> Result<()> {
         let list = self.targets.iter().map(|s| s.as_str()).collect_vec();
 
         if list.is_empty() {
@@ -48,14 +48,21 @@ impl Norun {
         // install detected targets for host toolchain
         rustup_target_add(&list).run()?;
 
-        // install detected targets for toolchain required by lockbud
-        setup_lockbud(&list)?;
+        if !detect_checker_if_exists("lockbud") || override_checkers {
+            // install detected targets for toolchain required by lockbud
+            setup_lockbud(&list)?;
+        }
 
-        // install toolchain and detected targets for mirai
-        setup_mirai(&list)?;
+        if !detect_checker_if_exists("mirai") || override_checkers {
+            // install toolchain and detected targets for mirai
+            setup_mirai(&list)?;
+        }
 
         // install toolchains required by all repos
-        self.toolchains.setup()
+        // TODO: 在仓库解析布局时，对每个检查的工具链确保安装了 targets
+        self.toolchains.setup()?;
+
+        Ok(())
     }
 }
 
@@ -99,4 +106,27 @@ fn setup_mirai(targets: &[&str]) -> Result<()> {
 
 fn rustup_toolchain_add_target(toolchain: &str, targets: &[&str]) -> duct::Expression {
     cmd("rustup", [toolchain, "target", "add"].iter().chain(targets))
+}
+
+fn detect_checker_if_exists(checker_bin: &str) -> bool {
+    match cmd!("which", checker_bin).read() {
+        Ok(location) => {
+            info!(checker_bin, location);
+            true
+        }
+        Err(err) => {
+            error!(err = %err, "未找到 {checker_bin}");
+            false
+        }
+    }
+}
+
+#[test]
+fn which_checker() {
+    crate::logger::test_init(Some("debug"), "");
+    dbg!(
+        detect_checker_if_exists("lockbud"),
+        detect_checker_if_exists("mirai"),
+        detect_checker_if_exists("mirai2"),
+    );
 }

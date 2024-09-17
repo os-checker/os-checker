@@ -101,6 +101,11 @@ struct ArgsSetup {
     #[argh(option, default = "Emit::Json")]
     /// emit a JSON output containing information like targets
     emit: Emit,
+
+    /// by default, checkers installed are detected and skipped.
+    /// But you can enable this option if they are wanted to be reinstalled.
+    #[argh(switch)]
+    override_checkers: bool,
 }
 
 /// Run checkers on all repos.
@@ -297,7 +302,7 @@ impl ArgsSetup {
     fn execute(&self) -> Result<()> {
         let (_, norun) = norun(&self.config)?;
         self.emit.emit(&norun)?;
-        norun.setup()?;
+        norun.setup(self.override_checkers)?;
         Ok(())
     }
 }
