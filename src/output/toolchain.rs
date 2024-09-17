@@ -212,7 +212,7 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         channel: channel.trim_end_matches(" (default)").to_owned(),
         profile: None,
         targets: Some(get_installed(RustupList::Target)?),
-        components: Some(get_installed(RustupList::Target)?),
+        components: Some(get_installed(RustupList::Component)?),
         toml_path: Utf8Path::new(".").canonicalize_utf8()?,
         install_clippy: false,
         peculiar_targets: None,
