@@ -104,8 +104,14 @@ struct ArgsSetup {
 
     /// by default, checkers installed are detected and skipped.
     /// But you can enable this option if they are wanted to be reinstalled.
+    /// NOTE: if checkers don't exist, they will be installed anyway.
     #[argh(switch)]
     override_checkers: bool,
+
+    /// by default, toolchains in repos are installed.
+    /// If you want to disable the behavior, set this option.
+    #[argh(switch)]
+    no_repos_toolchains: bool,
 }
 
 /// Run checkers on all repos.
@@ -302,7 +308,7 @@ impl ArgsSetup {
     fn execute(&self) -> Result<()> {
         let (_, norun) = norun(&self.config)?;
         self.emit.emit(&norun)?;
-        norun.setup(self.override_checkers)?;
+        norun.setup(self.override_checkers, self.no_repos_toolchains)?;
         Ok(())
     }
 }

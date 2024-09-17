@@ -37,7 +37,7 @@ impl Norun {
     }
 
     #[instrument(level = "trace")]
-    pub fn setup(&self, override_checkers: bool) -> Result<()> {
+    pub fn setup(&self, override_checkers: bool, no_repos_toolchains: bool) -> Result<()> {
         let list = self.targets.iter().map(|s| s.as_str()).collect_vec();
 
         if list.is_empty() {
@@ -58,9 +58,11 @@ impl Norun {
             setup_mirai(&list)?;
         }
 
-        // install toolchains required by all repos
-        // TODO: 在仓库解析布局时，对每个检查的工具链确保安装了 targets
-        self.toolchains.setup()?;
+        if !no_repos_toolchains {
+            // install toolchains required by all repos
+            // TODO: 在仓库解析布局时，对每个检查的工具链确保安装了 targets
+            self.toolchains.setup()?;
+        }
 
         Ok(())
     }
