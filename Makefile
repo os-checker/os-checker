@@ -19,7 +19,7 @@ define run_each
 	echo "正在处理 $(1)";
 	jq ". | to_entries | map(.key)" "$(1)";
 	echo "正在设置工具链和检查环境 $(1)";
-	os-checker run --config $(1) --emit $(2) --clean-repo
+	os-checker run --config $(1) --emit $(2) 
 	echo "完成 $(2)";
 
 endef
@@ -38,7 +38,7 @@ batch_run:
 	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(BATCH_DIR)/$(shell basename $(config))))
 
 run:
-	@os-checker run $(ARGS_CONFIGS) --clean-repo --emit $(SINGLE_JSON)
+	@os-checker run $(ARGS_CONFIGS) --emit $(SINGLE_JSON)
 
 # author zjp-CN, and commiter bot
 clone_database:

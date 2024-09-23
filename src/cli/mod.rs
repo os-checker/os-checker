@@ -100,9 +100,9 @@ pub struct ArgsRun {
     /// emit a JSON format containing the checking reports
     emit: Emit,
 
-    /// clean the repo once the checks on it are done
+    /// keep the repo once the checks on it are done
     #[argh(switch)]
-    clean_repo: bool,
+    keep_repo: bool,
 }
 
 /// Merge configs and split it into batches.
@@ -224,7 +224,7 @@ impl ArgsRun {
         let outs = repos_outputs(&self.config)?
             .map(|out| {
                 let out = out?;
-                if self.clean_repo {
+                if !self.keep_repo {
                     out.clean_repo_dir()?;
                 }
                 Ok(out)
