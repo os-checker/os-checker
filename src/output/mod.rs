@@ -6,7 +6,7 @@ use std::time::SystemTime;
 mod toolchain;
 pub use toolchain::{
     get_toolchain, host_target_triple, host_toolchain, init_toolchain_info, install_toolchain_idx,
-    push_toolchain, RustToolchains,
+    push_toolchain, uninstall_toolchains, RustToolchains,
 };
 
 #[derive(Debug, Serialize)]

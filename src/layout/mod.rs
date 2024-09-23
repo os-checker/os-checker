@@ -1,6 +1,10 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
-use crate::{output::install_toolchain_idx, utils::walk_dir, Result, XString};
+use crate::{
+    output::{install_toolchain_idx, uninstall_toolchains},
+    utils::walk_dir,
+    Result, XString,
+};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
@@ -237,12 +241,24 @@ impl Layout {
         toolchains.sorted().dedup().collect()
     }
 
-    pub fn make_sure_toolchains_installed(&self) -> Result<()> {
+    /// 安装仓库工具链，并在主机和检查工具所在的工具链上安装 targets。
+    pub fn install_toolchains(&self) -> Result<()> {
         for (&idx, targets) in &self.installation {
             install_toolchain_idx(idx, targets)?;
         }
 
         // 如何处理 targets？需要考虑配置文件所指定的 targets 吗？
+        Ok(())
+    }
+
+    /// 删除仓库工具链，但不删除主机和检查工具所在的工具链上安装的 targets。
+    pub fn uninstall_toolchains(&self) -> Result<()> {
+        for &idx in self.installation.keys() {
+            if idx != 0 {
+                uninstall_toolchains(idx)?;
+            }
+        }
+
         Ok(())
     }
 }

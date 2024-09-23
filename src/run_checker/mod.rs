@@ -153,10 +153,14 @@ impl TryFrom<Config> for RepoOutput {
     #[instrument(level = "trace")]
     fn try_from(config: Config) -> Result<RepoOutput> {
         let repo = Repo::try_from(config)?;
-        // TODO: 确保工具链安装成功
-        repo.layout.make_sure_toolchains_installed()?;
+
+        repo.layout.install_toolchains()?;
+
         let mut outputs = repo.run_check()?;
         outputs.sort_by_name_and_checkers();
+
+        repo.layout.uninstall_toolchains()?;
+
         Ok(RepoOutput { repo, outputs })
     }
 }

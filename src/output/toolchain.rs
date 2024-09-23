@@ -93,23 +93,34 @@ pub fn push_toolchain(val: RustToolchain) -> usize {
 }
 
 /// 通过索引获取工具链信息。
-pub fn get_toolchain(index: usize, f: impl FnOnce(&RustToolchain)) {
+pub fn get_toolchain(idx: usize, f: impl FnOnce(&RustToolchain)) {
     let map = &mut *GLOBAL.installed.lock().unwrap();
-    if let Some((toolchain, _)) = map.get_index(index) {
+    if let Some((toolchain, _)) = map.get_index(idx) {
         f(toolchain);
     }
 }
 
-pub fn install_toolchain_idx(index: usize, targets: &[String]) -> Result<()> {
+fn get_toolchain_owned(idx: usize) -> Result<RustToolchain> {
     let mut toolchain = None;
-    get_toolchain(index, |t| toolchain = Some(t.clone()));
-    let mut toolchain = toolchain.with_context(|| format!("找不到第 {index} 个工具链"))?;
+    get_toolchain(idx, |t| toolchain = Some(t.clone()));
+    toolchain.ok_or_else(|| eyre!("找不到第 {idx} 个工具链"))
+}
+
+pub fn install_toolchain_idx(idx: usize, targets: &[String]) -> Result<()> {
+    let mut toolchain = get_toolchain_owned(idx)?;
 
     // 合并新的 targets 并安装它们
     toolchain.append_targets(targets);
     toolchain.install_toolchain_and_components()?;
     toolchain.install_targets()?;
 
+    Ok(())
+}
+
+pub fn uninstall_toolchains(idx: usize) -> Result<()> {
+    let mut channel = String::new();
+    get_toolchain(idx, |toolchain| channel = toolchain.channel.clone());
+    cmd!("rustup", "toolchain", "uninstall", channel).run()?;
     Ok(())
 }
 
