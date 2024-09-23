@@ -1,6 +1,10 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
-use crate::{output::Norun, utils::walk_dir, Result, XString};
+use crate::{
+    output::{install_toolchain_idx, Norun},
+    utils::walk_dir,
+    Result, XString,
+};
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
@@ -237,6 +241,35 @@ impl Layout {
     pub fn rust_toolchain_idxs(&self) -> Vec<usize> {
         let toolchains = self.packages_info.iter().filter_map(|p| p.toolchain);
         toolchains.sorted().dedup().collect()
+    }
+
+    pub fn make_sure_toolchains_installed(&self) -> Result<()> {
+        let info = &*self.packages_info;
+        let mut map = IndexMap::<usize, Vec<&str>>::with_capacity(info.len());
+
+        // 对所有 pkgs 的工具链去重安装和检查工具
+        for (toolchain, targets) in info.iter().map(|info| {
+            (
+                info.toolchain.unwrap_or(0),
+                info.targets.keys().map(|s| s.as_str()),
+            )
+        }) {
+            match map.get_mut(&toolchain) {
+                Some(v) => v.extend(targets),
+                None => _ = map.insert(toolchain, targets.collect()),
+            }
+        }
+        for v in map.values_mut() {
+            v.sort_unstable();
+            v.dedup();
+        }
+
+        for (&idx, targets) in &map {
+            install_toolchain_idx(idx, targets)?;
+        }
+
+        // 如何处理 targets？需要考虑配置文件所指定的 targets 吗？
+        Ok(())
     }
 }
 

@@ -288,7 +288,7 @@ fn norun(configs: &[String]) -> Result<(Vec<Repo>, Norun)> {
 static SETUP: AtomicBool = AtomicBool::new(true);
 
 /// 是否安装工具链和检查工具；仅在 layout 子命令时为 false
-pub fn need_setup() -> bool {
+pub fn is_not_layout() -> bool {
     SETUP.load(Ordering::Relaxed)
 }
 

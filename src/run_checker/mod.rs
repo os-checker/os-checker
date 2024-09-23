@@ -89,13 +89,6 @@ pub struct Repo {
 }
 
 impl Repo {
-    // #[instrument(level = "trace")]
-    // pub fn new(repo_root: &str, dirs_excluded: &[&str], config: Config) -> Result<Repo> {
-    //     let layout = Layout::parse(repo_root, dirs_excluded)
-    //         .with_context(|| eyre!("无法解析 `{repo_root}` 内的 Rust 项目布局"))?;
-    //     Ok(Self { layout, config })
-    // }
-
     fn new_or_empty(repo_root: &str, dirs_excluded: &[&str], config: Config) -> Repo {
         let layout = Layout::parse(repo_root, dirs_excluded)
             .with_context(|| eyre!("无法解析 `{repo_root}` 内的 Rust 项目布局"));
@@ -127,7 +120,7 @@ impl Repo {
                 }
             }
             Either::Right(err) => {
-                // NOTE: 无法从 repo 中知道 pkg 信息，因此
+                // NOTE: 无法从 repo 中知道 pkg 信息，因此为空
                 let pkg_name = String::new();
                 let repo_root = self.layout.repo_root();
                 let output = Output::new_cargo_from_layout_parse_error(&pkg_name, repo_root, err);
@@ -168,6 +161,7 @@ impl TryFrom<Config> for RepoOutput {
     #[instrument(level = "trace")]
     fn try_from(config: Config) -> Result<RepoOutput> {
         let repo = Repo::try_from(config)?;
+        // TODO: 确保工具链安装成功
         let mut outputs = repo.run_check()?;
         outputs.sort_by_name_and_checkers();
         Ok(RepoOutput { repo, outputs })

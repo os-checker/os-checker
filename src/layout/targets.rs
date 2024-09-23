@@ -9,6 +9,7 @@ use super::detect_targets::PackageTargets;
 
 /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
 // FIXME: 把 tag 和 path 分开
+// TODO: 在明确指定 targets 的情况下，还需要脚本指定的 targets 吗？(关于安装和 resolve)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TargetSource {
     RustToolchainToml(Utf8PathBuf),
@@ -234,16 +235,12 @@ impl PackageInfo {
         targets.merge_more(&pkg_dir, repo_targets)?;
 
         debug!(?targets);
-        // let cargo_check_diagnostics = targets
-        //     .keys()
-        //     .map(|target| CargoCheckDiagnostics::new(&pkg_dir, &pkg_name, target))
-        //     .collect::<Result<_>>()?;
         Ok(PackageInfo {
             pkg_name,
             pkg_dir,
             targets,
+            // 仓库指定的工具链
             toolchain: toolchain.map(|val| val.store()),
-            // cargo_check_diagnostics,
         })
     }
 }

@@ -15,7 +15,7 @@
 
 use super::targets::Targets;
 use crate::{
-    cli::need_setup,
+    cli::is_not_layout,
     utils::{install_toolchain, scan_scripts_for_target, walk_dir, PECULIAR_TARGETS},
     Result, XString,
 };
@@ -349,17 +349,45 @@ impl RustToolchain {
         };
         let mut toolchain = toolchain.toolchain;
         toolchain.toml_path = toml_path;
-        if need_setup() {
-            toolchain.check_components()?;
+        if is_not_layout() {
+            // 不再解析工具链时安装这些，因为每个 pkg 检查工作空间下的
+            // 配置时，会重复安装。
+            // toolchain.install_toolchain_and_components()?;
             toolchain.check_peculiar_targets();
         }
         Ok(Some(toolchain))
     }
 
+    pub fn append_targets(&mut self, targets: &[&str]) {
+        let targets = targets
+            .iter()
+            .filter_map(|t| (!PECULIAR_TARGETS.contains(t)).then(|| String::from(*t)));
+        match &mut self.targets {
+            Some(v) => {
+                v.extend(targets);
+                v.sort_unstable();
+                v.dedup();
+            }
+            None => self.targets = Some(targets.collect()),
+        }
+    }
+
+    /// 仅安装 targets。注意：由于会添加新的 targets，因此该函数是为此设置的。
+    pub fn install_targets(&self) -> Result<()> {
+        if let Some(targets) = self.targets.as_deref() {
+            let repo_dir = self.toml_path.parent().unwrap();
+            let args = ["target", "add"]
+                .into_iter()
+                .chain(targets.iter().map(|s| s.as_str()));
+            cmd("rustup", args).dir(repo_dir).run()?;
+        }
+        Ok(())
+    }
+
     /// 检查自定义工具链是否包含必要的组件（比如 clippy），如果未安装，则本地安装它。
     /// 注意：我们已经强制让 fmt 使用主机的 nightly 工具链，因此不检查它。
     #[instrument(level = "trace")]
-    pub fn check_components(&mut self) -> Result<()> {
+    pub fn install_toolchain_and_components(&mut self) -> Result<()> {
         let has_clippy = self
             .components
             .as_deref()

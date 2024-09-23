@@ -1,6 +1,8 @@
 use super::RustToolchains;
 use crate::{
-    utils::{git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_MIRAI, TOOLCHAIN_MIRAI},
+    utils::{
+        git_clone, rustup_target_add, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_MIRAI, TOOLCHAIN_MIRAI,
+    },
     Result,
 };
 use cargo_metadata::camino::Utf8PathBuf;
@@ -46,7 +48,7 @@ impl Norun {
         }
 
         // install detected targets for host toolchain
-        rustup_target_add(&list).run()?;
+        rustup_target_add(&list, None)?;
 
         if !detect_checker_if_exists("lockbud") || override_checkers {
             // install detected targets for toolchain required by lockbud
@@ -74,16 +76,12 @@ fn update_set(set: &mut IndexSet<String>, val: &str) {
     }
 }
 
-fn rustup_target_add(targets: &[&str]) -> duct::Expression {
-    cmd("rustup", ["target", "add"].iter().chain(targets))
-}
-
 #[instrument(level = "trace")]
 fn setup_lockbud(targets: &[&str]) -> Result<()> {
     let url = "https://github.com/BurtonQin/lockbud.git";
     let dir = &Utf8PathBuf::from_iter([BASE_DIR_CHECKERS, "lockbud"]);
     git_clone(dir, url)?;
-    rustup_target_add(targets).dir(dir).run()?;
+    rustup_target_add(targets, Some(dir))?;
     cmd!("rustup", "show").dir(dir).run()?;
     cmd!("cargo", "install", "--path", ".", "--force")
         .dir(dir)

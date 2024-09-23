@@ -1,6 +1,7 @@
 use crate::Result;
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
+use eyre::Context;
 use std::{path::Path, time::Instant};
 
 mod scan_for_targets;
@@ -48,6 +49,17 @@ pub fn install_toolchain(dir: &Utf8Path) -> Result<Vec<u8>> {
         String::from_utf8_lossy(&output.stderr)
     );
     Ok(output.stdout)
+}
+
+pub fn rustup_target_add(targets: &[&str], dir: Option<&Utf8Path>) -> Result<()> {
+    let mut command = cmd("rustup", ["target", "add"].iter().chain(targets));
+    if let Some(dir) = dir {
+        command = command.dir(dir);
+    }
+    let _ = command
+        .run()
+        .with_context(|| format!("在 {dir:?} 目录下安装如下 targets {targets:?} 失败"))?;
+    Ok(())
 }
 
 /// 遍历一个目录及其子目录的所有文件（但不进入 .git 和 target 目录）：

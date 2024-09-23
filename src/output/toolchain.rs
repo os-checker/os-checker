@@ -1,4 +1,4 @@
-use crate::{cli::need_setup, layout::RustToolchain, utils::install_toolchain, Result};
+use crate::{cli::is_not_layout, layout::RustToolchain, utils::install_toolchain, Result};
 use cargo_metadata::camino::Utf8Path;
 use color_eyre::owo_colors::OwoColorize;
 use duct::cmd;
@@ -58,6 +58,8 @@ static GLOBAL: LazyLock<Global> = LazyLock::new(Global::new);
 struct Global {
     host: Rustc,
     // NOTE: 必须保持 Key 的顺序不变化，因为索引已经分发出去了。
+    // 此外除了第一个之外，其余都为为仓库指定的工具链，这意味着
+    // 默认工具链也可能适用于仓库。
     installed: Mutex<IndexMap<RustToolchain, usize>>,
 }
 
@@ -96,6 +98,19 @@ pub fn get_toolchain(index: usize, f: impl FnOnce(&RustToolchain)) {
     if let Some((toolchain, _)) = map.get_index(index) {
         f(toolchain);
     }
+}
+
+pub fn install_toolchain_idx(index: usize, targets: &[&str]) -> Result<()> {
+    let mut toolchain = None;
+    get_toolchain(index, |t| toolchain = Some(t.clone()));
+    let mut toolchain = toolchain.with_context(|| format!("找不到第 {index} 个工具链"))?;
+
+    // 合并新的 targets 并安装它们
+    toolchain.append_targets(targets);
+    toolchain.install_toolchain_and_components()?;
+    toolchain.install_targets()?;
+
+    Ok(())
 }
 
 /// 此函数为 +host_toolchain，而不是单纯的 host_toolchain。
@@ -217,8 +232,8 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         install_clippy: false,
         peculiar_targets: None,
     };
-    if need_setup() {
-        toolchain.check_components()?;
+    if is_not_layout() {
+        toolchain.install_toolchain_and_components()?;
         toolchain.install_rustfmt()?;
     }
     Ok(toolchain)
