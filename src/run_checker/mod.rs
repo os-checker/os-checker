@@ -154,11 +154,13 @@ impl TryFrom<Config> for RepoOutput {
     fn try_from(config: Config) -> Result<RepoOutput> {
         let repo = Repo::try_from(config)?;
 
+        info!(repo_root = repo.layout.repo_root(), "install toolchains");
         repo.layout.install_toolchains()?;
 
         let mut outputs = repo.run_check()?;
         outputs.sort_by_name_and_checkers();
 
+        info!(repo_root = repo.layout.repo_root(), "uninstall toolchains");
         repo.layout.uninstall_toolchains()?;
 
         Ok(RepoOutput { repo, outputs })
