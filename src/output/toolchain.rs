@@ -100,7 +100,7 @@ pub fn get_toolchain(index: usize, f: impl FnOnce(&RustToolchain)) {
     }
 }
 
-pub fn install_toolchain_idx(index: usize, targets: &[&str]) -> Result<()> {
+pub fn install_toolchain_idx(index: usize, targets: &[String]) -> Result<()> {
     let mut toolchain = None;
     get_toolchain(index, |t| toolchain = Some(t.clone()));
     let mut toolchain = toolchain.with_context(|| format!("找不到第 {index} 个工具链"))?;

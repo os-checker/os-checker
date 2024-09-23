@@ -361,11 +361,11 @@ impl RustToolchain {
         Ok(Some(toolchain))
     }
 
-    pub fn append_targets(&mut self, targets: &[&str]) {
+    pub fn append_targets(&mut self, targets: &[String]) {
         let targets = targets
             .iter()
-            .filter(|&t| !PECULIAR_TARGETS.contains(t))
-            .map(|t| String::from(*t));
+            .filter(|t| !PECULIAR_TARGETS.contains(&t.as_str()))
+            .map(String::clone);
         match &mut self.targets {
             Some(v) => {
                 v.extend(targets);

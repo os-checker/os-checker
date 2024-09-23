@@ -89,6 +89,8 @@ pub struct Layout {
     packages_info: Box<[PackageInfo]>,
     /// 当 parse 出现问题时的错误信息
     parse_error: Option<Box<str>>,
+    /// toolchains and targets required
+    installation: IndexMap<usize, Vec<String>>,
 }
 
 impl fmt::Debug for Layout {
@@ -154,12 +156,15 @@ impl Layout {
         // sort by pkg_name and pkg_dir
         pkg_info.sort_unstable_by(|a, b| (&a.pkg_name, &a.pkg_dir).cmp(&(&b.pkg_name, &b.pkg_dir)));
 
+        let installation = installation(&pkg_info);
+
         let layout = Layout {
             workspaces,
             cargo_tomls,
             root_path,
             packages_info: pkg_info.into_boxed_slice(),
             parse_error: None,
+            installation,
         };
         debug!("layout={layout:#?}");
         Ok(layout)
@@ -174,13 +179,14 @@ impl Layout {
 
         let root_path = Utf8PathBuf::from(repo_root);
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, &[]);
-        let (workspaces, packages_info) = Default::default();
+        let (workspaces, packages_info, installation) = Default::default();
         Layout {
             root_path,
             cargo_tomls,
             workspaces,
             packages_info,
             parse_error: Some(parse_error),
+            installation,
         }
     }
 
@@ -232,33 +238,35 @@ impl Layout {
     }
 
     pub fn make_sure_toolchains_installed(&self) -> Result<()> {
-        let info = &*self.packages_info;
-        let mut map = IndexMap::<usize, Vec<&str>>::with_capacity(info.len());
-
-        // 对所有 pkgs 的工具链去重安装和检查工具
-        for (toolchain, targets) in info.iter().map(|info| {
-            (
-                info.toolchain.unwrap_or(0),
-                info.targets.keys().map(|s| s.as_str()),
-            )
-        }) {
-            match map.get_mut(&toolchain) {
-                Some(v) => v.extend(targets),
-                None => _ = map.insert(toolchain, targets.collect()),
-            }
-        }
-        for v in map.values_mut() {
-            v.sort_unstable();
-            v.dedup();
-        }
-
-        for (&idx, targets) in &map {
+        for (&idx, targets) in &self.installation {
             install_toolchain_idx(idx, targets)?;
         }
 
         // 如何处理 targets？需要考虑配置文件所指定的 targets 吗？
         Ok(())
     }
+}
+
+fn installation(info: &[PackageInfo]) -> IndexMap<usize, Vec<String>> {
+    let mut map = IndexMap::<usize, Vec<String>>::with_capacity(info.len());
+
+    // 对所有 pkgs 的工具链去重安装和检查工具
+    for (toolchain, targets) in info.iter().map(|info| {
+        (
+            info.toolchain.unwrap_or(0),
+            info.targets.keys().map(|s| s.to_owned()),
+        )
+    }) {
+        match map.get_mut(&toolchain) {
+            Some(v) => v.extend(targets),
+            None => _ = map.insert(toolchain, targets.collect()),
+        }
+    }
+    for v in map.values_mut() {
+        v.sort_unstable();
+        v.dedup();
+    }
+    map
 }
 
 #[derive(Debug)]
