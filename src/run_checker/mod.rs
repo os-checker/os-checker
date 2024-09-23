@@ -1,7 +1,7 @@
 use crate::{
     config::{CheckerTool, Config, Resolve},
     layout::Layout,
-    output::{JsonOutput, Norun},
+    output::JsonOutput,
     Result, XString,
 };
 use cargo_metadata::{
@@ -135,14 +135,6 @@ impl Repo {
     pub fn clean_repo_dir(&self) -> Result<()> {
         self.config.clean_repo_dir()
     }
-
-    #[instrument(level = "trace")]
-    pub fn norun(&self, norun: &mut Norun) -> Result<()> {
-        self.layout.norun(norun);
-        // validate pkgs and checkers in cmds
-        debug!("resolve = {:#?}", self.resolve()?);
-        Ok(())
-    }
 }
 
 impl TryFrom<Config> for Repo {
@@ -162,6 +154,7 @@ impl TryFrom<Config> for RepoOutput {
     fn try_from(config: Config) -> Result<RepoOutput> {
         let repo = Repo::try_from(config)?;
         // TODO: 确保工具链安装成功
+        repo.layout.make_sure_toolchains_installed()?;
         let mut outputs = repo.run_check()?;
         outputs.sort_by_name_and_checkers();
         Ok(RepoOutput { repo, outputs })

@@ -16,7 +16,10 @@
 use super::targets::Targets;
 use crate::{
     cli::is_not_layout,
-    utils::{install_toolchain, scan_scripts_for_target, walk_dir, PECULIAR_TARGETS},
+    utils::{
+        install_toolchain, rustup_target_add, rustup_target_add_for_checkers,
+        scan_scripts_for_target, walk_dir, PECULIAR_TARGETS,
+    },
     Result, XString,
 };
 use cargo_metadata::{
@@ -361,7 +364,8 @@ impl RustToolchain {
     pub fn append_targets(&mut self, targets: &[&str]) {
         let targets = targets
             .iter()
-            .filter_map(|t| (!PECULIAR_TARGETS.contains(t)).then(|| String::from(*t)));
+            .filter(|&t| !PECULIAR_TARGETS.contains(t))
+            .map(|t| String::from(*t));
         match &mut self.targets {
             Some(v) => {
                 v.extend(targets);
@@ -372,14 +376,16 @@ impl RustToolchain {
         }
     }
 
-    /// 仅安装 targets。注意：由于会添加新的 targets，因此该函数是为此设置的。
+    /// 仅安装 targets。
+    ///
+    /// NOTE: 由于会添加新的 targets，因此该函数是为此设置的。
+    /// 尤其是，主机和检查工具所需的工具链必须提前安装这些 targets。
     pub fn install_targets(&self) -> Result<()> {
         if let Some(targets) = self.targets.as_deref() {
+            let targets: Vec<_> = targets.iter().map(|s| s.as_str()).collect();
             let repo_dir = self.toml_path.parent().unwrap();
-            let args = ["target", "add"]
-                .into_iter()
-                .chain(targets.iter().map(|s| s.as_str()));
-            cmd("rustup", args).dir(repo_dir).run()?;
+            rustup_target_add(&targets, repo_dir)?;
+            rustup_target_add_for_checkers(&targets)?;
         }
         Ok(())
     }

@@ -1,4 +1,3 @@
-#![allow(unused)]
 use crate::{config::CheckerTool, run_checker::RepoOutput, XString};
 use cargo_metadata::camino::Utf8PathBuf;
 use serde::Serialize;
@@ -9,12 +8,6 @@ pub use toolchain::{
     get_toolchain, host_target_triple, host_toolchain, init_toolchain_info, install_toolchain_idx,
     push_toolchain, RustToolchains,
 };
-
-mod targets;
-pub use targets::{get_target, push_target, Targets};
-
-mod norun;
-pub use norun::Norun;
 
 #[derive(Debug, Serialize)]
 pub struct JsonOutput {

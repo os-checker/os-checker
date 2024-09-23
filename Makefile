@@ -19,8 +19,6 @@ define run_each
 	echo "正在处理 $(1)";
 	jq ". | to_entries | map(.key)" "$(1)";
 	echo "正在设置工具链和检查环境 $(1)";
-	os-checker setup --config $(1) --emit json
-	echo "设置工具链和检查环境成功 $(1)";
 	os-checker run --config $(1) --emit $(2) --clean-repo
 	echo "完成 $(2)";
 
@@ -34,15 +32,11 @@ endef
 echo:
 	echo "$(BASE_DIR)"
 
-# setup and run in batch
 batch:
 	@$(call make_batch)
 batch_run:
 	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(BATCH_DIR)/$(shell basename $(config))))
 
-# setup and run for all
-setup:
-	@os-checker setup $(ARGS_CONFIGS)
 run:
 	@os-checker run $(ARGS_CONFIGS) --clean-repo --emit $(SINGLE_JSON)
 

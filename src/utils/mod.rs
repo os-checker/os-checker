@@ -1,11 +1,15 @@
 use crate::Result;
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
-use eyre::Context;
 use std::{path::Path, time::Instant};
 
 mod scan_for_targets;
 pub use scan_for_targets::scan_scripts_for_target;
+
+mod installation;
+pub use installation::{
+    check_or_install_checkers, install_toolchain, rustup_target_add, rustup_target_add_for_checkers,
+};
 
 /// Temp dir for os-checker, used for installing checkers.
 pub const BASE_DIR_CHECKERS: &str = "/tmp/os-checker/checkers";
@@ -14,6 +18,7 @@ pub const BASE_DIR_CHECKERS: &str = "/tmp/os-checker/checkers";
 pub const PECULIAR_TARGETS: &[&str] = &["x86_64-fuchsia", "avr-unknown-gnu-atmega328"];
 
 /// 检查工具固定的工具链
+pub const PLUS_TOOLCHAIN_HOST: &str = "+nightly";
 pub const PLUS_TOOLCHAIN_LOCKBUD: &str = "+nightly-2024-05-21";
 pub const TOOLCHAIN_MIRAI: &str = "nightly-2023-12-30";
 pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2023-12-30";
@@ -36,30 +41,6 @@ pub fn git_clone(dir: &Utf8Path, url: &str) -> Result<(std::process::Output, u64
         String::from_utf8_lossy(&output.stdout),
     );
     Ok((output, millis))
-}
-
-/// 安装工具链。dir 一般指向 rust-toolchain 所在的目录。
-/// 安装成功时，返回 stdout 的字节（即 rustup show 的输出。
-#[instrument(level = "trace")]
-pub fn install_toolchain(dir: &Utf8Path) -> Result<Vec<u8>> {
-    let output = cmd!("rustup", "show").dir(dir).run()?;
-    ensure!(
-        output.status.success(),
-        "安装工具链失败\nstderr={}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    Ok(output.stdout)
-}
-
-pub fn rustup_target_add(targets: &[&str], dir: Option<&Utf8Path>) -> Result<()> {
-    let mut command = cmd("rustup", ["target", "add"].iter().chain(targets));
-    if let Some(dir) = dir {
-        command = command.dir(dir);
-    }
-    let _ = command
-        .run()
-        .with_context(|| format!("在 {dir:?} 目录下安装如下 targets {targets:?} 失败"))?;
-    Ok(())
 }
 
 /// 遍历一个目录及其子目录的所有文件（但不进入 .git 和 target 目录）：
