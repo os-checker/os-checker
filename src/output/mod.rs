@@ -153,6 +153,7 @@ pub struct Data {
 
 /// The kind a checker reports.
 #[derive(Debug, Serialize)]
+#[allow(dead_code)]
 pub enum Kind {
     /// fmt
     Unformatted,

@@ -1,6 +1,4 @@
-use super::{
-    git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD, TOOLCHAIN_MIRAI,
-};
+use super::{git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD};
 use crate::Result;
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
@@ -64,17 +62,17 @@ fn setup_lockbud() -> Result<()> {
     Ok(())
 }
 
-#[instrument(level = "trace")]
-fn setup_mirai() -> Result<()> {
-    const URL: &str =
-        "https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh";
-    cmd!("curl", "--proto", "=https", "--tlsv1.2", "-LsSf", URL)
-        .pipe(cmd!("sh"))
-        .run()
-        .with_context(|| "安装 mirai 失败")?;
-    cmd!("rustup", "toolchain", "install", TOOLCHAIN_MIRAI).run()?;
-    Ok(())
-}
+// #[instrument(level = "trace")]
+// fn setup_mirai() -> Result<()> {
+//     const URL: &str =
+//         "https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh";
+//     cmd!("curl", "--proto", "=https", "--tlsv1.2", "-LsSf", URL)
+//         .pipe(cmd!("sh"))
+//         .run()
+//         .with_context(|| "安装 mirai 失败")?;
+//     cmd!("rustup", "toolchain", "install", TOOLCHAIN_MIRAI).run()?;
+//     Ok(())
+// }
 
 fn detect_checker_if_exists(checker_bin: &str) -> bool {
     match cmd!("which", checker_bin).read() {
