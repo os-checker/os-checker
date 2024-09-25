@@ -16,6 +16,9 @@ mod tests;
 mod config_options;
 use config_options::{Cmds, Meta, Setup, Targets};
 
+mod misc;
+pub use misc::TargetsSpecifed;
+
 #[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 pub struct RepoConfig {
     #[serde(default)]

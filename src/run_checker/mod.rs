@@ -152,7 +152,10 @@ impl TryFrom<Config> for RepoOutput {
 
     #[instrument(level = "trace")]
     fn try_from(config: Config) -> Result<RepoOutput> {
-        let repo = Repo::try_from(config)?;
+        let mut repo = Repo::try_from(config)?;
+
+        repo.layout
+            .set_installation_targets(repo.config.targets_specified());
 
         info!(repo_root = %repo.layout.repo_root(), "install toolchains");
         repo.layout.install_toolchains()?;

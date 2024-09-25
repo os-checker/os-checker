@@ -18,8 +18,8 @@ mod checker;
 pub use checker::{CheckerTool, TOOLS};
 
 mod deserialization;
-pub use deserialization::gen_schema;
 use deserialization::RepoConfig;
+pub use deserialization::{gen_schema, TargetsSpecifed};
 
 #[cfg(test)]
 mod tests;
@@ -53,6 +53,10 @@ impl Config {
         self.config
             .resolve(self.uri.key(), pkgs)
             .with_context(|| format!("解析 `{:?}` 仓库的检查命令出错", self.uri))
+    }
+
+    pub fn targets_specified(&self) -> TargetsSpecifed {
+        self.config.targets_specified()
     }
 
     #[instrument(level = "trace")]
