@@ -144,6 +144,24 @@
 }
 ```
 
+### `no_install_targets`
+
+```json
+{
+  "user/repo": {
+    "no_install_targets": "x86_64-unknown-uefi"
+  }
+}
+```
+
+从 targets 安装列表中移除某些 targets。值为字符串或者字符串数组。
+
+当 `rustup` 不支持安装该 targets 时，那么应该使用此字段明确排除不要安装它们，因为
+os-checker 会对所有检测到的 targets 执行 `rustup target install`。
+
+实际案例见 [#96](https://github.com/os-checker/os-checker/issues/96#issuecomment-2373513203)。
+
+
 ### `setup`
 
 使用 `setup` 选项来设置编译环境，它只会执行一次。
