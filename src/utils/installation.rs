@@ -21,6 +21,7 @@ pub fn rustup_target_add(targets: &[&str], dir: &Utf8Path) -> Result<()> {
     let output = cmd("rustup", ["target", "add"].iter().chain(targets))
         .dir(dir)
         .unchecked()
+        .stderr_capture()
         .run()
         .with_context(|| format!("在 {dir:?} 目录下安装如下 targets {targets:?} 失败"))?;
     ensure!(
@@ -45,6 +46,7 @@ pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
         args[0] = toolchain;
         let output = cmd("rustup", &args)
             .unchecked()
+            .stderr_capture()
             .run()
             .with_context(|| err(toolchain))?;
         ensure!(
