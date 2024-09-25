@@ -29,5 +29,11 @@
   },
   "Starry-OS/Starry": {
     "targets": "x86_64-unknown-linux-gnu"
+  },
+  "kern-crates/zCore": {
+    "targets": [
+      "x86_64-unknown-linux-gnu",
+      "x86_64-unknown-linux-musl"
+    ]
   }
 }
