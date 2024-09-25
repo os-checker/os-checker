@@ -31,9 +31,9 @@
     "targets": "x86_64-unknown-linux-gnu"
   },
   "kern-crates/zCore": {
-    "targets": [
-      "x86_64-unknown-linux-gnu",
-      "x86_64-unknown-linux-musl"
-    ]
+    "no_install_targets": "x86_64-unknown-uefi"
+  },
+  "kern-crates/rboot": {
+    "no_install_targets": "x86_64-unknown-uefi"
   }
 }
