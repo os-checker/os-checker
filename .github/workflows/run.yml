@@ -86,20 +86,21 @@ jobs:
           cd ~/check 
           # RUST_LOG=error make layout
 
-      - name: Prepare toolchain environment needed from all repos and checkers
-        run: |
-          cd ~/check 
-          git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
-          ls -alh
-          make batch -B
-          ls -alh ~/check/config
+      # - name: Prepare toolchain environment needed from all repos and checkers
+      #   run: |
+      #     cd ~/check 
+      #     git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
+      #     ls -alh
+      #     make batch -B
+      #     ls -alh ~/check/config
 
       - name: Run All Checkers
         run: |
           cd ~/check
+          git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           # os-checker run --config repos.json --emit batch/single.json
-          # make run
-          make batch_run -B
+          make run
+          # make batch_run -B
 
       - name: Commit And Push To database repo
         if: ${{ env.PUSH == 'true' }}
