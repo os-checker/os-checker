@@ -362,6 +362,9 @@ impl RustToolchain {
     }
 
     pub fn append_targets(&mut self, targets: &[String]) {
+        if targets.is_empty() {
+            return;
+        }
         let targets = targets
             .iter()
             .filter(|t| !PECULIAR_TARGETS.contains(&t.as_str()))
