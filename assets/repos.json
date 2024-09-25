@@ -1,4 +1,7 @@
 {
+  "kern-crates/zCore": {
+    "no_install_targets": "x86_64-unknown-uefi"
+  },
   "kern-crates/rboot": {
     "no_install_targets": "x86_64-unknown-uefi"
   }
