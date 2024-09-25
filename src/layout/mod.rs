@@ -244,7 +244,7 @@ impl Layout {
 
     pub fn set_installation_targets(&mut self, targets: TargetsSpecifed) {
         // 如果配置文件设置了 targets，则直接覆盖
-        let repo_overridden = targets.repo.is_empty();
+        let repo_overridden = !targets.repo.is_empty();
         for info in &self.packages_info {
             let old = self
                 .installation
