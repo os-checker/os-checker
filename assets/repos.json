@@ -2,10 +2,9 @@
   "os-checker/os-checker-test-suite": {},
   "kern-crates/axfeat": {},
   "kern-crates/zCore": {
-    "packages": {
-      "rboot": {
-        "targets": "x86_64-unknown-linux-musl"
-      }
-    }
+    "targets": [
+      "x86_64-unknown-linux-gnu",
+      "x86_64-unknown-linux-musl"
+    ]
   }
 }
