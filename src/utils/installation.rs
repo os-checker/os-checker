@@ -28,6 +28,7 @@ pub fn rustup_target_add(targets: &[&str], dir: &Utf8Path) -> Result<()> {
     Ok(())
 }
 
+#[instrument(level = "info")]
 pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
     let err = |toolchain| format!("在 {toolchain} 工具链上安装如下 targets {targets:?} 失败");
 
