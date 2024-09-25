@@ -1,6 +1,5 @@
 use super::{
-    git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD,
-    PLUS_TOOLCHAIN_MIRAI, TOOLCHAIN_MIRAI,
+    git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD, TOOLCHAIN_MIRAI,
 };
 use crate::Result;
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
@@ -48,7 +47,7 @@ pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
     install_targets(PLUS_TOOLCHAIN_HOST)?;
 
     install_targets(PLUS_TOOLCHAIN_LOCKBUD)?;
-    install_targets(PLUS_TOOLCHAIN_MIRAI)?;
+    // install_targets(PLUS_TOOLCHAIN_MIRAI)?;
 
     Ok(())
 }
@@ -96,9 +95,9 @@ pub fn check_or_install_checkers() -> Result<()> {
     if !detect_checker_if_exists("lockbud") {
         setup_lockbud()?;
     }
-    if !detect_checker_if_exists("mirai") {
-        setup_mirai()?;
-    }
+    // if !detect_checker_if_exists("mirai") {
+    //     setup_mirai()?;
+    // }
     Ok(())
 }
 
