@@ -1,14 +1,19 @@
 use super::{git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD};
 use crate::Result;
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
-use duct::cmd;
+use duct::{cmd, Expression};
 use eyre::Context;
 
 /// 安装工具链。dir 一般指向 rust-toolchain 所在的目录。
 /// 安装成功时，返回 stdout 的字节（即 rustup show 的输出。
 #[instrument(level = "trace")]
 pub fn install_toolchain(dir: &Utf8Path) -> Result<Vec<u8>> {
-    let output = cmd!("rustup", "show").dir(dir).unchecked().run()?;
+    let output = cmd!("rustup", "show")
+        .dir(dir)
+        .unchecked()
+        .stdout_capture()
+        .stderr_capture()
+        .run()?;
     ensure!(
         output.status.success(),
         "安装工具链失败\nstderr={}",
@@ -18,18 +23,10 @@ pub fn install_toolchain(dir: &Utf8Path) -> Result<Vec<u8>> {
 }
 
 pub fn rustup_target_add(targets: &[&str], dir: &Utf8Path) -> Result<()> {
-    let output = cmd("rustup", ["target", "add"].iter().chain(targets))
-        .dir(dir)
-        .unchecked()
-        .stderr_capture()
-        .run()
-        .with_context(|| format!("在 {dir:?} 目录下安装如下 targets {targets:?} 失败"))?;
-    ensure!(
-        output.status.success(),
-        "在 {dir:?} 目录下安装如下 targets {targets:?} 失败\nstderr={}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    Ok(())
+    run_cmd(
+        cmd("rustup", ["target", "add"].iter().chain(targets)).dir(dir),
+        || format!("在 {dir:?} 目录下安装如下 targets {targets:?} 失败"),
+    )
 }
 
 #[instrument(level = "info")]
@@ -44,17 +41,7 @@ pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
 
     let mut install_targets = move |toolchain: &'static str| {
         args[0] = toolchain;
-        let output = cmd("rustup", &args)
-            .unchecked()
-            .stderr_capture()
-            .run()
-            .with_context(|| err(toolchain))?;
-        ensure!(
-            output.status.success(),
-            "在 {toolchain} 安装如下 targets {targets:?} 失败\nstderr={}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-        eyre::Ok(())
+        run_cmd(cmd("rustup", &args), || err(toolchain))
     };
 
     // FIXME: use Cow for non +nightly host toolchain?
@@ -63,6 +50,19 @@ pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
     install_targets(PLUS_TOOLCHAIN_LOCKBUD)?;
     // install_targets(PLUS_TOOLCHAIN_MIRAI)?;
 
+    Ok(())
+}
+
+/// 直接打印 stdout，但捕获 stderr。
+fn run_cmd(expr: Expression, mut err: impl FnMut() -> String) -> Result<()> {
+    let expr = expr.unchecked().stderr_capture();
+    let output = expr.run().with_context(&mut err)?;
+    ensure!(
+        output.status.success(),
+        "{}\nstderr={}",
+        err(),
+        String::from_utf8_lossy(&output.stderr)
+    );
     Ok(())
 }
 
