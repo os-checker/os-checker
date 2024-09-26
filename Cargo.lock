@@ -535,6 +535,7 @@ version = "0.2.0"
 dependencies = [
  "argh",
  "basic-toml",
+ "camino",
  "cargo_metadata",
  "color-eyre",
  "compact_str",

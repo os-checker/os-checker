@@ -74,7 +74,7 @@ struct CacheCmd {
 }
 
 #[derive(Encode, Decode)]
-struct CacheValue {
+pub struct CacheValue {
     unix_timestamp_milli: u64,
     diagnostics: Vec<String>,
 }

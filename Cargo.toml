@@ -39,6 +39,7 @@ compact_str = { workspace = true }
 redb = { workspace = true }
 musli = { workspace = true }
 time = { workspace = true }
+camino = { workspace = true }
 
 # shell commands
 duct = { workspace = true }
