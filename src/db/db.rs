@@ -29,7 +29,8 @@ impl Db {
         {
             let mut table = write_txn.open_table(TABLE)?;
             let opt_value = table.remove(key)?.map(|guard| guard.value());
-            let value = f(opt_value)?;
+            let mut value = f(opt_value)?;
+            value.update_unix_timestamp();
             table.insert(key, value)?;
         }
         write_txn.commit()?;

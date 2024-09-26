@@ -121,7 +121,7 @@ impl redb::Value for CacheValue {
     }
 
     fn type_name() -> redb::TypeName {
-        redb::TypeName::new("OsCheckerCacheResults")
+        redb::TypeName::new("OsCheckerCacheValue")
     }
 }
 
@@ -131,6 +131,18 @@ impl CacheValue {
             unix_timestamp_milli: now(),
             diagnostics,
         }
+    }
+
+    /// 更新检查时间
+    pub(super) fn update_unix_timestamp(&mut self) {
+        self.unix_timestamp_milli = now();
+    }
+
+    /// 更新检查时间
+    pub fn update_diagnostics(&mut self, f: impl FnOnce(Vec<String>) -> Vec<String>) {
+        let old = std::mem::take(&mut self.diagnostics);
+        let new = f(old);
+        self.diagnostics = new;
     }
 }
 
