@@ -161,11 +161,8 @@ pub fn parse_now(ts: u64) -> time::OffsetDateTime {
     }
 }
 
-#[test]
-fn db() -> crate::Result<()> {
-    use redb::{Database, TableDefinition};
-    const TABLE: TableDefinition<CacheKey, CacheValue> = TableDefinition::new("test");
-
+#[cfg(test)]
+pub fn new_cache() -> (CacheKey, CacheValue) {
     let key = CacheKey {
         repo: CacheRepo {
             user: "user".to_owned(),
@@ -189,17 +186,5 @@ fn db() -> crate::Result<()> {
 
     let value = CacheValue::new(vec!["warning: xxx".to_owned()]);
 
-    let db = Database::builder().create_with_backend(redb::backends::InMemoryBackend::new())?;
-    let write_txn = db.begin_write()?;
-    {
-        let mut table = write_txn.open_table(TABLE)?;
-        table.insert(&key, &value)?;
-    }
-    write_txn.commit()?;
-
-    let read_txn = db.begin_read()?;
-    let table = read_txn.open_table(TABLE)?;
-    dbg!(table.get(&key)?.unwrap().value());
-
-    Ok(())
+    (key, value)
 }
