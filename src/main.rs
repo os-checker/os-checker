@@ -11,6 +11,8 @@ use eyre::Result;
 mod cli;
 /// parse JSON file for repo configuration
 mod config;
+/// cache of checking results
+mod db;
 /// figure out the codebase layout
 mod layout;
 /// initialization of logger
