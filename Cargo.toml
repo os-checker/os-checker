@@ -36,6 +36,8 @@ rayon = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 compact_str = { workspace = true }
+redb = { workspace = true }
+musli = { workspace = true }
 
 # shell commands
 duct = { workspace = true }
@@ -69,6 +71,9 @@ color-eyre = "0.6.3"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tracing-error = "0.2"
+
+redb = "2"
+musli = { version = "0.0.124", features = ["storage"] }
 
 [workspace]
 exclude = ["repos/**"]
