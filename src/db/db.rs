@@ -20,7 +20,7 @@ impl Db {
         Ok(Db { db })
     }
 
-    pub fn get_or_replace(
+    pub fn set_or_replace(
         &self,
         key: &CacheKey,
         f: impl FnOnce(Option<CacheValue>) -> Result<CacheValue>,
@@ -45,12 +45,12 @@ fn db() -> crate::Result<()> {
     let db = Database::builder().create_with_backend(redb::backends::InMemoryBackend::new())?;
     let db = Db { db: Arc::new(db) };
 
-    db.get_or_replace(&key, move |opt| {
+    db.set_or_replace(&key, move |opt| {
         assert!(opt.is_none());
         Ok(value)
     })?;
 
-    db.get_or_replace(&key, move |opt| {
+    db.set_or_replace(&key, move |opt| {
         let value = opt.unwrap();
         dbg!(&value);
         Ok(value)
