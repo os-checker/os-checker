@@ -8,8 +8,15 @@ use std::sync::Arc;
 const TABLE: TableDefinition<CacheRepoKey, CacheRepoValue> = TableDefinition::new("data");
 
 #[derive(Clone)]
-struct Db {
+pub struct Db {
     db: Arc<Database>,
+    path: Box<Utf8Path>,
+}
+
+impl std::fmt::Debug for Db {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Db").field("path", &self.path).finish()
+    }
 }
 
 impl Db {
@@ -17,7 +24,10 @@ impl Db {
     pub fn new(path: &Utf8Path) -> Result<Db> {
         let db = Database::create(path).with_context(|| "无法创建或者打开 redb 数据库文件")?;
         let db = Arc::new(db);
-        Ok(Db { db })
+        Ok(Db {
+            db,
+            path: path.into(),
+        })
     }
 
     pub fn get(&self, key: &CacheRepoKey) -> Result<Option<CacheRepoValue>> {
@@ -62,7 +72,10 @@ fn db() -> crate::Result<()> {
     let (key, value) = super::types::new_cache();
 
     let db = Database::builder().create_with_backend(redb::backends::InMemoryBackend::new())?;
-    let db = Db { db: Arc::new(db) };
+    let db = Db {
+        db: Arc::new(db),
+        path: Utf8Path::new("memory").into(),
+    };
 
     db.set_or_replace(&key, move |opt| {
         assert!(opt.is_none());

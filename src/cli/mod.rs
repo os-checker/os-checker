@@ -1,5 +1,6 @@
 use crate::{
     config::{gen_schema, Configs},
+    db::Db,
     output::JsonOutput,
     run_checker::{Repo, RepoOutput},
     utils::check_or_install_checkers,
@@ -103,6 +104,10 @@ pub struct ArgsRun {
     /// keep the repo once the checks on it are done
     #[argh(switch)]
     keep_repo: bool,
+
+    /// redb file path. If not specified, no cache for checking.
+    #[argh(option)]
+    db: Option<Utf8PathBuf>,
 }
 
 /// Merge configs and split it into batches.
@@ -212,19 +217,26 @@ fn configurations(configs: &[String]) -> Result<Configs> {
 /// 由于 rustup 不是并发安全的，这里的检查（尤其是安装）必须串行执行。
 /// https://github.com/rust-lang/rustup/issues/2417
 #[instrument(level = "trace")]
-fn repos_outputs(configs: &[String]) -> Result<impl Iterator<Item = Result<RepoOutput>>> {
+fn repos_outputs(
+    configs: &[String],
+    db: Option<Db>,
+) -> Result<impl Iterator<Item = Result<RepoOutput>>> {
     Ok(configurations(configs)?
         .into_inner()
         .into_iter()
-        .map(RepoOutput::try_from))
+        .map(move |mut config| {
+            config.set_db(db.clone());
+            RepoOutput::try_from(config)
+        }))
 }
 
 impl ArgsRun {
     #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
         check_or_install_checkers()?;
+        let db = self.db.as_deref().map(Db::new).transpose()?;
         let start = SystemTime::now();
-        let outs = repos_outputs(&self.config)?
+        let outs = repos_outputs(&self.config, db)?
             .map(|out| {
                 let out = out?;
                 if !self.keep_repo {

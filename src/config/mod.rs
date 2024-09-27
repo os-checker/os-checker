@@ -1,4 +1,4 @@
-use crate::{layout::Packages, Result};
+use crate::{db::Db, layout::Packages, Result};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::Context;
 use itertools::Itertools;
@@ -30,6 +30,7 @@ mod tests;
 pub struct Config {
     uri: uri::Uri,
     config: Box<RepoConfig>,
+    db: Option<Db>,
 }
 
 impl Config {
@@ -45,6 +46,10 @@ impl Config {
 
     pub fn user_name(&self) -> &str {
         self.uri.user_name()
+    }
+
+    pub fn set_db(&mut self, db: Option<Db>) {
+        self.db = db;
     }
 
     /// 解析该仓库所有 package 的检查执行命令
@@ -79,6 +84,7 @@ impl TryFrom<Value> for Config {
                     return Ok(Config {
                         uri: uri::uri(repo)?,
                         config: Box::new(config),
+                        db: None,
                     });
                 }
             }
@@ -190,6 +196,7 @@ impl TryFrom<Value> for Configs {
                     Ok(Config {
                         uri: uri::uri(repo)?,
                         config: Box::new(config),
+                        db: None,
                     })
                 })
                 .collect::<Result<Vec<_>>>()?;

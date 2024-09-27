@@ -1,5 +1,5 @@
 use super::{uri::Uri, Config, Configs, RepoConfig};
-use crate::Result;
+use crate::{db::Db, Result};
 use cargo_metadata::camino::Utf8Path;
 use eyre::Context;
 use indexmap::IndexMap;
@@ -24,8 +24,8 @@ impl Configs {
     // b 覆盖 a
     pub fn merge(Configs(a): Self, Configs(b): Self) -> Self {
         let mut merge = Merge::with_capacity(a.len() + b.len());
-        for Config { uri, config } in a.into_iter().chain(b) {
-            merge.push_or_update(uri, config);
+        for Config { uri, config, db } in a.into_iter().chain(b) {
+            merge.push_or_update(uri, config, db);
         }
         Configs(merge.into_configs())
     }
@@ -33,29 +33,37 @@ impl Configs {
 
 struct Merge {
     map: IndexMap<Uri, Box<RepoConfig>>,
+    db: Option<Db>,
 }
 
 impl Merge {
     fn with_capacity(cap: usize) -> Merge {
         Merge {
             map: IndexMap::with_capacity(cap),
+            db: None,
         }
     }
 
     // 先后顺序很重要：后插入的 config 完全覆盖之前已有的 config
-    fn push_or_update(&mut self, uri: Uri, config: Box<RepoConfig>) {
+    fn push_or_update(&mut self, uri: Uri, config: Box<RepoConfig>, db: Option<Db>) {
         if let Some(repo) = self.map.get_mut(&uri) {
             *repo = config;
         } else {
             self.map.insert(uri, config);
         }
+        // 目前假设只有一个配置文件
+        self.db = db;
     }
 
     fn into_configs(mut self) -> Vec<Config> {
         self.map.sort_keys();
         self.map
             .into_iter()
-            .map(|(uri, config)| Config { uri, config })
+            .map(|(uri, config)| Config {
+                uri,
+                config,
+                db: self.db.clone(),
+            })
             .collect()
     }
 }
