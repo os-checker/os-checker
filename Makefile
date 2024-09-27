@@ -25,7 +25,7 @@ batch:
 	@$(call make_batch)
 
 run:
-	@os-checker run $(ARGS_CONFIGS) --emit $(SINGLE_JSON) --db cache.redb
+	@os-checker run $(ARGS_CONFIGS) --emit $(SINGLE_JSON) #--db cache.redb
 	ls -alh
 
 # author zjp-CN, and commiter bot
