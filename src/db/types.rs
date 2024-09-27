@@ -5,8 +5,6 @@ use std::fmt;
 #[derive(Debug, Encode, Decode)]
 pub struct CacheKey {
     repo: CacheRepo,
-    checker: CacheChecker,
-    cmd: CacheCmd,
 }
 
 impl redb::Value for CacheKey {
@@ -73,9 +71,16 @@ struct CacheCmd {
     rustflags: Vec<String>,
 }
 
+#[derive(Debug, Encode, Decode)]
+pub struct CacheRepoValue {
+    inner: Vec<CacheValue>,
+}
+
 #[derive(Encode, Decode)]
 pub struct CacheValue {
     unix_timestamp_milli: u64,
+    checker: CacheChecker,
+    cmd: CacheCmd,
     diagnostics: OutputData,
 }
 
@@ -152,12 +157,12 @@ impl redb::Value for CacheValue {
 }
 
 impl CacheValue {
-    pub fn new(diagnostics: OutputData) -> Self {
-        CacheValue {
-            unix_timestamp_milli: now(),
-            diagnostics,
-        }
-    }
+    // pub fn new(diagnostics: OutputData) -> Self {
+    //     CacheValue {
+    //         unix_timestamp_milli: now(),
+    //         diagnostics,
+    //     }
+    // }
 
     /// 更新检查时间
     pub(super) fn update_unix_timestamp(&mut self) {
@@ -186,24 +191,13 @@ pub fn parse_now(ts: u64) -> time::OffsetDateTime {
 }
 
 #[cfg(test)]
-pub fn new_cache() -> (CacheKey, CacheValue) {
+pub fn new_cache() -> (CacheKey, CacheRepoValue) {
     let key = CacheKey {
         repo: CacheRepo {
             user: "user".to_owned(),
             repo: "repo".to_owned(),
             sha: "abc".to_owned(),
             branch: "main".to_owned(),
-        },
-        checker: CacheChecker {
-            checker: CheckerTool::Clippy,
-            version: None,
-            sha: None,
-        },
-        cmd: CacheCmd {
-            cmd: "cargo clippy".to_owned(),
-            target: "x86".to_owned(),
-            features: vec![],
-            rustflags: vec![],
         },
     };
 
@@ -217,7 +211,20 @@ pub fn new_cache() -> (CacheKey, CacheValue) {
         duration_ms,
         data: vec!["warning: xxx".to_owned()],
     };
-    let value = CacheValue::new(data);
+    let value = CacheValue {
+        checker: CacheChecker {
+            checker: CheckerTool::Clippy,
+            version: None,
+            sha: None,
+        },
+        cmd: CacheCmd {
+            cmd: "cargo clippy".to_owned(),
+            target: "x86".to_owned(),
+            features: vec![],
+            rustflags: vec![],
+        },
+        data,
+    };
 
-    (key, value)
+    (key, CacheRepoValue { inner: value })
 }
