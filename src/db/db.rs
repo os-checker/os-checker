@@ -48,11 +48,12 @@ impl Db {
     pub fn set(&self, key: &CacheRepoKey, value: &CacheValue) -> Result<()> {
         self.write(|table| {
             table.insert(key, value)?;
-            info!(%key, "Successfully cached a checking result.");
+            info!(?key, "Successfully cached a checking result.");
             Ok(())
         })
     }
 
+    #[cfg(test)]
     pub fn set_or_replace(
         &self,
         key: &CacheRepoKey,
