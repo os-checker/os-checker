@@ -1,5 +1,6 @@
 use crate::{config::CheckerTool, run_checker::RepoOutput, XString};
 use cargo_metadata::camino::Utf8PathBuf;
+use musli::{Decode, Encode};
 use serde::Serialize;
 use std::time::SystemTime;
 
@@ -108,8 +109,8 @@ pub struct Repo {
 pub struct Package {
     pub name: XString,
     pub repo: PackageRepo,
-    /// 这里表示仓库设置给的 pkg 设置的工具链，如果没有设置，则为 None
-    pub rust_toolchain_idx: Option<usize>,
+    // 这里表示仓库设置给的 pkg 设置的工具链，如果没有设置，则为 None
+    // pub rust_toolchain_idx: Option<usize>,
 }
 
 #[derive(Debug, Serialize)]
@@ -136,10 +137,12 @@ pub struct Cmd {
     pub arch: XString,
     /// FIXME: 替换成 target_idx
     pub target_triple: String,
-    /// 如果仓库没有指定工具链，则使用主机工具链
-    pub rust_toolchain_idx: usize,
-    pub features: Vec<XString>,
-    pub flags: Vec<XString>,
+    // /// 如果仓库没有指定工具链，则使用主机工具链（这对缓存不友好，暂时放弃）
+    // pub rust_toolchain_idx: usize,
+    /// channel 名
+    pub rust_toolchain: String,
+    pub features: Vec<String>,
+    pub flags: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -152,7 +155,7 @@ pub struct Data {
 }
 
 /// The kind a checker reports.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Decode, Encode, Clone, Copy)]
 #[allow(dead_code)]
 pub enum Kind {
     /// fmt

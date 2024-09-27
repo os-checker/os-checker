@@ -60,7 +60,7 @@ impl RepoOutput {
                     user: user.clone(),
                     repo: repo.clone(),
                 },
-                rust_toolchain_idx: v.as_slice().first().and_then(|o| o.resolve.toolchain),
+                // rust_toolchain_idx: v.as_slice().first().and_then(|o| o.resolve.toolchain),
             });
             for o in v.as_slice() {
                 utils::push_idx_and_data(pkg_idx, o, &mut json.cmd, &mut json.data);

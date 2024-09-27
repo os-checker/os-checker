@@ -1,4 +1,8 @@
-use crate::config::CheckerTool;
+use crate::{
+    config::{CheckerTool, Resolve},
+    output::{get_toolchain, Cmd, Data, Kind},
+};
+use camino::Utf8PathBuf;
 use musli::{storage, Decode, Encode};
 use std::fmt;
 
@@ -72,7 +76,8 @@ struct CacheCmd {
     pub channel: String,
     // Below is not necessary, and currently not implemented.
     features: Vec<String>,
-    rustflags: Vec<String>,
+    /// rustcflags
+    flags: Vec<String>,
 }
 
 #[derive(Debug, Encode, Decode)]
@@ -113,7 +118,21 @@ impl fmt::Debug for CacheValue {
 #[derive(Encode, Decode)]
 pub struct OutputData {
     pub duration_ms: u64,
-    pub data: Vec<String>,
+    pub data: Vec<OutputDataInner>,
+}
+
+#[derive(Encode, Decode)]
+pub struct OutputDataInner {
+    #[musli(with = musli::serde)]
+    file: Utf8PathBuf,
+    kind: Kind,
+    raw: String,
+}
+
+impl OutputDataInner {
+    pub fn new(file: Utf8PathBuf, kind: Kind, raw: String) -> Self {
+        Self { file, kind, raw }
+    }
 }
 
 impl fmt::Debug for OutputData {
@@ -161,12 +180,69 @@ impl redb::Value for CacheRepoValue {
 }
 
 impl CacheValue {
-    // pub fn new(diagnostics: OutputData) -> Self {
-    //     CacheValue {
-    //         unix_timestamp_milli: now(),
-    //         diagnostics,
-    //     }
-    // }
+    pub fn new(resolve: &Resolve, duration_ms: u64, data: Vec<OutputDataInner>) -> Self {
+        CacheValue {
+            unix_timestamp_milli: now(),
+            pkg_name: resolve.pkg_name.as_str().to_owned(),
+            checker: CacheChecker {
+                checker: resolve.checker,
+                version: None,
+                sha: None,
+            },
+            cmd: CacheCmd {
+                cmd: resolve.cmd.clone(),
+                target: resolve.target.clone(),
+                channel: {
+                    let mut channel = String::new();
+                    get_toolchain(resolve.toolchain.unwrap_or(0), |t| {
+                        channel = t.channel.clone()
+                    });
+                    channel
+                },
+                // TODO: 待支持
+                features: vec![],
+                flags: vec![],
+            },
+            diagnostics: OutputData { duration_ms, data },
+        }
+    }
+
+    pub fn append_to_data(&self, cmd_idx: usize, data: &mut Vec<Data>) {
+        data.extend(self.diagnostics.data.iter().map(|d| Data {
+            cmd_idx,
+            file: d.file.clone(),
+            kind: d.kind,
+            raw: d.raw.clone(),
+        }));
+    }
+
+    pub fn to_cmd(&self, package_idx: usize) -> Cmd {
+        Cmd {
+            package_idx,
+            tool: self.checker.checker,
+            count: self.count(),
+            duration_ms: self.diagnostics.duration_ms,
+            cmd: self.cmd.cmd.clone(),
+            arch: self
+                .cmd
+                .target
+                .split_once("-")
+                .map(|(arch, _)| arch.into())
+                .unwrap_or_default(),
+            target_triple: self.cmd.target.clone(),
+            rust_toolchain: self.cmd.channel.clone(),
+            features: self.cmd.features.clone(),
+            flags: self.cmd.flags.clone(),
+        }
+    }
+
+    pub fn checker(&self) -> CheckerTool {
+        self.checker.checker
+    }
+
+    pub fn count(&self) -> usize {
+        self.diagnostics.data.len()
+    }
 
     /// 更新检查时间
     pub(super) fn update_unix_timestamp(&mut self) {
@@ -207,7 +283,11 @@ pub fn new_cache() -> (CacheRepoKey, CacheRepoValue) {
 
     let data = OutputData {
         duration_ms: 0,
-        data: vec!["warning: xxx".to_owned()],
+        data: vec![OutputDataInner {
+            file: Default::default(),
+            kind: Kind::ClippyError,
+            raw: "warning: xxx".to_owned(),
+        }],
     };
     let value = CacheValue {
         unix_timestamp_milli: now(),
@@ -222,7 +302,7 @@ pub fn new_cache() -> (CacheRepoKey, CacheRepoValue) {
             target: "x86".to_owned(),
             channel: "nightly".to_owned(),
             features: vec![],
-            rustflags: vec![],
+            flags: vec![],
         },
         diagnostics: data,
     };

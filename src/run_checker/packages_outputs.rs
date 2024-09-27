@@ -1,5 +1,5 @@
 use super::{Output, Resolve};
-use crate::{config::TOOLS, db::OutputData};
+use crate::{config::TOOLS, db::CacheValue};
 use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
 use regex::Regex;
@@ -7,16 +7,11 @@ use std::sync::LazyLock;
 
 pub type PackageName = String;
 
-pub enum RawOrCachedOutput {
-    Raw(Output),
-    Cached(OutputData),
-}
-
 #[derive(Debug)]
 pub struct Outputs {
     /// 对于 Cargo 检查类型会导致多个 Output，因为每个输出与 cmd 相关；
     /// 对于其他检查类型，只有一个 Output。
-    inner: Vec<Output>,
+    inner: Vec<CacheValue>,
 }
 
 impl Outputs {
@@ -27,14 +22,14 @@ impl Outputs {
     }
 
     pub fn count(&self) -> usize {
-        self.inner.iter().map(|out| out.count).sum()
+        self.inner.iter().map(|out| out.count()).sum()
     }
 
-    pub fn as_slice(&self) -> &[Output] {
+    pub fn as_slice(&self) -> &[CacheValue] {
         &self.inner
     }
 
-    pub fn push(&mut self, output: Output) {
+    pub fn push(&mut self, output: CacheValue) {
         self.inner.push(output);
     }
 }
@@ -61,7 +56,7 @@ impl PackagesOutputs {
     pub fn sort_by_name_and_checkers(&mut self) {
         self.sort_unstable_keys();
         for outputs in self.values_mut() {
-            outputs.inner.sort_unstable_by_key(|o| o.resolve.checker);
+            outputs.inner.sort_unstable_by_key(|o| o.checker());
         }
     }
 
@@ -69,19 +64,19 @@ impl PackagesOutputs {
         let pkg_name = output.resolve.pkg_name.as_str();
         if let Some(v) = self.get_mut(pkg_name) {
             if let Some(stderr_parsed) = cargo_stderr_stripped(&output) {
-                v.push(output.new_cargo_from_checker(stderr_parsed));
+                v.push(output.new_cargo_from_checker(stderr_parsed).to_cache());
             }
 
-            v.push(output);
+            v.push(output.to_cache());
         } else {
             let pkg_name = pkg_name.to_owned();
             let mut outputs = Outputs::new();
 
             if let Some(stderr_parsed) = cargo_stderr_stripped(&output) {
-                outputs.push(output.new_cargo_from_checker(stderr_parsed));
+                outputs.push(output.new_cargo_from_checker(stderr_parsed).to_cache());
             }
 
-            outputs.push(output);
+            outputs.push(output.to_cache());
             self.insert(pkg_name, outputs);
         }
     }
@@ -90,7 +85,7 @@ impl PackagesOutputs {
         self.map.insert(
             key,
             Outputs {
-                inner: vec![output],
+                inner: vec![output.to_cache()],
             },
         );
     }
