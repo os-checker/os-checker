@@ -3,16 +3,18 @@ use musli::{storage, Decode, Encode};
 use std::fmt;
 
 #[derive(Debug, Encode, Decode)]
-pub struct CacheKey {
+pub struct CacheRepoKey {
     repo: CacheRepo,
 }
 
-impl redb::Value for CacheKey {
-    type SelfType<'a> = Self
+impl redb::Value for CacheRepoKey {
+    type SelfType<'a>
+        = Self
     where
         Self: 'a;
 
-    type AsBytes<'a> = Vec<u8>
+    type AsBytes<'a>
+        = Vec<u8>
     where
         Self: 'a;
 
@@ -40,7 +42,7 @@ impl redb::Value for CacheKey {
     }
 }
 
-impl redb::Key for CacheKey {
+impl redb::Key for CacheRepoKey {
     fn compare(data1: &[u8], data2: &[u8]) -> std::cmp::Ordering {
         data1.cmp(data2)
     }
@@ -74,6 +76,14 @@ struct CacheCmd {
 #[derive(Debug, Encode, Decode)]
 pub struct CacheRepoValue {
     inner: Vec<CacheValue>,
+}
+
+impl CacheRepoValue {
+    pub(super) fn update_unix_timestamp(&mut self) {
+        for cache in &mut self.inner {
+            cache.update_unix_timestamp();
+        }
+    }
 }
 
 #[derive(Encode, Decode)]
@@ -123,12 +133,14 @@ impl fmt::Debug for OutputData {
     }
 }
 
-impl redb::Value for CacheValue {
-    type SelfType<'a> = Self
+impl redb::Value for CacheRepoValue {
+    type SelfType<'a>
+        = Self
     where
         Self: 'a;
 
-    type AsBytes<'a> = Vec<u8>
+    type AsBytes<'a>
+        = Vec<u8>
     where
         Self: 'a;
 
@@ -191,8 +203,8 @@ pub fn parse_now(ts: u64) -> time::OffsetDateTime {
 }
 
 #[cfg(test)]
-pub fn new_cache() -> (CacheKey, CacheRepoValue) {
-    let key = CacheKey {
+pub fn new_cache() -> (CacheRepoKey, CacheRepoValue) {
+    let key = CacheRepoKey {
         repo: CacheRepo {
             user: "user".to_owned(),
             repo: "repo".to_owned(),
@@ -212,6 +224,7 @@ pub fn new_cache() -> (CacheKey, CacheRepoValue) {
         data: vec!["warning: xxx".to_owned()],
     };
     let value = CacheValue {
+        unix_timestamp_milli: now(),
         checker: CacheChecker {
             checker: CheckerTool::Clippy,
             version: None,
@@ -223,8 +236,8 @@ pub fn new_cache() -> (CacheKey, CacheRepoValue) {
             features: vec![],
             rustflags: vec![],
         },
-        data,
+        diagnostics: data,
     };
 
-    (key, CacheRepoValue { inner: value })
+    (key, CacheRepoValue { inner: vec![value] })
 }

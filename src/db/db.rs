@@ -1,11 +1,11 @@
-use super::{CacheKey, CacheValue};
+use super::{CacheRepoKey, CacheRepoValue};
 use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;
 use redb::{Database, TableDefinition};
 use std::sync::Arc;
 
-const TABLE: TableDefinition<CacheKey, CacheValue> = TableDefinition::new("data");
+const TABLE: TableDefinition<CacheRepoKey, CacheRepoValue> = TableDefinition::new("data");
 
 #[derive(Clone)]
 struct Db {
@@ -22,8 +22,8 @@ impl Db {
 
     pub fn set_or_replace(
         &self,
-        key: &CacheKey,
-        f: impl FnOnce(Option<CacheValue>) -> Result<CacheValue>,
+        key: &CacheRepoKey,
+        f: impl FnOnce(Option<CacheRepoValue>) -> Result<CacheRepoValue>,
     ) -> Result<()> {
         let write_txn = self.db.begin_write()?;
         {
