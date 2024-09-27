@@ -1,8 +1,8 @@
 name: Run Checkers
-# on: [push]
+
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feat/db ]
 
 env:
   # os-checker log level
@@ -47,13 +47,6 @@ jobs:
           echo "cache_key=${{ env.rust_toolchain }}-${{ hashFiles('assets/repos*.json', 'Cargo.lock') }}" >> $GITHUB_ENV
           [ ${{ env.cache }} = 'true' ] && echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV && echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV || true
 
-      # - name: Restore Rustup Cache 
-      #   id: cache-rustup-restore
-      #   uses: actions/cache/restore@v4
-      #   with:
-      #     path: ~/.rustup/
-      #     key: ${{ runner.os }}-rustup-${{ env.cache_key }}
-
       - uses: dtolnay/rust-toolchain@master
         # if: steps.cache-rustup-restore.outputs.cache-hit != 'true'
         with:
@@ -65,34 +58,8 @@ jobs:
         if: ${{ env.cache == 'true' }}
         uses: mozilla-actions/sccache-action@v0.0.5
 
-      # - name: Restore Cargo Cache 
-      #   id: cache-cargo-restore
-      #   uses: actions/cache/restore@v4
-      #   with:
-      #     path: |
-      #       ~/.cargo/bin/
-      #       ~/.cargo/registry/index/
-      #       ~/.cargo/registry/cache/
-      #       ~/.cargo/git/db/
-      #       target/
-      #       /tmp/os-checker/checkers
-      #     key: ${{ runner.os }}-cargo-${{ env.cache_key }}
-
       - name: Install os-checker
         run: cargo install --path . --force
-
-      - name: Display Repos Layouts
-        run: |
-          cd ~/check 
-          # RUST_LOG=error make layout
-
-      # - name: Prepare toolchain environment needed from all repos and checkers
-      #   run: |
-      #     cd ~/check 
-      #     git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
-      #     ls -alh
-      #     make batch -B
-      #     ls -alh ~/check/config
 
       - name: Run All Checkers
         run: |
@@ -120,24 +87,3 @@ jobs:
           rm -rf batch # 移除旧的 batch 数据
           cp -r ~/check/batch . # 更新新的 batch 数据
           sh push.sh
-
-      # - name: Save Rustup Cache
-      #   id: cache-rustup-save
-      #   uses: actions/cache/save@v4
-      #   with:
-      #     path: ~/.rustup/
-      #     key: ${{ steps.cache-rustup-restore.outputs.cache-primary-key }}
-
-      # - name: Save Cargo Cache
-      #   id: cache-cargo-save
-      #   uses: actions/cache/save@v4
-      #   with:
-      #     path: |
-      #       ~/.cargo/bin/
-      #       ~/.cargo/registry/index/
-      #       ~/.cargo/registry/cache/
-      #       ~/.cargo/git/db/
-      #       target/
-      #       /tmp/os-checker/checkers
-      #     key: ${{ steps.cache-cargo-restore.outputs.cache-primary-key }}
-
