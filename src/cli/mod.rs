@@ -207,12 +207,15 @@ fn configurations(configs: &[String]) -> Result<Configs> {
     Ok(config)
 }
 
-/// 读取和合并配置，然后以并行方式，在每个仓库上执行检查。
+/// 读取和合并配置，然后在每个仓库上执行检查。
+///
+/// 由于 rustup 不是并发安全的，这里的检查（尤其是安装）必须串行执行。
+/// https://github.com/rust-lang/rustup/issues/2417
 #[instrument(level = "trace")]
-fn repos_outputs(configs: &[String]) -> Result<impl ParallelIterator<Item = Result<RepoOutput>>> {
+fn repos_outputs(configs: &[String]) -> Result<impl Iterator<Item = Result<RepoOutput>>> {
     Ok(configurations(configs)?
         .into_inner()
-        .into_par_iter()
+        .into_iter()
         .map(RepoOutput::try_from))
 }
 
