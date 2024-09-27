@@ -308,7 +308,7 @@ pub struct RustToolchain {
     pub toml_path: Utf8PathBuf,
     /// 如果仓库的工具链没写 clippy，那么该字段为 true，表示 os-checker 会安装它
     #[serde(default)]
-    pub install_clippy: bool,
+    pub need_install_clippy: bool,
     /// 特殊的编译目标，比如 avr-unknown-gnu-atmega328、x86_64-fuchsia
     /// 记录见 https://github.com/os-checker/os-checker/issues/77
     #[serde(default)]
@@ -319,6 +319,22 @@ impl RustToolchain {
     /// 将该工具链信息存到全局数组，返回唯一的索引
     pub fn store(self) -> usize {
         crate::output::push_toolchain(self)
+    }
+
+    /// 从数据库的 channel 字符串构建非完整的工具链信息。
+    /// 将来应该记录 RustToolchain，但目前先跳过它。
+    pub fn from_channel_string(channel: &str) -> Self {
+        let (profile, targets, components, toml_path, need_install_clippy, peculiar_targets) =
+            Default::default();
+        RustToolchain {
+            channel: channel.to_owned(),
+            profile,
+            targets,
+            components,
+            toml_path,
+            need_install_clippy,
+            peculiar_targets,
+        }
     }
 
     pub fn targets(&self) -> Option<Targets> {
@@ -403,7 +419,7 @@ impl RustToolchain {
             .map(|v| v.iter().any(|c| c.contains("clippy")))
             .unwrap_or(false);
         if !has_clippy {
-            self.install_clippy = true;
+            self.need_install_clippy = true;
 
             let repo_dir = self.toml_path.parent().unwrap();
             install_toolchain(repo_dir)?;

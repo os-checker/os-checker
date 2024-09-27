@@ -1,5 +1,6 @@
 use crate::config::CheckerTool;
 use musli::{storage, Decode, Encode};
+use std::fmt;
 
 #[derive(Debug, Encode, Decode)]
 pub struct CacheKey {
@@ -51,7 +52,6 @@ impl redb::Key for CacheKey {
 struct CacheRepo {
     user: String,
     repo: String,
-    pkg_name: String,
     sha: String,
     branch: String,
 }
@@ -76,21 +76,35 @@ struct CacheCmd {
 #[derive(Encode, Decode)]
 pub struct CacheValue {
     unix_timestamp_milli: u64,
-    diagnostics: Vec<String>,
+    diagnostics: OutputData,
 }
 
-impl std::fmt::Debug for CacheValue {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Debug for CacheValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("CacheValue")
             .field(
                 "unix_timestamp_milli",
                 &parse_now(self.unix_timestamp_milli)
                     .to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap()),
             )
-            .field("diagnostics.len", &self.diagnostics.len())
+            .field("diagnostics.len", &self.diagnostics.data.len())
             .finish()
     }
 }
+
+#[derive(Encode, Decode)]
+pub struct OutputData {
+    pub pkg_name: String,
+    pub checker: CheckerTool,
+    pub target: String,
+    /// FIXME: channel 转换回 RustToolchain 会丢失额外的信息
+    pub channel: String,
+    pub cmd: String,
+    pub duration_ms: u64,
+    pub data: Vec<String>,
+}
+
+impl fmt::Debug for CacheValue {}
 
 impl redb::Value for CacheValue {
     type SelfType<'a> = Self
@@ -126,7 +140,7 @@ impl redb::Value for CacheValue {
 }
 
 impl CacheValue {
-    pub fn new(diagnostics: Vec<String>) -> Self {
+    pub fn new(diagnostics: OutputData) -> Self {
         CacheValue {
             unix_timestamp_milli: now(),
             diagnostics,
@@ -138,11 +152,9 @@ impl CacheValue {
         self.unix_timestamp_milli = now();
     }
 
-    /// 更新检查时间
-    pub fn update_diagnostics(&mut self, f: impl FnOnce(Vec<String>) -> Vec<String>) {
-        let old = std::mem::take(&mut self.diagnostics);
-        let new = f(old);
-        self.diagnostics = new;
+    /// 更新检查结果
+    pub fn update_diagnostics(&mut self, f: impl FnOnce(OutputData) -> OutputData) {
+        replace_with::replace_with_or_abort(&mut self.diagnostics, f);
     }
 }
 
@@ -184,7 +196,17 @@ pub fn new_cache() -> (CacheKey, CacheValue) {
         },
     };
 
-    let value = CacheValue::new(vec!["warning: xxx".to_owned()]);
+    let (pkg_name, checker, target, channel, cmd, duration_ms) = Default::default();
+    let data = OutputData {
+        pkg_name,
+        checker,
+        target,
+        channel,
+        cmd,
+        duration_ms,
+        data: vec!["warning: xxx".to_owned()],
+    };
+    let value = CacheValue::new(data);
 
     (key, value)
 }

@@ -1,11 +1,16 @@
 use super::{Output, Resolve};
-use crate::config::TOOLS;
+use crate::{config::TOOLS, db::OutputData};
 use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
 use regex::Regex;
 use std::sync::LazyLock;
 
 pub type PackageName = String;
+
+pub enum RawOrCachedOutput {
+    Raw(Output),
+    Cached(OutputData),
+}
 
 #[derive(Debug)]
 pub struct Outputs {
