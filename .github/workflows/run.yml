@@ -9,20 +9,12 @@ env:
   RUST_LOG: debug
   # flag a bot commit
   BOT: 1
-  # enable sccache cache
-  cache: false
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # use which configs
   CONFIGS: repos.json # for debug single repo
   # CONFIGS: repos-default.json repos-ui.json # full repo list
-
-  rust_toolchain: nightly-2024-09-09
-  # set from dtolnay/rust-toolchain, in case rustup cache is used
-  CARGO_HOME: /home/runner/.cargo
-  CARGO_INCREMENTAL: 0
-  CARGO_TERM_COLOR: always
 
 jobs:
   run:
@@ -33,7 +25,7 @@ jobs:
         with:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Download repos-ui.json
+      - name: Prepare Makefile and repos JSONs
         run: |
           mkdir -p ~/check/batch
           cp Makefile ~/check/
@@ -41,22 +33,9 @@ jobs:
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
 
-      - name: Set Up Github Environment Variables
-        run: |
-          # echo "RUSTC_VERSION=$(rustc -V)" >> $GITHUB_ENV
-          echo "cache_key=${{ env.rust_toolchain }}-${{ hashFiles('assets/repos*.json', 'Cargo.lock') }}" >> $GITHUB_ENV
-          [ ${{ env.cache }} = 'true' ] && echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV && echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV || true
-
-      - uses: dtolnay/rust-toolchain@master
-        # if: steps.cache-rustup-restore.outputs.cache-hit != 'true'
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          # toolchain: ${{ env.rust_toolchain }}
-          toolchain: nightly
           components: rustfmt, clippy
-
-      - name: Run sccache-cache
-        if: ${{ env.cache == 'true' }}
-        uses: mozilla-actions/sccache-action@v0.0.5
 
       - name: Install os-checker
         run: cargo install --path . --force
@@ -65,9 +44,7 @@ jobs:
         run: |
           cd ~/check
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
-          # os-checker run --config repos.json --emit batch/single.json
           make run
-          # make batch_run -B
 
       - name: Commit And Push To database repo
         if: ${{ env.PUSH == 'true' }}
@@ -87,3 +64,4 @@ jobs:
           rm -rf batch # 移除旧的 batch 数据
           cp -r ~/check/batch . # 更新新的 batch 数据
           sh push.sh
+
