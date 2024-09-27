@@ -14,6 +14,8 @@ pub enum RawOrCachedOutput {
 
 #[derive(Debug)]
 pub struct Outputs {
+    /// 对于 Cargo 检查类型会导致多个 Output，因为每个输出与 cmd 相关；
+    /// 对于其他检查类型，只有一个 Output。
     inner: Vec<Output>,
 }
 

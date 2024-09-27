@@ -68,6 +68,8 @@ struct CacheChecker {
 struct CacheCmd {
     cmd: String,
     target: String,
+    /// FIXME: channel 转换回 RustToolchain 会丢失额外的信息
+    pub channel: String,
     // Below is not necessary, and currently not implemented.
     features: Vec<String>,
     rustflags: Vec<String>,
@@ -89,6 +91,7 @@ impl CacheRepoValue {
 #[derive(Encode, Decode)]
 pub struct CacheValue {
     unix_timestamp_milli: u64,
+    pkg_name: String,
     checker: CacheChecker,
     cmd: CacheCmd,
     diagnostics: OutputData,
@@ -109,12 +112,6 @@ impl fmt::Debug for CacheValue {
 
 #[derive(Encode, Decode)]
 pub struct OutputData {
-    pub pkg_name: String,
-    pub checker: CheckerTool,
-    pub target: String,
-    /// FIXME: channel 转换回 RustToolchain 会丢失额外的信息
-    pub channel: String,
-    pub cmd: String,
     pub duration_ms: u64,
     pub data: Vec<String>,
 }
@@ -122,11 +119,6 @@ pub struct OutputData {
 impl fmt::Debug for OutputData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("OutputData")
-            .field("pkg_name", &self.pkg_name)
-            .field("checker", &self.checker)
-            .field("target", &self.target)
-            .field("channel", &self.channel)
-            .field("cmd", &self.cmd)
             .field("duration_ms", &self.duration_ms)
             .field("data.len", &self.data.len())
             .finish()
@@ -213,18 +205,13 @@ pub fn new_cache() -> (CacheRepoKey, CacheRepoValue) {
         },
     };
 
-    let (target, channel, cmd, duration_ms) = Default::default();
     let data = OutputData {
-        pkg_name: "pkg".to_owned(),
-        checker: CheckerTool::Clippy,
-        target,
-        channel,
-        cmd,
-        duration_ms,
+        duration_ms: 0,
         data: vec!["warning: xxx".to_owned()],
     };
     let value = CacheValue {
         unix_timestamp_milli: now(),
+        pkg_name: "pkg".to_owned(),
         checker: CacheChecker {
             checker: CheckerTool::Clippy,
             version: None,
@@ -233,6 +220,7 @@ pub fn new_cache() -> (CacheRepoKey, CacheRepoValue) {
         cmd: CacheCmd {
             cmd: "cargo clippy".to_owned(),
             target: "x86".to_owned(),
+            channel: "nightly".to_owned(),
             features: vec![],
             rustflags: vec![],
         },
