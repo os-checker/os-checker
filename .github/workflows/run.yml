@@ -43,6 +43,8 @@ jobs:
       - name: Run All Checkers
         run: |
           cd ~/check
+          # 安装 lockbud，减少源码编译的时间
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/lockbud/releases/download/v0.1.0/lockbud-installer.sh | sh
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           make run
 
