@@ -104,7 +104,19 @@ pub struct OutputData {
     pub data: Vec<String>,
 }
 
-impl fmt::Debug for CacheValue {}
+impl fmt::Debug for OutputData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OutputData")
+            .field("pkg_name", &self.pkg_name)
+            .field("checker", &self.checker)
+            .field("target", &self.target)
+            .field("channel", &self.channel)
+            .field("cmd", &self.cmd)
+            .field("duration_ms", &self.duration_ms)
+            .field("data.len", &self.data.len())
+            .finish()
+    }
+}
 
 impl redb::Value for CacheValue {
     type SelfType<'a> = Self
@@ -179,7 +191,6 @@ pub fn new_cache() -> (CacheKey, CacheValue) {
         repo: CacheRepo {
             user: "user".to_owned(),
             repo: "repo".to_owned(),
-            pkg_name: "pkg".to_owned(),
             sha: "abc".to_owned(),
             branch: "main".to_owned(),
         },
@@ -196,10 +207,10 @@ pub fn new_cache() -> (CacheKey, CacheValue) {
         },
     };
 
-    let (pkg_name, checker, target, channel, cmd, duration_ms) = Default::default();
+    let (target, channel, cmd, duration_ms) = Default::default();
     let data = OutputData {
-        pkg_name,
-        checker,
+        pkg_name: "pkg".to_owned(),
+        checker: CheckerTool::Clippy,
         target,
         channel,
         cmd,
