@@ -52,6 +52,10 @@ impl Config {
         self.db = db;
     }
 
+    pub fn db(&self) -> Option<&Db> {
+        self.db.as_ref()
+    }
+
     /// 解析该仓库所有 package 的检查执行命令
     #[instrument(level = "trace")]
     pub fn resolve(&self, pkgs: &Packages) -> Result<Vec<Resolve>> {

@@ -1,11 +1,11 @@
-use super::{CacheRepoKey, CacheRepoValue};
+use super::{CacheRepoKey, CacheValue};
 use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;
 use redb::{Database, Table, TableDefinition};
 use std::sync::Arc;
 
-const TABLE: TableDefinition<CacheRepoKey, CacheRepoValue> = TableDefinition::new("data");
+const TABLE: TableDefinition<CacheRepoKey, CacheValue> = TableDefinition::new("data");
 
 #[derive(Clone)]
 pub struct Db {
@@ -30,14 +30,14 @@ impl Db {
         })
     }
 
-    pub fn get(&self, key: &CacheRepoKey) -> Result<Option<CacheRepoValue>> {
+    pub fn get(&self, key: &CacheRepoKey) -> Result<Option<CacheValue>> {
         let table = self.db.begin_read()?.open_table(TABLE)?;
         Ok(table.get(key)?.map(|guard| guard.value()))
     }
 
     fn write(
         &self,
-        f: impl for<'a> FnOnce(&mut Table<'a, CacheRepoKey, CacheRepoValue>) -> Result<()>,
+        f: impl for<'a> FnOnce(&mut Table<'a, CacheRepoKey, CacheValue>) -> Result<()>,
     ) -> Result<()> {
         let write_txn = self.db.begin_write()?;
         f(&mut write_txn.open_table(TABLE)?)?;
@@ -45,7 +45,7 @@ impl Db {
         Ok(())
     }
 
-    pub fn set(&self, key: &CacheRepoKey, value: CacheRepoValue) -> Result<()> {
+    pub fn set(&self, key: &CacheRepoKey, value: &CacheValue) -> Result<()> {
         self.write(|table| {
             table.insert(key, value)?;
             Ok(())
@@ -55,7 +55,7 @@ impl Db {
     pub fn set_or_replace(
         &self,
         key: &CacheRepoKey,
-        f: impl FnOnce(Option<CacheRepoValue>) -> Result<CacheRepoValue>,
+        f: impl FnOnce(Option<CacheValue>) -> Result<CacheValue>,
     ) -> Result<()> {
         self.write(|table| {
             let opt_value = table.remove(key)?.map(|guard| guard.value());

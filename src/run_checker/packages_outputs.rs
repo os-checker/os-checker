@@ -1,4 +1,4 @@
-use super::{Output, Resolve};
+use super::{utils::DbRepo, Output, Resolve};
 use crate::{config::TOOLS, db::CacheValue};
 use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
@@ -60,32 +60,44 @@ impl PackagesOutputs {
         }
     }
 
-    pub fn push_output_with_cargo(&mut self, output: Output) {
+    pub fn push_output_with_cargo(&mut self, output: Output, db_repo: Option<DbRepo>) {
         let pkg_name = output.resolve.pkg_name.as_str();
         if let Some(v) = self.get_mut(pkg_name) {
             if let Some(stderr_parsed) = cargo_stderr_stripped(&output) {
-                v.push(output.new_cargo_from_checker(stderr_parsed).to_cache());
+                let output = output
+                    .new_cargo_from_checker(stderr_parsed)
+                    .to_cache(db_repo);
+                v.push(output);
             }
 
-            v.push(output.to_cache());
+            v.push(output.to_cache(db_repo));
         } else {
             let pkg_name = pkg_name.to_owned();
             let mut outputs = Outputs::new();
 
             if let Some(stderr_parsed) = cargo_stderr_stripped(&output) {
-                outputs.push(output.new_cargo_from_checker(stderr_parsed).to_cache());
+                outputs.push(
+                    output
+                        .new_cargo_from_checker(stderr_parsed)
+                        .to_cache(db_repo),
+                );
             }
 
-            outputs.push(output.to_cache());
+            outputs.push(output.to_cache(db_repo));
             self.insert(pkg_name, outputs);
         }
     }
 
-    pub fn push_cargo_layout_parse_error(&mut self, key: String, output: Output) {
+    pub fn push_cargo_layout_parse_error(
+        &mut self,
+        key: String,
+        output: Output,
+        db_repo: Option<DbRepo>,
+    ) {
         self.map.insert(
             key,
             Outputs {
-                inner: vec![output.to_cache()],
+                inner: vec![output.to_cache(db_repo)],
             },
         );
     }

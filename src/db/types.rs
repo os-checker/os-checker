@@ -1,14 +1,32 @@
 use crate::{
     config::{CheckerTool, Resolve},
     output::{get_toolchain, Cmd, Data, Kind},
+    Result,
 };
-use camino::Utf8PathBuf;
+use camino::{Utf8Path, Utf8PathBuf};
+use duct::cmd;
 use musli::{storage, Decode, Encode};
 use std::fmt;
 
 #[derive(Debug, Encode, Decode)]
 pub struct CacheRepoKey {
     repo: CacheRepo,
+    // 由于我们想对每个检查出了结果时缓存，而不是在仓库所有检查完成时缓存，这里需要重复数据。
+    // 减少数据重复，需要新定义一个结构，在缓存和 PackagesOutputs 上。
+    pkg_name: String,
+    checker: CacheChecker,
+    cmd: CacheCmd,
+}
+
+impl CacheRepoKey {
+    pub fn new(repo: &CacheRepo, value: &CacheValue) -> Self {
+        CacheRepoKey {
+            repo: repo.clone(),
+            pkg_name: value.pkg_name.clone(),
+            checker: value.checker.clone(),
+            cmd: value.cmd.clone(),
+        }
+    }
 }
 
 impl redb::Value for CacheRepoKey {
@@ -52,15 +70,28 @@ impl redb::Key for CacheRepoKey {
     }
 }
 
-#[derive(Debug, Encode, Decode)]
-struct CacheRepo {
+#[derive(Debug, Encode, Decode, Clone)]
+pub struct CacheRepo {
     user: String,
     repo: String,
     sha: String,
     branch: String,
 }
 
-#[derive(Debug, Encode, Decode)]
+impl CacheRepo {
+    pub fn new(user: &str, repo: &str, root: &Utf8Path) -> Result<Self> {
+        let sha = cmd!("git", "rev-parse", "HEAD").dir(root).read()?;
+        let branch = cmd!("git", "branch", "--show-current").dir(root).read()?;
+        Ok(Self {
+            user: user.to_owned(),
+            repo: repo.to_owned(),
+            sha: sha.trim().to_owned(),
+            branch: branch.trim().to_owned(),
+        })
+    }
+}
+
+#[derive(Debug, Encode, Decode, Clone)]
 struct CacheChecker {
     checker: CheckerTool,
     // If we don't care about the version, use None.
@@ -68,30 +99,30 @@ struct CacheChecker {
     sha: Option<String>,
 }
 
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Encode, Decode, Clone)]
 struct CacheCmd {
     cmd: String,
     target: String,
     /// FIXME: channel 转换回 RustToolchain 会丢失额外的信息
-    pub channel: String,
+    channel: String,
     // Below is not necessary, and currently not implemented.
     features: Vec<String>,
     /// rustcflags
     flags: Vec<String>,
 }
 
-#[derive(Debug, Encode, Decode)]
-pub struct CacheRepoValue {
-    inner: Vec<CacheValue>,
-}
+// #[derive(Debug, Encode, Decode)]
+// pub struct CacheRepoValue {
+//     inner: Vec<CacheValue>,
+// }
 
-impl CacheRepoValue {
-    pub(super) fn update_unix_timestamp(&mut self) {
-        for cache in &mut self.inner {
-            cache.update_unix_timestamp();
-        }
-    }
-}
+// impl CacheRepoValue {
+//     pub(super) fn update_unix_timestamp(&mut self) {
+//         for cache in &mut self.inner {
+//             cache.update_unix_timestamp();
+//         }
+//     }
+// }
 
 #[derive(Encode, Decode)]
 pub struct CacheValue {
@@ -144,7 +175,7 @@ impl fmt::Debug for OutputData {
     }
 }
 
-impl redb::Value for CacheRepoValue {
+impl redb::Value for CacheValue {
     type SelfType<'a>
         = Self
     where
@@ -271,16 +302,7 @@ pub fn parse_now(ts: u64) -> time::OffsetDateTime {
 }
 
 #[cfg(test)]
-pub fn new_cache() -> (CacheRepoKey, CacheRepoValue) {
-    let key = CacheRepoKey {
-        repo: CacheRepo {
-            user: "user".to_owned(),
-            repo: "repo".to_owned(),
-            sha: "abc".to_owned(),
-            branch: "main".to_owned(),
-        },
-    };
-
+pub fn new_cache() -> (CacheRepoKey, CacheValue) {
     let data = OutputData {
         duration_ms: 0,
         data: vec![OutputDataInner {
@@ -307,5 +329,17 @@ pub fn new_cache() -> (CacheRepoKey, CacheRepoValue) {
         diagnostics: data,
     };
 
-    (key, CacheRepoValue { inner: vec![value] })
+    let key = CacheRepoKey {
+        repo: CacheRepo {
+            user: "user".to_owned(),
+            repo: "repo".to_owned(),
+            sha: "abc".to_owned(),
+            branch: "main".to_owned(),
+        },
+        pkg_name: value.pkg_name.clone(),
+        checker: value.checker.clone(),
+        cmd: value.cmd.clone(),
+    };
+
+    (key, value)
 }

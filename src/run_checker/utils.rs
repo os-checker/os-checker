@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     config::CheckerTool,
-    db::{CacheValue, OutputDataInner},
+    db::{CacheRepo, CacheRepoKey, CacheValue, Db, OutputDataInner},
     output::{Cmd, Data, Kind},
 };
 use cargo_metadata::camino::Utf8Path;
@@ -24,7 +24,7 @@ pub fn push_idx_and_data(
 }
 
 impl RawOutput {
-    pub fn to_cache(&self) -> CacheValue {
+    pub fn to_cache(&self, db_repo: Option<DbRepo>) -> CacheValue {
         let root = &self.resolve.pkg_dir;
 
         // 由于路径的唯一性在这变得重要，需要提前归一化路径；两条思路：
@@ -38,7 +38,27 @@ impl RawOutput {
             OutputParsed::Cargo { source, stderr } => data_cargo(source, stderr),
         };
 
-        CacheValue::new(&self.resolve, self.duration_ms, data)
+        let cache = CacheValue::new(&self.resolve, self.duration_ms, data);
+        // TODO: save to db
+        if let Some(DbRepo { db, repo }) = db_repo {
+            let key = CacheRepoKey::new(repo, &cache);
+            if let Err(err) = db.set(&key, &cache) {
+                error!(%err, ?db, ?key, "Unable to save the cache.");
+            }
+        }
+        cache
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct DbRepo<'a> {
+    db: &'a Db,
+    repo: &'a CacheRepo,
+}
+
+impl<'a> DbRepo<'a> {
+    pub fn new(db: &'a Db, repo: &'a CacheRepo) -> DbRepo<'a> {
+        DbRepo { db, repo }
     }
 }
 
