@@ -102,7 +102,7 @@ impl Db {
 }
 
 #[test]
-fn db() -> crate::Result<()> {
+fn test_db() -> crate::Result<()> {
     let (key, value) = super::types::new_cache();
 
     let db = Database::builder().create_with_backend(redb::backends::InMemoryBackend::new())?;
@@ -121,6 +121,10 @@ fn db() -> crate::Result<()> {
         dbg!(&value);
         Ok(value)
     })?;
+
+    let (info_key, info) = super::gh::os_checker()?;
+    db.set_info(dbg!(&info_key), &info)?;
+    dbg!(db.get_info(&info_key)?);
 
     Ok(())
 }

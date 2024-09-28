@@ -94,6 +94,15 @@ impl CacheRepo {
             branch: branch.trim().to_owned(),
         })
     }
+
+    pub fn new_with_sha(user: &str, repo: &str, sha: &str, branch: String) -> Self {
+        Self {
+            user: user.to_owned(),
+            repo: repo.to_owned(),
+            sha: sha.to_owned(),
+            branch: branch,
+        }
+    }
 }
 
 #[derive(Debug, Encode, Decode, Clone)]

@@ -1,30 +1,3 @@
-//! ```bash
-//! export user=os-checker repo=os-checker
-//! export branch=$(gh api repos/os-checker/os-checker --jq ".default_branch")
-//!
-//! export meta="user: \"$user\", repo: \"$repo\", branch: \"$branch\""
-//!
-//! # {
-//! #   "author": {
-//! #     "date": "2024-09-28T04:58:37Z",
-//! #     "email": "jiping_zhou@foxmail.com",
-//! #     "name": "zjp-CN"
-//! #   },
-//! #   "branch": "main",
-//! #   "committer": {
-//! #     "date": "2024-09-28T04:58:37Z",
-//! #     "email": "noreply@github.com",
-//! #     "name": "GitHub"
-//! #   },
-//! #   "mes": "Merge pull request #99 from os-checker/feat/db\n\nfeat: 使用 redb 嵌入式数据库进行检查结果缓存",
-//! #   "repo": "os-checker",
-//! #   "sha": "da81840e786e7e2c71329c30058347a45a3a2536",
-//! #   "user": "os-checker"
-//! # }
-//! gh api repos/os-checker/os-checker/branches/$branch --jq \
-//!   "{$meta, sha: .commit.sha, mes: .commit.commit.message, author: .commit.commit.author, committer: .commit.commit.committer}"
-//! ```
-
 use super::{CacheRepo, CacheRepoKey};
 use crate::{config::RepoConfig, Result, XString};
 use duct::cmd;
@@ -129,7 +102,7 @@ fn parse_datetime(dt: &str) -> u64 {
     super::unix_timestamp_milli(local)
 }
 
-fn info_repo(user: &str, repo: &str) -> Result<LatestCommit> {
+fn info_repo(user: &str, repo: &str) -> Result<(String, LatestCommit)> {
     let branch = default_branch(user, repo)?;
     let arg = format!("repos/{user}/{repo}/branches/{branch}");
     let jq = "{
@@ -138,7 +111,9 @@ fn info_repo(user: &str, repo: &str) -> Result<LatestCommit> {
               author: .commit.commit.author,
               committer: .commit.commit.committer
           }";
-    serde_json::from_str(&gh_api(arg, jq.to_owned())?).with_context(|| "无法获取仓库最新提交信息")
+    let last_commit = serde_json::from_str(&gh_api(arg, jq.to_owned())?)
+        .with_context(|| "无法获取仓库最新提交信息")?;
+    Ok((branch, last_commit))
 }
 
 #[test]
@@ -153,4 +128,20 @@ fn get_default_branch() -> Result<()> {
     let repo = "os-checker";
     dbg!(default_branch(user, repo)?, info_repo(user, repo)?);
     Ok(())
+}
+
+#[cfg(test)]
+pub fn os_checker() -> Result<(InfoKey, Info)> {
+    let user = "os-checker";
+    let repo = "os-checker";
+    let (branch, latest_commit) = info_repo(user, repo)?;
+    let info_key = InfoKey {
+        repo: CacheRepo::new_with_sha(user, repo, &latest_commit.sha, branch),
+        config: RepoConfig::default(),
+    };
+    let info = Info {
+        caches: vec![],
+        latest_commit,
+    };
+    Ok((info_key, info))
 }
