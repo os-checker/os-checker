@@ -321,21 +321,21 @@ impl RustToolchain {
         crate::output::push_toolchain(self)
     }
 
-    /// 从数据库的 channel 字符串构建非完整的工具链信息。
-    /// 将来应该记录 RustToolchain，但目前先跳过它。
-    pub fn from_channel_string(channel: &str) -> Self {
-        let (profile, targets, components, toml_path, need_install_clippy, peculiar_targets) =
-            Default::default();
-        RustToolchain {
-            channel: channel.to_owned(),
-            profile,
-            targets,
-            components,
-            toml_path,
-            need_install_clippy,
-            peculiar_targets,
-        }
-    }
+    // /// 从数据库的 channel 字符串构建非完整的工具链信息。
+    // /// 将来应该记录 RustToolchain，但目前先跳过它。
+    // pub fn from_channel_string(channel: &str) -> Self {
+    //     let (profile, targets, components, toml_path, need_install_clippy, peculiar_targets) =
+    //         Default::default();
+    //     RustToolchain {
+    //         channel: channel.to_owned(),
+    //         profile,
+    //         targets,
+    //         components,
+    //         toml_path,
+    //         need_install_clippy,
+    //         peculiar_targets,
+    //     }
+    // }
 
     pub fn targets(&self) -> Option<Targets> {
         let v = self.targets.as_deref()?;
