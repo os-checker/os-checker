@@ -193,10 +193,15 @@ impl RepoOutput {
                 Ok(Some(info_cache)) => {
                     if info_cache.is_complete() {
                         info!("成功获取完整的仓库检查结果缓存");
-                        return Ok(Either::Right(FastOutputs {
-                            config,
-                            outputs: todo!(),
-                        }));
+                        match info_cache.get_cache_values(db) {
+                            Ok(caches) => {
+                                return Ok(Either::Right(FastOutputs {
+                                    config,
+                                    outputs: caches.into(),
+                                }));
+                            }
+                            Err(err) => error!(?err, "存在不正确的检查结果数据"),
+                        }
                     } else {
                         warn!("仓库检查结果缓存不完整");
                     }
