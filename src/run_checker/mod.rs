@@ -41,40 +41,43 @@ impl std::fmt::Debug for RepoOutput {
     }
 }
 
+pub fn with_json_output(config: &Config, outputs: &PackagesOutputs, json: &mut JsonOutput) {
+    use crate::output::*;
+    let user = XString::new(config.user_name());
+    let repo = XString::new(config.repo_name());
+    let repo_idx = json.env.repos.len();
+
+    // 预留足够的空间
+    // TODO: 应该可以在初始化 json.data 的时候就一次性预留空间
+    json.data.reserve(outputs.count());
+
+    for (pkg_name, v) in &**outputs {
+        let pkg_idx = json.env.packages.len();
+        json.env.packages.push(Package {
+            name: pkg_name.into(),
+            repo: PackageRepo {
+                repo_idx,
+                user: user.clone(),
+                repo: repo.clone(),
+            },
+            // rust_toolchain_idx: v.as_slice().first().and_then(|o| o.resolve.toolchain),
+        });
+        for o in v.as_slice() {
+            utils::push_idx_and_data(pkg_idx, o, &mut json.cmd, &mut json.data);
+        }
+    }
+
+    // let rust_toolchain_idxs = self.repo.layout.rust_toolchain_idxs();
+    json.env.repos.push(Repo {
+        user,
+        repo,
+        // rust_toolchain_idxs,
+    });
+}
+
 impl RepoOutput {
     pub fn with_json_output(&self, json: &mut JsonOutput) {
-        use crate::output::*;
-        let user = XString::new(self.repo.config.user_name());
-        let repo = XString::new(self.repo.config.repo_name());
-        let repo_idx = json.env.repos.len();
-
-        let outputs = &self.outputs;
-        // 预留足够的空间
-        // TODO: 应该可以在初始化 json.data 的时候就一次性预留空间
-        json.data.reserve(outputs.count());
-
-        for (pkg_name, v) in &**outputs {
-            let pkg_idx = json.env.packages.len();
-            json.env.packages.push(Package {
-                name: pkg_name.into(),
-                repo: PackageRepo {
-                    repo_idx,
-                    user: user.clone(),
-                    repo: repo.clone(),
-                },
-                // rust_toolchain_idx: v.as_slice().first().and_then(|o| o.resolve.toolchain),
-            });
-            for o in v.as_slice() {
-                utils::push_idx_and_data(pkg_idx, o, &mut json.cmd, &mut json.data);
-            }
-        }
-
-        // let rust_toolchain_idxs = self.repo.layout.rust_toolchain_idxs();
-        json.env.repos.push(Repo {
-            user,
-            repo,
-            // rust_toolchain_idxs,
-        });
+        with_json_output(&self.repo.config, &self.outputs, json);
     }
 
     /// 提前删除仓库目录
