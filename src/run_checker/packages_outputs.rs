@@ -75,7 +75,19 @@ impl PackagesOutputs {
                         let outputs = Outputs { inner: vec![cache] };
                         self.insert(pkg_name, outputs);
                     }
-                    info!("成功获取缓存");
+
+                    let resolve_cargo = resolve.new_cargo();
+                    match db_repo.cache(&resolve_cargo) {
+                        Ok(Some(cache_cargo)) => {
+                            self.get_mut(pkg_name).unwrap().push(cache_cargo);
+                            info!("成功获取缓存（含 Cargo）");
+                        }
+                        Ok(None) => info!("成功获取缓存"),
+                        Err(err) => {
+                            error!(?err, "无法获取 Cargo 检查结果缓存")
+                        }
+                    };
+
                     return true;
                 }
                 Ok(None) => warn!("无缓存"),
