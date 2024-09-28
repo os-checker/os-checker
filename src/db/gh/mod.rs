@@ -117,17 +117,22 @@ fn info_repo(user: &str, repo: &str) -> Result<(String, LatestCommit)> {
 }
 
 /// Query latest commit sha via `gh api`, and return the key and value with empty caches.
-pub fn info(user: &str, repo: &str, config: RepoConfig) -> Result<(InfoKey, Info)> {
+pub fn info(user: &str, repo: &str, config: RepoConfig) -> Result<InfoKeyValue> {
     let (branch, latest_commit) = info_repo(user, repo)?;
-    let info_key = InfoKey {
+    let key = InfoKey {
         repo: CacheRepo::new_with_sha(user, repo, &latest_commit.sha, branch),
         config,
     };
-    let info = Info {
+    let val = Info {
         caches: vec![],
         latest_commit,
     };
-    Ok((info_key, info))
+    Ok(InfoKeyValue { key, val })
+}
+
+pub struct InfoKeyValue {
+    key: InfoKey,
+    val: Info,
 }
 
 #[test]
@@ -148,5 +153,5 @@ fn get_default_branch() -> Result<()> {
 pub fn os_checker() -> Result<(InfoKey, Info)> {
     let user = "os-checker";
     let repo = "os-checker";
-    info(user, repo, RepoConfig::default())
+    info(user, repo, RepoConfig::default()).map(|InfoKeyValue { key, val }| (key, val))
 }

@@ -1,5 +1,5 @@
 use crate::{
-    db::{info, Db, Info, InfoKey},
+    db::{info, Db, InfoKeyValue},
     layout::Packages,
     Result,
 };
@@ -59,11 +59,11 @@ impl Config {
         self.db.as_ref()
     }
 
-    pub fn new_info(&self) -> Result<(InfoKey, Info)> {
+    pub fn new_info(&self) -> Result<Box<InfoKeyValue>> {
         let user = self.user_name();
         let repo = self.repo_name();
         let config = &*self.config;
-        info(user, repo, config.clone())
+        info(user, repo, config.clone()).map(Box::new)
     }
 
     /// 解析该仓库所有 package 的检查执行命令
