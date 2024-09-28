@@ -128,7 +128,7 @@ impl Repo {
     fn run_check(&self, info: &InfoKeyValue) -> Result<PackagesOutputs> {
         let user = self.config.user_name();
         let repo = self.config.repo_name();
-        let _span = debug_span!("run_check", user, repo);
+        let _span = debug_span!("run_check", user, repo).entered();
 
         let mut outputs = PackagesOutputs::new();
         let err_or_resolve = self.resolve()?;
@@ -183,7 +183,8 @@ impl RepoOutput {
             "try_new",
             user = config.user_name(),
             repo = config.repo_name()
-        );
+        )
+        .entered();
 
         let info = config.new_info()?;
 
