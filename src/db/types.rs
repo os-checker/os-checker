@@ -295,10 +295,11 @@ impl CacheValue {
         self.diagnostics.data.len()
     }
 
-    // /// 更新检查时间
-    // pub fn update_unix_timestamp(&mut self) {
-    //     self.unix_timestamp_milli = now();
-    // }
+    /// 更新检查时间
+    #[cfg(test)]
+    pub fn update_unix_timestamp(&mut self) {
+        self.unix_timestamp_milli = now();
+    }
 
     // /// 更新检查结果
     // pub fn update_diagnostics(&mut self, f: impl FnOnce(OutputData) -> OutputData) {
