@@ -11,3 +11,4 @@ pub use db::Db;
 
 /// Github APIs
 mod gh;
+pub use gh::info;

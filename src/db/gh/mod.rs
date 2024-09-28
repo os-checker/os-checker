@@ -116,6 +116,20 @@ fn info_repo(user: &str, repo: &str) -> Result<(String, LatestCommit)> {
     Ok((branch, last_commit))
 }
 
+/// Query latest commit sha via `gh api`, and return the key and value with empty caches.
+pub fn info(user: &str, repo: &str, config: RepoConfig) -> Result<(InfoKey, Info)> {
+    let (branch, latest_commit) = info_repo(user, repo)?;
+    let info_key = InfoKey {
+        repo: CacheRepo::new_with_sha(user, repo, &latest_commit.sha, branch),
+        config,
+    };
+    let info = Info {
+        caches: vec![],
+        latest_commit,
+    };
+    Ok((info_key, info))
+}
+
 #[test]
 fn github_date() {
     let dt = "2024-09-28T04:58:37Z";
@@ -134,14 +148,5 @@ fn get_default_branch() -> Result<()> {
 pub fn os_checker() -> Result<(InfoKey, Info)> {
     let user = "os-checker";
     let repo = "os-checker";
-    let (branch, latest_commit) = info_repo(user, repo)?;
-    let info_key = InfoKey {
-        repo: CacheRepo::new_with_sha(user, repo, &latest_commit.sha, branch),
-        config: RepoConfig::default(),
-    };
-    let info = Info {
-        caches: vec![],
-        latest_commit,
-    };
-    Ok((info_key, info))
+    info(user, repo, RepoConfig::default())
 }
