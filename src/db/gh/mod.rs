@@ -1,4 +1,4 @@
-use super::{CacheRepo, CacheRepoKey, Db};
+use super::{CacheRepo, CacheRepoKey, CacheValue, Db};
 use crate::{config::RepoConfig, Result, XString};
 use duct::cmd;
 use eyre::Context;
@@ -56,6 +56,18 @@ redb_value!(Info, name: "OsCheckerInfo",
 impl Info {
     pub fn is_complete(&self) -> bool {
         self.complete
+    }
+
+    pub fn get_cache_values(&self, db: &Db) -> Result<Vec<(&CacheRepoKey, CacheValue)>> {
+        let mut v = Vec::with_capacity(self.caches.len());
+        for key in &self.caches {
+            let _span = key.span();
+            match db.get_cache(key)? {
+                Some(cache) => v.push((key, cache)),
+                None => error!("info 存储了一个检查结果的键，但未找到对应的检查结果"),
+            };
+        }
+        Ok(v)
     }
 }
 
