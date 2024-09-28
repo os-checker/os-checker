@@ -8,23 +8,53 @@ use duct::cmd;
 use musli::{storage, Decode, Encode};
 use std::fmt;
 
-#[derive(Debug, Encode, Decode)]
-pub struct CacheRepoKey {
-    repo: CacheRepo,
-    // 由于我们想对每个检查出了结果时缓存，而不是在仓库所有检查完成时缓存，这里需要重复数据。
-    // 减少数据重复，需要新定义一个结构，在缓存和 PackagesOutputs 上。
+// 由于我们想对每个检查出了结果时缓存，而不是在仓库所有检查完成时缓存，这里需要重复数据。
+// 减少数据重复，需要新定义一个结构，在缓存和 PackagesOutputs 上。
+#[derive(Debug, Encode, Decode, Clone)]
+pub struct CacheRepoKeyCmd {
     pkg_name: String,
     checker: CacheChecker,
     cmd: CacheCmd,
 }
 
+impl CacheRepoKeyCmd {
+    pub fn new(resolve: &Resolve) -> Self {
+        Self {
+            pkg_name: resolve.pkg_name.as_str().to_owned(),
+            checker: CacheChecker {
+                checker: resolve.checker,
+                version: None,
+                sha: None,
+            },
+            cmd: CacheCmd {
+                cmd: resolve.cmd.clone(),
+                target: resolve.target.clone(),
+                channel: {
+                    let mut channel = String::new();
+                    get_toolchain(resolve.toolchain.unwrap_or(0), |t| {
+                        channel = t.channel.clone()
+                    });
+                    channel
+                },
+                // TODO: 待支持
+                features: vec![],
+                flags: vec![],
+            },
+        }
+    }
+}
+
+#[derive(Debug, Encode, Decode)]
+pub struct CacheRepoKey {
+    repo: CacheRepo,
+    cmd: CacheRepoKeyCmd,
+}
+
 impl CacheRepoKey {
-    pub fn new(repo: &CacheRepo, value: &CacheValue) -> Self {
+    pub fn new(repo: &CacheRepo, resolve: &Resolve) -> Self {
         CacheRepoKey {
             repo: repo.clone(),
-            pkg_name: value.pkg_name.clone(),
-            checker: value.checker.clone(),
-            cmd: value.cmd.clone(),
+            cmd: CacheRepoKeyCmd::new(resolve),
         }
     }
 }
@@ -127,9 +157,7 @@ struct CacheCmd {
 #[derive(Encode, Decode)]
 pub struct CacheValue {
     unix_timestamp_milli: u64,
-    pkg_name: String,
-    checker: CacheChecker,
-    cmd: CacheCmd,
+    cmd: CacheRepoKeyCmd,
     diagnostics: OutputData,
 }
 
@@ -214,26 +242,7 @@ impl CacheValue {
     pub fn new(resolve: &Resolve, duration_ms: u64, data: Vec<OutputDataInner>) -> Self {
         CacheValue {
             unix_timestamp_milli: now(),
-            pkg_name: resolve.pkg_name.as_str().to_owned(),
-            checker: CacheChecker {
-                checker: resolve.checker,
-                version: None,
-                sha: None,
-            },
-            cmd: CacheCmd {
-                cmd: resolve.cmd.clone(),
-                target: resolve.target.clone(),
-                channel: {
-                    let mut channel = String::new();
-                    get_toolchain(resolve.toolchain.unwrap_or(0), |t| {
-                        channel = t.channel.clone()
-                    });
-                    channel
-                },
-                // TODO: 待支持
-                features: vec![],
-                flags: vec![],
-            },
+            cmd: CacheRepoKeyCmd::new(resolve),
             diagnostics: OutputData { duration_ms, data },
         }
     }
@@ -248,27 +257,28 @@ impl CacheValue {
     }
 
     pub fn to_cmd(&self, package_idx: usize) -> Cmd {
+        let cmd = &self.cmd;
         Cmd {
             package_idx,
-            tool: self.checker.checker,
+            tool: cmd.checker.checker,
             count: self.count(),
             duration_ms: self.diagnostics.duration_ms,
-            cmd: self.cmd.cmd.clone(),
-            arch: self
+            cmd: cmd.cmd.cmd.clone(),
+            arch: cmd
                 .cmd
                 .target
                 .split_once("-")
                 .map(|(arch, _)| arch.into())
                 .unwrap_or_default(),
-            target_triple: self.cmd.target.clone(),
-            rust_toolchain: self.cmd.channel.clone(),
-            features: self.cmd.features.clone(),
-            flags: self.cmd.flags.clone(),
+            target_triple: cmd.cmd.target.clone(),
+            rust_toolchain: cmd.cmd.channel.clone(),
+            features: cmd.cmd.features.clone(),
+            flags: cmd.cmd.flags.clone(),
         }
     }
 
     pub fn checker(&self) -> CheckerTool {
-        self.checker.checker
+        self.cmd.checker.checker
     }
 
     pub fn count(&self) -> usize {
@@ -303,16 +313,7 @@ pub fn parse_now(ts: u64) -> time::OffsetDateTime {
 
 #[cfg(test)]
 pub fn new_cache() -> (CacheRepoKey, CacheValue) {
-    let data = OutputData {
-        duration_ms: 0,
-        data: vec![OutputDataInner {
-            file: Default::default(),
-            kind: Kind::ClippyError,
-            raw: "warning: xxx".to_owned(),
-        }],
-    };
-    let value = CacheValue {
-        unix_timestamp_milli: now(),
+    let cmd = CacheRepoKeyCmd {
         pkg_name: "pkg".to_owned(),
         checker: CacheChecker {
             checker: CheckerTool::Clippy,
@@ -326,6 +327,19 @@ pub fn new_cache() -> (CacheRepoKey, CacheValue) {
             features: vec![],
             flags: vec![],
         },
+    };
+
+    let data = OutputData {
+        duration_ms: 0,
+        data: vec![OutputDataInner {
+            file: Default::default(),
+            kind: Kind::ClippyError,
+            raw: "warning: xxx".to_owned(),
+        }],
+    };
+    let value = CacheValue {
+        unix_timestamp_milli: now(),
+        cmd: cmd.clone(),
         diagnostics: data,
     };
 
@@ -336,9 +350,7 @@ pub fn new_cache() -> (CacheRepoKey, CacheValue) {
             sha: "abc".to_owned(),
             branch: "main".to_owned(),
         },
-        pkg_name: value.pkg_name.clone(),
-        checker: value.checker.clone(),
-        cmd: value.cmd.clone(),
+        cmd,
     };
 
     (key, value)

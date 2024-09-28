@@ -41,7 +41,7 @@ impl RawOutput {
         let cache = CacheValue::new(&self.resolve, self.duration_ms, data);
         // TODO: save to db
         if let Some(DbRepo { db, repo }) = db_repo {
-            let key = CacheRepoKey::new(repo, &cache);
+            let key = CacheRepoKey::new(repo, &self.resolve);
             if let Err(err) = db.set(&key, &cache) {
                 error!(%err, ?db, ?key, "Unable to save the cache.");
             }
@@ -71,7 +71,7 @@ fn data_cargo(source: &CargoSource, stderr: &str) -> Vec<OutputDataInner> {
     vec![data]
 }
 
-fn data_lockbud(s: &String) -> Vec<OutputDataInner> {
+fn data_lockbud(s: &str) -> Vec<OutputDataInner> {
     if s.is_empty() {
         Vec::new()
     } else {
@@ -81,7 +81,7 @@ fn data_lockbud(s: &String) -> Vec<OutputDataInner> {
         } else {
             Kind::LockbudProbably
         };
-        let data = OutputDataInner::new("Not supported to display yet.".into(), kind, s.clone());
+        let data = OutputDataInner::new("Not supported to display yet.".into(), kind, s.to_owned());
         vec![data]
     }
 }
