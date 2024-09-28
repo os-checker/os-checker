@@ -79,11 +79,8 @@ impl PackagesOutputs {
                     info!("成功获取缓存");
                     return true;
                 }
-                Ok(None) => info!("无缓存"),
-                Err(err) => {
-                    error!("获取缓存失败");
-                    trace!(?err);
-                }
+                Ok(None) => warn!("无缓存"),
+                Err(err) => error!(?err, "获取缓存失败"),
             }
         }
         false
