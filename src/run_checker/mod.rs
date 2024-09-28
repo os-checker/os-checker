@@ -264,10 +264,8 @@ fn run_check(
     db_repo: Option<DbRepo>,
 ) -> Result<()> {
     // 从缓存中获取结果，如果获取成功，则不执行实际的检查
-    match outputs.fetch_cache(&resolve, db_repo) {
-        Ok(true) => return Ok(()),
-        Ok(false) => (),
-        Err(err) => warn!(?err),
+    if outputs.fetch_cache(&resolve, db_repo) {
+        return Ok(());
     }
 
     let expr = resolve.expr.clone();
