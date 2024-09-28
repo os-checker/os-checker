@@ -1,5 +1,6 @@
-use crate::{config::CheckerTool, run_checker::RepoOutput, XString};
+use crate::{config::CheckerTool, run_checker::FullOrFastOutputs, XString};
 use cargo_metadata::camino::Utf8PathBuf;
+use either::Either;
 use musli::{Decode, Encode};
 use serde::Serialize;
 use std::time::SystemTime;
@@ -18,7 +19,7 @@ pub struct JsonOutput {
 }
 
 impl JsonOutput {
-    pub fn new(outputs: &[RepoOutput]) -> Self {
+    pub fn new(outputs: &[FullOrFastOutputs]) -> Self {
         let mut json = Self {
             env: Env {
                 tools: Tools::new(),
@@ -29,7 +30,10 @@ impl JsonOutput {
             cmd: vec![],
             data: vec![],
         };
-        outputs.iter().for_each(|s| s.with_json_output(&mut json));
+        outputs.iter().for_each(|s| match s {
+            Either::Left(full) => full.with_json_output(&mut json),
+            Either::Right(fast) => fast.with_json_output(&mut json),
+        });
         json
     }
 
@@ -100,9 +104,9 @@ fn unix_timestamp(time: SystemTime) -> u64 {
 pub struct Repo {
     pub user: XString,
     pub repo: XString,
-    /// 绝大部分情况下一个仓库要么没有设置工具链，要么设置一个，但也不排除诡异的多
-    /// workspace/pkg 会设置自己的工具链。因此此数组长度可能为 0、1、甚至更多。
-    pub rust_toolchain_idxs: Vec<usize>,
+    // /// 绝大部分情况下一个仓库要么没有设置工具链，要么设置一个，但也不排除诡异的多
+    // /// workspace/pkg 会设置自己的工具链。因此此数组长度可能为 0、1、甚至更多。
+    // pub rust_toolchain_idxs: Vec<usize>,
 }
 
 #[derive(Debug, Serialize)]
@@ -193,7 +197,7 @@ impl Kinds {
                 Cargo,
                 ClippyError,
                 ClippyWarn,
-                Mirai,
+                // Mirai,
                 LockbudProbably,
                 LockbudPossibly,
                 Unformatted,
@@ -201,7 +205,7 @@ impl Kinds {
             mapping: serde_json::json!({
                 "cargo": [Cargo],
                 "clippy": [ClippyError, ClippyWarn],
-                "mirai": [Mirai],
+                // "mirai": [Mirai],
                 "lockbud": [LockbudProbably, LockbudPossibly],
                 "fmt": [Unformatted]
             }),

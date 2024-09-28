@@ -1,6 +1,6 @@
 use crate::{
     config::{CheckerTool, Config, Resolve},
-    db::CacheRepo,
+    db::{CacheRepo, InfoKeyValue},
     layout::Layout,
     output::JsonOutput,
     Result, XString,
@@ -41,40 +41,54 @@ impl std::fmt::Debug for RepoOutput {
     }
 }
 
+pub struct FastOutputs {
+    config: Config,
+    outputs: PackagesOutputs,
+}
+
+impl FastOutputs {
+    pub fn with_json_output(&self, json: &mut JsonOutput) {
+        with_json_output(&self.config, &self.outputs, json);
+    }
+}
+
+pub fn with_json_output(config: &Config, outputs: &PackagesOutputs, json: &mut JsonOutput) {
+    use crate::output::*;
+    let user = XString::new(config.user_name());
+    let repo = XString::new(config.repo_name());
+    let repo_idx = json.env.repos.len();
+
+    // 预留足够的空间
+    // TODO: 应该可以在初始化 json.data 的时候就一次性预留空间
+    json.data.reserve(outputs.count());
+
+    for (pkg_name, v) in &**outputs {
+        let pkg_idx = json.env.packages.len();
+        json.env.packages.push(Package {
+            name: pkg_name.into(),
+            repo: PackageRepo {
+                repo_idx,
+                user: user.clone(),
+                repo: repo.clone(),
+            },
+            // rust_toolchain_idx: v.as_slice().first().and_then(|o| o.resolve.toolchain),
+        });
+        for o in v.as_slice() {
+            utils::push_idx_and_data(pkg_idx, o, &mut json.cmd, &mut json.data);
+        }
+    }
+
+    // let rust_toolchain_idxs = self.repo.layout.rust_toolchain_idxs();
+    json.env.repos.push(Repo {
+        user,
+        repo,
+        // rust_toolchain_idxs,
+    });
+}
+
 impl RepoOutput {
     pub fn with_json_output(&self, json: &mut JsonOutput) {
-        use crate::output::*;
-        let user = XString::new(self.repo.config.user_name());
-        let repo = XString::new(self.repo.config.repo_name());
-        let repo_idx = json.env.repos.len();
-
-        let outputs = &self.outputs;
-        // 预留足够的空间
-        // TODO: 应该可以在初始化 json.data 的时候就一次性预留空间
-        json.data.reserve(outputs.count());
-
-        for (pkg_name, v) in &**outputs {
-            let pkg_idx = json.env.packages.len();
-            json.env.packages.push(Package {
-                name: pkg_name.into(),
-                repo: PackageRepo {
-                    repo_idx,
-                    user: user.clone(),
-                    repo: repo.clone(),
-                },
-                // rust_toolchain_idx: v.as_slice().first().and_then(|o| o.resolve.toolchain),
-            });
-            for o in v.as_slice() {
-                utils::push_idx_and_data(pkg_idx, o, &mut json.cmd, &mut json.data);
-            }
-        }
-
-        let rust_toolchain_idxs = self.repo.layout.rust_toolchain_idxs();
-        json.env.repos.push(Repo {
-            user,
-            repo,
-            rust_toolchain_idxs,
-        });
+        with_json_output(&self.repo.config, &self.outputs, json);
     }
 
     /// 提前删除仓库目录
@@ -111,19 +125,21 @@ impl Repo {
         }
     }
 
-    #[instrument(level = "trace")]
-    fn run_check(&self) -> Result<PackagesOutputs> {
+    fn run_check(&self, info: &InfoKeyValue) -> Result<PackagesOutputs> {
+        let user = self.config.user_name();
+        let repo = self.config.repo_name();
+        let _span = debug_span!("run_check", user, repo).entered();
+
         let mut outputs = PackagesOutputs::new();
         let err_or_resolve = self.resolve()?;
 
         let db = self.config.db();
         let repo = {
-            let user = self.config.user_name();
-            let repo = self.config.repo_name();
             let root = self.layout.repo_root();
             CacheRepo::new(user, repo, root)?
         };
-        let db_repo = db.map(|db| DbRepo::new(db, &repo));
+        info.assert_eq_sha(&repo);
+        let db_repo = db.map(|db| DbRepo::new(db, &repo, info));
 
         match err_or_resolve {
             Either::Left(resolve) => {
@@ -159,11 +175,43 @@ impl TryFrom<Config> for Repo {
     }
 }
 
-impl TryFrom<Config> for RepoOutput {
-    type Error = eyre::Error;
+pub type FullOrFastOutputs = Either<RepoOutput, FastOutputs>;
 
-    #[instrument(level = "trace")]
-    fn try_from(config: Config) -> Result<RepoOutput> {
+impl RepoOutput {
+    pub fn try_new(config: Config) -> Result<FullOrFastOutputs> {
+        let _span = error_span!(
+            "try_new",
+            user = config.user_name(),
+            repo = config.repo_name()
+        )
+        .entered();
+
+        let info = config.new_info()?;
+
+        // TODO: construct FastOutputs
+        if let Some(db) = config.db() {
+            match info.get_from_db(db) {
+                Ok(Some(info_cache)) => {
+                    if info_cache.is_complete() {
+                        info!("成功获取完整的仓库检查结果键缓存");
+                        match info_cache.get_cache_values(db) {
+                            Ok(caches) => {
+                                return Ok(Either::Right(FastOutputs {
+                                    config,
+                                    outputs: caches.into(),
+                                }));
+                            }
+                            Err(err) => error!(?err, "存在不正确的检查结果键或值数据"),
+                        }
+                    } else {
+                        warn!("仓库检查结果缓存不完整");
+                    }
+                }
+                Ok(None) => warn!("该仓库无所有检查结果的键缓存"),
+                Err(err) => error!(?err, "获取仓库检查结果的键缓存失败"),
+            }
+        }
+
         let mut repo = Repo::try_from(config)?;
 
         repo.layout
@@ -172,13 +220,17 @@ impl TryFrom<Config> for RepoOutput {
         info!(repo_root = %repo.layout.repo_root(), "install toolchains");
         repo.layout.install_toolchains()?;
 
-        let mut outputs = repo.run_check()?;
+        let mut outputs = repo.run_check(&info)?;
         outputs.sort_by_name_and_checkers();
+        if let Some(db) = repo.config.db() {
+            info.set_complete(db)?;
+            info!("已设置键缓存 complete 为 true");
+        }
 
         info!(repo_root = %repo.layout.repo_root(), "uninstall toolchains");
         repo.layout.uninstall_toolchains()?;
 
-        Ok(RepoOutput { repo, outputs })
+        Ok(Either::Left(RepoOutput { repo, outputs }))
     }
 }
 

@@ -19,7 +19,7 @@ use config_options::{Cmds, Meta, Setup, Targets};
 mod misc;
 pub use misc::TargetsSpecifed;
 
-#[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Default, JsonSchema, Clone)]
 pub struct RepoConfig {
     #[serde(default)]
     #[serde(skip_serializing_if = "Option::is_none")]

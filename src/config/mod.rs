@@ -1,4 +1,8 @@
-use crate::{db::Db, layout::Packages, Result};
+use crate::{
+    db::{info, Db, InfoKeyValue},
+    layout::Packages,
+    Result,
+};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::Context;
 use itertools::Itertools;
@@ -18,8 +22,7 @@ mod checker;
 pub use checker::{CheckerTool, TOOLS};
 
 mod deserialization;
-use deserialization::RepoConfig;
-pub use deserialization::{gen_schema, TargetsSpecifed};
+pub use deserialization::{gen_schema, RepoConfig, TargetsSpecifed};
 
 #[cfg(test)]
 mod tests;
@@ -35,7 +38,6 @@ pub struct Config {
 
 impl Config {
     /// 获取该代码库的本地路径：如果指定 Github 或者 Url，则调用 git clone 命令下载
-    #[instrument(level = "trace")]
     pub fn local_root_path_with_git_clone(&mut self) -> Result<Utf8PathBuf> {
         self.uri.local_root_path_with_git_clone()
     }
@@ -56,8 +58,14 @@ impl Config {
         self.db.as_ref()
     }
 
+    pub fn new_info(&self) -> Result<Box<InfoKeyValue>> {
+        let user = self.user_name();
+        let repo = self.repo_name();
+        let config = &*self.config;
+        info(user, repo, config.clone()).map(Box::new)
+    }
+
     /// 解析该仓库所有 package 的检查执行命令
-    #[instrument(level = "trace")]
     pub fn resolve(&self, pkgs: &Packages) -> Result<Vec<Resolve>> {
         self.config
             .resolve(self.uri.key(), pkgs)
@@ -68,7 +76,6 @@ impl Config {
         self.config.targets_specified()
     }
 
-    #[instrument(level = "trace")]
     pub fn clean_repo_dir(&self) -> Result<()> {
         self.uri.clean_repo_dir()
     }

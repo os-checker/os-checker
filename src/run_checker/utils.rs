@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     config::{CheckerTool, Resolve},
-    db::{CacheRepo, CacheRepoKey, CacheValue, Db, OutputDataInner},
+    db::{CacheRepo, CacheRepoKey, CacheValue, Db, InfoKeyValue, OutputDataInner},
     output::{Cmd, Data, Kind},
     Result,
 };
@@ -40,25 +40,31 @@ impl RawOutput {
         };
 
         let cache = CacheValue::new(&self.resolve, self.duration_ms, data);
-        if let Some(db_repo) = db_repo {
+        if let Some(db_repo @ DbRepo { db, info, .. }) = db_repo {
             let key = db_repo.key(&self.resolve);
-            if let Err(err) = db_repo.db.set(&key, &cache) {
+            // 写入命令缓存
+            if let Err(err) = db.set_cache(&key, &cache) {
                 error!(%err, ?key, "Unable to save the cache.");
+            }
+            // 写入键缓存
+            if let Err(err) = info.append_cache_key(&key, db) {
+                error!(%err, ?key, "Unable to save the key cache.");
             }
         }
         cache
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 pub struct DbRepo<'a> {
     db: &'a Db,
     repo: &'a CacheRepo,
+    info: &'a InfoKeyValue,
 }
 
 impl<'a> DbRepo<'a> {
-    pub fn new(db: &'a Db, repo: &'a CacheRepo) -> DbRepo<'a> {
-        DbRepo { db, repo }
+    pub fn new(db: &'a Db, repo: &'a CacheRepo, info: &'a InfoKeyValue) -> DbRepo<'a> {
+        DbRepo { db, repo, info }
     }
 
     pub fn key(self, resolve: &Resolve) -> CacheRepoKey {
@@ -67,7 +73,7 @@ impl<'a> DbRepo<'a> {
 
     pub fn cache(self, resolve: &Resolve) -> Result<Option<CacheValue>> {
         let key = self.key(resolve);
-        self.db.get(&key)
+        self.db.get_cache(&key)
     }
 }
 

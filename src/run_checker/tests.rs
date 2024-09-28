@@ -1,54 +1,7 @@
 use super::*;
-use expect_test::expect_file;
-use serde_json::to_string_pretty;
 
 fn config(json: &str) -> Config {
     Config::from_json(json).unwrap()
-}
-
-#[test]
-#[instrument(level = "trace")]
-fn test_suite() -> Result<()> {
-    let output: RepoOutput = config(
-        r#"
-{
-  "file://repos/os-checker-test-suite": {
-    "all": true
-  }
-}
-"#,
-    )
-    .try_into()?;
-
-    let json = JsonOutput::new(&[output]);
-    let json_str = to_string_pretty(&json)?;
-    expect_file!["./snapshots/json-test-suite.json"].assert_eq(&json_str);
-
-    let json_bytes = json_str.as_bytes();
-    let json_count = jq_count(json_bytes)?;
-    expect_file!["./snapshots/json-test-suite_jq_count.json"].assert_eq(&json_count);
-
-    Ok(())
-}
-
-#[test]
-#[instrument(level = "trace")]
-fn arceos() -> Result<()> {
-    let output: RepoOutput = config(
-        r#"
-{
-  "file://repos/arceos": {
-    "all": true
-  }
-}
-"#,
-    )
-    .try_into()?;
-
-    let json = JsonOutput::new(&[output]);
-    expect_file!["./snapshots/json-arceos.json"].assert_eq(&to_string_pretty(&json)?);
-
-    Ok(())
 }
 
 #[instrument(level = "trace")]

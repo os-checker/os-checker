@@ -2,12 +2,13 @@ use crate::{
     config::{gen_schema, Configs},
     db::Db,
     output::JsonOutput,
-    run_checker::{Repo, RepoOutput},
+    run_checker::{FullOrFastOutputs, Repo, RepoOutput},
     utils::check_or_install_checkers,
     Result,
 };
 use argh::FromArgs;
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
+use either::Either;
 use eyre::ContextCompat;
 use rayon::prelude::*;
 use serde::Serialize;
@@ -220,13 +221,13 @@ fn configurations(configs: &[String]) -> Result<Configs> {
 fn repos_outputs(
     configs: &[String],
     db: Option<Db>,
-) -> Result<impl Iterator<Item = Result<RepoOutput>>> {
+) -> Result<impl Iterator<Item = Result<FullOrFastOutputs>>> {
     Ok(configurations(configs)?
         .into_inner()
         .into_iter()
         .map(move |mut config| {
             config.set_db(db.clone());
-            RepoOutput::try_from(config)
+            RepoOutput::try_new(config)
         }))
 }
 
@@ -239,8 +240,10 @@ impl ArgsRun {
         let outs = repos_outputs(&self.config, db)?
             .map(|out| {
                 let out = out?;
-                if !self.keep_repo {
-                    out.clean_repo_dir()?;
+                if let Either::Left(out) = &out {
+                    if !self.keep_repo {
+                        out.clean_repo_dir()?;
+                    }
                 }
                 Ok(out)
             })

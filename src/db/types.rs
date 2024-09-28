@@ -5,7 +5,7 @@ use crate::{
 };
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
-use musli::{storage, Decode, Encode};
+use musli::{Decode, Encode};
 use std::fmt;
 
 // 由于我们想对每个检查出了结果时缓存，而不是在仓库所有检查完成时缓存，这里需要重复数据。
@@ -44,7 +44,7 @@ impl CacheRepoKeyCmd {
     }
 }
 
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Encode, Decode, Clone)]
 pub struct CacheRepoKey {
     repo: CacheRepo,
     cmd: CacheRepoKeyCmd,
@@ -68,53 +68,21 @@ impl CacheRepoKey {
         )
         .entered()
     }
-}
 
-impl redb::Value for CacheRepoKey {
-    type SelfType<'a>
-        = Self
-    where
-        Self: 'a;
-
-    type AsBytes<'a>
-        = Vec<u8>
-    where
-        Self: 'a;
-
-    fn fixed_width() -> Option<usize> {
-        None
-    }
-
-    fn from_bytes<'a>(data: &'a [u8]) -> Self::SelfType<'a>
-    where
-        Self: 'a,
-    {
-        storage::from_slice(data).expect("Not a valid cache key.")
-    }
-
-    fn as_bytes<'a, 'b: 'a>(value: &'a Self::SelfType<'b>) -> Self::AsBytes<'a>
-    where
-        Self: 'a,
-        Self: 'b,
-    {
-        storage::to_vec(value).expect("Cache key can't be encoded to bytes.")
-    }
-
-    fn type_name() -> redb::TypeName {
-        redb::TypeName::new("OsCheckerCacheKey")
+    pub fn pkg_name(&self) -> &str {
+        &self.cmd.pkg_name
     }
 }
 
-impl redb::Key for CacheRepoKey {
-    fn compare(data1: &[u8], data2: &[u8]) -> std::cmp::Ordering {
-        data1.cmp(data2)
-    }
-}
+redb_value!(@key CacheRepoKey, name: "OsCheckerCacheKey",
+    read_err: "Not a valid cache key.",
+    write_err: "Cache key can't be encoded to bytes."
+);
 
 #[derive(Debug, Encode, Decode, Clone)]
 pub struct CacheRepo {
-    user: String,
-    repo: String,
+    pub user: String,
+    pub repo: String,
     sha: String,
     branch: String,
 }
@@ -129,6 +97,19 @@ impl CacheRepo {
             sha: sha.trim().to_owned(),
             branch: branch.trim().to_owned(),
         })
+    }
+
+    pub fn new_with_sha(user: &str, repo: &str, sha: &str, branch: String) -> Self {
+        Self {
+            user: user.to_owned(),
+            repo: repo.to_owned(),
+            sha: sha.to_owned(),
+            branch,
+        }
+    }
+
+    pub fn assert_eq_sha(&self, other: &Self, err: &str) {
+        assert_eq!(self.sha, other.sha, "{err}");
     }
 }
 
@@ -152,43 +133,19 @@ struct CacheCmd {
     flags: Vec<String>,
 }
 
-// #[derive(Debug, Encode, Decode)]
-// pub struct CacheRepoValue {
-//     inner: Vec<CacheValue>,
-// }
-
-// impl CacheRepoValue {
-//     pub(super) fn update_unix_timestamp(&mut self) {
-//         for cache in &mut self.inner {
-//             cache.update_unix_timestamp();
-//         }
-//     }
-// }
-
-#[derive(Encode, Decode)]
-pub struct CacheValue {
-    unix_timestamp_milli: u64,
-    cmd: CacheRepoKeyCmd,
-    diagnostics: OutputData,
-}
-
-impl fmt::Debug for CacheValue {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("CacheValue")
-            .field(
-                "unix_timestamp_milli",
-                &parse_now(self.unix_timestamp_milli)
-                    .to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap()),
-            )
-            .field("diagnostics.len", &self.diagnostics.data.len())
-            .finish()
-    }
-}
-
 #[derive(Encode, Decode)]
 pub struct OutputData {
     pub duration_ms: u64,
     pub data: Vec<OutputDataInner>,
+}
+
+impl fmt::Debug for OutputData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OutputData")
+            .field("duration_ms", &self.duration_ms)
+            .field("data.len", &self.data.len())
+            .finish()
+    }
 }
 
 #[derive(Encode, Decode)]
@@ -205,49 +162,29 @@ impl OutputDataInner {
     }
 }
 
-impl fmt::Debug for OutputData {
+#[derive(Encode, Decode)]
+pub struct CacheValue {
+    unix_timestamp_milli: u64,
+    cmd: CacheRepoKeyCmd,
+    diagnostics: OutputData,
+}
+
+impl fmt::Debug for CacheValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("OutputData")
-            .field("duration_ms", &self.duration_ms)
-            .field("data.len", &self.data.len())
+        f.debug_struct("CacheValue")
+            .field(
+                "unix_timestamp_milli",
+                &super::parse_unix_timestamp_milli(self.unix_timestamp_milli),
+            )
+            .field("diagnostics.len", &self.diagnostics.data.len())
             .finish()
     }
 }
 
-impl redb::Value for CacheValue {
-    type SelfType<'a>
-        = Self
-    where
-        Self: 'a;
-
-    type AsBytes<'a>
-        = Vec<u8>
-    where
-        Self: 'a;
-
-    fn fixed_width() -> Option<usize> {
-        None
-    }
-
-    fn from_bytes<'a>(data: &'a [u8]) -> Self::SelfType<'a>
-    where
-        Self: 'a,
-    {
-        storage::from_slice(data).expect("Not a valid cache value.")
-    }
-
-    fn as_bytes<'a, 'b: 'a>(value: &'a Self::SelfType<'b>) -> Self::AsBytes<'a>
-    where
-        Self: 'a,
-        Self: 'b,
-    {
-        storage::to_vec(value).expect("Cache value can't be encoded to bytes.")
-    }
-
-    fn type_name() -> redb::TypeName {
-        redb::TypeName::new("OsCheckerCacheValue")
-    }
-}
+redb_value!(CacheValue, name: "OsCheckerCacheValue",
+    read_err: "Not a valid cache value.",
+    write_err: "Cache value can't be encoded to bytes."
+);
 
 impl CacheValue {
     pub fn new(resolve: &Resolve, duration_ms: u64, data: Vec<OutputDataInner>) -> Self {
@@ -311,16 +248,7 @@ impl CacheValue {
 /// Returns the current unix timestamp in milliseconds.
 pub fn now() -> u64 {
     let t = time::OffsetDateTime::from(std::time::SystemTime::now());
-    let milli = t.millisecond() as u64;
-    let unix_t_secs = t.unix_timestamp() as u64;
-    unix_t_secs * 1000 + milli
-}
-
-pub fn parse_now(ts: u64) -> time::OffsetDateTime {
-    match time::OffsetDateTime::from_unix_timestamp((ts / 1000) as i64) {
-        Ok(t) => t,
-        Err(err) => panic!("{ts} 无法转回时间：{err}"),
-    }
+    super::unix_timestamp_milli(t)
 }
 
 #[cfg(test)]
