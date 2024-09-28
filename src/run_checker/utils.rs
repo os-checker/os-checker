@@ -3,9 +3,10 @@ use super::{
     RustcTag,
 };
 use crate::{
-    config::CheckerTool,
+    config::{CheckerTool, Resolve},
     db::{CacheRepo, CacheRepoKey, CacheValue, Db, OutputDataInner},
     output::{Cmd, Data, Kind},
+    Result,
 };
 use cargo_metadata::camino::Utf8Path;
 use std::fmt::Write;
@@ -40,10 +41,10 @@ impl RawOutput {
 
         let cache = CacheValue::new(&self.resolve, self.duration_ms, data);
         // TODO: save to db
-        if let Some(DbRepo { db, repo }) = db_repo {
-            let key = CacheRepoKey::new(repo, &self.resolve);
-            if let Err(err) = db.set(&key, &cache) {
-                error!(%err, ?db, ?key, "Unable to save the cache.");
+        if let Some(db_repo) = db_repo {
+            let key = db_repo.key(&self.resolve);
+            if let Err(err) = db_repo.db.set(&key, &cache) {
+                error!(%err, ?key, "Unable to save the cache.");
             }
         }
         cache
@@ -59,6 +60,15 @@ pub struct DbRepo<'a> {
 impl<'a> DbRepo<'a> {
     pub fn new(db: &'a Db, repo: &'a CacheRepo) -> DbRepo<'a> {
         DbRepo { db, repo }
+    }
+
+    pub fn key(self, resolve: &Resolve) -> CacheRepoKey {
+        CacheRepoKey::new(self.repo, resolve)
+    }
+
+    pub fn cache(self, resolve: &Resolve) -> Result<Option<CacheValue>> {
+        let key = self.key(resolve);
+        self.db.get(&key)
     }
 }
 

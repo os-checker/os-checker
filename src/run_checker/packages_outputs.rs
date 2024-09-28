@@ -1,6 +1,7 @@
 use super::{utils::DbRepo, Output, Resolve};
-use crate::{config::TOOLS, db::CacheValue};
+use crate::{config::TOOLS, db::CacheValue, Result};
 use color_eyre::owo_colors::OwoColorize;
+use eyre::Context;
 use indexmap::IndexMap;
 use regex::Regex;
 use std::sync::LazyLock;
@@ -58,6 +59,28 @@ impl PackagesOutputs {
         for outputs in self.values_mut() {
             outputs.inner.sort_unstable_by_key(|o| o.checker());
         }
+    }
+
+    /// 获取缓存的检查结果。
+    /// `Ok(true)` 表示成功获取；`Ok(false)` 表示无缓存；`Err` 表示获取失败。
+    pub fn fetch_cache(&mut self, resolve: &Resolve, db_repo: Option<DbRepo>) -> Result<bool> {
+        let _span = trace_span!("fetch_cache").entered();
+        if let Some(db_repo) = db_repo {
+            let cache_value = db_repo.cache(resolve).with_context(|| "获取缓存失败")?;
+            if let Some(cache) = cache_value {
+                let pkg_name = resolve.pkg_name.as_str();
+                if let Some(v) = self.get_mut(pkg_name) {
+                    v.push(cache);
+                } else {
+                    let pkg_name = pkg_name.to_owned();
+                    let outputs = Outputs { inner: vec![cache] };
+                    self.insert(pkg_name, outputs);
+                }
+                info!("成功获取缓存");
+                return Ok(true);
+            }
+        }
+        Ok(false)
     }
 
     pub fn push_output_with_cargo(&mut self, output: Output, db_repo: Option<DbRepo>) {
