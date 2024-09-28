@@ -40,7 +40,6 @@ impl RawOutput {
         };
 
         let cache = CacheValue::new(&self.resolve, self.duration_ms, data);
-        // TODO: save to db
         if let Some(db_repo) = db_repo {
             let key = db_repo.key(&self.resolve);
             if let Err(err) = db_repo.db.set(&key, &cache) {
