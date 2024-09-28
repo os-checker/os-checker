@@ -44,7 +44,7 @@ impl CacheRepoKeyCmd {
     }
 }
 
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Encode, Decode, Clone)]
 pub struct CacheRepoKey {
     repo: CacheRepo,
     cmd: CacheRepoKeyCmd,

@@ -4,7 +4,7 @@ use duct::cmd;
 use eyre::Context;
 use musli::{Decode, Encode};
 use serde::Deserialize;
-use std::fmt;
+use std::{cell::RefCell, fmt};
 
 /// Needs CLIs like gh and jq.
 /// GH_TOKEN like `GH_TOKEN: ${{ github.token }}` in Github Action.
@@ -148,12 +148,16 @@ pub fn info(user: &str, repo: &str, config: RepoConfig) -> Result<InfoKeyValue> 
         caches: vec![],
         latest_commit,
     };
-    Ok(InfoKeyValue { key, val })
+    Ok(InfoKeyValue {
+        key,
+        val: RefCell::new(val),
+    })
 }
 
 pub struct InfoKeyValue {
     key: InfoKey,
-    val: Info,
+    /// 目前所有检查是单线程的，并且每个仓库是独立检查的
+    val: RefCell<Info>,
 }
 
 impl InfoKeyValue {
@@ -166,6 +170,12 @@ impl InfoKeyValue {
 
     pub fn get_from_db(&self, db: &Db) -> Result<Option<Info>> {
         db.get_info(&self.key)
+    }
+
+    pub fn append_cache_key(&self, cache_key: &CacheRepoKey, db: &Db) -> Result<()> {
+        let mut val = self.val.borrow_mut();
+        val.caches.push(cache_key.clone());
+        db.set_info(&self.key, &val)
     }
 }
 
@@ -187,5 +197,5 @@ fn get_default_branch() -> Result<()> {
 pub fn os_checker() -> Result<(InfoKey, Info)> {
     let user = "os-checker";
     let repo = "os-checker";
-    info(user, repo, RepoConfig::default()).map(|InfoKeyValue { key, val }| (key, val))
+    info(user, repo, RepoConfig::default()).map(|InfoKeyValue { key, val }| (key, val.into_inner()))
 }

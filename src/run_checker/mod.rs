@@ -28,7 +28,6 @@ use packages_outputs::PackagesOutputs;
 mod tests;
 
 pub struct RepoOutput {
-    info: Box<InfoKeyValue>,
     repo: Repo,
     outputs: PackagesOutputs,
 }
@@ -140,7 +139,7 @@ impl Repo {
             CacheRepo::new(user, repo, root)?
         };
         info.assert_eq_sha(&repo);
-        let db_repo = db.map(|db| DbRepo::new(db, &repo));
+        let db_repo = db.map(|db| DbRepo::new(db, &repo, info));
 
         match err_or_resolve {
             Either::Left(resolve) => {
@@ -226,11 +225,7 @@ impl RepoOutput {
         info!(repo_root = %repo.layout.repo_root(), "uninstall toolchains");
         repo.layout.uninstall_toolchains()?;
 
-        Ok(Either::Left(RepoOutput {
-            info,
-            repo,
-            outputs,
-        }))
+        Ok(Either::Left(RepoOutput { repo, outputs }))
     }
 }
 
