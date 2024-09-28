@@ -69,11 +69,11 @@ impl RepoOutput {
             }
         }
 
-        let rust_toolchain_idxs = self.repo.layout.rust_toolchain_idxs();
+        // let rust_toolchain_idxs = self.repo.layout.rust_toolchain_idxs();
         json.env.repos.push(Repo {
             user,
             repo,
-            rust_toolchain_idxs,
+            // rust_toolchain_idxs,
         });
     }
 

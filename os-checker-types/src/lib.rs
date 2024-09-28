@@ -40,9 +40,9 @@ pub struct ToolOsChecker {
 pub struct Repo {
     pub user: XString,
     pub repo: XString,
-    /// 绝大部分情况下一个仓库要么没有设置工具链，要么设置一个，但也不排除诡异的多
-    /// workspace/pkg 会设置自己的工具链。因此此数组长度可能为 0、1、甚至更多。
-    pub rust_toolchain_idxs: Vec<usize>,
+    // /// 绝大部分情况下一个仓库要么没有设置工具链，要么设置一个，但也不排除诡异的多
+    // /// workspace/pkg 会设置自己的工具链。因此此数组长度可能为 0、1、甚至更多。
+    // pub rust_toolchain_idxs: Vec<usize>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -237,10 +237,10 @@ impl Layout {
         Ok(Packages { map })
     }
 
-    pub fn rust_toolchain_idxs(&self) -> Vec<usize> {
-        let toolchains = self.packages_info.iter().filter_map(|p| p.toolchain);
-        toolchains.sorted().dedup().collect()
-    }
+    // pub fn rust_toolchain_idxs(&self) -> Vec<usize> {
+    //     let toolchains = self.packages_info.iter().filter_map(|p| p.toolchain);
+    //     toolchains.sorted().dedup().collect()
+    // }
 
     pub fn set_installation_targets(&mut self, targets: TargetsSpecifed) {
         // 如果配置文件设置了 targets，则直接覆盖
