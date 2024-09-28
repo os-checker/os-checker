@@ -223,6 +223,7 @@ impl RepoOutput {
         outputs.sort_by_name_and_checkers();
         if let Some(db) = repo.config.db() {
             info.set_complete(db)?;
+            info!("已设置键缓存 complete 为 true");
         }
 
         info!(repo_root = %repo.layout.repo_root(), "uninstall toolchains");

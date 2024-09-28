@@ -48,7 +48,7 @@ impl RawOutput {
             }
             // 写入键缓存
             if let Err(err) = info.append_cache_key(&key, db) {
-                error!(%err, ?key, "Unable to save the cache.");
+                error!(%err, ?key, "Unable to save the key cache.");
             }
         }
         cache
