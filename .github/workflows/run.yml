@@ -32,6 +32,7 @@ jobs:
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
+          wget https://raw.githubusercontent.com/os-checker/database/refs/heads/debug/cache.redb -O ~/check/cache.redb
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
@@ -65,5 +66,6 @@ jobs:
 
           rm -rf batch # 移除旧的 batch 数据
           cp -r ~/check/batch . # 更新新的 batch 数据
+          cp ~/check/cache.redb .
           sh push.sh
 
