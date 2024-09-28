@@ -1,8 +1,4 @@
-use crate::{
-    config::CheckerTool,
-    run_checker::{FullOrFastOutputs, RepoOutput},
-    XString,
-};
+use crate::{config::CheckerTool, run_checker::FullOrFastOutputs, XString};
 use cargo_metadata::camino::Utf8PathBuf;
 use either::Either;
 use musli::{Decode, Encode};
