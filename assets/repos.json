@@ -1,5 +1,38 @@
 {
-  "os-checker/os-checker-test-suite": {},
+  "arceos-org/arceos": {
+    "packages": {
+      "bwbench-client": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "deptool": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "arceos-shell": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "arceos-httpserver": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "arceos-httpclient": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "arceos-helloworld": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
+    }
+  },
+  "kern-crates/sel4_cspace": {
+    "targets": "riscv64gc-unknown-none-elf"
+  },
+  "kern-crates/rcore-tutorial-v3-with-hal-component": {
+    "targets": "x86_64-unknown-linux-gnu"
+  },
+  "Starry-OS/Starry": {
+    "targets": "x86_64-unknown-linux-gnu"
+  },
+  "kern-crates/zCore": {
+    "no_install_targets": "x86_64-unknown-uefi"
+  },
   "kern-crates/rboot": {
     "no_install_targets": "x86_64-unknown-uefi"
   }
