@@ -23,11 +23,12 @@ impl Db {
     #[instrument(level = "info")]
     pub fn new(path: &Utf8Path) -> Result<Db> {
         let db = Database::create(path).with_context(|| "无法创建或者打开 redb 数据库文件")?;
-        let db = Arc::new(db);
-        Ok(Db {
-            db,
+        let db = Db {
+            db: Arc::new(db),
             path: path.into(),
-        })
+        };
+        db.write(|_| Ok(()))?; // 如果这个表不存在，那么创建它
+        Ok(db)
     }
 
     pub fn get(&self, key: &CacheRepoKey) -> Result<Option<CacheValue>> {
