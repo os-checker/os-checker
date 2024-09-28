@@ -32,7 +32,7 @@ jobs:
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
-          wget https://raw.githubusercontent.com/os-checker/database/refs/heads/debug/cache.redb -O ~/check/cache.redb
+          wget https://raw.githubusercontent.com/os-checker/database/refs/heads/debug/cache.redb -O ~/check/cache.redb && true
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
