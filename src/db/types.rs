@@ -68,6 +68,10 @@ impl CacheRepoKey {
         )
         .entered()
     }
+
+    pub fn pkg_name(&self) -> &str {
+        &self.cmd.pkg_name
+    }
 }
 
 redb_value!(@key CacheRepoKey, name: "OsCheckerCacheKey",

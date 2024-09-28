@@ -1,5 +1,8 @@
 use super::{utils::DbRepo, Output, Resolve};
-use crate::{config::TOOLS, db::CacheValue};
+use crate::{
+    config::TOOLS,
+    db::{CacheRepoKey, CacheValue},
+};
 use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
 use regex::Regex;
@@ -29,8 +32,8 @@ impl Outputs {
         &self.inner
     }
 
-    pub fn push(&mut self, output: CacheValue) {
-        self.inner.push(output);
+    pub fn push(&mut self, cache: CacheValue) {
+        self.inner.push(cache);
     }
 }
 
@@ -38,6 +41,23 @@ impl Outputs {
 pub struct PackagesOutputs {
     // key 为 pkg_name, value 为 outputs
     map: IndexMap<PackageName, Outputs>,
+}
+
+impl From<Vec<(&CacheRepoKey, CacheValue)>> for PackagesOutputs {
+    fn from(v: Vec<(&CacheRepoKey, CacheValue)>) -> Self {
+        let mut map = IndexMap::<PackageName, Outputs>::with_capacity(v.len());
+        for (key, cache) in v {
+            let pkg_name = key.pkg_name();
+            if let Some(outputs) = map.get_mut(pkg_name) {
+                outputs.push(cache);
+            } else {
+                map.insert(pkg_name.to_owned(), Outputs { inner: vec![cache] });
+            }
+        }
+        let mut outputs = PackagesOutputs { map };
+        outputs.sort_by_name_and_checkers();
+        outputs
+    }
 }
 
 impl PackagesOutputs {
