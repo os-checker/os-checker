@@ -18,8 +18,7 @@ mod checker;
 pub use checker::{CheckerTool, TOOLS};
 
 mod deserialization;
-use deserialization::RepoConfig;
-pub use deserialization::{gen_schema, TargetsSpecifed};
+pub use deserialization::{gen_schema, RepoConfig, TargetsSpecifed};
 
 #[cfg(test)]
 mod tests;

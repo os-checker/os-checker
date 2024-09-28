@@ -25,7 +25,8 @@
 //!   "{$meta, sha: .commit.sha, mes: .commit.commit.message, author: .commit.commit.author, committer: .commit.commit.committer}"
 //! ```
 
-use crate::{Result, XString};
+use super::{CacheRepo, CacheRepoKey};
+use crate::{config::RepoConfig, Result, XString};
 use duct::cmd;
 use eyre::Context;
 use musli::{Decode, Encode};
@@ -46,15 +47,18 @@ fn default_branch(user: &str, repo: &str) -> Result<String> {
     gh_api(arg, ".default_branch".to_owned())
 }
 
-#[derive(Debug, Deserialize, Encode, Decode)]
-pub struct InfoRepo {
+#[derive(Debug, Encode, Decode)]
+pub struct InfoKey {
+    repo: CacheRepo,
     #[musli(with = musli::serde)]
-    user: XString,
-    #[musli(with = musli::serde)]
-    repo: XString,
-    /// default branch
-    #[musli(with = musli::serde)]
-    branch: XString,
+    config: RepoConfig,
+}
+
+#[derive(Debug, Encode, Decode)]
+pub struct Info {
+    /// 缓存信息
+    caches: Vec<CacheRepoKey>,
+    /// 仓库最新提交信息
     latest_commit: LatestCommit,
 }
 
@@ -109,23 +113,16 @@ fn parse_datetime(dt: &str) -> u64 {
     super::unix_timestamp_milli(local)
 }
 
-fn info_repo(user: &str, repo: &str) -> Result<InfoRepo> {
+fn info_repo(user: &str, repo: &str) -> Result<LatestCommit> {
     let branch = default_branch(user, repo)?;
-    let arg = format!("repos/os-checker/os-checker/branches/{branch}");
-    let jq = format!(
-        "
-          {{
-            user: \"{user}\", repo: \"{repo}\", branch: \"{branch}\", 
-            latest_commit: {{
-                sha: .commit.sha,
-                mes: .commit.commit.message,
-                author: .commit.commit.author,
-                committer: .commit.commit.committer
-            }}
-          }}
-        "
-    );
-    serde_json::from_str(&gh_api(arg, jq)?).with_context(|| "无法获取仓库最新提交信息")
+    let arg = format!("repos/{user}/{repo}/branches/{branch}");
+    let jq = "{
+              sha: .commit.sha,
+              mes: .commit.commit.message,
+              author: .commit.commit.author,
+              committer: .commit.commit.committer
+          }";
+    serde_json::from_str(&gh_api(arg, jq.to_owned())?).with_context(|| "无法获取仓库最新提交信息")
 }
 
 #[test]
