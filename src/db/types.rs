@@ -63,6 +63,7 @@ impl CacheRepoKey {
             "CacheRepoKey",
             user = self.repo.user,
             repo = self.repo.repo,
+            pkg = self.cmd.pkg_name,
             cmd = self.cmd.cmd.cmd
         )
         .entered()

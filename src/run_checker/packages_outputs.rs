@@ -63,8 +63,7 @@ impl PackagesOutputs {
     /// 获取缓存的检查结果。
     /// `true` 表示成功获取；`false` 表示无缓存。
     pub fn fetch_cache(&mut self, resolve: &Resolve, db_repo: Option<DbRepo>) -> bool {
-        let _span =
-            error_span!("fetch_cache", %resolve.pkg_name, resolve.target, resolve.cmd).entered();
+        let _span = error_span!("fetch_cache", %resolve.pkg_name, resolve.cmd).entered();
         if let Some(db_repo) = db_repo {
             match db_repo.cache(resolve) {
                 Ok(Some(cache)) => {
