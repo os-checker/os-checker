@@ -42,7 +42,7 @@ impl RawOutput {
         let cache = CacheValue::new(&self.resolve, self.duration_ms, data);
         if let Some(db_repo) = db_repo {
             let key = db_repo.key(&self.resolve);
-            if let Err(err) = db_repo.db.set(&key, &cache) {
+            if let Err(err) = db_repo.db.set_cache(&key, &cache) {
                 error!(%err, ?key, "Unable to save the cache.");
             }
         }
@@ -67,7 +67,7 @@ impl<'a> DbRepo<'a> {
 
     pub fn cache(self, resolve: &Resolve) -> Result<Option<CacheValue>> {
         let key = self.key(resolve);
-        self.db.get(&key)
+        self.db.get_cache(&key)
     }
 }
 

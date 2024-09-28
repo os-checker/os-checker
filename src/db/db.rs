@@ -2,10 +2,10 @@ use super::{CacheRepoKey, CacheValue};
 use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;
-use redb::{Database, Table, TableDefinition};
+use redb::{Database, Key, Table, TableDefinition, Value};
 use std::sync::Arc;
 
-const TABLE: TableDefinition<CacheRepoKey, CacheValue> = TableDefinition::new("data");
+const DATA: TableDefinition<CacheRepoKey, CacheValue> = TableDefinition::new("data");
 
 #[derive(Clone)]
 pub struct Db {
@@ -27,27 +27,36 @@ impl Db {
             db: Arc::new(db),
             path: path.into(),
         };
-        db.write(|_| Ok(()))?; // 如果这个表不存在，那么创建它
+        db.write(DATA, |_| Ok(()))?; // 如果这个表不存在，那么创建它
         Ok(db)
     }
 
-    pub fn get(&self, key: &CacheRepoKey) -> Result<Option<CacheValue>> {
-        let table = self.db.begin_read()?.open_table(TABLE)?;
+    pub fn get_cache(&self, key: &CacheRepoKey) -> Result<Option<CacheValue>> {
+        self.read(DATA, key)
+    }
+
+    pub fn read<K, V>(&self, table: TableDefinition<K, V>, key: &K) -> Result<Option<V>>
+    where
+        K: for<'a> Key<SelfType<'a> = K>,
+        V: for<'a> Value<SelfType<'a> = V>,
+    {
+        let table = self.db.begin_read()?.open_table(table)?;
         Ok(table.get(key)?.map(|guard| guard.value()))
     }
 
-    fn write(
+    fn write<K: Key, V: Value>(
         &self,
-        f: impl for<'a> FnOnce(&mut Table<'a, CacheRepoKey, CacheValue>) -> Result<()>,
+        table: TableDefinition<K, V>,
+        f: impl for<'a> FnOnce(&mut Table<'a, K, V>) -> Result<()>,
     ) -> Result<()> {
         let write_txn = self.db.begin_write()?;
-        f(&mut write_txn.open_table(TABLE)?)?;
+        f(&mut write_txn.open_table(table)?)?;
         write_txn.commit()?;
         Ok(())
     }
 
-    pub fn set(&self, key: &CacheRepoKey, value: &CacheValue) -> Result<()> {
-        self.write(|table| {
+    pub fn set_cache(&self, key: &CacheRepoKey, value: &CacheValue) -> Result<()> {
+        self.write(DATA, |table| {
             table.insert(key, value)?;
             let _span = key.span();
             info!("Successfully cached a checking result.");
@@ -61,7 +70,7 @@ impl Db {
         key: &CacheRepoKey,
         f: impl FnOnce(Option<CacheValue>) -> Result<CacheValue>,
     ) -> Result<()> {
-        self.write(|table| {
+        self.write(DATA, |table| {
             let opt_value = table.remove(key)?.map(|guard| guard.value());
             let mut value = f(opt_value)?;
             value.update_unix_timestamp();
