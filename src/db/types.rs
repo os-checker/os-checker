@@ -58,13 +58,14 @@ impl CacheRepoKey {
         }
     }
 
-    pub fn span(&self) -> tracing::Span {
+    pub fn span(&self) -> tracing::span::EnteredSpan {
         error_span!(
             "CacheRepoKey",
             user = self.repo.user,
             repo = self.repo.repo,
             cmd = self.cmd.cmd.cmd
         )
+        .entered()
     }
 }
 
