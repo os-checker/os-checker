@@ -267,7 +267,7 @@ fn run_check(
     match outputs.fetch_cache(&resolve, db_repo) {
         Ok(true) => return Ok(()),
         Ok(false) => (),
-        Err(err) => error!(%err),
+        Err(err) => warn!(%err),
     }
 
     let expr = resolve.expr.clone();

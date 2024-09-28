@@ -64,7 +64,7 @@ impl PackagesOutputs {
     /// 获取缓存的检查结果。
     /// `Ok(true)` 表示成功获取；`Ok(false)` 表示无缓存；`Err` 表示获取失败。
     pub fn fetch_cache(&mut self, resolve: &Resolve, db_repo: Option<DbRepo>) -> Result<bool> {
-        let _span = trace_span!("fetch_cache").entered();
+        let _span = error_span!("fetch_cache").entered();
         if let Some(db_repo) = db_repo {
             let cache_value = db_repo.cache(resolve).with_context(|| "获取缓存失败")?;
             if let Some(cache) = cache_value {
