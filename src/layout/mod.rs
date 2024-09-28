@@ -11,7 +11,6 @@ use cargo_metadata::{
     Metadata, MetadataCommand,
 };
 use indexmap::IndexMap;
-use itertools::Itertools;
 use std::{collections::BTreeMap, fmt};
 
 #[cfg(test)]

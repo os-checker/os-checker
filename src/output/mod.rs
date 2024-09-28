@@ -193,7 +193,7 @@ impl Kinds {
                 Cargo,
                 ClippyError,
                 ClippyWarn,
-                Mirai,
+                // Mirai,
                 LockbudProbably,
                 LockbudPossibly,
                 Unformatted,
@@ -201,7 +201,7 @@ impl Kinds {
             mapping: serde_json::json!({
                 "cargo": [Cargo],
                 "clippy": [ClippyError, ClippyWarn],
-                "mirai": [Mirai],
+                // "mirai": [Mirai],
                 "lockbud": [LockbudProbably, LockbudPossibly],
                 "fmt": [Unformatted]
             }),
