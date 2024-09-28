@@ -18,6 +18,7 @@ prettydiff = { version = "0.7.0", default-features = false }
 either = "1"
 schemars = { version = "1.0.0-alpha.15", features = ["preserve_order", "indexmap2"] }
 strip-ansi-escapes = "0.2"
+replace_with = "0.1"
 
 # error handling
 eyre = { workspace = true }
@@ -36,6 +37,10 @@ rayon = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 compact_str = { workspace = true }
+redb = { workspace = true }
+musli = { workspace = true }
+time = { workspace = true }
+camino = { workspace = true }
 
 # shell commands
 duct = { workspace = true }
@@ -69,6 +74,10 @@ color-eyre = "0.6.3"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tracing-error = "0.2"
+
+redb = "2"
+musli = { version = "0.0.124", features = ["storage", "serde"] }
+time = "0.3"
 
 [workspace]
 exclude = ["repos/**"]

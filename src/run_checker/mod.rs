@@ -1,5 +1,6 @@
 use crate::{
     config::{CheckerTool, Config, Resolve},
+    db::CacheRepo,
     layout::Layout,
     output::JsonOutput,
     Result, XString,
@@ -14,6 +15,7 @@ use eyre::Context;
 use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
+use utils::DbRepo;
 
 mod lockbud;
 /// 把获得的输出转化成 JSON 所需的输出
@@ -60,7 +62,7 @@ impl RepoOutput {
                     user: user.clone(),
                     repo: repo.clone(),
                 },
-                rust_toolchain_idx: v.as_slice().first().and_then(|o| o.resolve.toolchain),
+                // rust_toolchain_idx: v.as_slice().first().and_then(|o| o.resolve.toolchain),
             });
             for o in v.as_slice() {
                 utils::push_idx_and_data(pkg_idx, o, &mut json.cmd, &mut json.data);
@@ -113,10 +115,20 @@ impl Repo {
     fn run_check(&self) -> Result<PackagesOutputs> {
         let mut outputs = PackagesOutputs::new();
         let err_or_resolve = self.resolve()?;
+
+        let db = self.config.db();
+        let repo = {
+            let user = self.config.user_name();
+            let repo = self.config.repo_name();
+            let root = self.layout.repo_root();
+            CacheRepo::new(user, repo, root)?
+        };
+        let db_repo = db.map(|db| DbRepo::new(db, &repo));
+
         match err_or_resolve {
             Either::Left(resolve) => {
                 for resolve in resolve {
-                    run_check(resolve, &mut outputs)?;
+                    run_check(resolve, &mut outputs, db_repo)?;
                 }
             }
             Either::Right(err) => {
@@ -124,7 +136,7 @@ impl Repo {
                 let pkg_name = String::new();
                 let repo_root = self.layout.repo_root();
                 let output = Output::new_cargo_from_layout_parse_error(&pkg_name, repo_root, err);
-                outputs.push_cargo_layout_parse_error(pkg_name, output);
+                outputs.push_cargo_layout_parse_error(pkg_name, output, db_repo);
             }
         }
         Ok(outputs)
@@ -246,8 +258,16 @@ enum CargoSource {
 }
 
 /// 以子进程方式执行检查
-#[instrument(level = "trace")]
-fn run_check(resolve: Resolve, outputs: &mut PackagesOutputs) -> Result<()> {
+fn run_check(
+    resolve: Resolve,
+    outputs: &mut PackagesOutputs,
+    db_repo: Option<DbRepo>,
+) -> Result<()> {
+    // 从缓存中获取结果，如果获取成功，则不执行实际的检查
+    if outputs.fetch_cache(&resolve, db_repo) {
+        return Ok(());
+    }
+
     let expr = resolve.expr.clone();
     let (duration_ms, raw) = crate::utils::execution_time_ms(|| {
         expr.stderr_capture().stdout_capture().unchecked().run()
@@ -320,7 +340,7 @@ fn run_check(resolve: Resolve, outputs: &mut PackagesOutputs) -> Result<()> {
         resolve,
     };
 
-    outputs.push_output_with_cargo(output);
+    outputs.push_output_with_cargo(output, db_repo);
 
     Ok(())
 }

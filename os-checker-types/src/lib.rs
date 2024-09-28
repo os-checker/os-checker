@@ -49,8 +49,8 @@ pub struct Repo {
 pub struct Package {
     pub name: XString,
     pub repo: PackageRepo,
-    /// 这里表示仓库设置给的 pkg 设置的工具链，如果没有设置，则为 None
-    pub rust_toolchain_idx: Option<usize>,
+    // 这里表示仓库设置给的 pkg 设置的工具链，如果没有设置，则为 None
+    // pub rust_toolchain_idx: Option<usize>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -77,8 +77,9 @@ pub struct Cmd {
     pub arch: XString,
     /// FIXME: 替换成 target_idx
     pub target_triple: String,
-    /// 如果仓库没有指定工具链，则使用主机工具链
-    pub rust_toolchain_idx: usize,
+    // 如果仓库没有指定工具链，则使用主机工具链
+    // pub rust_toolchain_idx: usize,
+    pub rust_toolchain: String,
     pub features: Vec<XString>,
     pub flags: Vec<XString>,
 }

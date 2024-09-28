@@ -240,7 +240,7 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         targets: Some(get_installed(RustupList::Target)?),
         components: Some(get_installed(RustupList::Component)?),
         toml_path: Utf8Path::new(".").canonicalize_utf8()?,
-        install_clippy: false,
+        need_install_clippy: false,
         peculiar_targets: None,
     };
     if is_not_layout() {

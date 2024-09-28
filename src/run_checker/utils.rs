@@ -3,8 +3,10 @@ use super::{
     RustcTag,
 };
 use crate::{
-    config::CheckerTool,
+    config::{CheckerTool, Resolve},
+    db::{CacheRepo, CacheRepoKey, CacheValue, Db, OutputDataInner},
     output::{Cmd, Data, Kind},
+    Result,
 };
 use cargo_metadata::camino::Utf8Path;
 use std::fmt::Write;
@@ -12,101 +14,90 @@ use std::fmt::Write;
 /// 将一次工具的检查命令推入一次 `Vec<Idx>`，并把原始输出全部推入 `Vec<Data>`。
 pub fn push_idx_and_data(
     package_idx: usize,
-    raw: &RawOutput,
+    cache: &CacheValue,
     cmds: &mut Vec<Cmd>,
     data: &mut Vec<Data>,
 ) {
-    // TODO: 这些等会解决
-    let (features, flags) = Default::default();
-    let cmd_item = Cmd {
-        package_idx,
-        tool: raw.resolve.checker,
-        count: raw.count,
-        duration_ms: raw.duration_ms,
-        cmd: raw.resolve.cmd.clone(),
-        arch: raw
-            .resolve
-            .target
-            .split_once("-")
-            .map(|(arch, _)| arch.into())
-            .unwrap_or_default(),
-        target_triple: raw.resolve.target.clone(),
-        rust_toolchain_idx: raw.resolve.toolchain.unwrap_or(0),
-        features,
-        flags,
-    };
+    let cmd_item = cache.to_cmd(package_idx);
     let cmd_idx = cmds.len();
     cmds.push(cmd_item);
-
-    let with = WithData {
-        data,
-        cmd_idx,
-        root: &raw.resolve.pkg_dir,
-    };
-    push_data(raw, with);
+    cache.append_to_data(cmd_idx, data);
 }
 
-fn push_data(out: &RawOutput, with: WithData) {
-    // 由于路径的唯一性在这变得重要，需要提前归一化路径；两条思路：
-    // * package_name 暗含了库的根目录，因此需要把路径的根目录去掉（选择了这条）
-    // * 如果能保证都是绝对路径，那么不需要处理路径
-    match &out.parsed {
-        OutputParsed::Fmt(v) => push_unformatted(v, with),
-        OutputParsed::Clippy(v) => push_rustc_diagnostics(CheckerTool::Clippy, v, with),
-        OutputParsed::Mirai(v) => push_rustc_diagnostics(CheckerTool::Mirai, v, with),
-        OutputParsed::Lockbud(s) => {
-            if !s.is_empty() {
-                with.data.push(Data {
-                    cmd_idx: with.cmd_idx,
-                    file: "Not supported to display yet.".into(),
-                    // FIXME: 目前 lockbud 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
-                    kind: if s.contains(r#""possibility": "Possibly","#) {
-                        Kind::LockbudPossibly
-                    } else {
-                        Kind::LockbudProbably
-                    },
-                    raw: s.clone(),
-                });
+impl RawOutput {
+    pub fn to_cache(&self, db_repo: Option<DbRepo>) -> CacheValue {
+        let root = &self.resolve.pkg_dir;
+
+        // 由于路径的唯一性在这变得重要，需要提前归一化路径；两条思路：
+        // * package_name 暗含了库的根目录，因此需要把路径的根目录去掉（选择了这条）
+        // * 如果能保证都是绝对路径，那么不需要处理路径
+        let data = match &self.parsed {
+            OutputParsed::Fmt(v) => data_unformatted(v, root),
+            OutputParsed::Clippy(v) => data_rustc(CheckerTool::Clippy, v, root),
+            OutputParsed::Mirai(v) => data_rustc(CheckerTool::Mirai, v, root),
+            OutputParsed::Lockbud(s) => data_lockbud(s),
+            OutputParsed::Cargo { source, stderr } => data_cargo(source, stderr),
+        };
+
+        let cache = CacheValue::new(&self.resolve, self.duration_ms, data);
+        if let Some(db_repo) = db_repo {
+            let key = db_repo.key(&self.resolve);
+            if let Err(err) = db_repo.db.set(&key, &cache) {
+                error!(%err, ?key, "Unable to save the cache.");
             }
         }
-        OutputParsed::Cargo { source, stderr } => {
-            let file = match source {
-                CargoSource::Checker(checker) => format!("(virtual) {}", checker.name()).into(),
-                CargoSource::LayoutParseError(repo_root) => (&**repo_root).into(),
-            };
-            with.data.push(Data {
-                cmd_idx: with.cmd_idx,
-                file,
-                kind: Kind::Cargo,
-                raw: stderr.clone(),
-            });
-        }
-    };
+        cache
+    }
 }
 
-struct WithData<'data, 'root> {
-    data: &'data mut Vec<Data>,
-    cmd_idx: usize,
-    root: &'root Utf8Path,
+#[derive(Clone, Copy, Debug)]
+pub struct DbRepo<'a> {
+    db: &'a Db,
+    repo: &'a CacheRepo,
+}
+
+impl<'a> DbRepo<'a> {
+    pub fn new(db: &'a Db, repo: &'a CacheRepo) -> DbRepo<'a> {
+        DbRepo { db, repo }
+    }
+
+    pub fn key(self, resolve: &Resolve) -> CacheRepoKey {
+        CacheRepoKey::new(self.repo, resolve)
+    }
+
+    pub fn cache(self, resolve: &Resolve) -> Result<Option<CacheValue>> {
+        let key = self.key(resolve);
+        self.db.get(&key)
+    }
+}
+
+fn data_cargo(source: &CargoSource, stderr: &str) -> Vec<OutputDataInner> {
+    let file = match source {
+        CargoSource::Checker(checker) => format!("(virtual) {}", checker.name()).into(),
+        CargoSource::LayoutParseError(repo_root) => (&**repo_root).into(),
+    };
+    let data = OutputDataInner::new(file, Kind::Cargo, stderr.to_owned());
+    vec![data]
+}
+
+fn data_lockbud(s: &str) -> Vec<OutputDataInner> {
+    if s.is_empty() {
+        Vec::new()
+    } else {
+        // FIXME: 目前 lockbud 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
+        let kind = if s.contains(r#""possibility": "Possibly","#) {
+            Kind::LockbudPossibly
+        } else {
+            Kind::LockbudProbably
+        };
+        let data = OutputDataInner::new("Not supported to display yet.".into(), kind, s.to_owned());
+        vec![data]
+    }
 }
 
 /// 尽可能缩短绝对路径到相对路径
 fn strip_prefix<'f>(file: &'f Utf8Path, root: &Utf8Path) -> &'f Utf8Path {
     file.strip_prefix(root).unwrap_or(file)
-}
-
-fn push_unformatted(v: &[FmtMessage], with: WithData) {
-    for mes in v {
-        // NOTE: 该路径似乎是绝对路径
-        let file = strip_prefix(&mes.name, with.root);
-
-        with.data.extend(raw_message_fmt(mes).map(|raw| Data {
-            cmd_idx: with.cmd_idx,
-            file: file.to_owned(),
-            kind: Kind::Unformatted,
-            raw,
-        }));
-    }
 }
 
 fn raw_message_fmt(mes: &FmtMessage) -> impl '_ + ExactSizeIterator<Item = String> {
@@ -151,7 +142,19 @@ fn raw_message_fmt(mes: &FmtMessage) -> impl '_ + ExactSizeIterator<Item = Strin
     })
 }
 
-fn push_rustc_diagnostics(checker: CheckerTool, v: &[RustcMessage], with: WithData) {
+fn data_unformatted(v: &[FmtMessage], root: &Utf8Path) -> Vec<OutputDataInner> {
+    let mut res = Vec::with_capacity(v.iter().map(|mes| mes.mismatches.len()).sum());
+    for mes in v {
+        // NOTE: 该路径似乎是绝对路径
+        let file = strip_prefix(&mes.name, root);
+        let iter = raw_message_fmt(mes)
+            .map(|raw| OutputDataInner::new(file.to_owned(), Kind::Unformatted, raw));
+        res.extend(iter);
+    }
+    res
+}
+
+fn data_rustc(checker: CheckerTool, v: &[RustcMessage], root: &Utf8Path) -> Vec<OutputDataInner> {
     fn raw_message_clippy(mes: &RustcMessage) -> Option<String> {
         if let CargoMessage::CompilerMessage(cmes) = &mes.inner {
             if let Some(render) = &cmes.message.rendered {
@@ -160,6 +163,8 @@ fn push_rustc_diagnostics(checker: CheckerTool, v: &[RustcMessage], with: WithDa
         }
         None
     }
+
+    let mut res = Vec::with_capacity(128);
 
     for mes in v {
         // NOTE: 该路径似乎是相对路径，但为了防止意外的绝对路径，统一去除前缀。
@@ -170,39 +175,32 @@ fn push_rustc_diagnostics(checker: CheckerTool, v: &[RustcMessage], with: WithDa
         match &mes.tag {
             RustcTag::WarnDetailed(paths) => {
                 for path in paths {
-                    let file = strip_prefix(path, with.root);
+                    let file = strip_prefix(path, root);
                     if let Some(raw) = raw_message_clippy(mes) {
-                        with.data.push(Data {
-                            cmd_idx: with.cmd_idx,
-                            file: file.to_owned(),
-                            kind: match checker {
-                                CheckerTool::Clippy => Kind::ClippyWarn,
-                                CheckerTool::Mirai => Kind::Mirai,
-                                _ => unreachable!("该函数只针对 rustc 风格的诊断"),
-                            },
-                            raw,
-                        });
+                        let kind = match checker {
+                            CheckerTool::Clippy => Kind::ClippyWarn,
+                            CheckerTool::Mirai => Kind::Mirai,
+                            _ => unreachable!("该函数只针对 rustc 风格的诊断"),
+                        };
+                        res.push(OutputDataInner::new(file.to_owned(), kind, raw));
                     };
                 }
             }
             RustcTag::ErrorDetailed(paths) => {
                 for path in paths {
-                    let file = strip_prefix(path, with.root);
+                    let file = strip_prefix(path, root);
                     if let Some(raw) = raw_message_clippy(mes) {
-                        with.data.push(Data {
-                            cmd_idx: with.cmd_idx,
-                            file: file.to_owned(),
-                            kind: match checker {
-                                CheckerTool::Clippy => Kind::ClippyError,
-                                CheckerTool::Mirai => Kind::Mirai,
-                                _ => unreachable!("该函数只针对 rustc 风格的诊断"),
-                            },
-                            raw,
-                        });
+                        let kind = match checker {
+                            CheckerTool::Clippy => Kind::ClippyError,
+                            CheckerTool::Mirai => Kind::Mirai,
+                            _ => unreachable!("该函数只针对 rustc 风格的诊断"),
+                        };
+                        res.push(OutputDataInner::new(file.to_owned(), kind, raw));
                     };
                 }
             }
             _ => (),
         }
     }
+    res
 }
