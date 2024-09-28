@@ -77,8 +77,8 @@ redb_value!(@key CacheRepoKey, name: "OsCheckerCacheKey",
 
 #[derive(Debug, Encode, Decode, Clone)]
 pub struct CacheRepo {
-    user: String,
-    repo: String,
+    pub user: String,
+    pub repo: String,
     sha: String,
     branch: String,
 }

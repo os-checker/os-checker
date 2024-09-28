@@ -54,6 +54,17 @@ pub struct InfoKey {
     config: RepoConfig,
 }
 
+redb_value!(@key InfoKey, name: "OsCheckerInfoKey",
+    read_err: "Not a valid info key.",
+    write_err: "Info key can't be encoded to bytes."
+);
+
+impl InfoKey {
+    pub fn span(&self) -> tracing::span::EnteredSpan {
+        error_span!("InfoKey", user = self.repo.user, repo = self.repo.repo).entered()
+    }
+}
+
 #[derive(Debug, Encode, Decode)]
 pub struct Info {
     /// 缓存信息
@@ -61,6 +72,11 @@ pub struct Info {
     /// 仓库最新提交信息
     latest_commit: LatestCommit,
 }
+
+redb_value!(Info, name: "OsCheckerInfo",
+    read_err: "Not a valid info value.",
+    write_err: "Info value can't be encoded to bytes."
+);
 
 #[derive(Debug, Deserialize, Encode, Decode)]
 struct LatestCommit {

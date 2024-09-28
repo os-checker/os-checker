@@ -1,4 +1,7 @@
-use super::{CacheRepoKey, CacheValue};
+use super::{
+    gh::{Info, InfoKey},
+    CacheRepoKey, CacheValue,
+};
 use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;
@@ -6,6 +9,7 @@ use redb::{Database, Key, Table, TableDefinition, Value};
 use std::sync::Arc;
 
 const DATA: TableDefinition<CacheRepoKey, CacheValue> = TableDefinition::new("data");
+const INFO: TableDefinition<InfoKey, Info> = TableDefinition::new("info");
 
 #[derive(Clone)]
 pub struct Db {
@@ -27,8 +31,16 @@ impl Db {
             db: Arc::new(db),
             path: path.into(),
         };
-        db.write(DATA, |_| Ok(()))?; // 如果这个表不存在，那么创建它
+
+        // 如果这个表不存在，那么创建它
+        db.write(DATA, |_| Ok(()))?;
+        db.write(INFO, |_| Ok(()))?;
+
         Ok(db)
+    }
+
+    pub fn get_info(&self, key: &InfoKey) -> Result<Option<Info>> {
+        self.read(INFO, key)
     }
 
     pub fn get_cache(&self, key: &CacheRepoKey) -> Result<Option<CacheValue>> {
@@ -53,6 +65,15 @@ impl Db {
         f(&mut write_txn.open_table(table)?)?;
         write_txn.commit()?;
         Ok(())
+    }
+
+    pub fn set_info(&self, key: &InfoKey, value: &Info) -> Result<()> {
+        self.write(INFO, |table| {
+            table.insert(key, value)?;
+            let _span = key.span();
+            info!("Successfully cached a repo infomation.");
+            Ok(())
+        })
     }
 
     pub fn set_cache(&self, key: &CacheRepoKey, value: &CacheValue) -> Result<()> {
