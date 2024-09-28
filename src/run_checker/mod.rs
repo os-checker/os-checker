@@ -179,14 +179,31 @@ pub type FullOrFastOutputs = Either<RepoOutput, FastOutputs>;
 
 impl RepoOutput {
     pub fn try_new(config: Config) -> Result<FullOrFastOutputs> {
+        let _span = error_span!(
+            "try_new",
+            user = config.user_name(),
+            repo = config.repo_name()
+        );
+
         let info = config.new_info()?;
 
         // TODO: construct FastOutputs
-        if true {
-            return Ok(Either::Right(FastOutputs {
-                config,
-                outputs: todo!(),
-            }));
+        if let Some(db) = config.db() {
+            match info.get_from_db(db) {
+                Ok(Some(info_cache)) => {
+                    if info_cache.is_complete() {
+                        info!("成功获取完整的仓库检查结果缓存");
+                        return Ok(Either::Right(FastOutputs {
+                            config,
+                            outputs: todo!(),
+                        }));
+                    } else {
+                        warn!("仓库检查结果缓存不完整");
+                    }
+                }
+                Ok(None) => warn!("该仓库无检查结果缓存"),
+                Err(err) => error!(?err, "获取仓库检查结果缓存失败"),
+            }
         }
 
         let mut repo = Repo::try_from(config)?;

@@ -1,4 +1,4 @@
-use super::{CacheRepo, CacheRepoKey};
+use super::{CacheRepo, CacheRepoKey, Db};
 use crate::{config::RepoConfig, Result, XString};
 use duct::cmd;
 use eyre::Context;
@@ -40,6 +40,8 @@ impl InfoKey {
 
 #[derive(Debug, Encode, Decode)]
 pub struct Info {
+    /// 该仓库的检查是否全部完成
+    complete: bool,
     /// 缓存信息
     caches: Vec<CacheRepoKey>,
     /// 仓库最新提交信息
@@ -50,6 +52,12 @@ redb_value!(Info, name: "OsCheckerInfo",
     read_err: "Not a valid info value.",
     write_err: "Info value can't be encoded to bytes."
 );
+
+impl Info {
+    pub fn is_complete(&self) -> bool {
+        self.complete
+    }
+}
 
 #[derive(Debug, Deserialize, Encode, Decode)]
 struct LatestCommit {
@@ -124,6 +132,7 @@ pub fn info(user: &str, repo: &str, config: RepoConfig) -> Result<InfoKeyValue> 
         config,
     };
     let val = Info {
+        complete: false,
         caches: vec![],
         latest_commit,
     };
@@ -136,10 +145,15 @@ pub struct InfoKeyValue {
 }
 
 impl InfoKeyValue {
+    /// 校验远程仓库的 sha 与本地仓库的 sha 是否一致
     pub fn assert_eq_sha(&self, cache_repo: &CacheRepo) {
         self.key
             .repo
             .assert_eq_sha(cache_repo, "remote sha ≠ local sha");
+    }
+
+    pub fn get_from_db(&self, db: &Db) -> Result<Option<Info>> {
+        db.get_info(&self.key)
     }
 }
 
