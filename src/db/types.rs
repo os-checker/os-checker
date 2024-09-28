@@ -177,8 +177,7 @@ impl fmt::Debug for CacheValue {
         f.debug_struct("CacheValue")
             .field(
                 "unix_timestamp_milli",
-                &parse_now(self.unix_timestamp_milli)
-                    .to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap()),
+                &super::parse_unix_timestamp_milli(self.unix_timestamp_milli),
             )
             .field("diagnostics.len", &self.diagnostics.data.len())
             .finish()
@@ -311,16 +310,7 @@ impl CacheValue {
 /// Returns the current unix timestamp in milliseconds.
 pub fn now() -> u64 {
     let t = time::OffsetDateTime::from(std::time::SystemTime::now());
-    let milli = t.millisecond() as u64;
-    let unix_t_secs = t.unix_timestamp() as u64;
-    unix_t_secs * 1000 + milli
-}
-
-pub fn parse_now(ts: u64) -> time::OffsetDateTime {
-    match time::OffsetDateTime::from_unix_timestamp((ts / 1000) as i64) {
-        Ok(t) => t,
-        Err(err) => panic!("{ts} 无法转回时间：{err}"),
-    }
+    super::unix_timestamp_milli(t)
 }
 
 #[cfg(test)]

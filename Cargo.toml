@@ -77,7 +77,7 @@ tracing-error = "0.2"
 
 redb = "2"
 musli = { version = "0.0.124", features = ["storage", "serde"] }
-time = "0.3"
+time = { version = "0.3", features = ["parsing", "macros"] }
 
 [workspace]
 exclude = ["repos/**"]

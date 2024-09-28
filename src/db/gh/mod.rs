@@ -30,6 +30,7 @@ use duct::cmd;
 use eyre::Context;
 use musli::{Decode, Encode};
 use serde::Deserialize;
+use std::fmt;
 
 /// Needs CLIs like gh and jq.
 /// GH_TOKEN like `GH_TOKEN: ${{ github.token }}` in Github Action.
@@ -65,14 +66,47 @@ struct LatestCommit {
     committer: Committer,
 }
 
-#[derive(Debug, Deserialize, Encode, Decode)]
+#[derive(Deserialize, Encode, Decode)]
 struct Committer {
-    // TODO: store as unix timestemp milli
-    date: String,
+    // store as unix timestemp milli
+    #[serde(deserialize_with = "deserialize_date")]
+    #[serde(rename(deserialize = "date"))]
+    datetime: u64,
     #[musli(with = musli::serde)]
     email: String,
     #[musli(with = musli::serde)]
     name: XString,
+}
+
+impl fmt::Debug for Committer {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Committer")
+            .field(
+                "datetime",
+                &super::parse_unix_timestamp_milli(self.datetime),
+            )
+            .field("email", &self.email)
+            .field("name", &self.name)
+            .finish()
+    }
+}
+
+fn deserialize_date<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let dt = <&str>::deserialize(deserializer)?;
+    Ok(parse_datetime(dt))
+}
+
+fn parse_datetime(dt: &str) -> u64 {
+    const DESC: &[time::format_description::BorrowedFormatItem<'static>] =
+        time::macros::format_description!("[year]-[month]-[day]T[hour]:[minute]:[second]Z");
+    let utc = time::PrimitiveDateTime::parse(dt, DESC)
+        .unwrap()
+        .assume_utc();
+    let local = utc.to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap());
+    super::unix_timestamp_milli(local)
 }
 
 fn info_repo(user: &str, repo: &str) -> Result<InfoRepo> {
@@ -92,6 +126,12 @@ fn info_repo(user: &str, repo: &str) -> Result<InfoRepo> {
         "
     );
     serde_json::from_str(&gh_api(arg, jq)?).with_context(|| "无法获取仓库最新提交信息")
+}
+
+#[test]
+fn github_date() {
+    let dt = "2024-09-28T04:58:37Z";
+    dbg!(parse_datetime(dt));
 }
 
 #[test]
