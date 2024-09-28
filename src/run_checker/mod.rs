@@ -221,6 +221,9 @@ impl RepoOutput {
 
         let mut outputs = repo.run_check(&info)?;
         outputs.sort_by_name_and_checkers();
+        if let Some(db) = repo.config.db() {
+            info.set_complete(db)?;
+        }
 
         info!(repo_root = %repo.layout.repo_root(), "uninstall toolchains");
         repo.layout.uninstall_toolchains()?;
