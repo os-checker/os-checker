@@ -1,5 +1,10 @@
-use crate::{config::CheckerTool, run_checker::RepoOutput, XString};
+use crate::{
+    config::CheckerTool,
+    run_checker::{FullOrFastOutputs, RepoOutput},
+    XString,
+};
 use cargo_metadata::camino::Utf8PathBuf;
+use either::Either;
 use musli::{Decode, Encode};
 use serde::Serialize;
 use std::time::SystemTime;
@@ -18,7 +23,7 @@ pub struct JsonOutput {
 }
 
 impl JsonOutput {
-    pub fn new(outputs: &[RepoOutput]) -> Self {
+    pub fn new(outputs: &[FullOrFastOutputs]) -> Self {
         let mut json = Self {
             env: Env {
                 tools: Tools::new(),
@@ -29,7 +34,10 @@ impl JsonOutput {
             cmd: vec![],
             data: vec![],
         };
-        outputs.iter().for_each(|s| s.with_json_output(&mut json));
+        outputs.iter().for_each(|s| match s {
+            Either::Left(full) => full.with_json_output(&mut json),
+            Either::Right(fast) => fast.with_json_output(&mut json),
+        });
         json
     }
 

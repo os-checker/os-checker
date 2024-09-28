@@ -100,8 +100,12 @@ impl CacheRepo {
             user: user.to_owned(),
             repo: repo.to_owned(),
             sha: sha.to_owned(),
-            branch: branch,
+            branch,
         }
+    }
+
+    pub fn assert_eq_sha(&self, other: &Self, err: &str) {
+        assert_eq!(self.sha, other.sha, "{err}");
     }
 }
 

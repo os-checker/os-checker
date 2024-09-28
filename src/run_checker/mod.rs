@@ -1,6 +1,6 @@
 use crate::{
     config::{CheckerTool, Config, Resolve},
-    db::CacheRepo,
+    db::{CacheRepo, InfoKeyValue},
     layout::Layout,
     output::JsonOutput,
     Result, XString,
@@ -28,6 +28,7 @@ use packages_outputs::PackagesOutputs;
 mod tests;
 
 pub struct RepoOutput {
+    info: Box<InfoKeyValue>,
     repo: Repo,
     outputs: PackagesOutputs,
 }
@@ -38,6 +39,17 @@ impl std::fmt::Debug for RepoOutput {
             .field("repo", &self.repo)
             // .field("outputs", &self.outputs)
             .finish()
+    }
+}
+
+pub struct FastOutputs {
+    config: Config,
+    outputs: PackagesOutputs,
+}
+
+impl FastOutputs {
+    pub fn with_json_output(&self, json: &mut JsonOutput) {
+        with_json_output(&self.config, &self.outputs, json);
     }
 }
 
@@ -126,6 +138,7 @@ impl Repo {
             let root = self.layout.repo_root();
             CacheRepo::new(user, repo, root)?
         };
+        // info.assert_eq_sha(&repo);
         let db_repo = db.map(|db| DbRepo::new(db, &repo));
 
         match err_or_resolve {
@@ -162,11 +175,20 @@ impl TryFrom<Config> for Repo {
     }
 }
 
-impl TryFrom<Config> for RepoOutput {
-    type Error = eyre::Error;
+pub type FullOrFastOutputs = Either<RepoOutput, FastOutputs>;
 
-    #[instrument(level = "trace")]
-    fn try_from(config: Config) -> Result<RepoOutput> {
+impl RepoOutput {
+    pub fn try_new(config: Config) -> Result<FullOrFastOutputs> {
+        let info = config.new_info()?;
+
+        // TODO: construct FastOutputs
+        if true {
+            return Ok(Either::Right(FastOutputs {
+                config,
+                outputs: todo!(),
+            }));
+        }
+
         let mut repo = Repo::try_from(config)?;
 
         repo.layout
@@ -181,7 +203,11 @@ impl TryFrom<Config> for RepoOutput {
         info!(repo_root = %repo.layout.repo_root(), "uninstall toolchains");
         repo.layout.uninstall_toolchains()?;
 
-        Ok(RepoOutput { repo, outputs })
+        Ok(Either::Left(RepoOutput {
+            info,
+            repo,
+            outputs,
+        }))
     }
 }
 

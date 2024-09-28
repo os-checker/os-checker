@@ -135,6 +135,14 @@ pub struct InfoKeyValue {
     val: Info,
 }
 
+impl InfoKeyValue {
+    pub fn assert_eq_sha(&self, cache_repo: &CacheRepo) {
+        self.key
+            .repo
+            .assert_eq_sha(cache_repo, "remote sha ≠ local sha");
+    }
+}
+
 #[test]
 fn github_date() {
     let dt = "2024-09-28T04:58:37Z";
