@@ -1,4 +1,8 @@
-use crate::{db::Db, layout::Packages, Result};
+use crate::{
+    db::{info, Db, Info, InfoKey},
+    layout::Packages,
+    Result,
+};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::Context;
 use itertools::Itertools;
@@ -53,6 +57,13 @@ impl Config {
 
     pub fn db(&self) -> Option<&Db> {
         self.db.as_ref()
+    }
+
+    pub fn new_info(&self) -> Result<(InfoKey, Info)> {
+        let user = self.user_name();
+        let repo = self.repo_name();
+        let config = &*self.config;
+        info(user, repo, config.clone())
     }
 
     /// 解析该仓库所有 package 的检查执行命令

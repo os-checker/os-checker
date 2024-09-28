@@ -1,7 +1,7 @@
 use super::*;
 use CheckerTool::*;
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(untagged)]
 pub enum EnableOrCustom {
     Enable(bool),
@@ -48,7 +48,7 @@ impl EnableOrCustom {
     }
 }
 
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(untagged)]
 pub enum MaybeMulti {
     Single(String),
@@ -73,7 +73,7 @@ impl Debug for MaybeMulti {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Targets(MaybeMulti);
 
 impl Targets {
@@ -82,7 +82,7 @@ impl Targets {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Setup(MaybeMulti);
 
 // impl Setup {
@@ -91,7 +91,7 @@ pub struct Setup(MaybeMulti);
 //     }
 // }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(transparent)]
 pub struct Cmds {
     map: IndexMap<CheckerTool, EnableOrCustom>,
@@ -157,7 +157,7 @@ impl std::ops::DerefMut for Cmds {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Meta {
     /// 当它为 false 时，对所有 pkgs 禁用检查。
     /// 该选项只适用于 repo；如果在 packages 内设置，则无效
