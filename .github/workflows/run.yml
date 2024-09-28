@@ -5,6 +5,8 @@ on:
     branches: [ main, feat/cache ]
 
 env:
+  # gh cli needs this token
+  GH_TOKEN: ${{ github.token }}
   # os-checker log level
   RUST_LOG: info
   # flag a bot commit
