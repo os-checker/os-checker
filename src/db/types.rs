@@ -5,7 +5,7 @@ use crate::{
 };
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
-use musli::{storage, Decode, Encode};
+use musli::{Decode, Encode};
 use std::fmt;
 
 // 由于我们想对每个检查出了结果时缓存，而不是在仓库所有检查完成时缓存，这里需要重复数据。
@@ -70,46 +70,10 @@ impl CacheRepoKey {
     }
 }
 
-impl redb::Value for CacheRepoKey {
-    type SelfType<'a>
-        = Self
-    where
-        Self: 'a;
-
-    type AsBytes<'a>
-        = Vec<u8>
-    where
-        Self: 'a;
-
-    fn fixed_width() -> Option<usize> {
-        None
-    }
-
-    fn from_bytes<'a>(data: &'a [u8]) -> Self::SelfType<'a>
-    where
-        Self: 'a,
-    {
-        storage::from_slice(data).expect("Not a valid cache key.")
-    }
-
-    fn as_bytes<'a, 'b: 'a>(value: &'a Self::SelfType<'b>) -> Self::AsBytes<'a>
-    where
-        Self: 'a,
-        Self: 'b,
-    {
-        storage::to_vec(value).expect("Cache key can't be encoded to bytes.")
-    }
-
-    fn type_name() -> redb::TypeName {
-        redb::TypeName::new("OsCheckerCacheKey")
-    }
-}
-
-impl redb::Key for CacheRepoKey {
-    fn compare(data1: &[u8], data2: &[u8]) -> std::cmp::Ordering {
-        data1.cmp(data2)
-    }
-}
+redb_value!(@key CacheRepoKey, name: "OsCheckerCacheKey",
+    read_err: "Not a valid cache key.",
+    write_err: "Cache key can't be encoded to bytes."
+);
 
 #[derive(Debug, Encode, Decode, Clone)]
 pub struct CacheRepo {
@@ -152,18 +116,34 @@ struct CacheCmd {
     flags: Vec<String>,
 }
 
-// #[derive(Debug, Encode, Decode)]
-// pub struct CacheRepoValue {
-//     inner: Vec<CacheValue>,
-// }
+#[derive(Encode, Decode)]
+pub struct OutputData {
+    pub duration_ms: u64,
+    pub data: Vec<OutputDataInner>,
+}
 
-// impl CacheRepoValue {
-//     pub(super) fn update_unix_timestamp(&mut self) {
-//         for cache in &mut self.inner {
-//             cache.update_unix_timestamp();
-//         }
-//     }
-// }
+impl fmt::Debug for OutputData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OutputData")
+            .field("duration_ms", &self.duration_ms)
+            .field("data.len", &self.data.len())
+            .finish()
+    }
+}
+
+#[derive(Encode, Decode)]
+pub struct OutputDataInner {
+    #[musli(with = musli::serde)]
+    file: Utf8PathBuf,
+    kind: Kind,
+    raw: String,
+}
+
+impl OutputDataInner {
+    pub fn new(file: Utf8PathBuf, kind: Kind, raw: String) -> Self {
+        Self { file, kind, raw }
+    }
+}
 
 #[derive(Encode, Decode)]
 pub struct CacheValue {
@@ -184,69 +164,10 @@ impl fmt::Debug for CacheValue {
     }
 }
 
-#[derive(Encode, Decode)]
-pub struct OutputData {
-    pub duration_ms: u64,
-    pub data: Vec<OutputDataInner>,
-}
-
-#[derive(Encode, Decode)]
-pub struct OutputDataInner {
-    #[musli(with = musli::serde)]
-    file: Utf8PathBuf,
-    kind: Kind,
-    raw: String,
-}
-
-impl OutputDataInner {
-    pub fn new(file: Utf8PathBuf, kind: Kind, raw: String) -> Self {
-        Self { file, kind, raw }
-    }
-}
-
-impl fmt::Debug for OutputData {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("OutputData")
-            .field("duration_ms", &self.duration_ms)
-            .field("data.len", &self.data.len())
-            .finish()
-    }
-}
-
-impl redb::Value for CacheValue {
-    type SelfType<'a>
-        = Self
-    where
-        Self: 'a;
-
-    type AsBytes<'a>
-        = Vec<u8>
-    where
-        Self: 'a;
-
-    fn fixed_width() -> Option<usize> {
-        None
-    }
-
-    fn from_bytes<'a>(data: &'a [u8]) -> Self::SelfType<'a>
-    where
-        Self: 'a,
-    {
-        storage::from_slice(data).expect("Not a valid cache value.")
-    }
-
-    fn as_bytes<'a, 'b: 'a>(value: &'a Self::SelfType<'b>) -> Self::AsBytes<'a>
-    where
-        Self: 'a,
-        Self: 'b,
-    {
-        storage::to_vec(value).expect("Cache value can't be encoded to bytes.")
-    }
-
-    fn type_name() -> redb::TypeName {
-        redb::TypeName::new("OsCheckerCacheValue")
-    }
-}
+redb_value!(CacheValue, name: "OsCheckerCacheValue",
+    read_err: "Not a valid cache value.",
+    write_err: "Cache value can't be encoded to bytes."
+);
 
 impl CacheValue {
     pub fn new(resolve: &Resolve, duration_ms: u64, data: Vec<OutputDataInner>) -> Self {

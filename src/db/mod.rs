@@ -1,3 +1,4 @@
+#[macro_use]
 mod utils;
 pub use utils::{parse_unix_timestamp_milli, unix_timestamp_milli};
 
