@@ -57,6 +57,15 @@ impl CacheRepoKey {
             cmd: CacheRepoKeyCmd::new(resolve),
         }
     }
+
+    pub fn span(&self) -> tracing::Span {
+        error_span!(
+            "CacheRepoKey",
+            user = self.repo.user,
+            repo = self.repo.repo,
+            cmd = self.cmd.cmd.cmd
+        )
+    }
 }
 
 impl redb::Value for CacheRepoKey {

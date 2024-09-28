@@ -48,7 +48,8 @@ impl Db {
     pub fn set(&self, key: &CacheRepoKey, value: &CacheValue) -> Result<()> {
         self.write(|table| {
             table.insert(key, value)?;
-            info!(?key, "Successfully cached a checking result.");
+            let _span = key.span();
+            info!("Successfully cached a checking result.");
             Ok(())
         })
     }
