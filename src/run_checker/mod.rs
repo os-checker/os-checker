@@ -126,19 +126,20 @@ impl Repo {
         }
     }
 
-    #[instrument(level = "trace")]
-    fn run_check(&self) -> Result<PackagesOutputs> {
+    fn run_check(&self, info: &InfoKeyValue) -> Result<PackagesOutputs> {
+        let user = self.config.user_name();
+        let repo = self.config.repo_name();
+        let _span = debug_span!("run_check", user, repo);
+
         let mut outputs = PackagesOutputs::new();
         let err_or_resolve = self.resolve()?;
 
         let db = self.config.db();
         let repo = {
-            let user = self.config.user_name();
-            let repo = self.config.repo_name();
             let root = self.layout.repo_root();
             CacheRepo::new(user, repo, root)?
         };
-        // info.assert_eq_sha(&repo);
+        info.assert_eq_sha(&repo);
         let db_repo = db.map(|db| DbRepo::new(db, &repo));
 
         match err_or_resolve {
@@ -192,7 +193,7 @@ impl RepoOutput {
             match info.get_from_db(db) {
                 Ok(Some(info_cache)) => {
                     if info_cache.is_complete() {
-                        info!("成功获取完整的仓库检查结果缓存");
+                        info!("成功获取完整的仓库检查结果键缓存");
                         match info_cache.get_cache_values(db) {
                             Ok(caches) => {
                                 return Ok(Either::Right(FastOutputs {
@@ -200,14 +201,14 @@ impl RepoOutput {
                                     outputs: caches.into(),
                                 }));
                             }
-                            Err(err) => error!(?err, "存在不正确的检查结果数据"),
+                            Err(err) => error!(?err, "存在不正确的检查结果键或值数据"),
                         }
                     } else {
                         warn!("仓库检查结果缓存不完整");
                     }
                 }
-                Ok(None) => warn!("该仓库无检查结果缓存"),
-                Err(err) => error!(?err, "获取仓库检查结果缓存失败"),
+                Ok(None) => warn!("该仓库无所有检查结果的键缓存"),
+                Err(err) => error!(?err, "获取仓库检查结果的键缓存失败"),
             }
         }
 
@@ -219,7 +220,7 @@ impl RepoOutput {
         info!(repo_root = %repo.layout.repo_root(), "install toolchains");
         repo.layout.install_toolchains()?;
 
-        let mut outputs = repo.run_check()?;
+        let mut outputs = repo.run_check(&info)?;
         outputs.sort_by_name_and_checkers();
 
         info!(repo_root = %repo.layout.repo_root(), "uninstall toolchains");
