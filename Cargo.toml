@@ -44,7 +44,7 @@ camino = { workspace = true }
 
 # shell commands
 duct = { workspace = true }
-yash-syntax = "0.11.0" # shell lang parsing
+yash-syntax = "0.12.0" # shell lang parsing
 
 [dev-dependencies]
 expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
