@@ -15,8 +15,8 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # use which configs
-  CONFIGS: repos.json # for debug single repo
-  # CONFIGS: repos-default.json repos-ui.json # full repo list
+  # CONFIGS: repos.json # for debug single repo
+  CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
 
 jobs:
   run:
@@ -34,6 +34,7 @@ jobs:
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
+          cp assets/repos-embassy.json ~/check/
           wget https://raw.githubusercontent.com/os-checker/database/refs/heads/debug/cache.redb -O ~/check/cache.redb || echo "暂不存在 cache.redb"
 
       - uses: dtolnay/rust-toolchain@nightly
