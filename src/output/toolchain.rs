@@ -67,9 +67,10 @@ impl Global {
     fn new() -> Self {
         let mut map = IndexMap::with_capacity(16);
         // NOTE: 第 0 个是 host 工具链
-        map.insert(host_rust_toolchain().unwrap(), 0);
+        let (host_toolchain, rustc) = host_rust_toolchain().unwrap();
+        map.insert(host_toolchain, 0);
         Global {
-            host: Rustc::new().unwrap(),
+            host: rustc,
             installed: Mutex::new(map),
         }
     }
@@ -226,7 +227,7 @@ fn get_installed(arg: RustupList) -> Result<Vec<String>> {
 }
 
 #[instrument(level = "trace")]
-fn host_rust_toolchain() -> Result<RustToolchain> {
+fn host_rust_toolchain() -> Result<(RustToolchain, Rustc)> {
     let channel = cmd!("rustup", "default").read()?;
     // e.g. nightly-x86_64-unknown-linux-gnu (default)
     // nightly-2024-09-09-x86_64-unknown-linux-gnu (default)
@@ -234,8 +235,10 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         channel.starts_with("nightly"),
         "host toolchain {channel:?} is not a nightly toolchain"
     );
+    let rustc = Rustc::new()?;
     let mut toolchain = RustToolchain {
-        channel: channel.trim_end_matches(" (default)").to_owned(),
+        // channel: channel.trim_end_matches(" (default)").to_owned(),
+        channel: format!("nightly-{}", rustc.commit_date),
         profile: None,
         targets: Some(get_installed(RustupList::Target)?),
         components: Some(get_installed(RustupList::Component)?),
@@ -247,7 +250,7 @@ fn host_rust_toolchain() -> Result<RustToolchain> {
         toolchain.install_toolchain_and_components()?;
         toolchain.install_rustfmt()?;
     }
-    Ok(toolchain)
+    Ok((toolchain, rustc))
 }
 
 #[test]
