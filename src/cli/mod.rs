@@ -257,6 +257,8 @@ impl ArgsRun {
 
         debug!(?self.emit, "Output emitted");
 
+        // 丢弃其他数据库句柄
+        drop(outs);
         // 压缩缓存数据库文件
         if let Some(db) = db {
             db.compact();

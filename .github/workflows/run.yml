@@ -53,7 +53,10 @@ jobs:
           make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
 
       - name: Update cache.redb
-        run: gh release upload --clobber -R os-checker/database cache.redb ~/check/cache.redb
+        run: |
+          cd ~/check
+          ls -alh
+          gh release upload --clobber -R os-checker/database cache.redb cache.redb
 
       - name: Commit And Push To database repo
         if: ${{ env.PUSH == 'true' }}
