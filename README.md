@@ -57,12 +57,15 @@ Options:
   --help            display usage information
 
 Commands:
-  setup             Set up all rust-toolchains and checkers without running real
+  layout            Display the layouts without installing toolchains or
                     checkers.
   run               Run checkers on all repos.
   batch             Merge configs and split it into batches. `os-checker batch
                     --config a.json --config b.json --out-dir batch --size 10`
                     will yield multiple json configs in `batch/`, each
                     containing at most 10 repos.
+  schema            Generate a JSON schema file used to validate JSON config.
+                    i.e. `{{ "$schema": "./schema.json", /* write config with
+                    JSON LSP */ }}`.
 ```
 
