@@ -101,7 +101,7 @@ impl Db {
     }
 
     pub fn compact(self) {
-        let _span = error_span!("compact", db_path = %self.path);
+        let _span = error_span!("compact", db_path = %self.path).entered();
         if let Some(mut db) = Arc::into_inner(self.db) {
             match db.compact() {
                 Ok(true) => info!("compacted"),
