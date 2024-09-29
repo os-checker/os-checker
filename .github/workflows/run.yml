@@ -35,7 +35,7 @@ jobs:
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
           cp assets/repos-embassy.json ~/check/
-          gh release download -R os-checker/database cache.redb -p cache.redb -o ~/check/cache.redb
+          gh release download -R os-checker/database cache.redb -p cache.redb -O ~/check/cache.redb
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
