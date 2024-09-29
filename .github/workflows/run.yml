@@ -30,13 +30,12 @@ jobs:
       - name: Prepare Makefile and repos JSONs
         run: |
           mkdir -p ~/check/batch
-          cd ~/check
           cp Makefile ~/check/
-          cp assets/repos.json .
-          cp assets/repos-ui.json .
-          cp assets/repos-default.json .
-          cp assets/repos-embassy.json .
-          gh release download -R os-checker/database cache.redb -p cache.redb
+          cp assets/repos.json ~/check/
+          cp assets/repos-ui.json ~/check/
+          cp assets/repos-default.json ~/check/
+          cp assets/repos-embassy.json ~/check/
+          gh release download -R os-checker/database cache.redb -p cache.redb -o ~/check/cache.redb
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
