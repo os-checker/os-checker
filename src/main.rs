@@ -27,6 +27,5 @@ mod utils;
 #[instrument(level = "trace")]
 fn main() -> Result<()> {
     logger::init();
-    output::init_toolchain_info();
     cli::args().execute()
 }
