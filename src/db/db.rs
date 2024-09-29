@@ -99,6 +99,19 @@ impl Db {
             Ok(())
         })
     }
+
+    pub fn compact(self) {
+        let _span = error_span!("compact", db_path = %self.path);
+        if let Some(mut db) = Arc::into_inner(self.db) {
+            match db.compact() {
+                Ok(true) => info!("compacted"),
+                Ok(false) => warn!("not compacted"),
+                Err(err) => error!(?err, "failed to compact"),
+            }
+        } else {
+            error!("Unable to get the unique db handler");
+        }
+    }
 }
 
 #[test]

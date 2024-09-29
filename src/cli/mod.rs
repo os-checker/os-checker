@@ -237,7 +237,7 @@ impl ArgsRun {
         check_or_install_checkers()?;
         let db = self.db.as_deref().map(Db::new).transpose()?;
         let start = SystemTime::now();
-        let outs = repos_outputs(&self.config, db)?
+        let outs = repos_outputs(&self.config, db.clone())?
             .map(|out| {
                 let out = out?;
                 if let Either::Left(out) = &out {
@@ -256,6 +256,12 @@ impl ArgsRun {
         self.emit.emit(&json)?;
 
         debug!(?self.emit, "Output emitted");
+
+        // 压缩缓存数据库文件
+        if let Some(db) = db {
+            db.compact();
+        }
+
         Ok(())
     }
 }
