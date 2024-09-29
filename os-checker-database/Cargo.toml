@@ -1,6 +1,6 @@
 [package]
 name = "os-checker-database"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2021"
 
 [dependencies]
@@ -9,7 +9,7 @@ camino = { workspace = true }
 hashbrown = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
-os-checker-types = { path = "../os-checker-types" }
+os-checker-types = { version = "0.3.0", path = "../os-checker-types" }
 rayon = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
