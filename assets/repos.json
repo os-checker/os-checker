@@ -1,5 +1,5 @@
 {
   "os-checker/os-checker-test-suite": {
-    "packages": {}
+    "setup": ""
   }
 }
