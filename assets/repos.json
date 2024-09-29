@@ -1,4 +1,3 @@
 {
-  "os-checker/os-checker-test-suite": {},
-  "kern-crates/slab_allocator": {}
+  "AsyncModules/embassy-priority": {}
 }
