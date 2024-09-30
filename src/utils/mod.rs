@@ -20,8 +20,8 @@ pub const PECULIAR_TARGETS: &[&str] = &["x86_64-fuchsia", "avr-unknown-gnu-atmeg
 /// 检查工具固定的工具链
 pub const PLUS_TOOLCHAIN_HOST: &str = "+nightly";
 pub const PLUS_TOOLCHAIN_LOCKBUD: &str = "+nightly-2024-05-21";
-// pub const TOOLCHAIN_MIRAI: &str = "nightly-2023-12-30";
-// pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2023-12-30";
+pub const TOOLCHAIN_MIRAI: &str = "nightly-2023-12-30";
+pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2023-12-30";
 
 /// git clone 一个仓库到一个 dir。
 /// 如果该仓库已存在，则 git pull 拉取最新的代码。

@@ -2,7 +2,7 @@ use crate::{
     config::{CheckerTool, Resolve},
     layout::Pkg,
     output::host_toolchain,
-    utils::PLUS_TOOLCHAIN_LOCKBUD,
+    utils::{PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI},
     Result,
 };
 use duct::cmd;
@@ -74,23 +74,23 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
     Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
 }
 
-// /// 默认运行 cargo mirai 的命令
-// pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
-//     let target = pkg.target;
-//
-//     let expr = cmd!(
-//         "cargo",
-//         PLUS_TOOLCHAIN_MIRAI,
-//         "mirai",
-//         "--target",
-//         target,
-//         "--message-format=json"
-//     )
-//     .dir(pkg.dir);
-//     debug!(?expr);
-//     let cmd = format!("cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target} --message-format=json");
-//     Resolve::new(pkg, CheckerTool::Mirai, cmd, expr)
-// }
+/// 默认运行 cargo mirai 的命令
+pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
+    let target = pkg.target;
+
+    let expr = cmd!(
+        "cargo",
+        PLUS_TOOLCHAIN_MIRAI,
+        "mirai",
+        "--target",
+        target,
+        "--message-format=json"
+    )
+    .dir(pkg.dir);
+    debug!(?expr);
+    let cmd = format!("cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target} --message-format=json");
+    Resolve::new(pkg, CheckerTool::Mirai, cmd, expr)
+}
 
 /// 自定义检查命令。
 #[instrument(level = "trace")]

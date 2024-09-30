@@ -1,5 +1,7 @@
-use super::{git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD};
-use crate::Result;
+use super::{
+    git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI,
+};
+use crate::{utils::TOOLCHAIN_MIRAI, Result};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::{cmd, Expression};
 use eyre::Context;
@@ -48,7 +50,7 @@ pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
     install_targets(PLUS_TOOLCHAIN_HOST)?;
 
     install_targets(PLUS_TOOLCHAIN_LOCKBUD)?;
-    // install_targets(PLUS_TOOLCHAIN_MIRAI)?;
+    install_targets(PLUS_TOOLCHAIN_MIRAI)?;
 
     Ok(())
 }
@@ -66,7 +68,6 @@ fn run_cmd(expr: Expression, mut err: impl FnMut() -> String) -> Result<()> {
     Ok(())
 }
 
-#[instrument(level = "trace")]
 fn setup_lockbud() -> Result<()> {
     let url = "https://github.com/BurtonQin/lockbud.git";
     let dir = &Utf8PathBuf::from_iter([BASE_DIR_CHECKERS, "lockbud"]);
@@ -78,17 +79,16 @@ fn setup_lockbud() -> Result<()> {
     Ok(())
 }
 
-// #[instrument(level = "trace")]
-// fn setup_mirai() -> Result<()> {
-//     const URL: &str =
-//         "https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh";
-//     cmd!("curl", "--proto", "=https", "--tlsv1.2", "-LsSf", URL)
-//         .pipe(cmd!("sh"))
-//         .run()
-//         .with_context(|| "安装 mirai 失败")?;
-//     cmd!("rustup", "toolchain", "install", TOOLCHAIN_MIRAI).run()?;
-//     Ok(())
-// }
+fn setup_mirai() -> Result<()> {
+    const URL: &str =
+        "https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh";
+    cmd!("curl", "--proto", "=https", "--tlsv1.2", "-LsSf", URL)
+        .pipe(cmd!("sh"))
+        .run()
+        .with_context(|| "安装 mirai 失败")?;
+    cmd!("rustup", "toolchain", "install", TOOLCHAIN_MIRAI).run()?;
+    Ok(())
+}
 
 fn detect_checker_if_exists(checker_bin: &str) -> bool {
     match cmd!("which", checker_bin).read() {
@@ -109,9 +109,9 @@ pub fn check_or_install_checkers() -> Result<()> {
     if !detect_checker_if_exists("lockbud") {
         setup_lockbud()?;
     }
-    // if !detect_checker_if_exists("mirai") {
-    //     setup_mirai()?;
-    // }
+    if !detect_checker_if_exists("mirai") {
+        setup_mirai()?;
+    }
     Ok(())
 }
 
