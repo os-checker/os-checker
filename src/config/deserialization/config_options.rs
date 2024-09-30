@@ -118,14 +118,14 @@ impl Cmds {
                 Fmt => ENABLED,
                 Clippy => ENABLED,
                 Lockbud => ENABLED,
-                Mirai => ENABLED,
+                // Mirai => ENABLED,
             },
         }
     }
 
     /// TODO: 其他工具待完成
     pub fn enable_all_checkers(&mut self) {
-        for checker in [Fmt, Clippy, Lockbud, Mirai] {
+        for checker in [Fmt, Clippy, Lockbud] {
             self.entry(checker)
                 .and_modify(|cmd| *cmd = ENABLED)
                 .or_insert(ENABLED);
