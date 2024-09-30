@@ -13,6 +13,18 @@ else
   SINGLE_JSON = json
 endif
 
+# arg1: config json path
+# arg2: output json path
+define run_each
+	echo "正在处理 $(1)";
+	jq ". | to_entries | map(.key)" "$(1)";
+	echo "正在设置工具链和检查环境 $(1)";
+	os-checker run --config $(1) --emit $(2) --db cache.redb
+	echo "完成 $(2)";
+	make upload
+
+endef
+
 define make_batch
 	os-checker batch $(ARGS_CONFIGS) --out-dir $(CONFIG_DIR) --size 8;
 
@@ -21,8 +33,16 @@ endef
 echo:
 	echo "$(BASE_DIR)"
 
-batch:
-	@$(call make_batch)
+upload:
+	ls -alh
+	gh release upload --clobber -R os-checker/database cache.redb cache.redb
+	# XZ_OPT=-e9 tar -cJvf cache.redb.tar.xz cache.redb
+	# ls -alh
+	# gh release upload --clobber -R os-checker/database cache.redb cache.redb.tar.xz
+
+batch_run:
+	$(call make_batch)
+	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(BATCH_DIR)/$(shell basename $(config))))
 
 run:
 	@os-checker run $(ARGS_CONFIGS) --emit $(SINGLE_JSON) --db cache.redb

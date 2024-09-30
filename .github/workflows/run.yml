@@ -60,9 +60,7 @@ jobs:
       - name: Update cache.redb
         run: |
           cd ~/check
-          XZ_OPT=-e9 tar -cJvf cache.redb.tar.xz cache.redb
-          ls -alh
-          gh release upload --clobber -R os-checker/database cache.redb cache.redb.tar.xz
+          make upload
 
       - name: Commit And Push To database repo
         if: ${{ env.PUSH == 'true' }}
