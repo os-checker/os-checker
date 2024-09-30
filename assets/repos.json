@@ -1,5 +1,6 @@
 {
-  "os-checker/os-checker-test-suite": {
-    "setup": ""
+  "os-checker/os-checker-test-suite": {},
+  "kern-crates/rboot": {
+    "no_install_targets": "x86_64-unknown-uefi"
   }
 }
