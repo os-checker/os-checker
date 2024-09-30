@@ -25,7 +25,9 @@ fn main() -> Result<()> {
     logger::init();
     let batch: Batch = argh::from_env();
 
-    let base_dir = var("BASE_DIR").map_or_else(|_| Utf8PathBuf::from("~/check"), Utf8PathBuf::from);
+    let base_dir = var("BASE_DIR")
+        .map_or_else(|_| Utf8PathBuf::from("~/check"), Utf8PathBuf::from)
+        .canonicalize_utf8()?;
     std::env::set_current_dir(&base_dir)?;
     info!(%base_dir, "set_current_dir");
     let config_dir = base_dir.join("config");
