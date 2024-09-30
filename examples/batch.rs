@@ -25,10 +25,8 @@ fn main() -> Result<()> {
     logger::init();
     let batch: Batch = argh::from_env();
 
-    let base_dir = var("BASE_DIR")
-        .map_or_else(|_| Utf8PathBuf::from("~/check"), Utf8PathBuf::from)
-        .canonicalize_utf8()?;
-    std::env::set_current_dir(dbg!(&base_dir))?;
+    let base_dir = base_dir();
+    std::env::set_current_dir(&base_dir)?;
     info!(%base_dir, "set_current_dir");
     let config_dir = base_dir.join("config");
     let batch_dir = base_dir.join("batch");
@@ -112,4 +110,18 @@ mod logger {
 
         color_eyre::install().unwrap();
     }
+}
+
+fn base_dir() -> Utf8PathBuf {
+    let home = Utf8PathBuf::from_path_buf(dirs::home_dir().unwrap()).unwrap();
+    var("BASE_DIR").map_or_else(
+        |_| home.join("check"),
+        |path| {
+            if path.starts_with("~") {
+                Utf8PathBuf::from(path.replacen("~", home.as_str(), 1))
+            } else {
+                Utf8PathBuf::from(path)
+            }
+        },
+    )
 }

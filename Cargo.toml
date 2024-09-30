@@ -41,6 +41,7 @@ redb = { workspace = true }
 musli = { workspace = true }
 time = { workspace = true }
 camino = { workspace = true }
+dirs = "5"
 
 # shell commands
 duct = { workspace = true }

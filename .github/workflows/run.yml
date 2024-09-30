@@ -56,7 +56,7 @@ jobs:
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           # cd ~/check
           # make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
-          cargo r --example batch -- --size 1 || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          cargo r --release --example batch -- --size 1 || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
 
       - name: Update cache.redb
         run: |
