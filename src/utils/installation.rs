@@ -87,12 +87,7 @@ fn setup_mirai() -> Result<()> {
         .pipe(cmd!("sh"))
         .run()
         .with_context(|| "安装 mirai 失败")?;
-    install_checker_toolchain(TOOLCHAIN_MIRAI)?;
-    Ok(())
-}
-
-fn install_checker_toolchain(toolchain: &str) -> Result<()> {
-    cmd!("rustup", "toolchain", "install", toolchain).run()?;
+    install_checker_toolchain("mirai", TOOLCHAIN_MIRAI)?;
     Ok(())
 }
 
@@ -109,20 +104,35 @@ fn detect_checker_if_exists(checker_bin: &str) -> bool {
     }
 }
 
+fn install_checker_toolchain(checker_bin: &str, toolchain: &str) -> Result<()> {
+    cmd!("rustup", "toolchain", "install", toolchain).run()?;
+    info!(
+        checker_bin,
+        "toolchain specified by the checker is installed."
+    );
+    Ok(())
+}
+
 /// 该函数检查是否存在 checker，如果不存在，则安装到本地。
 /// 如果检查工具存在，确保安装该工具指定的工具链。
 /// 该函数不安装 targets。
 pub fn check_or_install_checkers() -> Result<()> {
-    if !detect_checker_if_exists("lockbud") {
-        setup_lockbud()?;
-    } else {
-        install_checker_toolchain(TOOLCHAIN_LOCKBUD)?;
+    fn install(
+        checker_bin: &str,
+        toolchain: &str,
+        setup: impl FnOnce() -> Result<()>,
+    ) -> Result<()> {
+        if !detect_checker_if_exists(checker_bin) {
+            setup()?;
+        } else {
+            install_checker_toolchain(checker_bin, toolchain)?;
+        }
+        Ok(())
     }
-    if !detect_checker_if_exists("mirai") {
-        setup_mirai()?;
-    } else {
-        install_checker_toolchain(TOOLCHAIN_MIRAI)?;
-    }
+
+    install("lockbud", TOOLCHAIN_LOCKBUD, setup_lockbud)?;
+    install("mirai", TOOLCHAIN_MIRAI, setup_mirai)?;
+
     Ok(())
 }
 
