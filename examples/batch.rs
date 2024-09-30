@@ -20,6 +20,7 @@ struct Batch {
     size: String,
 }
 
+#[instrument(level = "trace")]
 fn main() -> Result<()> {
     logger::init();
     let batch: Batch = argh::from_env();
