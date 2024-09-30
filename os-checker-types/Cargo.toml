@@ -2,6 +2,11 @@
 name = "os-checker-types"
 version = "0.3.0"
 edition = "2021"
+license = "MIT"
+rust-version = "1.80"
+exclude = ["assets", ".github", "repos", "tests", "examples", "Makefile"]
+repository = "https://github.com/os-checker/os-checker"
+description = "The output types of os-checker CLI."
 
 [dependencies]
 serde = { workspace = true }
