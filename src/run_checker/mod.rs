@@ -179,6 +179,10 @@ pub type FullOrFastOutputs = Either<RepoOutput, FastOutputs>;
 
 impl RepoOutput {
     pub fn try_new(config: Config) -> Result<FullOrFastOutputs> {
+        // 当 os-checker 内部支持新检查时，将这个值设置为 true，
+        // 来强制运行检查（不影响已有的检查缓存结果）
+        const FORCE_CHECK: bool = true;
+
         let _span = error_span!(
             "try_new",
             user = config.user_name(),
@@ -188,8 +192,9 @@ impl RepoOutput {
 
         let info = config.new_info()?;
 
-        // TODO: construct FastOutputs
-        if let Some(db) = config.db() {
+        if FORCE_CHECK {
+            warn!("强制运行检查（不影响已有的检查缓存结果）");
+        } else if let Some(db) = config.db() {
             match info.get_from_db(db) {
                 Ok(Some(info_cache)) => {
                     if info_cache.is_complete() {
