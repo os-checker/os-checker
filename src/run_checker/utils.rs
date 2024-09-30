@@ -15,7 +15,7 @@ use std::{fmt::Write, sync::LazyLock};
 /// 来强制运行仓库检查（不影响已有的检查缓存结果）。
 pub fn force_repo_check() -> bool {
     static FORCE_REPO_CHECK: LazyLock<bool> = LazyLock::new(|| {
-        std::env::var("FORCE_CHECK")
+        std::env::var("FORCE_REPO_CHECK")
             .map(|val| matches!(&*val, "true" | "1"))
             .unwrap_or(false)
     });
