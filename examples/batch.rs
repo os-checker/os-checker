@@ -7,7 +7,7 @@ extern crate eyre;
 extern crate tracing;
 
 use argh::FromArgs;
-use camino::{Utf8Path, Utf8PathBuf};
+use camino::Utf8PathBuf;
 use color_eyre::Result;
 use duct::cmd;
 use std::env::var;
@@ -26,7 +26,8 @@ fn main() -> Result<()> {
     let batch: Batch = argh::from_env();
 
     let base_dir = var("BASE_DIR").map_or_else(|_| Utf8PathBuf::from("~/check"), Utf8PathBuf::from);
-    info!(%base_dir);
+    std::env::set_current_dir(&base_dir)?;
+    info!(%base_dir, "set_current_dir");
     let config_dir = base_dir.join("config");
     let batch_dir = base_dir.join("batch");
 
@@ -47,7 +48,7 @@ fn main() -> Result<()> {
     args.extend(arg_configs);
     args.extend(["--out-dir", config_dir.as_str()]);
     args.extend(["--size", &batch.size]);
-    cmd("os-checker", args).dir(&base_dir).run()?;
+    cmd("os-checker", args).run()?;
 
     let [mut count_json_file, mut count_repos] = [0usize; 2];
     for entry in config_dir.read_dir_utf8()? {
@@ -68,11 +69,10 @@ fn main() -> Result<()> {
                 emit.as_str(),
                 "--db",
                 "cache.redb"
-            )
-            .dir(&base_dir);
+            );
             info!(cmd = ?expr);
             expr.run()?;
-            upload_cache(&base_dir)?;
+            upload_cache()?;
             count_json_file += 1;
             count_repos += repos.len();
         }
@@ -83,10 +83,10 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn upload_cache(base_dir: &Utf8Path) -> Result<()> {
-    cmd!("ls", "-alh").dir(base_dir).run()?;
+fn upload_cache() -> Result<()> {
+    cmd!("ls", "-alh").run()?;
     let args = "release upload --clobber -R os-checker/database cache.redb cache.redb".split(" ");
-    cmd("gh", args).dir(base_dir).run()?;
+    cmd("gh", args).run()?;
     info!("Successfully upload cache.redb.");
     Ok(())
 }
