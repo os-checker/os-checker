@@ -42,7 +42,7 @@ upload:
 	# gh release upload --clobber -R os-checker/database cache.redb cache.redb.tar.xz
 
 batch_run:
-	$(call make_batch)
+	$(call make_batch);
 	$(foreach config,$(BATCH_CONFIGS),$(call run_each,$(config),$(BATCH_DIR)/$(shell basename $(config))))
 
 run:
