@@ -49,6 +49,9 @@ jobs:
       - name: Install os-checker
         run: cargo install --path . --force
 
+      - name: Install os-checker batch
+        run: cargo install --path . --force --example batch
+
       - name: Run All Checkers
         run: |
           # 安装 lockbud，减少源码编译的时间
@@ -56,8 +59,7 @@ jobs:
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           # cd ~/check
           # make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
-          cargo b --example batch
-          ./target/debug/examples/batch --size 1 || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          batch --size 1 || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
 
       - name: Update cache.redb
         run: |
