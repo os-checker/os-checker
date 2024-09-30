@@ -58,7 +58,7 @@ fn main() -> Result<()> {
             info!(batch_config_path = %path);
             let json: serde_json::Value = serde_json::from_reader(std::fs::File::open(path)?)?;
             let repos: Vec<_> = json.as_object().unwrap().keys().collect();
-            let emit = batch_dir.join(path.file_stem().unwrap());
+            let emit = batch_dir.join(path.file_name().unwrap());
             info!(?repos, "checking");
             let expr = cmd!(
                 "os-checker",
