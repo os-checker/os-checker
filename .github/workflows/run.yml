@@ -37,7 +37,10 @@ jobs:
           cp assets/repos-ui.json ~/check/
           cp assets/repos-default.json ~/check/
           cp assets/repos-embassy.json ~/check/
-          gh release download -R os-checker/database cache.redb -p cache.redb -O ~/check/cache.redb
+          cd ~/check
+          gh release download -R os-checker/database cache.redb -p cache.redb.tar.xz
+          tar -xJvf cache.redb.tar.xz
+          ls -alh
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
@@ -57,8 +60,9 @@ jobs:
       - name: Update cache.redb
         run: |
           cd ~/check
+          XZ_OPT=-e9 tar -cJvf cache.redb.tar.xz cache.redb
           ls -alh
-          gh release upload --clobber -R os-checker/database cache.redb cache.redb
+          gh release upload --clobber -R os-checker/database cache.redb cache.redb.tar.xz
 
       - name: Commit And Push To database repo
         if: ${{ env.PUSH == 'true' }}
