@@ -8,8 +8,7 @@ pub use scan_for_targets::scan_scripts_for_target;
 
 mod installation;
 pub use installation::{
-    check_or_install_checkers, init as installation_init, install_toolchain, rustup_target_add,
-    rustup_target_add_for_checkers,
+    init as installation_init, install_toolchain, rustup_target_add, rustup_target_add_for_checkers,
 };
 
 /// Temp dir for os-checker, used for installing checkers.

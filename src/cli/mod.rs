@@ -3,7 +3,6 @@ use crate::{
     db::Db,
     output::JsonOutput,
     run_checker::{FullOrFastOutputs, Repo, RepoOutput},
-    utils::check_or_install_checkers,
     Result,
 };
 use argh::FromArgs;
@@ -234,7 +233,6 @@ fn repos_outputs(
 impl ArgsRun {
     #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
-        check_or_install_checkers()?;
         let db = self.db.as_deref().map(Db::new).transpose()?;
         let start = SystemTime::now();
         let outs = repos_outputs(&self.config, db.clone())?

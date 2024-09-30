@@ -116,7 +116,7 @@ fn install_checker_toolchain(checker_bin: &str, toolchain: &str) -> Result<()> {
 /// 该函数检查是否存在 checker，如果不存在，则安装到本地。
 /// 如果检查工具存在，确保安装该工具指定的工具链。
 /// 该函数不安装 targets。
-pub fn check_or_install_checkers() -> Result<()> {
+fn check_or_install_checkers() -> Result<()> {
     fn install(
         checker_bin: &str,
         toolchain: &str,
