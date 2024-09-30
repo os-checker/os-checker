@@ -181,7 +181,7 @@ impl RepoOutput {
     pub fn try_new(config: Config) -> Result<FullOrFastOutputs> {
         // 当 os-checker 内部支持新检查时，将这个值设置为 true，
         // 来强制运行检查（不影响已有的检查缓存结果）
-        const FORCE_CHECK: bool = true;
+        const FORCE_CHECK: bool = false;
 
         let _span = error_span!(
             "try_new",
