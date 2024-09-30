@@ -217,6 +217,9 @@ impl RepoOutput {
             }
         }
 
+        // 初始化工具链和检查工具安装
+        crate::utils::installation_init();
+
         let mut repo = Repo::try_from(config)?;
 
         repo.layout

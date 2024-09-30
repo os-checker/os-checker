@@ -136,6 +136,17 @@ pub fn check_or_install_checkers() -> Result<()> {
     Ok(())
 }
 
+/// This function can be called multiple times, but only perfrom
+/// toolchains and checkers installation exactly only once.
+pub fn init() {
+    use std::sync::Once;
+    static INIT_INSTALLATION: Once = Once::new();
+    INIT_INSTALLATION.call_once(|| {
+        crate::output::init_toolchain_info();
+        check_or_install_checkers().unwrap();
+    });
+}
+
 #[test]
 fn which_checker() {
     crate::logger::test_init(Some("debug"), "");

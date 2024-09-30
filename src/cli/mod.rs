@@ -1,7 +1,7 @@
 use crate::{
     config::{gen_schema, Configs},
     db::Db,
-    output::{init_toolchain_info, JsonOutput},
+    output::JsonOutput,
     run_checker::{FullOrFastOutputs, Repo, RepoOutput},
     utils::check_or_install_checkers,
     Result,
@@ -42,7 +42,6 @@ impl Args {
         match self.sub_args {
             SubArgs::Layout(layout) => layout.execute()?,
             SubArgs::Run(run) => {
-                init_toolchain_info();
                 run.execute()?;
 
                 // clean repo_dir to save disk space in CI
