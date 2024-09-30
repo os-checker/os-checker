@@ -26,7 +26,7 @@ define run_each
 endef
 
 define make_batch
-	os-checker batch $(ARGS_CONFIGS) --out-dir $(CONFIG_DIR) --size 8;
+	os-checker batch $(ARGS_CONFIGS) --out-dir $(CONFIG_DIR) --size 1;
 
 endef
 
