@@ -21,13 +21,13 @@ define run_each
 	echo "正在设置工具链和检查环境 $(1)";
 	os-checker run --config $(1) --emit $(2) --db cache.redb
 	echo "完成 $(2)";
-	make upload
+	make upload;
 
 endef
 
 define make_batch
 	os-checker batch $(ARGS_CONFIGS) --out-dir $(CONFIG_DIR) --size 1;
-	ls -alh $(CONFIG_DIR)
+	ls -alh $(CONFIG_DIR);
 
 endef
 
