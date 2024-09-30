@@ -14,6 +14,8 @@ env:
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
   PUSH: true
+  # force downloading repos and check running
+  FORCE_REPO_CHECK: false
   # use which configs
   CONFIGS: repos.json # for debug single repo
   # CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
