@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     let base_dir = var("BASE_DIR")
         .map_or_else(|_| Utf8PathBuf::from("~/check"), Utf8PathBuf::from)
         .canonicalize_utf8()?;
-    std::env::set_current_dir(&base_dir)?;
+    std::env::set_current_dir(dbg!(&base_dir))?;
     info!(%base_dir, "set_current_dir");
     let config_dir = base_dir.join("config");
     let batch_dir = base_dir.join("batch");
