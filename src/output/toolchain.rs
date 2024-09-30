@@ -1,6 +1,5 @@
-use crate::{cli::is_not_layout, layout::RustToolchain, utils::install_toolchain, Result};
+use crate::{cli::is_not_layout, layout::RustToolchain, Result};
 use cargo_metadata::camino::Utf8Path;
-use color_eyre::owo_colors::OwoColorize;
 use duct::cmd;
 use eyre::ContextCompat;
 use indexmap::IndexMap;
@@ -28,29 +27,28 @@ impl RustToolchains {
         }
     }
 
-    /// Components required by all repos except host.
-    pub fn components(&self) -> impl Iterator<Item = &str> {
-        self.installed[1..]
-            .iter()
-            .flat_map(|val| val.components.as_deref())
-            .flatten()
-            .map(|s| &**s)
-    }
-
-    /// 进入每个 installed 搜集的目录，运行 `rustup show` 来安装仓库指定的工具链
-    // NOTE: rustup show 可能将来改为 rustup ensure 之类的命令来明确安装工具链。
-    #[instrument(level = "trace")]
-    pub fn setup(&self) -> Result<()> {
-        for toolchain in &self.installed[1..] {
-            // toml_path 带 rust-toolchain.toml，应去除
-            let dir = toolchain.toml_path.parent().unwrap();
-            let stdout = install_toolchain(dir)?;
-            let out = String::from_utf8_lossy(&stdout);
-            println!("\n{}:\n{out}\n", dir.yellow());
-        }
-
-        Ok(())
-    }
+    // /// Components required by all repos except host.
+    // pub fn components(&self) -> impl Iterator<Item = &str> {
+    //     self.installed[1..]
+    //         .iter()
+    //         .flat_map(|val| val.components.as_deref())
+    //         .flatten()
+    //         .map(|s| &**s)
+    // }
+    //
+    // /// 进入每个 installed 搜集的目录，运行 `rustup show` 来安装仓库指定的工具链
+    // // NOTE: rustup show 可能将来改为 rustup ensure 之类的命令来明确安装工具链。
+    // pub fn setup(&self) -> Result<()> {
+    //     for toolchain in &self.installed[1..] {
+    //         // toml_path 带 rust-toolchain.toml，应去除
+    //         let dir = toolchain.toml_path.parent().unwrap();
+    //         let stdout = install_toolchain(dir)?;
+    //         let out = String::from_utf8_lossy(&stdout);
+    //         println!("\n{}:\n{out}\n", dir.yellow());
+    //     }
+    //
+    //     Ok(())
+    // }
 }
 
 static GLOBAL: LazyLock<Global> = LazyLock::new(Global::new);
@@ -94,7 +92,7 @@ pub fn push_toolchain(val: RustToolchain) -> usize {
 }
 
 /// 通过索引获取工具链信息。
-pub fn get_toolchain(idx: usize, f: impl FnOnce(&RustToolchain)) {
+fn get_toolchain_f(idx: usize, f: impl FnOnce(&RustToolchain)) {
     let map = &mut *GLOBAL.installed.lock().unwrap();
     if let Some((toolchain, _)) = map.get_index(idx) {
         f(toolchain);
@@ -103,8 +101,31 @@ pub fn get_toolchain(idx: usize, f: impl FnOnce(&RustToolchain)) {
 
 fn get_toolchain_owned(idx: usize) -> Result<RustToolchain> {
     let mut toolchain = None;
-    get_toolchain(idx, |t| toolchain = Some(t.clone()));
+    get_toolchain_f(idx, |t| toolchain = Some(t.clone()));
     toolchain.ok_or_else(|| eyre!("找不到第 {idx} 个工具链"))
+}
+
+pub fn get_toolchain(idx: usize) -> String {
+    let mut toolchain = String::new();
+    get_toolchain_f(idx, |t| toolchain = t.channel.clone());
+    toolchain
+}
+
+/// 这和 get_toolchain 获取的 channel 几乎一样，但在主机工具链上，统一为
+/// nightly-YYYY-MM-DD 格式（主要用于缓存）。
+pub fn get_channel(idx: usize) -> String {
+    let mut channel = String::new();
+    if idx == 0 {
+        channel = format!("nightly-{}", GLOBAL.host.commit_date);
+    } else {
+        get_toolchain_f(idx, |t| channel = t.channel.clone());
+    }
+    assert!(
+        !channel.is_empty(),
+        "工具链 idx={idx} 的 channel 名称不应该为空\n{:?}",
+        get_toolchain_owned(idx)
+    );
+    channel
 }
 
 pub fn install_toolchain_idx(idx: usize, targets: &[String]) -> Result<()> {
@@ -120,7 +141,7 @@ pub fn install_toolchain_idx(idx: usize, targets: &[String]) -> Result<()> {
 
 pub fn uninstall_toolchains(idx: usize) -> Result<()> {
     let mut channel = String::new();
-    get_toolchain(idx, |toolchain| channel = toolchain.channel.clone());
+    get_toolchain_f(idx, |toolchain| channel = toolchain.channel.clone());
     cmd!("rustup", "toolchain", "uninstall", channel).run()?;
     Ok(())
 }
@@ -129,7 +150,7 @@ pub fn uninstall_toolchains(idx: usize) -> Result<()> {
 /// 目前主要用于传递给 cargo，在主机的 nightly 工具链上使用 fmt。
 pub fn host_toolchain() -> String {
     let mut channel = String::new();
-    get_toolchain(0, |t| channel = format!("+{}", t.channel));
+    get_toolchain_f(0, |t| channel = format!("+{}", t.channel));
     channel
 }
 
@@ -237,8 +258,8 @@ fn host_rust_toolchain() -> Result<(RustToolchain, Rustc)> {
     );
     let rustc = Rustc::new()?;
     let mut toolchain = RustToolchain {
-        // channel: channel.trim_end_matches(" (default)").to_owned(),
-        channel: format!("nightly-{}", rustc.commit_date),
+        channel: channel.trim_end_matches(" (default)").to_owned(),
+        // channel: format!("nightly-{}", rustc.commit_date),
         profile: None,
         targets: Some(get_installed(RustupList::Target)?),
         components: Some(get_installed(RustupList::Component)?),

@@ -1,6 +1,6 @@
 use crate::{
     config::{CheckerTool, Resolve},
-    output::{get_toolchain, Cmd, Data, Kind},
+    output::{get_channel, Cmd, Data, Kind},
     Result,
 };
 use camino::{Utf8Path, Utf8PathBuf};
@@ -29,13 +29,7 @@ impl CacheRepoKeyCmd {
             cmd: CacheCmd {
                 cmd: resolve.cmd.clone(),
                 target: resolve.target.clone(),
-                channel: {
-                    let mut channel = String::new();
-                    get_toolchain(resolve.toolchain.unwrap_or(0), |t| {
-                        channel = t.channel.clone()
-                    });
-                    channel
-                },
+                channel: get_channel(resolve.toolchain.unwrap_or(0)),
                 // TODO: 待支持
                 features: vec![],
                 flags: vec![],

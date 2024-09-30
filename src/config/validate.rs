@@ -136,13 +136,6 @@ impl Resolve {
 
     pub fn toolchain(&self) -> String {
         // 0 表示 host toolchain
-        let index = self.toolchain.unwrap_or(0);
-        get_toolchain_string(index)
+        get_toolchain(self.toolchain.unwrap_or(0))
     }
-}
-
-fn get_toolchain_string(index: usize) -> String {
-    let mut toolchain = String::new();
-    get_toolchain(index, |t| toolchain.push_str(&t.channel));
-    toolchain
 }
