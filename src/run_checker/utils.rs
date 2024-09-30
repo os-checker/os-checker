@@ -9,7 +9,18 @@ use crate::{
     Result,
 };
 use cargo_metadata::camino::Utf8Path;
-use std::fmt::Write;
+use std::{fmt::Write, sync::LazyLock};
+
+/// 当 os-checker 内部支持新检查时，将这个值设置为 true，
+/// 来强制运行仓库检查（不影响已有的检查缓存结果）。
+pub fn force_repo_check() -> bool {
+    static FORCE_REPO_CHECK: LazyLock<bool> = LazyLock::new(|| {
+        std::env::var("FORCE_CHECK")
+            .map(|val| matches!(&*val, "true" | "1"))
+            .unwrap_or(false)
+    });
+    *FORCE_REPO_CHECK
+}
 
 /// 将一次工具的检查命令推入一次 `Vec<Idx>`，并把原始输出全部推入 `Vec<Data>`。
 pub fn push_idx_and_data(
