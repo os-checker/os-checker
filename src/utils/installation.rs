@@ -1,5 +1,6 @@
 use super::{
-    git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI,
+    git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD,
+    PLUS_TOOLCHAIN_MIRAI, TOOLCHAIN_LOCKBUD,
 };
 use crate::{utils::TOOLCHAIN_MIRAI, Result};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
@@ -86,7 +87,12 @@ fn setup_mirai() -> Result<()> {
         .pipe(cmd!("sh"))
         .run()
         .with_context(|| "安装 mirai 失败")?;
-    cmd!("rustup", "toolchain", "install", TOOLCHAIN_MIRAI).run()?;
+    install_checker_toolchain(TOOLCHAIN_MIRAI)?;
+    Ok(())
+}
+
+fn install_checker_toolchain(toolchain: &str) -> Result<()> {
+    cmd!("rustup", "toolchain", "install", toolchain).run()?;
     Ok(())
 }
 
@@ -104,13 +110,18 @@ fn detect_checker_if_exists(checker_bin: &str) -> bool {
 }
 
 /// 该函数检查是否存在 checker，如果不存在，则安装到本地。
-/// 该函数不安装 targets
+/// 如果检查工具存在，确保安装该工具指定的工具链。
+/// 该函数不安装 targets。
 pub fn check_or_install_checkers() -> Result<()> {
     if !detect_checker_if_exists("lockbud") {
         setup_lockbud()?;
+    } else {
+        install_checker_toolchain(TOOLCHAIN_LOCKBUD)?;
     }
     if !detect_checker_if_exists("mirai") {
         setup_mirai()?;
+    } else {
+        install_checker_toolchain(TOOLCHAIN_MIRAI)?;
     }
     Ok(())
 }
