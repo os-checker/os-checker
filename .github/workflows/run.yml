@@ -14,6 +14,8 @@ env:
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
   PUSH: true
+  # cache.redb tag in database release
+  TAG_CACHE: cache.redb # cache-v2.redb
   # force downloading repos and check running
   FORCE_REPO_CHECK: false
   # use which configs
@@ -38,8 +40,8 @@ jobs:
           cp assets/repos-default.json ~/check/
           cp assets/repos-embassy.json ~/check/
           cd ~/check
-          gh release download -R os-checker/database cache.redb -p cache.redb
-          # gh release download -R os-checker/database cache.redb -p cache.redb.tar.xz
+          gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb
+          # gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb.tar.xz
           # tar -xJvf cache.redb.tar.xz
           ls -alh
 
@@ -61,6 +63,7 @@ jobs:
           df -alh
           cd ~/check
           make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          # 仅在支持新检查时采用 batch，因为中途一旦出错，只使用 run 无法在中途上传检查结果的缓存数据
           # batch --size 8 || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
 
       - name: Update cache.redb
