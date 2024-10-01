@@ -35,5 +35,10 @@
   },
   "kern-crates/rboot": {
     "no_install_targets": "x86_64-unknown-uefi"
+  },
+  "kern-crates/safe-virtio-drivers": {
+    "cmds": {
+      "mirai": false
+    }
   }
 }
