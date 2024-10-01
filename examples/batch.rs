@@ -113,12 +113,12 @@ mod logger {
 }
 
 fn base_dir() -> Utf8PathBuf {
-    let home = Utf8PathBuf::from_path_buf(dirs::home_dir().unwrap()).unwrap();
     var("BASE_DIR").map_or_else(
-        |_| home.join("check"),
+        |_| camino::absolute_utf8(".").unwrap(),
         |path| {
             if path.starts_with("~") {
-                Utf8PathBuf::from(path.replacen("~", home.as_str(), 1))
+                let home = dirs::home_dir().unwrap();
+                Utf8PathBuf::from(path.replacen("~", home.to_str().unwrap(), 1))
             } else {
                 Utf8PathBuf::from(path)
             }
