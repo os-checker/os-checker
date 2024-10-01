@@ -59,7 +59,8 @@ impl Info {
     }
 
     pub fn get_cache_values(&self, db: &Db) -> Result<Vec<(&CacheRepoKey, CacheValue)>> {
-        let mut v = Vec::with_capacity(self.caches.len());
+        let caches_len = self.caches.len();
+        let mut v = Vec::with_capacity(caches_len);
         for key in &self.caches {
             let _span = key.span();
             match db.get_cache(key)? {
@@ -67,6 +68,7 @@ impl Info {
                 None => error!("info 存储了一个检查结果的键，但未找到对应的检查结果"),
             };
         }
+        info!(caches_len, got = v.len());
         Ok(v)
     }
 }
