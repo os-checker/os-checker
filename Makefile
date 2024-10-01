@@ -35,11 +35,10 @@ echo:
 	echo "$(BASE_DIR)"
 
 upload:
-	ls -alh
 	gh release upload --clobber -R os-checker/database cache.redb cache.redb
-	# XZ_OPT=-e9 tar -cJvf cache.redb.tar.xz cache.redb
-	# ls -alh
-	# gh release upload --clobber -R os-checker/database cache.redb cache.redb.tar.xz
+	XZ_OPT=-e9 tar -cJvf cache.redb.tar.xz cache.redb
+	ls -alh
+	gh release upload --clobber -R os-checker/database cache.redb cache.redb.tar.xz
 
 batch_run:
 	$(call make_batch)
