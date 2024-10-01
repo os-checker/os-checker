@@ -1,3 +1,7 @@
 {
-  "kern-crates/safe-virtio-drivers": {}
+  "kern-crates/safe-virtio-drivers": {
+    "cmds": {
+      "mirai": false
+    }
+  }
 }
