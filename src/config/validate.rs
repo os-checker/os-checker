@@ -107,8 +107,14 @@ impl Resolve {
         resolved.extend(pkgs.iter().map(cargo_lockbud));
     }
 
+    /// 由于 mirai 检查需要配备高规格的机器，Github Action 的机器不太能满足，
+    /// 因此只在某些条件下开启。
     pub fn mirai(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
-        resolved.extend(pkgs.iter().map(cargo_mirai));
+        // 暂时只在 x86_64-unknown-linux-gnu 上检查
+        let iter = pkgs
+            .iter()
+            .filter(|pkg| pkg.target == "x86_64-unknown-linux-gnu");
+        resolved.extend(iter.map(cargo_mirai));
     }
 
     #[instrument(level = "trace")]
