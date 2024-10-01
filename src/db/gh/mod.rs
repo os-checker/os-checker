@@ -68,7 +68,7 @@ impl Info {
                 None => error!("info 存储了一个检查结果的键，但未找到对应的检查结果"),
             };
         }
-        info!(caches_len, got = v.len());
+        info!(caches_len);
         Ok(v)
     }
 }

@@ -85,7 +85,8 @@ impl PackagesOutputs {
     pub fn fetch_cache(&mut self, resolve: &Resolve, db_repo: Option<DbRepo>) -> bool {
         let _span = error_span!("fetch_cache", %resolve.pkg_name, resolve.cmd).entered();
         if let Some(db_repo) = db_repo {
-            match db_repo.cache(resolve) {
+            let key = &db_repo.key(resolve);
+            match db_repo.read_cache(key) {
                 Ok(Some(cache)) => {
                     let pkg_name = resolve.pkg_name.as_str();
                     if let Some(v) = self.get_mut(pkg_name) {
@@ -95,12 +96,15 @@ impl PackagesOutputs {
                         let outputs = Outputs { inner: vec![cache] };
                         self.insert(pkg_name, outputs);
                     }
+                    db_repo.set_info_cache(key);
 
                     let resolve_cargo = resolve.new_cargo();
-                    match db_repo.cache(&resolve_cargo) {
+                    let key_cargo = &db_repo.key(&resolve_cargo);
+                    match db_repo.read_cache(key_cargo) {
                         Ok(Some(cache_cargo)) => {
                             self.get_mut(pkg_name).unwrap().push(cache_cargo);
                             info!("成功获取缓存（含 Cargo）");
+                            db_repo.set_info_cache(key_cargo);
                         }
                         Ok(None) => info!("成功获取缓存"),
                         Err(err) => {
