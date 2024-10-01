@@ -51,6 +51,7 @@ fn main() -> Result<()> {
     cmd("os-checker", args).run()?;
 
     let [mut count_json_file, mut count_repos] = [0usize; 2];
+    // NOTE: 这里没有对文件排序，所以不是完全按字母表顺序检查（虽然文件内的仓库是字母顺序）
     for entry in config_dir.read_dir_utf8()? {
         let entry = entry?;
         let path = entry.path();
