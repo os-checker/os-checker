@@ -84,7 +84,7 @@ fn main() -> Result<()> {
 }
 
 fn upload_cache() -> Result<()> {
-    cmd!("ls", "-alh").run()?;
+    // cmd!("ls", "-alh").run()?;
     let args = "release upload --clobber -R os-checker/database cache.redb cache.redb".split(" ");
     cmd("gh", args).run()?;
     info!("Successfully upload cache.redb.");
