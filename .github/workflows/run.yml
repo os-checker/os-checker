@@ -59,8 +59,8 @@ jobs:
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/lockbud/releases/download/v0.1.0/lockbud-installer.sh | sh
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           cd ~/check
-          make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
-          # batch --size 1 || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          # make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          batch --size 8 || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
 
       - name: Update cache.redb
         run: |
