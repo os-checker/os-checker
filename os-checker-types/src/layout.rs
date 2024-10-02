@@ -76,7 +76,7 @@ pub struct CachePackageInfo {
     pub resolves: Box<[CacheResolve]>,
 }
 
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Serialize, Deserialize, Encode, Decode)]
 pub struct CacheResolve {
     pub target: String,
     /// 仅当自定义检查命令出现 --target 时为 true

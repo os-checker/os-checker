@@ -17,9 +17,11 @@ pub struct RepoConfig {
     pub no_install_targets: Option<Targets>,
     // #[serde(default)]
     // #[serde(skip_serializing_if = "Cmds::is_empty")]
+    #[musli(with = musli::serde)]
     pub cmds: Cmds,
     // #[serde(default)]
     // #[serde(skip_serializing_if = "IndexMap::is_empty")]
+    #[musli(with = musli::serde)]
     pub packages: IndexMap<String, RepoConfig>,
 }
 
@@ -63,7 +65,7 @@ pub struct Targets(MaybeMulti);
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, Clone)]
 pub struct Setup(MaybeMulti);
 
-#[derive(Debug, Serialize, Deserialize, Encode, Decode, Default, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 // #[serde(transparent)]
 pub struct Cmds {
     map: IndexMap<crate::CheckerTool, EnableOrCustom>,
