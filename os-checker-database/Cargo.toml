@@ -15,7 +15,6 @@ hashbrown = { workspace = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 os-checker-types = { version = "0.3.0", path = "../os-checker-types" }
-rayon = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 

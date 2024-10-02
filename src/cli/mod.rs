@@ -9,7 +9,6 @@ use argh::FromArgs;
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use either::Either;
 use eyre::ContextCompat;
-use rayon::prelude::*;
 use serde::Serialize;
 use std::{
     fs::File,
@@ -271,7 +270,7 @@ impl ArgsRun {
 fn norun(configs: &[String]) -> Result<Vec<Repo>> {
     let repos: Vec<_> = configurations(configs)?
         .into_inner()
-        .into_par_iter()
+        .into_iter()
         .map(Repo::try_from)
         .collect::<Result<_>>()?;
     Ok(repos)

@@ -12,7 +12,6 @@ description = "Run a collection of checkers targeting Rust crates, and report ba
 argh = "0.1.12"   # cli argument parser
 walkdir = "2.5.0" # recursively search Cargo.toml for finding packages
 basic-toml = "0.1"
-cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 regex = "1.10.5"
 prettydiff = { version = "0.7.0", default-features = false }
 either = "1"
@@ -30,10 +29,10 @@ tracing-subscriber = { workspace = true }
 tracing-error = { workspace = true }
 
 # general
+cargo_metadata = { workspace = true }
 indexmap = { workspace = true }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
-rayon = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 compact_str = { workspace = true }
@@ -58,12 +57,12 @@ color-eyre = "0.6.3"
 [workspace.dependencies]
 ahash = "0.8.11"
 camino = { version = "1.1.9", features = ["serde1"] } # Utf8 Path
+cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 compact_str = { version = "0.8.0", features = ["serde"] }
 duct = "0.13.7" # better subprocess, pipe, redirct
 hashbrown = { version = "0.15", features = ["default"]}
 indexmap = { version = "2.4.0", features = ["serde"] }
 itertools = "0.13.0"
-rayon = "1.10.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1.0.125", features = ["preserve_order"] }
 
