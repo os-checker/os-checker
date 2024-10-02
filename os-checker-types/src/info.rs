@@ -2,9 +2,9 @@ use crate::prelude::*;
 
 #[derive(Debug, Encode, Decode)]
 pub struct InfoKey {
-    pub repo: crate::CacheRepo,
+    pub repo: crate::db::CacheRepo,
     #[musli(with = musli::serde)]
-    pub config: RepoConfig,
+    pub config: crate::db::RepoConfig,
 }
 
 redb_value!(@key InfoKey, name: "OsCheckerInfoKey",
@@ -17,7 +17,7 @@ pub struct Info {
     /// 该仓库的检查是否全部完成
     pub complete: bool,
     /// 缓存信息
-    pub caches: Vec<crate::CacheRepoKey>,
+    pub caches: Vec<crate::db::CacheRepoKey>,
     /// 仓库最新提交信息
     pub latest_commit: LatestCommit,
 }
@@ -28,7 +28,7 @@ redb_value!(Info, name: "OsCheckerInfo",
 );
 
 #[derive(Debug, Deserialize, Encode, Decode)]
-struct LatestCommit {
+pub struct LatestCommit {
     pub sha: String,
     pub mes: String,
     pub author: Committer,
@@ -36,7 +36,7 @@ struct LatestCommit {
 }
 
 #[derive(Deserialize, Encode, Decode)]
-struct Committer {
+pub struct Committer {
     // store as unix timestemp milli
     #[serde(deserialize_with = "deserialize_date")]
     #[serde(rename(deserialize = "date"))]

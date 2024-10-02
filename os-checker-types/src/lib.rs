@@ -5,17 +5,19 @@ pub use prelude::*;
 mod toolchain;
 pub use toolchain::*;
 
-mod layout;
-pub use layout::*;
-
-mod info;
-pub use info::*;
-
-mod db;
-pub use db::*;
-
 mod cache;
-pub use cache::*;
+pub mod config;
+mod info;
+mod layout;
+mod table;
+
+pub mod db {
+    pub use crate::cache::*;
+    pub use crate::config::RepoConfig;
+    pub use crate::info::*;
+    pub use crate::layout::*;
+    pub use crate::table::*;
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JsonOutput {

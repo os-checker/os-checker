@@ -33,7 +33,7 @@ pub struct CacheRepo {
 }
 
 #[derive(Debug, Encode, Decode, Clone)]
-struct CacheChecker {
+pub struct CacheChecker {
     pub checker: crate::CheckerTool,
     // If we don't care about the version, use None.
     pub version: Option<String>,
@@ -41,7 +41,7 @@ struct CacheChecker {
 }
 
 #[derive(Debug, Encode, Decode, Clone)]
-struct CacheCmd {
+pub struct CacheCmd {
     pub cmd: String,
     pub target: String,
     /// FIXME: channel 转换回 RustToolchain 会丢失额外的信息
