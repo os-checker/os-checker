@@ -60,7 +60,7 @@ ahash = "0.8.11"
 camino = { version = "1.1.9", features = ["serde1"] } # Utf8 Path
 compact_str = { version = "0.8.0", features = ["serde"] }
 duct = "0.13.7" # better subprocess, pipe, redirct
-hashbrown = { version = "0.14", features = ["default"]}
+hashbrown = { version = "0.15", features = ["default"]}
 indexmap = { version = "2.4.0", features = ["serde"] }
 itertools = "0.13.0"
 rayon = "1.10.0"
