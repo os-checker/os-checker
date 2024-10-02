@@ -291,9 +291,7 @@ impl Layout {
 
     /// Clone the data as a `CacheLayout`.
     pub fn set_layout_cache(&self, resolves: &[Resolve], db_repo: Option<DbRepo>) {
-        let Some(db_repo) = db_repo else {
-            return;
-        };
+        let Some(db_repo) = db_repo else { return };
 
         let packages_info = self
             .packages_info
