@@ -1,16 +1,13 @@
-use crate::{utils::PECULIAR_TARGETS, Result, XString};
-use cargo_metadata::{
-    camino::{Utf8Path, Utf8PathBuf},
-    // CompilerMessage, Message,
-};
-use indexmap::IndexMap;
-
 use super::detect_targets::PackageTargets;
+use crate::{utils::PECULIAR_TARGETS, Result, XString};
+use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
+use indexmap::IndexMap;
+use serde::{Deserialize, Serialize};
 
 /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
 // FIXME: 把 tag 和 path 分开
 // TODO: 在明确指定 targets 的情况下，还需要脚本指定的 targets 吗？(关于安装和 resolve)
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TargetSource {
     RustToolchainToml(Utf8PathBuf),
     CargoConfigToml(Utf8PathBuf),
@@ -28,7 +25,7 @@ pub enum TargetSource {
 
 /// A list of target triples obtained from multiple sources.
 /// The orders in key and value demonstrates how they shape.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct Targets {
     map: IndexMap<String, Vec<TargetSource>>,
 }
@@ -154,66 +151,6 @@ impl Targets {
     }
 }
 
-// pub struct CargoCheckDiagnostics {
-//     pub target_triple: String,
-//     pub compiler_messages: Box<[CompilerMessage]>,
-//     pub duration_ms: u64,
-// }
-//
-// impl CargoCheckDiagnostics {
-//     pub fn new(pkg_dir: &Utf8Path, pkg_name: &str, target_triple: &str) -> Result<Self> {
-//         let (duration_ms, out) = crate::utils::execution_time_ms(|| {
-//             duct::cmd!(
-//                 "cargo",
-//                 "check",
-//                 "--message-format=json",
-//                 "--target",
-//                 target_triple
-//             )
-//             .dir(pkg_dir)
-//             .stdout_capture()
-//             .unchecked()
-//             .run()
-//         });
-//
-//         Ok(CargoCheckDiagnostics {
-//             target_triple: target_triple.to_owned(),
-//             compiler_messages: Message::parse_stream(out?.stdout.as_slice())
-//                 .filter_map(|mes| match mes.ok()? {
-//                     Message::CompilerMessage(mes) if mes.target.name == pkg_name => Some(mes),
-//                     _ => None,
-//                 })
-//                 .collect(),
-//             duration_ms,
-//         })
-//     }
-// }
-
-// impl std::fmt::Debug for CargoCheckDiagnostics {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         #[cfg(test)]
-//         {
-//             f.debug_struct("CargoCheckDiagnostics")
-//                 .field("target_triple", &self.target_triple)
-//                 .field(
-//                     "compiler_messages",
-//                     &self
-//                         .compiler_messages
-//                         .iter()
-//                         .map(|d| d.message.to_string())
-//                         .collect::<Vec<_>>(),
-//                 )
-//                 .finish()
-//         }
-//         #[cfg(not(test))]
-//         f.debug_struct("CargoCheckDiagnostics")
-//             .field("target_triple", &self.target_triple)
-//             .field("duration_ms", &self.duration_ms)
-//             .field("compiler_messages.len", &self.compiler_messages.len())
-//             .finish()
-//     }
-// }
-
 #[derive(Debug)]
 pub struct PackageInfo {
     pub pkg_name: XString,
@@ -221,7 +158,6 @@ pub struct PackageInfo {
     pub pkg_dir: Utf8PathBuf,
     pub targets: Targets,
     pub toolchain: Option<usize>,
-    // pub cargo_check_diagnostics: Box<[CargoCheckDiagnostics]>,
 }
 
 impl PackageInfo {

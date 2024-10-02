@@ -1,8 +1,9 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
 use crate::{
-    config::TargetsSpecifed,
-    output::{install_toolchain_idx, uninstall_toolchains},
+    config::{Resolve, TargetsSpecifed},
+    db::{CacheLayout, CachePackageInfo, CacheResolve},
+    output::{get_channel, install_toolchain_idx, uninstall_toolchains},
     utils::walk_dir,
     Result, XString,
 };
@@ -19,6 +20,7 @@ mod tests;
 /// Target triple list and cargo check diagnostics.
 mod targets;
 use targets::PackageInfo;
+pub use targets::Targets;
 
 mod detect_targets;
 pub use detect_targets::RustToolchain;
@@ -39,7 +41,7 @@ fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf
     cargo_tomls
 }
 
-type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
+pub type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
 
 /// 解析所有 Cargo.toml 所在的 Package 的 metadata 来获取仓库所有的 Workspaces
 #[instrument(level = "trace")]
@@ -284,6 +286,36 @@ impl Layout {
         }
 
         Ok(())
+    }
+
+    /// Clone the data as a `CacheLayout`.
+    pub fn to_cache_layout(&self, resolves: &[Resolve]) -> CacheLayout {
+        let packages_info = self
+            .packages_info
+            .iter()
+            .map(|info| CachePackageInfo {
+                pkg_name: info.pkg_name.clone(),
+                pkg_dir: info.pkg_dir.clone(),
+                targets: info.targets.clone(),
+                channel: get_channel(info.toolchain.unwrap_or(0)),
+                resolves: resolves
+                    .iter()
+                    .map(|r| CacheResolve {
+                        target: r.target.clone(),
+                        target_overriden: r.target_overriden,
+                        channel: get_channel(r.toolchain.unwrap_or(0)),
+                        checker: r.checker,
+                        cmd: r.cmd.clone(),
+                    })
+                    .collect(),
+            })
+            .collect();
+        CacheLayout {
+            root_path: self.root_path.clone(),
+            cargo_tomls: self.cargo_tomls.clone().into_boxed_slice(),
+            workspaces: self.workspaces.clone(),
+            packages_info,
+        }
     }
 }
 
