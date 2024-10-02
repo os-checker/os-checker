@@ -11,7 +11,7 @@ use cargo_metadata::{
     Metadata, MetadataCommand,
 };
 use indexmap::IndexMap;
-use std::{collections::BTreeMap, fmt};
+use std::fmt;
 
 #[cfg(test)]
 mod tests;
@@ -39,12 +39,12 @@ fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf
     cargo_tomls
 }
 
-type Workspaces = BTreeMap<Utf8PathBuf, Metadata>;
+type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
 
 /// 解析所有 Cargo.toml 所在的 Package 的 metadata 来获取仓库所有的 Workspaces
 #[instrument(level = "trace")]
 fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
-    let mut map = BTreeMap::new();
+    let mut map = IndexMap::new();
     for cargo_toml in cargo_tomls {
         // 暂时不解析依赖的原因：
         // * 不需要依赖信息
@@ -67,6 +67,7 @@ fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
             map.insert(root.clone(), metadata);
         }
     }
+    map.sort_unstable_keys();
     Ok(map)
 }
 
