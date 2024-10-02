@@ -86,8 +86,9 @@ fn main() -> Result<()> {
 
 fn upload_cache() -> Result<()> {
     // cmd!("ls", "-alh").run()?;
-    let args = "release upload --clobber -R os-checker/database cache.redb cache.redb".split(" ");
-    cmd("gh", args).run()?;
+    let tag = var("TAG_CACHE").unwrap_or_else(|_| "cache.redb".to_owned());
+    let args = format!("release upload --clobber -R os-checker/database {tag} cache.redb");
+    cmd("gh", args.split(" ")).run()?;
     info!("Successfully upload cache.redb.");
     Ok(())
 }
