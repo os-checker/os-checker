@@ -61,7 +61,7 @@ pub enum TargetSource {
 
 /// A list of target triples obtained from multiple sources.
 /// The orders in key and value demonstrates how they shape.
-#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Targets {
     pub map: IndexMap<String, Vec<TargetSource>>,
 }
