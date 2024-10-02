@@ -133,20 +133,6 @@ dependencies = [
 [[package]]
 name = "cargo_metadata"
 version = "0.18.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d886547e41f740c616ae73108f6eb70afe6d940c7bc697cb30f13daec073037"
-dependencies = [
- "camino",
- "cargo-platform",
- "semver",
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "cargo_metadata"
-version = "0.18.1"
 source = "git+https://github.com/os-checker/cargo_metadata.git?rev=dc53ab2#dc53ab2b2dc7d2778dffc1bccd34b3ccf36ee0ae"
 dependencies = [
  "camino",
@@ -569,7 +555,7 @@ dependencies = [
  "argh",
  "basic-toml",
  "camino",
- "cargo_metadata 0.18.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo_metadata",
  "color-eyre",
  "compact_str",
  "dirs",
@@ -581,10 +567,10 @@ dependencies = [
  "indexmap",
  "itertools",
  "musli",
+ "os-checker-types",
  "prettydiff",
  "redb",
  "regex",
- "replace_with",
  "schemars",
  "serde",
  "serde_json",
@@ -621,7 +607,7 @@ name = "os-checker-types"
 version = "0.3.0"
 dependencies = [
  "camino",
- "cargo_metadata 0.18.1 (git+https://github.com/os-checker/cargo_metadata.git?rev=dc53ab2)",
+ "cargo_metadata",
  "compact_str",
  "indexmap",
  "musli",
@@ -791,12 +777,6 @@ name = "regex-syntax"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
-
-[[package]]
-name = "replace_with"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3a8614ee435691de62bcffcf4a66d91b3594bf1428a5722e79103249a095690"
 
 [[package]]
 name = "rustc-demangle"

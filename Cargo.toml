@@ -17,7 +17,7 @@ prettydiff = { version = "0.7.0", default-features = false }
 either = "1"
 schemars = { version = "1.0.0-alpha.15", features = ["preserve_order", "indexmap2"] }
 strip-ansi-escapes = "0.2"
-replace_with = "0.1"
+# replace_with = "0.1"
 
 # error handling
 eyre = { workspace = true }
@@ -40,7 +40,7 @@ redb = { workspace = true }
 musli = { workspace = true }
 time = { workspace = true }
 camino = { workspace = true }
-dirs = "5"
+os-checker-types = { workspace = true }
 
 # shell commands
 duct = { workspace = true }
@@ -48,6 +48,7 @@ yash-syntax = "0.12.0" # shell lang parsing
 
 [dev-dependencies]
 expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
+dirs = "5"
 # tempfile = "3"
 
 [build-dependencies]
@@ -57,7 +58,7 @@ color-eyre = "0.6.3"
 [workspace.dependencies]
 ahash = "0.8.11"
 camino = { version = "1.1.9", features = ["serde1"] } # Utf8 Path
-cargo_metadata = "0.18.1" # parse metadata for knowing project layout
+# cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 compact_str = { version = "0.8.0", features = ["serde"] }
 duct = "0.13.7" # better subprocess, pipe, redirct
 hashbrown = { version = "0.15", features = ["default"]}
@@ -79,10 +80,12 @@ redb = "2"
 musli = { version = "0.0.124", features = ["storage", "serde"] }
 time = { version = "0.3", features = ["parsing", "macros"] }
 
-# [dependencies.cargo_metadata]
-# git = "https://github.com/os-checker/cargo_metadata.git"
-# # branch = "workspace_default_members-serde-default"
-# rev = "dc53ab2"
+os-checker-types = { version = "0.3.0", path = "os-checker-types" }
+
+[workspace.dependencies.cargo_metadata]
+git = "https://github.com/os-checker/cargo_metadata.git"
+# branch = "workspace_default_members-serde-default"
+rev = "dc53ab2"
 
 [workspace]
 exclude = ["repos/**"]
