@@ -145,8 +145,8 @@ pub struct Cmd {
     // pub rust_toolchain_idx: usize,
     /// channel 名
     pub rust_toolchain: String,
-    pub features: Vec<String>,
-    pub flags: Vec<String>,
+    pub features: Vec<XString>,
+    pub flags: Vec<XString>,
 }
 
 #[derive(Debug, Serialize)]

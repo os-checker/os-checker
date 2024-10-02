@@ -1,7 +1,7 @@
 use crate::{
     config::{CheckerTool, Resolve},
     output::{get_channel, Cmd, Data, Kind},
-    Result,
+    Result, XString,
 };
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
@@ -12,7 +12,8 @@ use std::fmt;
 // 减少数据重复，需要新定义一个结构，在缓存和 PackagesOutputs 上。
 #[derive(Debug, Encode, Decode, Clone)]
 pub struct CacheRepoKeyCmd {
-    pkg_name: String,
+    #[musli(with = musli::serde)]
+    pkg_name: XString,
     checker: CacheChecker,
     cmd: CacheCmd,
 }
@@ -20,7 +21,7 @@ pub struct CacheRepoKeyCmd {
 impl CacheRepoKeyCmd {
     pub fn new(resolve: &Resolve) -> Self {
         Self {
-            pkg_name: resolve.pkg_name.as_str().to_owned(),
+            pkg_name: resolve.pkg_name.clone(),
             checker: CacheChecker {
                 checker: resolve.checker,
                 version: None,
@@ -57,7 +58,7 @@ impl CacheRepoKey {
             "CacheRepoKey",
             // user = self.repo.user,
             // repo = self.repo.repo,
-            pkg = self.cmd.pkg_name,
+            pkg = %self.cmd.pkg_name,
             cmd = self.cmd.cmd.cmd
         )
         .entered()
@@ -75,10 +76,13 @@ redb_value!(@key CacheRepoKey, name: "OsCheckerCacheKey",
 
 #[derive(Debug, Encode, Decode, Clone)]
 pub struct CacheRepo {
-    pub user: String,
-    pub repo: String,
+    #[musli(with = musli::serde)]
+    pub user: XString,
+    #[musli(with = musli::serde)]
+    pub repo: XString,
     sha: String,
-    branch: String,
+    #[musli(with = musli::serde)]
+    branch: XString,
 }
 
 impl CacheRepo {
@@ -86,19 +90,19 @@ impl CacheRepo {
         let sha = cmd!("git", "rev-parse", "HEAD").dir(root).read()?;
         let branch = cmd!("git", "branch", "--show-current").dir(root).read()?;
         Ok(Self {
-            user: user.to_owned(),
-            repo: repo.to_owned(),
+            user: user.into(),
+            repo: repo.into(),
             sha: sha.trim().to_owned(),
-            branch: branch.trim().to_owned(),
+            branch: branch.trim().into(),
         })
     }
 
     pub fn new_with_sha(user: &str, repo: &str, sha: &str, branch: String) -> Self {
         Self {
-            user: user.to_owned(),
-            repo: repo.to_owned(),
+            user: user.into(),
+            repo: repo.into(),
             sha: sha.to_owned(),
-            branch,
+            branch: branch.into(),
         }
     }
 
@@ -122,9 +126,11 @@ struct CacheCmd {
     /// FIXME: channel 转换回 RustToolchain 会丢失额外的信息
     channel: String,
     // Below is not necessary, and currently not implemented.
-    features: Vec<String>,
+    #[musli(with = musli::serde)]
+    features: Vec<XString>,
     /// rustcflags
-    flags: Vec<String>,
+    #[musli(with = musli::serde)]
+    flags: Vec<XString>,
 }
 
 #[derive(Encode, Decode)]
@@ -248,7 +254,7 @@ pub fn now() -> u64 {
 #[cfg(test)]
 pub fn new_cache() -> (CacheRepoKey, CacheValue) {
     let cmd = CacheRepoKeyCmd {
-        pkg_name: "pkg".to_owned(),
+        pkg_name: "pkg".into(),
         checker: CacheChecker {
             checker: CheckerTool::Clippy,
             version: None,
@@ -279,10 +285,10 @@ pub fn new_cache() -> (CacheRepoKey, CacheValue) {
 
     let key = CacheRepoKey {
         repo: CacheRepo {
-            user: "user".to_owned(),
-            repo: "repo".to_owned(),
+            user: "user".into(),
+            repo: "repo".into(),
             sha: "abc".to_owned(),
-            branch: "main".to_owned(),
+            branch: "main".into(),
         },
         cmd,
     };

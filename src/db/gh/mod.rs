@@ -34,7 +34,7 @@ redb_value!(@key InfoKey, name: "OsCheckerInfoKey",
 
 impl InfoKey {
     pub fn span(&self) -> tracing::span::EnteredSpan {
-        error_span!("InfoKey", user = self.repo.user, repo = self.repo.repo).entered()
+        error_span!("InfoKey", user = %self.repo.user, repo = %self.repo.repo).entered()
     }
 }
 
