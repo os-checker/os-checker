@@ -1,8 +1,11 @@
+#[macro_use]
 mod prelude;
 pub use prelude::*;
 
 mod toolchain;
 pub use toolchain::*;
+
+mod layout;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JsonOutput {

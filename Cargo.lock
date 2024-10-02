@@ -608,7 +608,11 @@ name = "os-checker-types"
 version = "0.3.0"
 dependencies = [
  "camino",
+ "cargo_metadata",
  "compact_str",
+ "indexmap",
+ "musli",
+ "redb",
  "serde",
  "serde_json",
 ]
