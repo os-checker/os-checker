@@ -6,6 +6,16 @@ mod toolchain;
 pub use toolchain::*;
 
 mod layout;
+pub use layout::*;
+
+mod info;
+pub use info::*;
+
+mod db;
+pub use db::*;
+
+mod cache;
+pub use cache::*;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JsonOutput {
@@ -97,7 +107,7 @@ pub struct Data {
 }
 
 /// The kind a checker reports.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, Serialize, Deserialize, Encode, Decode, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum Kind {
     /// fmt
     Unformatted,
@@ -142,7 +152,7 @@ pub struct Kinds {
     pub mapping: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, Serialize, Deserialize, Encode, Decode, PartialEq, Eq, Clone, Copy, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub enum CheckerTool {
     Fmt,
