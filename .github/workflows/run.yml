@@ -2,7 +2,7 @@ name: Run Checkers
 
 on:
   push:
-    branches: [ main, feat/cache ]
+    branches: [ main, feat/cache-layout ]
 
 env:
   # gh cli needs this token
