@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     config::{CheckerTool, Resolve},
-    db::{CacheRepo, CacheRepoKey, CacheValue, Db, InfoKeyValue, OutputDataInner},
+    db::{CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db, InfoKeyValue, OutputDataInner},
     output::{Cmd, Data, Kind},
     Result,
 };
@@ -91,7 +91,14 @@ impl<'a> DbRepo<'a> {
     /// 写入键缓存
     pub fn set_info_cache(&self, key: &CacheRepoKey) {
         if let Err(err) = self.info.append_cache_key(key, self.db) {
-            error!(%err, ?key, "Unable to save the key cache.");
+            error!(%err, ?key, "Unable to save the info cache.");
+        }
+    }
+
+    /// 写入 layout 缓存
+    pub fn set_layout_cache(&self, layout: &CacheLayout) {
+        if let Err(err) = self.info.set_layout_cache(layout, self.db) {
+            error!(%err, "Unable to save the layout cache.");
         }
     }
 }

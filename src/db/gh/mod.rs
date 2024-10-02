@@ -1,4 +1,4 @@
-use super::{CacheRepo, CacheRepoKey, CacheValue, Db};
+use super::{CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db};
 use crate::{config::RepoConfig, Result, XString};
 use duct::cmd;
 use eyre::Context;
@@ -185,6 +185,10 @@ impl InfoKeyValue {
         let val = &mut self.val.borrow_mut();
         val.complete = true;
         db.set_info(&self.key, val)
+    }
+
+    pub fn set_layout_cache(&self, layout: &CacheLayout, db: &Db) -> Result<()> {
+        db.set_layout(&self.key, layout)
     }
 }
 
