@@ -1,6 +1,6 @@
 use super::{
     gh::{Info, InfoKey},
-    CacheRepoKey, CacheValue,
+    CacheLayout, CacheRepoKey, CacheValue,
 };
 use crate::Result;
 use camino::Utf8Path;
@@ -10,6 +10,7 @@ use std::sync::Arc;
 
 const DATA: TableDefinition<CacheRepoKey, CacheValue> = TableDefinition::new("data");
 const INFO: TableDefinition<InfoKey, Info> = TableDefinition::new("info");
+const LAYOUT: TableDefinition<InfoKey, CacheLayout> = TableDefinition::new("layout");
 
 #[derive(Clone)]
 pub struct Db {
@@ -67,11 +68,20 @@ impl Db {
         Ok(())
     }
 
+    pub fn set_layout(&self, key: &InfoKey, value: &CacheLayout) -> Result<()> {
+        self.write(LAYOUT, |table| {
+            table.insert(key, value)?;
+            let _span = key.span();
+            info!("Successfully cached repo layout.");
+            Ok(())
+        })
+    }
+
     pub fn set_info(&self, key: &InfoKey, value: &Info) -> Result<()> {
         self.write(INFO, |table| {
             table.insert(key, value)?;
             let _span = key.span();
-            info!("Successfully cached a repo infomation.");
+            info!("Successfully cached repo infomation.");
             Ok(())
         })
     }
