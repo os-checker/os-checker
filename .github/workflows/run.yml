@@ -68,6 +68,8 @@ jobs:
 
       - name: Update cache.redb
         run: |
+          cp ~/check/cache.redb .
+          cargo test -p os-checker-types -- --nocapture cache_redb
           cd ~/check
           df -alh
           make upload
