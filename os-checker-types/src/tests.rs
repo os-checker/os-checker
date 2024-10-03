@@ -14,11 +14,20 @@ fn cache_redb() -> Result<()> {
     std::env::set_current_dir("..")?;
     let db = redb::Database::open(CACHE_REDB)?;
 
-    let read_txn = db.begin_read()?;
+    let txn = db.begin_read()?;
 
-    stats(DATA, &read_txn)?;
-    stats(INFO, &read_txn)?;
-    stats(LAYOUT, &read_txn)?;
+    stats(DATA, &txn)?;
+    stats(INFO, &txn)?;
+    stats(LAYOUT, &txn)?;
+
+    let table = txn.open_table(LAYOUT)?;
+    for item in table.iter()? {
+        let layout = item?.1.value();
+        for ws in layout.workspaces.values() {
+            // test Metadata deserialization
+            assert!(ws.meta_data().is_ok());
+        }
+    }
 
     Ok(())
 }
@@ -42,7 +51,7 @@ where
     print!("{idx}v ");
     _ = guard_v.value();
 
-    for (idx, item) in table.iter()?.rev().enumerate() {
+    for (idx, item) in table.iter()?.enumerate() {
         let (guard_k, guard_v) = item?;
         print!("{idx}k ");
         _ = guard_k.value();
