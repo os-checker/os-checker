@@ -13,5 +13,4 @@ pub use db::Db;
 mod info;
 pub use info::{get_info, InfoKeyValue};
 
-mod layout;
-pub use layout::{CacheLayout, CachePackageInfo, CacheResolve};
+pub use os_checker_types::db as out;
