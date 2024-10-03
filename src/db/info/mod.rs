@@ -165,16 +165,24 @@ impl InfoKeyValue {
     }
 
     pub fn append_cache_key(&self, cache_key: &CacheRepoKey, db: &Db) -> Result<()> {
-        let val = &mut self.val.borrow_mut();
-        val.caches.push(cache_key.clone());
-        db.set_info(&self.key, val)
+        let _span = self.key.span();
+        let info = {
+            let info = &mut self.val.borrow_mut();
+            info.caches.push(cache_key.clone());
+            info.clone().into()
+        };
+        db.set_info(&self.key.clone().into(), &info)
     }
 
     /// 所有实际检查完成，调用此函数
     pub fn set_complete(&self, db: &Db) -> Result<()> {
-        let val = &mut self.val.borrow_mut();
-        val.complete = true;
-        db.set_info(&self.key, val)
+        let _span = self.key.span();
+        let info = {
+            let info = &mut self.val.borrow_mut();
+            info.complete = true;
+            info.clone().into()
+        };
+        db.set_info(&self.key.clone().into(), &info)
     }
 
     pub fn set_layout_cache(&self, layout: &CacheLayout, db: &Db) -> Result<()> {

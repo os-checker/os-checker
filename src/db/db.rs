@@ -5,12 +5,11 @@ use super::{
 use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;
-use os_checker_types::db as out;
+use os_checker_types::db::{
+    CacheLayout, CacheRepoKey, CacheValue, Info, InfoKey, DATA, INFO, LAYOUT,
+};
 use redb::{Database, Key, Table, TableDefinition, Value};
 use std::sync::Arc;
-
-use out::{DATA, INFO};
-const LAYOUT: TableDefinition<InfoKey, CacheLayout> = TableDefinition::new("layout");
 
 #[derive(Clone)]
 pub struct Db {
@@ -71,7 +70,6 @@ impl Db {
     pub fn set_layout(&self, key: &InfoKey, value: &CacheLayout) -> Result<()> {
         self.write(LAYOUT, |table| {
             table.insert(key, value)?;
-            let _span = key.span();
             info!("Successfully cached repo layout.");
             Ok(())
         })
@@ -79,10 +77,7 @@ impl Db {
 
     pub fn set_info(&self, key: &InfoKey, value: &Info) -> Result<()> {
         self.write(INFO, |table| {
-            let out_key = out::InfoKey::from(key.clone());
-            let out_value = out::Info::from(value.clone());
-            table.insert(&out_key, &out_value)?;
-            let _span = key.span();
+            table.insert(key, value)?;
             info!("Successfully cached repo infomation.");
             Ok(())
         })
@@ -90,10 +85,7 @@ impl Db {
 
     pub fn set_cache(&self, key: &CacheRepoKey, value: &CacheValue) -> Result<()> {
         self.write(DATA, |table| {
-            let out_key = out::CacheRepoKey::from(key.clone());
-            let out_value = out::CacheValue::from(value.clone());
-            table.insert(&out_key, &out_value)?;
-            let _span = key.span();
+            table.insert(key, value)?;
             info!("Successfully cached a checking result.");
             Ok(())
         })
