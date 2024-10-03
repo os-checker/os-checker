@@ -27,7 +27,7 @@ redb_value!(Info, name: "OsCheckerInfo",
     write_err: "Info value can't be encoded to bytes."
 );
 
-#[derive(Debug, Deserialize, Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 pub struct LatestCommit {
     pub sha: String,
     pub mes: String,
@@ -35,11 +35,9 @@ pub struct LatestCommit {
     pub committer: Committer,
 }
 
-#[derive(Deserialize, Encode, Decode)]
+#[derive(Encode, Decode)]
 pub struct Committer {
     // store as unix timestemp milli
-    #[serde(deserialize_with = "deserialize_date")]
-    #[serde(rename(deserialize = "date"))]
     pub datetime: u64,
     #[musli(with = musli::serde)]
     pub email: String,
@@ -60,20 +58,20 @@ impl fmt::Debug for Committer {
     }
 }
 
-fn deserialize_date<'de, D>(deserializer: D) -> Result<u64, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    let dt = <&str>::deserialize(deserializer)?;
-    Ok(parse_datetime(dt))
-}
-
-fn parse_datetime(dt: &str) -> u64 {
-    const DESC: &[time::format_description::BorrowedFormatItem<'static>] =
-        time::macros::format_description!("[year]-[month]-[day]T[hour]:[minute]:[second]Z");
-    let utc = time::PrimitiveDateTime::parse(dt, DESC)
-        .unwrap()
-        .assume_utc();
-    let local = utc.to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap());
-    unix_timestamp_milli(local)
-}
+// fn deserialize_date<'de, D>(deserializer: D) -> Result<u64, D::Error>
+// where
+//     D: serde::Deserializer<'de>,
+// {
+//     let dt = <&str>::deserialize(deserializer)?;
+//     Ok(parse_datetime(dt))
+// }
+//
+// fn parse_datetime(dt: &str) -> u64 {
+//     const DESC: &[time::format_description::BorrowedFormatItem<'static>] =
+//         time::macros::format_description!("[year]-[month]-[day]T[hour]:[minute]:[second]Z");
+//     let utc = time::PrimitiveDateTime::parse(dt, DESC)
+//         .unwrap()
+//         .assume_utc();
+//     let local = utc.to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap());
+//     unix_timestamp_milli(local)
+// }

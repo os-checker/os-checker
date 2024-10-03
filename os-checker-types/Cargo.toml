@@ -17,5 +17,9 @@ time = { workspace = true }
 redb = { workspace = true }
 musli = { workspace = true }
 indexmap = { workspace = true }
-cargo_metadata = { workspace = true }
+# cargo_metadata = { workspace = true }
+[dependencies.cargo_metadata]
+git = "https://github.com/os-checker/cargo_metadata.git"
+# branch = "workspace_default_members-serde-default"
+rev = "dc53ab2"
 

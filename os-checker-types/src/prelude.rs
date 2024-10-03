@@ -48,7 +48,16 @@ macro_rules! redb_value {
             where
                 Self: 'a,
             {
-                ::musli::storage::from_slice(data).expect($read_err)
+                use std::error::Error;
+                match ::musli::storage::from_slice(data) {
+                    Ok(res) => res,
+                    Err(err) => {
+                        panic!(
+                            "{}\nerr (debug) = {err:?}\nerr (display) = {err}\nerr (source) = {:?}",
+                            $read_err, err.source()
+                        )
+                    }
+                }
             }
 
             fn as_bytes<'a, 'b: 'a>(value: &'a Self::SelfType<'b>) -> Self::AsBytes<'a>

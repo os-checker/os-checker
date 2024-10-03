@@ -4,7 +4,7 @@ use std::fmt;
 
 pub type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
 
-#[derive(Serialize, Deserialize, Encode, Decode)]
+#[derive(Serialize, Deserialize, Encode, Decode, Default)]
 pub struct CacheLayout {
     /// 仓库根目录的完整路径，可用于去除 Metadata 中的路径前缀，让路径看起来更清爽
     #[musli(with = musli::serde)]

@@ -145,6 +145,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo_metadata"
+version = "0.18.1"
+source = "git+https://github.com/os-checker/cargo_metadata.git?rev=dc53ab2#dc53ab2b2dc7d2778dffc1bccd34b3ccf36ee0ae"
+dependencies = [
+ "camino",
+ "cargo-platform",
+ "semver",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "castaway"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -556,7 +569,7 @@ dependencies = [
  "argh",
  "basic-toml",
  "camino",
- "cargo_metadata",
+ "cargo_metadata 0.18.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "color-eyre",
  "compact_str",
  "dirs",
@@ -608,7 +621,7 @@ name = "os-checker-types"
 version = "0.3.0"
 dependencies = [
  "camino",
- "cargo_metadata",
+ "cargo_metadata 0.18.1 (git+https://github.com/os-checker/cargo_metadata.git?rev=dc53ab2)",
  "compact_str",
  "indexmap",
  "musli",

@@ -151,3 +151,45 @@ fn test_db() -> crate::Result<()> {
 
     Ok(())
 }
+
+// use crate::table::*;
+// use redb::*;
+//
+type StdResult<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
+
+#[test]
+fn cache_redb() -> StdResult<()> {
+    use redb::*;
+    const CACHE_REDB: &str = "cache.redb";
+    fn stats<K, V>(def: TableDefinition<K, V>, txn: &ReadTransaction) -> StdResult<()>
+    where
+        K: Key + 'static,
+        V: Value + 'static,
+    {
+        let table: ReadOnlyTable<K, V> = txn.open_table(def)?;
+        println!(
+            "{def} table [len={}]:\nstats: {:#?}",
+            table.len()?,
+            table.stats()?
+        );
+        for (idx, item) in table.iter()?.enumerate() {
+            let (guard_k, guard_v) = item?;
+            print!("{idx}k ");
+            _ = guard_k.value();
+            print!("{idx}v ");
+            _ = guard_v.value();
+        }
+        println!("{def} table all good!\n");
+        Ok(())
+    }
+
+    let db = redb::Database::open(CACHE_REDB)?;
+
+    let read_txn = db.begin_read()?;
+
+    // stats(DATA, &read_txn)?;
+    // stats(INFO, &read_txn)?;
+    stats(LAYOUT, &read_txn)?;
+
+    Ok(())
+}

@@ -19,6 +19,9 @@ pub mod db {
     pub use crate::table::*;
 }
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JsonOutput {
     pub env: Env,
