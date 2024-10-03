@@ -1,4 +1,4 @@
 /target
 /tmp
 /repos
-cache.redb*
+cache*.redb*
