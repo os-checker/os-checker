@@ -126,7 +126,7 @@ impl Db {
 
 #[test]
 fn test_db() -> crate::Result<()> {
-    let (key, value) = super::types::new_cache();
+    let (key, value) = super::cache::new_cache();
 
     let db = Database::builder().create_with_backend(redb::backends::InMemoryBackend::new())?;
     let db = Db {

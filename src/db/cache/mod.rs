@@ -8,6 +8,8 @@ use duct::cmd;
 use musli::{Decode, Encode};
 use std::fmt;
 
+mod type_conversion;
+
 // 由于我们想对每个检查出了结果时缓存，而不是在仓库所有检查完成时缓存，这里需要重复数据。
 // 减少数据重复，需要新定义一个结构，在缓存和 PackagesOutputs 上。
 #[derive(Debug, Encode, Decode, Clone)]

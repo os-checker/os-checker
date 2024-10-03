@@ -24,6 +24,7 @@ pub fn parse_unix_timestamp_milli(ts: u64) -> OffsetDateTime {
     }
 }
 
+#[macro_export]
 macro_rules! redb_value {
     (
       $t:ident, name: $name:literal,
