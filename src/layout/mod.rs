@@ -2,7 +2,7 @@
 
 use crate::{
     config::{Resolve, TargetsSpecifed},
-    db::{CacheLayout, CachePackageInfo, CacheResolve},
+    db::out::{CacheLayout, CachePackageInfo, CacheResolve, CargoMetaData},
     output::{get_channel, install_toolchain_idx, uninstall_toolchains},
     run_checker::DbRepo,
     utils::walk_dir,
@@ -21,7 +21,6 @@ mod tests;
 /// Target triple list and cargo check diagnostics.
 mod targets;
 use targets::PackageInfo;
-pub use targets::Targets;
 
 mod detect_targets;
 pub use detect_targets::RustToolchain;
@@ -299,7 +298,7 @@ impl Layout {
             .map(|info| CachePackageInfo {
                 pkg_name: info.pkg_name.clone(),
                 pkg_dir: info.pkg_dir.clone(),
-                targets: info.targets.clone(),
+                targets: info.targets.clone().into(),
                 channel: get_channel(info.toolchain.unwrap_or(0)),
                 resolves: resolves
                     .iter()
@@ -307,7 +306,7 @@ impl Layout {
                         target: r.target.clone(),
                         target_overriden: r.target_overriden,
                         channel: get_channel(r.toolchain.unwrap_or(0)),
-                        checker: r.checker,
+                        checker: r.checker.into(),
                         cmd: r.cmd.clone(),
                     })
                     .collect(),
@@ -317,7 +316,11 @@ impl Layout {
         let layout = CacheLayout {
             root_path: self.root_path.clone(),
             cargo_tomls: self.cargo_tomls.clone().into_boxed_slice(),
-            workspaces: self.workspaces.clone(),
+            workspaces: self
+                .workspaces
+                .iter()
+                .map(|(k, v)| (k.clone(), CargoMetaData::from_meta_data(v).unwrap()))
+                .collect(),
             packages_info,
         };
 

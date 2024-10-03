@@ -4,7 +4,9 @@ use super::{
 };
 use crate::{
     config::{CheckerTool, Resolve},
-    db::{CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db, InfoKeyValue, OutputDataInner},
+    db::{
+        out::CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db, InfoKeyValue, OutputDataInner,
+    },
     output::{Cmd, Data, Kind},
     Result,
 };

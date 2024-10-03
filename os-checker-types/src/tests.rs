@@ -97,7 +97,7 @@ fn test_musli() {
     let layout = CacheLayout {
         root_path: Utf8PathBuf::from("a"),
         cargo_tomls: Box::new([Utf8PathBuf::from("b")]),
-        // workspaces: IndexMap::new(),
+        workspaces: IndexMap::new(),
         packages_info: Box::new([CachePackageInfo {
             pkg_name: XString::from("c"),
             pkg_dir: Utf8PathBuf::from("d"),

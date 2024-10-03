@@ -1,4 +1,4 @@
-use super::{CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db};
+use super::{out::CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db};
 use crate::{config::RepoConfig, Result, XString};
 use duct::cmd;
 use eyre::Context;
@@ -194,7 +194,7 @@ impl InfoKeyValue {
     }
 
     pub fn set_layout_cache(&self, layout: CacheLayout, db: &Db) -> Result<()> {
-        db.set_layout(&self.key.to_db_key(), &layout.into())
+        db.set_layout(&self.key.to_db_key(), &layout)
     }
 }
 

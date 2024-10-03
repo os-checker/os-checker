@@ -16,6 +16,10 @@ impl CargoMetaData {
     pub fn meta_data(&self) -> serde_json::Result<Metadata> {
         serde_json::from_str(&self.meta_data)
     }
+
+    pub fn from_meta_data(meta_data: &Metadata) -> serde_json::Result<Self> {
+        serde_json::to_string(meta_data).map(|meta_data| Self { meta_data })
+    }
 }
 
 pub type Workspaces = IndexMap<Utf8PathBuf, CargoMetaData>;
@@ -31,8 +35,8 @@ pub struct CacheLayout {
     ///       `[package]`，因此要获取所有 packages 的信息，应使用 [`Layout::packages`]
     #[musli(with = musli::serde)]
     pub cargo_tomls: Box<[Utf8PathBuf]>,
-    // #[musli(with = musli::serde)]
-    // pub workspaces: Workspaces,
+    #[musli(with = musli::serde)]
+    pub workspaces: Workspaces,
     /// The order is by pkg name and dir path.
     #[musli(with = musli::serde)]
     pub packages_info: Box<[CachePackageInfo]>,
