@@ -43,11 +43,10 @@ pub struct PackagesOutputs {
     map: IndexMap<PackageName, Outputs>,
 }
 
-impl From<Vec<(&CacheRepoKey, CacheValue)>> for PackagesOutputs {
-    fn from(v: Vec<(&CacheRepoKey, CacheValue)>) -> Self {
+impl From<Vec<(&str, CacheValue)>> for PackagesOutputs {
+    fn from(v: Vec<(&str, CacheValue)>) -> Self {
         let mut map = IndexMap::<PackageName, Outputs>::with_capacity(v.len());
-        for (key, cache) in v {
-            let pkg_name = key.pkg_name();
+        for (pkg_name, cache) in v {
             if let Some(outputs) = map.get_mut(pkg_name) {
                 outputs.push(cache);
             } else {

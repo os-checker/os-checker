@@ -53,13 +53,13 @@ impl Info {
         self.complete
     }
 
-    pub fn get_cache_values(&self, db: &Db) -> Result<Vec<(&CacheRepoKey, CacheValue)>> {
+    pub fn get_cache_values(&self, db: &Db) -> Result<Vec<(&str, CacheValue)>> {
         let caches_len = self.caches.len();
         let mut v = Vec::with_capacity(caches_len);
         for key in &self.caches {
             let _span = key.span();
-            match db.get_cache(key)? {
-                Some(cache) => v.push((key, cache)),
+            match db.get_cache(&key.to_db_key())? {
+                Some(cache) => v.push((key.pkg_name(), cache)),
                 None => error!("info 存储了一个检查结果的键，但未找到对应的检查结果"),
             };
         }
@@ -86,9 +86,7 @@ struct Committer {
     #[serde(deserialize_with = "deserialize_date")]
     #[serde(rename(deserialize = "date"))]
     datetime: u64,
-    #[musli(with = musli::serde)]
     email: String,
-    #[musli(with = musli::serde)]
     name: XString,
 }
 
