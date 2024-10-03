@@ -15,10 +15,10 @@ pub struct CacheLayout {
     ///       `[package]`，因此要获取所有 packages 的信息，应使用 [`Layout::packages`]
     #[musli(with = musli::serde)]
     pub cargo_tomls: Box<[Utf8PathBuf]>,
-    /// 一个仓库可能有一个 Workspace，但也可能有多个，比如单独一些 Packages，那么它们是各自的 Workspace
-    /// NOTE: workspaces 的键指向 workspace_root dir，而不是 workspace_root 的 Cargo.toml
-    #[musli(with = musli::serde)]
-    pub workspaces: Workspaces,
+    // /// 一个仓库可能有一个 Workspace，但也可能有多个，比如单独一些 Packages，那么它们是各自的 Workspace
+    // /// NOTE: workspaces 的键指向 workspace_root dir，而不是 workspace_root 的 Cargo.toml
+    // #[musli(with = musli::serde)]
+    /// pub workspaces: Workspaces,
     /// The order is by pkg name and dir path.
     #[musli(with = musli::serde)]
     pub packages_info: Box<[CachePackageInfo]>,
@@ -34,7 +34,7 @@ impl fmt::Debug for CacheLayout {
         f.debug_struct("CacheLayout")
             .field("root_path", &self.root_path)
             .field("cargo_tomls", &self.cargo_tomls)
-            .field("workspaces.len", &self.workspaces.len())
+            // .field("workspaces.len", &self.workspaces.len())
             .field("packages_info", &self.packages_info)
             .finish()
     }

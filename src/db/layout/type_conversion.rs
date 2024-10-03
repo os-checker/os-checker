@@ -14,7 +14,7 @@ impl From<CacheLayout> for out::CacheLayout {
         Self {
             root_path,
             cargo_tomls,
-            workspaces,
+            // workspaces,
             packages_info: Vec::from(packages_info)
                 .into_iter()
                 .map(|p| p.into())
@@ -68,13 +68,13 @@ impl From<out::CacheLayout> for CacheLayout {
         let out::CacheLayout {
             root_path,
             cargo_tomls,
-            workspaces,
+            // workspaces,
             packages_info,
         } = value;
         Self {
             root_path,
             cargo_tomls,
-            workspaces,
+            workspaces: Default::default(),
             packages_info: Vec::from(packages_info)
                 .into_iter()
                 .map(|p| p.into())
