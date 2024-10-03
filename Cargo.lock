@@ -133,7 +133,8 @@ dependencies = [
 [[package]]
 name = "cargo_metadata"
 version = "0.18.1"
-source = "git+https://github.com/os-checker/cargo_metadata.git?rev=dc53ab2#dc53ab2b2dc7d2778dffc1bccd34b3ccf36ee0ae"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d886547e41f740c616ae73108f6eb70afe6d940c7bc697cb30f13daec073037"
 dependencies = [
  "camino",
  "cargo-platform",

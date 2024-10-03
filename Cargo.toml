@@ -58,7 +58,6 @@ color-eyre = "0.6.3"
 [workspace.dependencies]
 ahash = "0.8.11"
 camino = { version = "1.1.9", features = ["serde1"] } # Utf8 Path
-# cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 compact_str = { version = "0.8.0", features = ["serde"] }
 duct = "0.13.7" # better subprocess, pipe, redirct
 hashbrown = { version = "0.15", features = ["default"]}
@@ -82,10 +81,11 @@ time = { version = "0.3", features = ["parsing", "macros"] }
 
 os-checker-types = { version = "0.3.0", path = "os-checker-types" }
 
-[workspace.dependencies.cargo_metadata]
-git = "https://github.com/os-checker/cargo_metadata.git"
-# branch = "workspace_default_members-serde-default"
-rev = "dc53ab2"
+cargo_metadata = "0.18.1" # parse metadata for knowing project layout
+# [workspace.dependencies.cargo_metadata]
+# git = "https://github.com/os-checker/cargo_metadata.git"
+# # branch = "workspace_default_members-serde-default"
+# rev = "dc53ab2"
 
 [workspace]
 exclude = ["repos/**"]
