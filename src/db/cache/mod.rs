@@ -12,9 +12,8 @@ mod type_conversion;
 
 // 由于我们想对每个检查出了结果时缓存，而不是在仓库所有检查完成时缓存，这里需要重复数据。
 // 减少数据重复，需要新定义一个结构，在缓存和 PackagesOutputs 上。
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 pub struct CacheRepoKeyCmd {
-    #[musli(with = musli::serde)]
     pkg_name: XString,
     checker: CacheChecker,
     cmd: CacheCmd,
@@ -41,7 +40,7 @@ impl CacheRepoKeyCmd {
     }
 }
 
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 pub struct CacheRepoKey {
     repo: CacheRepo,
     cmd: CacheRepoKeyCmd,
@@ -71,19 +70,11 @@ impl CacheRepoKey {
     }
 }
 
-redb_value!(@key CacheRepoKey, name: "OsCheckerCacheKey",
-    read_err: "Not a valid cache key.",
-    write_err: "Cache key can't be encoded to bytes."
-);
-
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 pub struct CacheRepo {
-    #[musli(with = musli::serde)]
     pub user: XString,
-    #[musli(with = musli::serde)]
     pub repo: XString,
     sha: String,
-    #[musli(with = musli::serde)]
     branch: XString,
 }
 
@@ -113,7 +104,7 @@ impl CacheRepo {
     }
 }
 
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 struct CacheChecker {
     checker: CheckerTool,
     // If we don't care about the version, use None.
@@ -121,21 +112,19 @@ struct CacheChecker {
     sha: Option<String>,
 }
 
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 struct CacheCmd {
     cmd: String,
     target: String,
     /// FIXME: channel 转换回 RustToolchain 会丢失额外的信息
     channel: String,
     // Below is not necessary, and currently not implemented.
-    #[musli(with = musli::serde)]
     features: Vec<XString>,
     /// rustcflags
-    #[musli(with = musli::serde)]
     flags: Vec<XString>,
 }
 
-#[derive(Encode, Decode)]
+#[derive(Clone)]
 pub struct OutputData {
     pub duration_ms: u64,
     pub data: Vec<OutputDataInner>,
@@ -150,9 +139,8 @@ impl fmt::Debug for OutputData {
     }
 }
 
-#[derive(Encode, Decode)]
+#[derive(Clone)]
 pub struct OutputDataInner {
-    #[musli(with = musli::serde)]
     file: Utf8PathBuf,
     kind: Kind,
     raw: String,
@@ -164,7 +152,7 @@ impl OutputDataInner {
     }
 }
 
-#[derive(Encode, Decode)]
+#[derive(Clone)]
 pub struct CacheValue {
     unix_timestamp_milli: u64,
     cmd: CacheRepoKeyCmd,
@@ -182,11 +170,6 @@ impl fmt::Debug for CacheValue {
             .finish()
     }
 }
-
-redb_value!(CacheValue, name: "OsCheckerCacheValue",
-    read_err: "Not a valid cache value.",
-    write_err: "Cache value can't be encoded to bytes."
-);
 
 impl CacheValue {
     pub fn new(resolve: &Resolve, duration_ms: u64, data: Vec<OutputDataInner>) -> Self {
