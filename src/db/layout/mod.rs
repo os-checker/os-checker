@@ -5,10 +5,10 @@ use crate::{
 };
 use camino::Utf8PathBuf;
 use os_checker_types::db as out;
-use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Serialize, Deserialize)]
+mod type_conversion;
+
 pub struct CacheLayout {
     /// 仓库根目录的完整路径，可用于去除 Metadata 中的路径前缀，让路径看起来更清爽
     pub root_path: Utf8PathBuf,
@@ -22,12 +22,6 @@ pub struct CacheLayout {
     pub workspaces: Workspaces,
     /// The order is by pkg name and dir path.
     pub packages_info: Box<[CachePackageInfo]>,
-}
-
-impl CacheLayout {
-    pub fn to_db_value(&self) -> out::CacheLayout {
-        self.clone().into()
-    }
 }
 
 impl fmt::Debug for CacheLayout {

@@ -1,8 +1,5 @@
 use super::{utils::DbRepo, Output, Resolve};
-use crate::{
-    config::TOOLS,
-    db::{CacheRepoKey, CacheValue},
-};
+use crate::{config::TOOLS, db::CacheValue};
 use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
 use regex::Regex;

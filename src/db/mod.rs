@@ -11,7 +11,7 @@ pub use db::Db;
 
 /// Github APIs
 mod info;
-pub use info::InfoKeyValue;
+pub use info::{get_info, InfoKeyValue};
 
 mod layout;
 pub use layout::{CacheLayout, CachePackageInfo, CacheResolve};

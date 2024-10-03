@@ -97,7 +97,7 @@ impl<'a> DbRepo<'a> {
     }
 
     /// 写入 layout 缓存
-    pub fn set_layout_cache(&self, layout: &CacheLayout) {
+    pub fn set_layout_cache(&self, layout: CacheLayout) {
         if let Err(err) = self.info.set_layout_cache(layout, self.db) {
             error!(%err, "Unable to save the layout cache.");
         }

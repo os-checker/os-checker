@@ -1,7 +1,3 @@
-use super::{
-    info::{Info, InfoKey},
-    CacheLayout, CacheRepoKey, CacheValue,
-};
 use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;

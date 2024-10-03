@@ -136,7 +136,7 @@ fn info_repo(user: &str, repo: &str) -> Result<(String, LatestCommit)> {
 }
 
 /// Query latest commit sha via `gh api`, and return the key and value with empty caches.
-pub fn info(user: &str, repo: &str, config: RepoConfig) -> Result<InfoKeyValue> {
+pub fn get_info(user: &str, repo: &str, config: RepoConfig) -> Result<InfoKeyValue> {
     let (branch, latest_commit) = info_repo(user, repo)?;
     let key = InfoKey {
         repo: CacheRepo::new_with_sha(user, repo, &latest_commit.sha, branch),
@@ -168,7 +168,7 @@ impl InfoKeyValue {
     }
 
     pub fn get_from_db(&self, db: &Db) -> Result<Option<Info>> {
-        db.get_info(&self.key)
+        db.get_info(&self.key.to_db_key())
     }
 
     pub fn append_cache_key(&self, cache_key: &CacheRepoKey, db: &Db) -> Result<()> {
@@ -192,8 +192,8 @@ impl InfoKeyValue {
         db.set_info(&self.key.to_db_key(), &info)
     }
 
-    pub fn set_layout_cache(&self, layout: &CacheLayout, db: &Db) -> Result<()> {
-        db.set_layout(&self.key.to_db_key(), &layout.to_db_value())
+    pub fn set_layout_cache(&self, layout: CacheLayout, db: &Db) -> Result<()> {
+        db.set_layout(&self.key.to_db_key(), &layout.into())
     }
 }
 

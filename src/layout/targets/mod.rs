@@ -4,6 +4,8 @@ use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
+mod type_conversion;
+
 /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
 // FIXME: 把 tag 和 path 分开
 // TODO: 在明确指定 targets 的情况下，还需要脚本指定的 targets 吗？(关于安装和 resolve)

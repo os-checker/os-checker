@@ -321,7 +321,7 @@ impl Layout {
             packages_info,
         };
 
-        db_repo.set_layout_cache(&layout);
+        db_repo.set_layout_cache(layout);
     }
 }
 
