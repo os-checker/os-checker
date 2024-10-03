@@ -195,7 +195,7 @@ impl InfoKeyValue {
     }
 
     pub fn set_layout_cache(&self, layout: &CacheLayout, db: &Db) -> Result<()> {
-        db.set_layout(&self.key, layout)
+        db.set_layout(&self.key.to_db_key(), &layout.to_db_value())
     }
 }
 
