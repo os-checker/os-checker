@@ -2,7 +2,23 @@ use crate::{prelude::*, CheckerTool, XString};
 use cargo_metadata::Metadata;
 use std::fmt;
 
-pub type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
+/// The json serialized from cargo meta_data.
+/// This solves the binary encoding/decoding problem
+/// when [some serde attrs like skip are not supported][serde problem].
+///
+/// [serde problem]: https://docs.rs/bincode/2.0.0-rc.3/bincode/serde/index.html#known-issues
+#[derive(Serialize, Deserialize, Encode, Decode)]
+pub struct CargoMetaData {
+    pub meta_data: String,
+}
+
+impl CargoMetaData {
+    pub fn meta_data(&self) -> serde_json::Result<Metadata> {
+        serde_json::from_str(&self.meta_data)
+    }
+}
+
+pub type Workspaces = IndexMap<Utf8PathBuf, CargoMetaData>;
 
 #[derive(Serialize, Deserialize, Encode, Decode, Default)]
 pub struct CacheLayout {
@@ -15,10 +31,8 @@ pub struct CacheLayout {
     ///       `[package]`，因此要获取所有 packages 的信息，应使用 [`Layout::packages`]
     #[musli(with = musli::serde)]
     pub cargo_tomls: Box<[Utf8PathBuf]>,
-    // /// 一个仓库可能有一个 Workspace，但也可能有多个，比如单独一些 Packages，那么它们是各自的 Workspace
-    // /// NOTE: workspaces 的键指向 workspace_root dir，而不是 workspace_root 的 Cargo.toml
     // #[musli(with = musli::serde)]
-    /// pub workspaces: Workspaces,
+    // pub workspaces: Workspaces,
     /// The order is by pkg name and dir path.
     #[musli(with = musli::serde)]
     pub packages_info: Box<[CachePackageInfo]>,
@@ -86,4 +100,35 @@ pub struct CacheResolve {
     /// 完整的检查命令字符串（一定包含 --target）：
     /// 来自 os-checker 生成或者配置文件自定义
     pub cmd: String,
+}
+
+#[test]
+fn workspaces() {
+    #[derive(Encode, Decode)]
+    struct Meta {
+        #[musli(with=musli::serde)]
+        data: Metadata,
+    }
+
+    let metadata = cargo_metadata::MetadataCommand::new()
+        .manifest_path("../Cargo.toml")
+        .exec()
+        .unwrap();
+
+    let meta = Meta { data: metadata };
+    let _bytes = musli::storage::to_vec(&meta).unwrap();
+
+    // thread 'layout::workspaces' panicked at os-checker-types\src\layout.rs:105:54:
+    // called `Result::unwrap()` on an `Err` value: Error { err: Message("Skipping is
+    // not supported, expected type supported by the storage decoder") }
+    // let _: Meta = musli::storage::from_slice(&bytes).unwrap();
+
+    let metadata = meta.data;
+
+    let meta = CargoMetaData {
+        meta_data: serde_json::to_string_pretty(&metadata).unwrap(),
+    };
+    let bytes = musli::storage::to_vec(&meta).unwrap();
+    let meta_string: CargoMetaData = musli::storage::from_slice(&bytes).unwrap();
+    assert!(meta_string.meta_data().is_ok());
 }
