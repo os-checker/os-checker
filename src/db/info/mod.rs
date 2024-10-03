@@ -2,6 +2,7 @@ use super::{CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db};
 use crate::{config::RepoConfig, Result, XString};
 use duct::cmd;
 use eyre::Context;
+use os_checker_types::db as out;
 use serde::Deserialize;
 use std::{cell::RefCell, fmt};
 
@@ -30,6 +31,10 @@ pub struct InfoKey {
 impl InfoKey {
     pub fn span(&self) -> tracing::span::EnteredSpan {
         error_span!("InfoKey", user = %self.repo.user, repo = %self.repo.repo).entered()
+    }
+
+    pub fn to_db_key(&self) -> out::InfoKey {
+        self.clone().into()
     }
 }
 
@@ -60,6 +65,10 @@ impl Info {
         }
         info!(caches_len);
         Ok(v)
+    }
+
+    pub fn to_db_value(&self) -> out::Info {
+        self.clone().into()
     }
 }
 
@@ -169,9 +178,9 @@ impl InfoKeyValue {
         let info = {
             let info = &mut self.val.borrow_mut();
             info.caches.push(cache_key.clone());
-            info.clone().into()
+            info.to_db_value()
         };
-        db.set_info(&self.key.clone().into(), &info)
+        db.set_info(&self.key.to_db_key(), &info)
     }
 
     /// 所有实际检查完成，调用此函数
@@ -180,9 +189,9 @@ impl InfoKeyValue {
         let info = {
             let info = &mut self.val.borrow_mut();
             info.complete = true;
-            info.clone().into()
+            info.to_db_value()
         };
-        db.set_info(&self.key.clone().into(), &info)
+        db.set_info(&self.key.to_db_key(), &info)
     }
 
     pub fn set_layout_cache(&self, layout: &CacheLayout, db: &Db) -> Result<()> {
