@@ -5,7 +5,7 @@ use crate::{
 };
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
-use musli::{Decode, Encode};
+use os_checker_types::db as out;
 use std::fmt;
 
 mod type_conversion;
@@ -67,6 +67,10 @@ impl CacheRepoKey {
 
     pub fn pkg_name(&self) -> &str {
         &self.cmd.pkg_name
+    }
+
+    pub fn to_db_key(&self) -> out::CacheRepoKey {
+        self.clone().into()
     }
 }
 
@@ -216,6 +220,10 @@ impl CacheValue {
 
     pub fn count(&self) -> usize {
         self.diagnostics.data.len()
+    }
+
+    pub fn to_db_value(&self) -> out::CacheValue {
+        self.clone().into()
     }
 
     /// 更新检查时间
