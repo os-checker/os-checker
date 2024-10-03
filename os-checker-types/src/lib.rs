@@ -5,11 +5,11 @@ pub use prelude::*;
 mod toolchain;
 pub use toolchain::*;
 
-mod cache;
+pub mod cache;
 pub mod config;
-mod info;
-mod layout;
-mod table;
+pub mod info;
+pub mod layout;
+pub mod table;
 
 pub mod db {
     pub use crate::cache::*;
