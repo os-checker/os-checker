@@ -19,6 +19,8 @@ use config_options::{Cmds, Meta, Setup, Targets};
 mod misc;
 pub use misc::TargetsSpecifed;
 
+mod type_conversion;
+
 #[derive(Debug, Serialize, Deserialize, Default, JsonSchema, Clone)]
 pub struct RepoConfig {
     #[serde(default)]

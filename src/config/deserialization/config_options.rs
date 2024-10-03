@@ -1,6 +1,8 @@
 use super::*;
 use CheckerTool::*;
 
+mod type_conversion;
+
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(untagged)]
 pub enum EnableOrCustom {
