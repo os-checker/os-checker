@@ -4,7 +4,6 @@ use crate::{
     XString,
 };
 use camino::Utf8PathBuf;
-use os_checker_types::db as out;
 use std::fmt;
 
 mod type_conversion;

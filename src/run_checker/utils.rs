@@ -79,7 +79,9 @@ impl<'a> DbRepo<'a> {
     }
 
     pub fn read_cache(self, key: &CacheRepoKey) -> Result<Option<CacheValue>> {
-        self.db.get_cache(key)
+        self.db
+            .get_cache(&key.to_db_key())
+            .map(|c| c.map(CacheValue::from))
     }
 
     /// 写入命令缓存

@@ -59,7 +59,7 @@ impl Info {
         for key in &self.caches {
             let _span = key.span();
             match db.get_cache(&key.to_db_key())? {
-                Some(cache) => v.push((key.pkg_name(), cache)),
+                Some(cache) => v.push((key.pkg_name(), cache.into())),
                 None => error!("info 存储了一个检查结果的键，但未找到对应的检查结果"),
             };
         }
@@ -169,6 +169,7 @@ impl InfoKeyValue {
 
     pub fn get_from_db(&self, db: &Db) -> Result<Option<Info>> {
         db.get_info(&self.key.to_db_key())
+            .map(|opt| opt.map(Info::from))
     }
 
     pub fn append_cache_key(&self, cache_key: &CacheRepoKey, db: &Db) -> Result<()> {
@@ -215,5 +216,6 @@ fn get_default_branch() -> Result<()> {
 pub fn os_checker() -> Result<(InfoKey, Info)> {
     let user = "os-checker";
     let repo = "os-checker";
-    info(user, repo, RepoConfig::default()).map(|InfoKeyValue { key, val }| (key, val.into_inner()))
+    get_info(user, repo, RepoConfig::default())
+        .map(|InfoKeyValue { key, val }| (key, val.into_inner()))
 }

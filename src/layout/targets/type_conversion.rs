@@ -51,7 +51,7 @@ impl From<Targets> for out::Targets {
 // ********** os_checker_types => CLI **********
 
 impl From<out::TargetSource> for TargetSource {
-    fn from(value: TargetSource) -> Self {
+    fn from(value: out::TargetSource) -> Self {
         match value {
             out::TargetSource::RustToolchainToml(utf8_path_buf) => {
                 Self::RustToolchainToml(utf8_path_buf)
