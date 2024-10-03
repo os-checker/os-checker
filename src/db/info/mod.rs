@@ -2,9 +2,10 @@ use super::{CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db};
 use crate::{config::RepoConfig, Result, XString};
 use duct::cmd;
 use eyre::Context;
-use musli::{Decode, Encode};
 use serde::Deserialize;
 use std::{cell::RefCell, fmt};
+
+mod type_conversion;
 
 /// Needs CLIs like gh and jq.
 /// GH_TOKEN like `GH_TOKEN: ${{ github.token }}` in Github Action.
@@ -20,17 +21,11 @@ fn default_branch(user: &str, repo: &str) -> Result<String> {
     gh_api(arg, ".default_branch".to_owned())
 }
 
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Clone)]
 pub struct InfoKey {
     repo: CacheRepo,
-    #[musli(with = musli::serde)]
     config: RepoConfig,
 }
-
-redb_value!(@key InfoKey, name: "OsCheckerInfoKey",
-    read_err: "Not a valid info key.",
-    write_err: "Info key can't be encoded to bytes."
-);
 
 impl InfoKey {
     pub fn span(&self) -> tracing::span::EnteredSpan {
@@ -38,7 +33,7 @@ impl InfoKey {
     }
 }
 
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Clone)]
 pub struct Info {
     /// 该仓库的检查是否全部完成
     complete: bool,
@@ -47,11 +42,6 @@ pub struct Info {
     /// 仓库最新提交信息
     latest_commit: LatestCommit,
 }
-
-redb_value!(Info, name: "OsCheckerInfo",
-    read_err: "Not a valid info value.",
-    write_err: "Info value can't be encoded to bytes."
-);
 
 impl Info {
     pub fn is_complete(&self) -> bool {
@@ -73,7 +63,7 @@ impl Info {
     }
 }
 
-#[derive(Debug, Deserialize, Encode, Decode)]
+#[derive(Debug, Deserialize, Clone)]
 struct LatestCommit {
     sha: String,
     mes: String,
@@ -81,7 +71,7 @@ struct LatestCommit {
     committer: Committer,
 }
 
-#[derive(Deserialize, Encode, Decode)]
+#[derive(Deserialize, Clone)]
 struct Committer {
     // store as unix timestemp milli
     #[serde(deserialize_with = "deserialize_date")]

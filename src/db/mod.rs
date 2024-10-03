@@ -10,8 +10,8 @@ mod db;
 pub use db::Db;
 
 /// Github APIs
-mod gh;
-pub use gh::{info, InfoKeyValue};
+mod info;
+pub use info::InfoKeyValue;
 
 mod layout;
 pub use layout::{CacheLayout, CachePackageInfo, CacheResolve};

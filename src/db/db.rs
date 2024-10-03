@@ -1,5 +1,5 @@
 use super::{
-    gh::{Info, InfoKey},
+    info::{Info, InfoKey},
     CacheLayout, CacheRepoKey, CacheValue,
 };
 use crate::Result;
@@ -9,8 +9,7 @@ use os_checker_types::db as out;
 use redb::{Database, Key, Table, TableDefinition, Value};
 use std::sync::Arc;
 
-use out::DATA;
-const INFO: TableDefinition<InfoKey, Info> = TableDefinition::new("info");
+use out::{DATA, INFO};
 const LAYOUT: TableDefinition<InfoKey, CacheLayout> = TableDefinition::new("layout");
 
 #[derive(Clone)]
@@ -80,7 +79,9 @@ impl Db {
 
     pub fn set_info(&self, key: &InfoKey, value: &Info) -> Result<()> {
         self.write(INFO, |table| {
-            table.insert(key, value)?;
+            let out_key = out::InfoKey::from(key.clone());
+            let out_value = out::Info::from(value.clone());
+            table.insert(&out_key, &out_value)?;
             let _span = key.span();
             info!("Successfully cached repo infomation.");
             Ok(())
