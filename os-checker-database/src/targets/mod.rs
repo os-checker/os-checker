@@ -174,9 +174,10 @@ impl<'a> Resolve<'a> {
     }
 }
 
-#[test]
-fn test_resolves() -> Result<()> {
-    let db = os_checker_types::table::test_database("..");
+pub const CACHE_REDB: &str = "cache.redb";
+
+pub fn do_resolves() -> Result<()> {
+    let db = redb::Database::open(CACHE_REDB)?;
     let txn = db.begin_read()?;
     let table = txn.open_table(LAYOUT)?;
     table_resolves(&table)?;

@@ -94,6 +94,7 @@ jobs:
 
           rm -rf batch # 移除旧的 batch 数据
           cp -r ~/check/batch . # 更新新的 batch 数据
+          cp ~/check/cache.redb . # 复制数据库缓存文件
           sh push.sh
           df -alh
 
