@@ -1,8 +1,10 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
 use crate::{
-    config::TargetsSpecifed,
-    output::{install_toolchain_idx, uninstall_toolchains},
+    config::{Resolve, TargetsSpecifed},
+    db::out::{CacheLayout, CachePackageInfo, CacheResolve, CargoMetaData},
+    output::{get_channel, install_toolchain_idx, uninstall_toolchains},
+    run_checker::DbRepo,
     utils::walk_dir,
     Result, XString,
 };
@@ -11,7 +13,7 @@ use cargo_metadata::{
     Metadata, MetadataCommand,
 };
 use indexmap::IndexMap;
-use std::{collections::BTreeMap, fmt};
+use std::fmt;
 
 #[cfg(test)]
 mod tests;
@@ -39,12 +41,12 @@ fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf
     cargo_tomls
 }
 
-type Workspaces = BTreeMap<Utf8PathBuf, Metadata>;
+pub type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
 
 /// 解析所有 Cargo.toml 所在的 Package 的 metadata 来获取仓库所有的 Workspaces
 #[instrument(level = "trace")]
 fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
-    let mut map = BTreeMap::new();
+    let mut map = IndexMap::new();
     for cargo_toml in cargo_tomls {
         // 暂时不解析依赖的原因：
         // * 不需要依赖信息
@@ -67,6 +69,7 @@ fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
             map.insert(root.clone(), metadata);
         }
     }
+    map.sort_unstable_keys();
     Ok(map)
 }
 
@@ -283,6 +286,45 @@ impl Layout {
         }
 
         Ok(())
+    }
+
+    /// Clone the data as a `CacheLayout`.
+    pub fn set_layout_cache(&self, resolves: &[Resolve], db_repo: Option<DbRepo>) {
+        let Some(db_repo) = db_repo else { return };
+
+        let packages_info = self
+            .packages_info
+            .iter()
+            .map(|info| CachePackageInfo {
+                pkg_name: info.pkg_name.clone(),
+                pkg_dir: info.pkg_dir.clone(),
+                targets: info.targets.clone().into(),
+                channel: get_channel(info.toolchain.unwrap_or(0)),
+                resolves: resolves
+                    .iter()
+                    .map(|r| CacheResolve {
+                        target: r.target.clone(),
+                        target_overriden: r.target_overriden,
+                        channel: get_channel(r.toolchain.unwrap_or(0)),
+                        checker: r.checker.into(),
+                        cmd: r.cmd.clone(),
+                    })
+                    .collect(),
+            })
+            .collect();
+
+        let layout = CacheLayout {
+            root_path: self.root_path.clone(),
+            cargo_tomls: self.cargo_tomls.clone().into_boxed_slice(),
+            workspaces: self
+                .workspaces
+                .iter()
+                .map(|(k, v)| (k.clone(), CargoMetaData::from_meta_data(v).unwrap()))
+                .collect(),
+            packages_info,
+        };
+
+        db_repo.set_layout_cache(layout);
     }
 }
 

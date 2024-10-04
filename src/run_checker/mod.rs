@@ -15,11 +15,11 @@ use eyre::Context;
 use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
-use utils::DbRepo;
 
 mod lockbud;
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
+pub use utils::DbRepo;
 
 mod packages_outputs;
 use packages_outputs::PackagesOutputs;
@@ -142,12 +142,14 @@ impl Repo {
         let db_repo = db.map(|db| DbRepo::new(db, &repo, info));
 
         match err_or_resolve {
-            Either::Left(resolve) => {
-                for resolve in resolve {
+            Either::Left(resolves) => {
+                self.layout.set_layout_cache(&resolves, db_repo);
+                for resolve in resolves {
                     run_check(resolve, &mut outputs, db_repo)?;
                 }
             }
             Either::Right(err) => {
+                self.layout.set_layout_cache(&[], db_repo);
                 // NOTE: 无法从 repo 中知道 pkg 信息，因此为空
                 let pkg_name = String::new();
                 let repo_root = self.layout.repo_root();

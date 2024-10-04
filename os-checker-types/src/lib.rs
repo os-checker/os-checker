@@ -1,8 +1,26 @@
+#[macro_use]
 mod prelude;
 pub use prelude::*;
 
 mod toolchain;
 pub use toolchain::*;
+
+pub mod cache;
+pub mod config;
+pub mod info;
+pub mod layout;
+pub mod table;
+
+pub mod db {
+    pub use crate::cache::*;
+    pub use crate::config::RepoConfig;
+    pub use crate::info::*;
+    pub use crate::layout::*;
+    pub use crate::table::*;
+}
+
+#[cfg(test)]
+mod tests;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JsonOutput {
@@ -94,7 +112,7 @@ pub struct Data {
 }
 
 /// The kind a checker reports.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, Serialize, Deserialize, Encode, Decode, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum Kind {
     /// fmt
     Unformatted,
@@ -139,7 +157,7 @@ pub struct Kinds {
     pub mapping: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, Serialize, Deserialize, Encode, Decode, PartialEq, Eq, Clone, Copy, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub enum CheckerTool {
     Fmt,

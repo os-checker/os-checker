@@ -1,8 +1,5 @@
 use super::{utils::DbRepo, Output, Resolve};
-use crate::{
-    config::TOOLS,
-    db::{CacheRepoKey, CacheValue},
-};
+use crate::{config::TOOLS, db::CacheValue};
 use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
 use regex::Regex;
@@ -43,11 +40,10 @@ pub struct PackagesOutputs {
     map: IndexMap<PackageName, Outputs>,
 }
 
-impl From<Vec<(&CacheRepoKey, CacheValue)>> for PackagesOutputs {
-    fn from(v: Vec<(&CacheRepoKey, CacheValue)>) -> Self {
+impl From<Vec<(&str, CacheValue)>> for PackagesOutputs {
+    fn from(v: Vec<(&str, CacheValue)>) -> Self {
         let mut map = IndexMap::<PackageName, Outputs>::with_capacity(v.len());
-        for (key, cache) in v {
-            let pkg_name = key.pkg_name();
+        for (pkg_name, cache) in v {
             if let Some(outputs) = map.get_mut(pkg_name) {
                 outputs.push(cache);
             } else {
@@ -83,41 +79,41 @@ impl PackagesOutputs {
     /// 获取缓存的检查结果。
     /// `true` 表示成功获取；`false` 表示无缓存。
     pub fn fetch_cache(&mut self, resolve: &Resolve, db_repo: Option<DbRepo>) -> bool {
+        let Some(db_repo) = db_repo else { return false };
+
         let _span = error_span!("fetch_cache", %resolve.pkg_name, resolve.cmd).entered();
-        if let Some(db_repo) = db_repo {
-            let key = &db_repo.key(resolve);
-            match db_repo.read_cache(key) {
-                Ok(Some(cache)) => {
-                    let pkg_name = resolve.pkg_name.as_str();
-                    if let Some(v) = self.get_mut(pkg_name) {
-                        v.push(cache);
-                    } else {
-                        let pkg_name = pkg_name.to_owned();
-                        let outputs = Outputs { inner: vec![cache] };
-                        self.insert(pkg_name, outputs);
-                    }
-                    db_repo.set_info_cache(key);
 
-                    let resolve_cargo = resolve.new_cargo();
-                    let key_cargo = &db_repo.key(&resolve_cargo);
-                    match db_repo.read_cache(key_cargo) {
-                        Ok(Some(cache_cargo)) => {
-                            self.get_mut(pkg_name).unwrap().push(cache_cargo);
-                            info!("成功获取缓存（含 Cargo）");
-                            db_repo.set_info_cache(key_cargo);
-                        }
-                        Ok(None) => info!("成功获取缓存"),
-                        Err(err) => {
-                            error!(?err, "无法获取 Cargo 检查结果缓存")
-                        }
-                    };
-
-                    return true;
+        let key = &db_repo.key(resolve);
+        match db_repo.read_cache(key) {
+            Ok(Some(cache)) => {
+                let pkg_name = resolve.pkg_name.as_str();
+                if let Some(v) = self.get_mut(pkg_name) {
+                    v.push(cache);
+                } else {
+                    let pkg_name = pkg_name.to_owned();
+                    let outputs = Outputs { inner: vec![cache] };
+                    self.insert(pkg_name, outputs);
                 }
-                Ok(None) => warn!("无缓存"),
-                Err(err) => error!(?err, "获取缓存失败"),
+                db_repo.set_info_cache(key);
+
+                let resolve_cargo = resolve.new_cargo();
+                let key_cargo = &db_repo.key(&resolve_cargo);
+                match db_repo.read_cache(key_cargo) {
+                    Ok(Some(cache_cargo)) => {
+                        self.get_mut(pkg_name).unwrap().push(cache_cargo);
+                        info!("成功获取缓存（含 Cargo）");
+                        db_repo.set_info_cache(key_cargo);
+                    }
+                    Ok(None) => info!("成功获取缓存"),
+                    Err(err) => error!(?err, "无法获取 Cargo 检查结果缓存"),
+                };
+
+                return true;
             }
+            Ok(None) => warn!("无缓存"),
+            Err(err) => error!(?err, "获取缓存失败"),
         }
+
         false
     }
 

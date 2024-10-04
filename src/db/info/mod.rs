@@ -1,10 +1,12 @@
-use super::{CacheRepo, CacheRepoKey, CacheValue, Db};
+use super::{out::CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db};
 use crate::{config::RepoConfig, Result, XString};
 use duct::cmd;
 use eyre::Context;
-use musli::{Decode, Encode};
+use os_checker_types::db as out;
 use serde::Deserialize;
 use std::{cell::RefCell, fmt};
+
+mod type_conversion;
 
 /// Needs CLIs like gh and jq.
 /// GH_TOKEN like `GH_TOKEN: ${{ github.token }}` in Github Action.
@@ -20,25 +22,23 @@ fn default_branch(user: &str, repo: &str) -> Result<String> {
     gh_api(arg, ".default_branch".to_owned())
 }
 
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Clone)]
 pub struct InfoKey {
     repo: CacheRepo,
-    #[musli(with = musli::serde)]
     config: RepoConfig,
 }
 
-redb_value!(@key InfoKey, name: "OsCheckerInfoKey",
-    read_err: "Not a valid info key.",
-    write_err: "Info key can't be encoded to bytes."
-);
-
 impl InfoKey {
     pub fn span(&self) -> tracing::span::EnteredSpan {
-        error_span!("InfoKey", user = self.repo.user, repo = self.repo.repo).entered()
+        error_span!("InfoKey", user = %self.repo.user, repo = %self.repo.repo).entered()
+    }
+
+    pub fn to_db_key(&self) -> out::InfoKey {
+        self.clone().into()
     }
 }
 
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Clone)]
 pub struct Info {
     /// 该仓库的检查是否全部完成
     complete: bool,
@@ -48,32 +48,31 @@ pub struct Info {
     latest_commit: LatestCommit,
 }
 
-redb_value!(Info, name: "OsCheckerInfo",
-    read_err: "Not a valid info value.",
-    write_err: "Info value can't be encoded to bytes."
-);
-
 impl Info {
     pub fn is_complete(&self) -> bool {
         self.complete
     }
 
-    pub fn get_cache_values(&self, db: &Db) -> Result<Vec<(&CacheRepoKey, CacheValue)>> {
+    pub fn get_cache_values(&self, db: &Db) -> Result<Vec<(&str, CacheValue)>> {
         let caches_len = self.caches.len();
         let mut v = Vec::with_capacity(caches_len);
         for key in &self.caches {
             let _span = key.span();
-            match db.get_cache(key)? {
-                Some(cache) => v.push((key, cache)),
+            match db.get_cache(&key.to_db_key())? {
+                Some(cache) => v.push((key.pkg_name(), cache.into())),
                 None => error!("info 存储了一个检查结果的键，但未找到对应的检查结果"),
             };
         }
         info!(caches_len);
         Ok(v)
     }
+
+    pub fn to_db_value(&self) -> out::Info {
+        self.clone().into()
+    }
 }
 
-#[derive(Debug, Deserialize, Encode, Decode)]
+#[derive(Debug, Deserialize, Clone)]
 struct LatestCommit {
     sha: String,
     mes: String,
@@ -81,15 +80,13 @@ struct LatestCommit {
     committer: Committer,
 }
 
-#[derive(Deserialize, Encode, Decode)]
+#[derive(Deserialize, Clone)]
 struct Committer {
     // store as unix timestemp milli
     #[serde(deserialize_with = "deserialize_date")]
     #[serde(rename(deserialize = "date"))]
     datetime: u64,
-    #[musli(with = musli::serde)]
     email: String,
-    #[musli(with = musli::serde)]
     name: XString,
 }
 
@@ -139,7 +136,7 @@ fn info_repo(user: &str, repo: &str) -> Result<(String, LatestCommit)> {
 }
 
 /// Query latest commit sha via `gh api`, and return the key and value with empty caches.
-pub fn info(user: &str, repo: &str, config: RepoConfig) -> Result<InfoKeyValue> {
+pub fn get_info(user: &str, repo: &str, config: RepoConfig) -> Result<InfoKeyValue> {
     let (branch, latest_commit) = info_repo(user, repo)?;
     let key = InfoKey {
         repo: CacheRepo::new_with_sha(user, repo, &latest_commit.sha, branch),
@@ -171,20 +168,33 @@ impl InfoKeyValue {
     }
 
     pub fn get_from_db(&self, db: &Db) -> Result<Option<Info>> {
-        db.get_info(&self.key)
+        db.get_info(&self.key.to_db_key())
+            .map(|opt| opt.map(Info::from))
     }
 
     pub fn append_cache_key(&self, cache_key: &CacheRepoKey, db: &Db) -> Result<()> {
-        let val = &mut self.val.borrow_mut();
-        val.caches.push(cache_key.clone());
-        db.set_info(&self.key, val)
+        let _span = self.key.span();
+        let info = {
+            let info = &mut self.val.borrow_mut();
+            info.caches.push(cache_key.clone());
+            info.to_db_value()
+        };
+        db.set_info(&self.key.to_db_key(), &info)
     }
 
     /// 所有实际检查完成，调用此函数
     pub fn set_complete(&self, db: &Db) -> Result<()> {
-        let val = &mut self.val.borrow_mut();
-        val.complete = true;
-        db.set_info(&self.key, val)
+        let _span = self.key.span();
+        let info = {
+            let info = &mut self.val.borrow_mut();
+            info.complete = true;
+            info.to_db_value()
+        };
+        db.set_info(&self.key.to_db_key(), &info)
+    }
+
+    pub fn set_layout_cache(&self, layout: CacheLayout, db: &Db) -> Result<()> {
+        db.set_layout(&self.key.to_db_key(), &layout)
     }
 }
 
@@ -206,5 +216,6 @@ fn get_default_branch() -> Result<()> {
 pub fn os_checker() -> Result<(InfoKey, Info)> {
     let user = "os-checker";
     let repo = "os-checker";
-    info(user, repo, RepoConfig::default()).map(|InfoKeyValue { key, val }| (key, val.into_inner()))
+    get_info(user, repo, RepoConfig::default())
+        .map(|InfoKeyValue { key, val }| (key, val.into_inner()))
 }

@@ -12,13 +12,12 @@ description = "Run a collection of checkers targeting Rust crates, and report ba
 argh = "0.1.12"   # cli argument parser
 walkdir = "2.5.0" # recursively search Cargo.toml for finding packages
 basic-toml = "0.1"
-cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 regex = "1.10.5"
 prettydiff = { version = "0.7.0", default-features = false }
 either = "1"
 schemars = { version = "1.0.0-alpha.15", features = ["preserve_order", "indexmap2"] }
 strip-ansi-escapes = "0.2"
-replace_with = "0.1"
+# replace_with = "0.1"
 
 # error handling
 eyre = { workspace = true }
@@ -30,10 +29,10 @@ tracing-subscriber = { workspace = true }
 tracing-error = { workspace = true }
 
 # general
+cargo_metadata = { workspace = true }
 indexmap = { workspace = true }
 hashbrown = { workspace = true }
 itertools = { workspace = true }
-rayon = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 compact_str = { workspace = true }
@@ -41,7 +40,7 @@ redb = { workspace = true }
 musli = { workspace = true }
 time = { workspace = true }
 camino = { workspace = true }
-dirs = "5"
+os-checker-types = { workspace = true }
 
 # shell commands
 duct = { workspace = true }
@@ -49,6 +48,7 @@ yash-syntax = "0.12.0" # shell lang parsing
 
 [dev-dependencies]
 expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
+dirs = "5"
 # tempfile = "3"
 
 [build-dependencies]
@@ -63,7 +63,6 @@ duct = "0.13.7" # better subprocess, pipe, redirct
 hashbrown = { version = "0.15", features = ["default"]}
 indexmap = { version = "2.4.0", features = ["serde"] }
 itertools = "0.13.0"
-rayon = "1.10.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1.0.125", features = ["preserve_order"] }
 
@@ -79,6 +78,14 @@ tracing-error = "0.2"
 redb = "2"
 musli = { version = "0.0.124", features = ["storage", "serde"] }
 time = { version = "0.3", features = ["parsing", "macros"] }
+
+os-checker-types = { version = "0.3.0", path = "os-checker-types" }
+
+cargo_metadata = "0.18.1" # parse metadata for knowing project layout
+# [workspace.dependencies.cargo_metadata]
+# git = "https://github.com/os-checker/cargo_metadata.git"
+# # branch = "workspace_default_members-serde-default"
+# rev = "dc53ab2"
 
 [workspace]
 exclude = ["repos/**"]

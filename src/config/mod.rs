@@ -1,5 +1,5 @@
 use crate::{
-    db::{info, Db, InfoKeyValue},
+    db::{get_info, Db, InfoKeyValue},
     layout::Packages,
     Result,
 };
@@ -62,7 +62,7 @@ impl Config {
         let user = self.user_name();
         let repo = self.repo_name();
         let config = &*self.config;
-        info(user, repo, config.clone()).map(Box::new)
+        get_info(user, repo, config.clone()).map(Box::new)
     }
 
     /// 解析该仓库所有 package 的检查执行命令

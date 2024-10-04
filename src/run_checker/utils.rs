@@ -4,7 +4,9 @@ use super::{
 };
 use crate::{
     config::{CheckerTool, Resolve},
-    db::{CacheRepo, CacheRepoKey, CacheValue, Db, InfoKeyValue, OutputDataInner},
+    db::{
+        out::CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db, InfoKeyValue, OutputDataInner,
+    },
     output::{Cmd, Data, Kind},
     Result,
 };
@@ -53,6 +55,7 @@ impl RawOutput {
         let cache = CacheValue::new(&self.resolve, self.duration_ms, data);
         if let Some(db_repo) = db_repo {
             let key = &db_repo.key(&self.resolve);
+            let _span = key.span();
             // 写入命令缓存
             db_repo.set_cache(key, &cache);
             db_repo.set_info_cache(key);
@@ -78,12 +81,14 @@ impl<'a> DbRepo<'a> {
     }
 
     pub fn read_cache(self, key: &CacheRepoKey) -> Result<Option<CacheValue>> {
-        self.db.get_cache(key)
+        self.db
+            .get_cache(&key.to_db_key())
+            .map(|c| c.map(CacheValue::from))
     }
 
     /// 写入命令缓存
     pub fn set_cache(&self, key: &CacheRepoKey, cache: &CacheValue) {
-        if let Err(err) = self.db.set_cache(key, cache) {
+        if let Err(err) = self.db.set_cache(&key.to_db_key(), &cache.to_db_value()) {
             error!(%err, ?key, "Unable to save the cache.");
         }
     }
@@ -91,7 +96,14 @@ impl<'a> DbRepo<'a> {
     /// 写入键缓存
     pub fn set_info_cache(&self, key: &CacheRepoKey) {
         if let Err(err) = self.info.append_cache_key(key, self.db) {
-            error!(%err, ?key, "Unable to save the key cache.");
+            error!(%err, ?key, "Unable to save the info cache.");
+        }
+    }
+
+    /// 写入 layout 缓存
+    pub fn set_layout_cache(&self, layout: CacheLayout) {
+        if let Err(err) = self.info.set_layout_cache(layout, self.db) {
+            error!(%err, "Unable to save the layout cache.");
         }
     }
 }

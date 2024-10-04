@@ -1,18 +1,20 @@
 use crate::{
     config::{CheckerTool, Resolve},
     output::{get_channel, Cmd, Data, Kind},
-    Result,
+    Result, XString,
 };
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
-use musli::{Decode, Encode};
+use os_checker_types::db as out;
 use std::fmt;
+
+mod type_conversion;
 
 // 由于我们想对每个检查出了结果时缓存，而不是在仓库所有检查完成时缓存，这里需要重复数据。
 // 减少数据重复，需要新定义一个结构，在缓存和 PackagesOutputs 上。
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 pub struct CacheRepoKeyCmd {
-    pkg_name: String,
+    pkg_name: XString,
     checker: CacheChecker,
     cmd: CacheCmd,
 }
@@ -20,7 +22,7 @@ pub struct CacheRepoKeyCmd {
 impl CacheRepoKeyCmd {
     pub fn new(resolve: &Resolve) -> Self {
         Self {
-            pkg_name: resolve.pkg_name.as_str().to_owned(),
+            pkg_name: resolve.pkg_name.clone(),
             checker: CacheChecker {
                 checker: resolve.checker,
                 version: None,
@@ -38,7 +40,7 @@ impl CacheRepoKeyCmd {
     }
 }
 
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 pub struct CacheRepoKey {
     repo: CacheRepo,
     cmd: CacheRepoKeyCmd,
@@ -57,7 +59,7 @@ impl CacheRepoKey {
             "CacheRepoKey",
             // user = self.repo.user,
             // repo = self.repo.repo,
-            pkg = self.cmd.pkg_name,
+            pkg = %self.cmd.pkg_name,
             cmd = self.cmd.cmd.cmd
         )
         .entered()
@@ -66,19 +68,18 @@ impl CacheRepoKey {
     pub fn pkg_name(&self) -> &str {
         &self.cmd.pkg_name
     }
+
+    pub fn to_db_key(&self) -> out::CacheRepoKey {
+        self.clone().into()
+    }
 }
 
-redb_value!(@key CacheRepoKey, name: "OsCheckerCacheKey",
-    read_err: "Not a valid cache key.",
-    write_err: "Cache key can't be encoded to bytes."
-);
-
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 pub struct CacheRepo {
-    pub user: String,
-    pub repo: String,
+    pub user: XString,
+    pub repo: XString,
     sha: String,
-    branch: String,
+    branch: XString,
 }
 
 impl CacheRepo {
@@ -86,19 +87,19 @@ impl CacheRepo {
         let sha = cmd!("git", "rev-parse", "HEAD").dir(root).read()?;
         let branch = cmd!("git", "branch", "--show-current").dir(root).read()?;
         Ok(Self {
-            user: user.to_owned(),
-            repo: repo.to_owned(),
+            user: user.into(),
+            repo: repo.into(),
             sha: sha.trim().to_owned(),
-            branch: branch.trim().to_owned(),
+            branch: branch.trim().into(),
         })
     }
 
     pub fn new_with_sha(user: &str, repo: &str, sha: &str, branch: String) -> Self {
         Self {
-            user: user.to_owned(),
-            repo: repo.to_owned(),
+            user: user.into(),
+            repo: repo.into(),
             sha: sha.to_owned(),
-            branch,
+            branch: branch.into(),
         }
     }
 
@@ -107,7 +108,7 @@ impl CacheRepo {
     }
 }
 
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 struct CacheChecker {
     checker: CheckerTool,
     // If we don't care about the version, use None.
@@ -115,19 +116,19 @@ struct CacheChecker {
     sha: Option<String>,
 }
 
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Clone)]
 struct CacheCmd {
     cmd: String,
     target: String,
     /// FIXME: channel 转换回 RustToolchain 会丢失额外的信息
     channel: String,
     // Below is not necessary, and currently not implemented.
-    features: Vec<String>,
+    features: Vec<XString>,
     /// rustcflags
-    flags: Vec<String>,
+    flags: Vec<XString>,
 }
 
-#[derive(Encode, Decode)]
+#[derive(Clone)]
 pub struct OutputData {
     pub duration_ms: u64,
     pub data: Vec<OutputDataInner>,
@@ -142,9 +143,8 @@ impl fmt::Debug for OutputData {
     }
 }
 
-#[derive(Encode, Decode)]
+#[derive(Clone)]
 pub struct OutputDataInner {
-    #[musli(with = musli::serde)]
     file: Utf8PathBuf,
     kind: Kind,
     raw: String,
@@ -156,7 +156,7 @@ impl OutputDataInner {
     }
 }
 
-#[derive(Encode, Decode)]
+#[derive(Clone)]
 pub struct CacheValue {
     unix_timestamp_milli: u64,
     cmd: CacheRepoKeyCmd,
@@ -174,11 +174,6 @@ impl fmt::Debug for CacheValue {
             .finish()
     }
 }
-
-redb_value!(CacheValue, name: "OsCheckerCacheValue",
-    read_err: "Not a valid cache value.",
-    write_err: "Cache value can't be encoded to bytes."
-);
 
 impl CacheValue {
     pub fn new(resolve: &Resolve, duration_ms: u64, data: Vec<OutputDataInner>) -> Self {
@@ -227,6 +222,10 @@ impl CacheValue {
         self.diagnostics.data.len()
     }
 
+    pub fn to_db_value(&self) -> out::CacheValue {
+        self.clone().into()
+    }
+
     /// 更新检查时间
     #[cfg(test)]
     pub fn update_unix_timestamp(&mut self) {
@@ -248,7 +247,7 @@ pub fn now() -> u64 {
 #[cfg(test)]
 pub fn new_cache() -> (CacheRepoKey, CacheValue) {
     let cmd = CacheRepoKeyCmd {
-        pkg_name: "pkg".to_owned(),
+        pkg_name: "pkg".into(),
         checker: CacheChecker {
             checker: CheckerTool::Clippy,
             version: None,
@@ -279,10 +278,10 @@ pub fn new_cache() -> (CacheRepoKey, CacheValue) {
 
     let key = CacheRepoKey {
         repo: CacheRepo {
-            user: "user".to_owned(),
-            repo: "repo".to_owned(),
+            user: "user".into(),
+            repo: "repo".into(),
             sha: "abc".to_owned(),
-            branch: "main".to_owned(),
+            branch: "main".into(),
         },
         cmd,
     };

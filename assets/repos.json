@@ -1,7 +1,3 @@
 {
-  "kern-crates/safe-virtio-drivers": {
-    "cmds": {
-      "mirai": false
-    }
-  }
+  "os-checker/os-checker-test-suite": {}
 }
