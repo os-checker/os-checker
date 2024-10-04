@@ -229,3 +229,5 @@ fn write_to_file<T: Serialize>(dir: &str, target: &str, t: &T) -> Result<()> {
 
     Ok(())
 }
+
+pub const CACHE_REDB: &str = "cache.redb";

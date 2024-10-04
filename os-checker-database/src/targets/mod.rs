@@ -174,10 +174,8 @@ impl<'a> Resolve<'a> {
     }
 }
 
-pub const CACHE_REDB: &str = "cache.redb";
-
 pub fn do_resolves() -> Result<()> {
-    let db = redb::Database::open(CACHE_REDB)?;
+    let db = redb::Database::open(crate::CACHE_REDB)?;
     let txn = db.begin_read()?;
     let table = txn.open_table(LAYOUT)?;
     table_resolves(&table)?;
@@ -198,12 +196,8 @@ fn table_resolves(table: &Table) -> Result<()> {
             }
         }
         resolves.sort_unstable();
-        // println!(
-        //     "{user}/{repo}: {}",
-        //     serde_json::to_string_pretty(&resolves)?
-        // );
         let dir = format!("targets/{user}/{repo}");
-        crate::write_to_file(&dir, "resolved.json", &resolves)?;
+        crate::write_to_file(&dir, "resolved", &resolves)?;
     }
     Ok(())
 }
