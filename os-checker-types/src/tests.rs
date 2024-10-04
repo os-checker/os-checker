@@ -1,13 +1,11 @@
 use crate::table::*;
 use redb::*;
 
-type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
-const CACHE_REDB: &str = "cache.redb";
+type Result<T, E = Box<dyn Send + Sync + std::error::Error>> = std::result::Result<T, E>;
 
 #[test]
 fn cache_redb() -> Result<()> {
-    std::env::set_current_dir("..")?;
-    let db = Database::open(CACHE_REDB)?;
+    let db = test_database("..");
 
     let txn = db.begin_read()?;
 

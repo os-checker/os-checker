@@ -28,6 +28,8 @@ pub use utils::Result;
 
 mod logger;
 
+mod targets;
+
 #[cfg(feature = "batch")]
 #[instrument(level = "trace")]
 fn main() -> Result<()> {

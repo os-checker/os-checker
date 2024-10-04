@@ -27,6 +27,10 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-error = { workspace = true }
 
+# redb
+redb = { workspace = true }
+musli = { workspace = true }
+
 [features]
 default = ["batch"]
 single = []
