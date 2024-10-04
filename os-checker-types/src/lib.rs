@@ -157,15 +157,17 @@ pub struct Kinds {
     pub mapping: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, Encode, Decode, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(
+    Debug, Serialize, Deserialize, Encode, Decode, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash,
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum CheckerTool {
-    Fmt,
-    Clippy,
+    /// 这是一个虚拟的检查工具，它表示 stderr 中含 `^error:` 的情况
+    Cargo,
     Miri,
+    Clippy,
     SemverChecks,
     Mirai,
     Lockbud,
-    /// 这是一个虚拟的检查工具，它表示 stderr 中含 `^error:` 的情况
-    Cargo,
+    Fmt,
 }
