@@ -16,11 +16,13 @@ fn cache_redb() -> Result<()> {
     stats(LAYOUT, &txn)?;
 
     let table = txn.open_table(LAYOUT)?;
-    for item in table.iter()? {
+    for (idx, item) in table.iter()?.enumerate() {
         let layout = item?.1.value();
         for ws in layout.workspaces.values() {
-            // test Metadata deserialization
-            assert!(ws.meta_data().is_ok());
+            assert!(
+                ws.meta_data().is_ok(),
+                "[idx={idx}] Metadata deserialization failure."
+            );
         }
     }
 
