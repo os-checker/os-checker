@@ -129,6 +129,8 @@ fn rows(table: &redb::ReadOnlyTable<InfoKey, CacheLayout>) -> Result<TargetRows>
     Ok(v)
 }
 
+// 如果生成一个大的 JSON 数据，需要几十兆，那么可以考虑通过 xz 格式传输，在前端使用
+// https://github.com/httptoolkit/xz-decompress 解压。
 #[test]
 fn targets() -> Result<()> {
     let db = os_checker_types::table::test_database("..");
@@ -141,5 +143,80 @@ fn targets() -> Result<()> {
     let writer = std::io::BufWriter::new(std::fs::File::create(file)?);
     serde_json::to_writer_pretty(writer, &res)?;
 
+    Ok(())
+}
+
+#[derive(Debug, Serialize, PartialEq, Eq, PartialOrd, Ord)]
+struct Resolve<'a> {
+    pkg: &'a str,
+    checker: CheckerTool,
+    toolchain: &'a str,
+    target: &'a str,
+    cmd: &'a str,
+}
+
+impl<'a> Resolve<'a> {
+    fn new(pkg: &'a str, resolve: &'a CacheResolve) -> Self {
+        let CacheResolve {
+            target,
+            channel,
+            checker,
+            cmd,
+            ..
+        } = resolve;
+        Self {
+            pkg,
+            checker: *checker,
+            toolchain: channel,
+            target,
+            cmd,
+        }
+    }
+}
+
+#[test]
+fn test_resolves() -> Result<()> {
+    let db = os_checker_types::table::test_database("..");
+    let txn = db.begin_read()?;
+    let table = txn.open_table(LAYOUT)?;
+    table_resolves(&table)?;
+
+    Ok(())
+}
+
+fn table_resolves(table: &Table) -> Result<()> {
+    let mut v = Vec::with_capacity(128);
+    read_layout(table, |repo, layout| {
+        v.push((repo.user, repo.repo, layout.packages_info));
+    })?;
+    for (user, repo, pkgs) in v {
+        let mut resolves = Vec::with_capacity(64);
+        for pkg in &pkgs {
+            for resolve in &pkg.resolves {
+                resolves.push(Resolve::new(&pkg.pkg_name, resolve));
+            }
+        }
+        resolves.sort_unstable();
+        // println!(
+        //     "{user}/{repo}: {}",
+        //     serde_json::to_string_pretty(&resolves)?
+        // );
+        let dir = format!("targets/{user}/{repo}");
+        crate::write_to_file(&dir, "resolved.json", &resolves)?;
+    }
+    Ok(())
+}
+
+type Table = redb::ReadOnlyTable<InfoKey, CacheLayout>;
+
+fn read_layout(table: &Table, mut f: impl FnMut(CacheRepo, CacheLayout)) -> Result<()> {
+    use redb::{ReadableTable, ReadableTableMetadata};
+
+    for ele in table.iter()? {
+        let (guard_k, guard_v) = ele?;
+        let key = guard_k.value().repo;
+        let value = guard_v.value();
+        f(key, value);
+    }
     Ok(())
 }
