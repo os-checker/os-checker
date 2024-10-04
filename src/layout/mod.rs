@@ -141,7 +141,7 @@ impl Layout {
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded);
         ensure!(
             !cargo_tomls.is_empty(),
-            "repo_root `{repo_root}` (规范路径为 `{roo_path}`) 不是 Rust \
+            "repo_root `{repo_root}` (规范路径为 `{root_path}`) 不是 Rust \
              项目，因为不包含任何 Cargo.toml",
         );
         debug!(?cargo_tomls);
