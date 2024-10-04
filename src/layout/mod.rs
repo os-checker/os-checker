@@ -136,13 +136,13 @@ impl fmt::Debug for Layout {
 impl Layout {
     #[instrument(level = "trace")]
     pub fn parse(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
-        let root_path = Utf8PathBuf::from(repo_root);
+        let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
 
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded);
         ensure!(
             !cargo_tomls.is_empty(),
-            "repo_root `{repo_root}` (规范路径为 `{}`) 不是 Rust 项目，因为不包含任何 Cargo.toml",
-            root_path.canonicalize_utf8()?
+            "repo_root `{repo_root}` (规范路径为 `{roo_path}`) 不是 Rust \
+             项目，因为不包含任何 Cargo.toml",
         );
         debug!(?cargo_tomls);
 
