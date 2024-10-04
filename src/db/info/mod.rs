@@ -211,11 +211,3 @@ fn get_default_branch() -> Result<()> {
     dbg!(default_branch(user, repo)?, info_repo(user, repo)?);
     Ok(())
 }
-
-#[cfg(test)]
-pub fn os_checker() -> Result<(InfoKey, Info)> {
-    let user = "os-checker";
-    let repo = "os-checker";
-    get_info(user, repo, RepoConfig::default())
-        .map(|InfoKeyValue { key, val }| (key, val.into_inner()))
-}

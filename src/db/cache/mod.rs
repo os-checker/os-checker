@@ -225,66 +225,10 @@ impl CacheValue {
     pub fn to_db_value(&self) -> out::CacheValue {
         self.clone().into()
     }
-
-    /// 更新检查时间
-    #[cfg(test)]
-    pub fn update_unix_timestamp(&mut self) {
-        self.unix_timestamp_milli = now();
-    }
-
-    // /// 更新检查结果
-    // pub fn update_diagnostics(&mut self, f: impl FnOnce(OutputData) -> OutputData) {
-    //     replace_with::replace_with_or_abort(&mut self.diagnostics, f);
-    // }
 }
 
 /// Returns the current unix timestamp in milliseconds.
 pub fn now() -> u64 {
     let t = time::OffsetDateTime::from(std::time::SystemTime::now());
     super::unix_timestamp_milli(t)
-}
-
-#[cfg(test)]
-pub fn new_cache() -> (CacheRepoKey, CacheValue) {
-    let cmd = CacheRepoKeyCmd {
-        pkg_name: "pkg".into(),
-        checker: CacheChecker {
-            checker: CheckerTool::Clippy,
-            version: None,
-            sha: None,
-        },
-        cmd: CacheCmd {
-            cmd: "cargo clippy".to_owned(),
-            target: "x86".to_owned(),
-            channel: "nightly".to_owned(),
-            features: vec![],
-            flags: vec![],
-        },
-    };
-
-    let data = OutputData {
-        duration_ms: 0,
-        data: vec![OutputDataInner {
-            file: Default::default(),
-            kind: Kind::ClippyError,
-            raw: "warning: xxx".to_owned(),
-        }],
-    };
-    let value = CacheValue {
-        unix_timestamp_milli: now(),
-        cmd: cmd.clone(),
-        diagnostics: data,
-    };
-
-    let key = CacheRepoKey {
-        repo: CacheRepo {
-            user: "user".into(),
-            repo: "repo".into(),
-            sha: "abc".to_owned(),
-            branch: "main".into(),
-        },
-        cmd,
-    };
-
-    (key, value)
 }

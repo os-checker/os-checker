@@ -1,9 +1,4 @@
-use crate::db::CacheLayout;
-use crate::db::CachePackageInfo;
-use crate::db::CacheResolve;
-use crate::prelude::*;
 use crate::table::*;
-use indexmap::indexmap;
 use redb::*;
 
 type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
@@ -12,7 +7,7 @@ const CACHE_REDB: &str = "cache.redb";
 #[test]
 fn cache_redb() -> Result<()> {
     std::env::set_current_dir("..")?;
-    let db = redb::Database::open(CACHE_REDB)?;
+    let db = Database::open(CACHE_REDB)?;
 
     let txn = db.begin_read()?;
 
