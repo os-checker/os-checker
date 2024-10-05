@@ -96,6 +96,7 @@ fn read_layout(table: &Table, mut f: impl FnMut(CacheRepo, CacheLayout)) -> Resu
 #[derive(Debug, Serialize)]
 struct Source<'a> {
     pkg: &'a str,
+    #[serde(skip)]
     source: &'a TargetSource,
     target: &'a str,
     src: &'a str,
