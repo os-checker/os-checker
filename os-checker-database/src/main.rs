@@ -88,8 +88,8 @@ fn main() -> Result<()> {
         info!("正在清除 {batch_dir}");
         fs::remove_dir_all(&batch_dir)?;
         info!("已清除 {batch_dir}");
-        fs::remove_file(targets::CACHE_REDB)?;
-        info!("已清除 {}", targets::CACHE_REDB);
+        fs::remove_file(CACHE_REDB)?;
+        info!("已清除 {}", CACHE_REDB);
     }
 
     Ok(())
