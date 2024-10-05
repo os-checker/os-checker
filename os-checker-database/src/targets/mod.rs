@@ -149,26 +149,30 @@ fn targets() -> Result<()> {
 #[derive(Debug, Serialize, PartialEq, Eq, PartialOrd, Ord)]
 struct Resolve<'a> {
     pkg: &'a str,
-    checker: CheckerTool,
     toolchain: &'a str,
+    specifed: bool,
+    checker: CheckerTool,
     target: &'a str,
+    heuristic: bool,
     cmd: &'a str,
 }
 
 impl<'a> Resolve<'a> {
-    fn new(pkg: &'a str, resolve: &'a CacheResolve) -> Self {
+    fn new(pkg: &'a str, resolve: &'a CacheResolve, targets: &Targets) -> Self {
         let CacheResolve {
             target,
+            target_overriden,
             channel,
             checker,
             cmd,
-            ..
         } = resolve;
         Self {
             pkg,
-            checker: *checker,
             toolchain: channel,
+            specifed: *target_overriden,
+            checker: *checker,
             target,
+            heuristic: targets.map.contains_key(target),
             cmd,
         }
     }
@@ -192,7 +196,7 @@ fn table_resolves(table: &Table) -> Result<()> {
         let mut resolves = Vec::with_capacity(64);
         for pkg in &pkgs {
             for resolve in &pkg.resolves {
-                resolves.push(Resolve::new(&pkg.pkg_name, resolve));
+                resolves.push(Resolve::new(&pkg.pkg_name, resolve, &pkg.targets));
             }
         }
         resolves.sort_unstable();
