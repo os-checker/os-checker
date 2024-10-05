@@ -24,7 +24,7 @@ impl CargoMetaData {
 
 pub type Workspaces = IndexMap<Utf8PathBuf, CargoMetaData>;
 
-#[derive(Serialize, Deserialize, Encode, Decode, Default)]
+#[derive(Encode, Decode, Default)]
 pub struct CacheLayout {
     /// 仓库根目录的完整路径，可用于去除 Metadata 中的路径前缀，让路径看起来更清爽
     #[musli(with = musli::serde)]
@@ -40,6 +40,7 @@ pub struct CacheLayout {
     /// The order is by pkg name and dir path.
     #[musli(with = musli::serde)]
     pub packages_info: Box<[CachePackageInfo]>,
+    pub resolves: Box<[CacheResolve]>,
 }
 
 redb_value!(CacheLayout, name: "OsCheckerCacheLayout",
@@ -91,11 +92,12 @@ pub struct CachePackageInfo {
     pub pkg_dir: Utf8PathBuf,
     pub targets: Targets,
     pub channel: String,
-    pub resolves: Box<[CacheResolve]>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 pub struct CacheResolve {
+    #[musli(with = musli::serde)]
+    pub pkg_name: XString,
     pub target: String,
     /// 仅当自定义检查命令出现 --target 时为 true
     pub target_overriden: bool,

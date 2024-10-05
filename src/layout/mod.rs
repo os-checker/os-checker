@@ -300,16 +300,6 @@ impl Layout {
                 pkg_dir: info.pkg_dir.clone(),
                 targets: info.targets.clone().into(),
                 channel: get_channel(info.toolchain.unwrap_or(0)),
-                resolves: resolves
-                    .iter()
-                    .map(|r| CacheResolve {
-                        target: r.target.clone(),
-                        target_overriden: r.target_overriden,
-                        channel: get_channel(r.toolchain.unwrap_or(0)),
-                        checker: r.checker.into(),
-                        cmd: r.cmd.clone(),
-                    })
-                    .collect(),
             })
             .collect();
 
@@ -322,6 +312,17 @@ impl Layout {
                 .map(|(k, v)| (k.clone(), CargoMetaData::from_meta_data(v).unwrap()))
                 .collect(),
             packages_info,
+            resolves: resolves
+                .iter()
+                .map(|r| CacheResolve {
+                    pkg_name: r.pkg_name.clone(),
+                    target: r.target.clone(),
+                    target_overriden: r.target_overriden,
+                    channel: get_channel(r.toolchain.unwrap_or(0)),
+                    checker: r.checker.into(),
+                    cmd: r.cmd.clone(),
+                })
+                .collect(),
         };
 
         db_repo.set_layout_cache(layout);
