@@ -49,7 +49,7 @@ fn table_resolves(table: &Table) -> Result<()> {
     read_layout(table, |repo, layout| {
         v.push((repo.user, repo.repo, layout));
     })?;
-    for (user, repo, layout) in v {
+    for (user, repo, layout) in &v {
         let CacheLayout {
             root_path,
             packages_info: pkgs,
@@ -62,7 +62,7 @@ fn table_resolves(table: &Table) -> Result<()> {
         let mut sources = Vec::with_capacity(64);
         let mut resolved = Vec::with_capacity(64);
 
-        for resolve in &resolves {
+        for resolve in resolves {
             let key = (&*resolve.pkg_name, &*resolve.target);
             pkg_tar_specified
                 .entry(key)
@@ -76,13 +76,17 @@ fn table_resolves(table: &Table) -> Result<()> {
         let dir = format!("targets/{user}/{repo}");
         crate::write_to_file(&dir, "resolved", &resolved)?;
 
-        for info in &pkgs {
-            Source::push(info, &pkg_tar_specified, &root_path, &mut sources);
+        for info in pkgs {
+            Source::push(info, &pkg_tar_specified, root_path, &mut sources);
         }
         sources
             .sort_unstable_by(|a, b| (a.pkg, a.target, a.source).cmp(&(b.pkg, b.target, b.source)));
         crate::write_to_file(&dir, "sources", &sources)?;
     }
+
+    let map_user_repo = user_repo(v.len(), v.iter().map(|(user, repo, _)| (&**user, &**repo)));
+    crate::write_to_file("", "user_repo", &map_user_repo)?;
+
     Ok(())
 }
 
@@ -147,4 +151,20 @@ impl<'a> Source<'a> {
             }
         }
     }
+}
+
+fn user_repo<'a>(
+    len: usize,
+    iter: impl IntoIterator<Item = (&'a str, &'a str)>,
+) -> IndexMap<&'a str, Vec<&'a str>> {
+    let mut map = new_map_with_cap::<&'a str, Vec<&'a str>>(len);
+
+    for (user, repo) in iter {
+        map.entry(user)
+            .and_modify(|v| v.push(repo))
+            .or_insert_with(|| vec![repo]);
+    }
+
+    map.values_mut().for_each(|v| v.sort_unstable());
+    map
 }
