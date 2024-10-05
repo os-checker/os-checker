@@ -62,7 +62,7 @@ impl fmt::Debug for CacheLayout {
 /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
 // FIXME: 把 tag 和 path 分开
 // TODO: 在明确指定 targets 的情况下，还需要脚本指定的 targets 吗？(关于安装和 resolve)
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum TargetSource {
     RustToolchainToml(Utf8PathBuf),
     CargoConfigToml(Utf8PathBuf),
@@ -76,6 +76,29 @@ pub enum TargetSource {
     DetectedByRepoGithub(Utf8PathBuf),
     DetectedByRepoScripts(Utf8PathBuf),
     // OverriddenInOsCheckerJson, // 覆盖操作直接在生成 cmd 时进行，暂时不会被记录
+}
+
+impl TargetSource {
+    pub fn descibe(&self) -> (&'static str, Option<&Utf8Path>) {
+        match self {
+            TargetSource::RustToolchainToml(p) => ("RustToolchainToml", Some(p)),
+            TargetSource::CargoConfigToml(p) => ("CargoConfigToml", Some(p)),
+            TargetSource::CargoTomlDocsrsInPkgDefault(p) => {
+                ("CargoTomlDocsrsInPkgDefault", Some(p))
+            }
+            TargetSource::CargoTomlDocsrsInWorkspaceDefault(p) => {
+                ("CargoTomlDocsrsInWorkspaceDefault", Some(p))
+            }
+            TargetSource::CargoTomlDocsrsInPkg(p) => ("CargoTomlDocsrsInPkg", Some(p)),
+            TargetSource::CargoTomlDocsrsInWorkspace(p) => ("CargoTomlDocsrsInWorkspace", Some(p)),
+            TargetSource::UnspecifiedDefaultToHostTarget => {
+                ("UnspecifiedDefaultToHostTarget", None)
+            }
+            TargetSource::DetectedByPkgScripts(p) => ("DetectedByPkgScripts", Some(p)),
+            TargetSource::DetectedByRepoGithub(p) => ("DetectedByRepoGithub", Some(p)),
+            TargetSource::DetectedByRepoScripts(p) => ("DetectedByRepoScripts", Some(p)),
+        }
+    }
 }
 
 /// A list of target triples obtained from multiple sources.

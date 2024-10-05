@@ -1,4 +1,4 @@
-pub use camino::Utf8PathBuf;
+pub use camino::{Utf8Path, Utf8PathBuf};
 pub use compact_str::CompactString as XString;
 pub use indexmap::IndexMap;
 pub use musli::{Decode, Encode};
