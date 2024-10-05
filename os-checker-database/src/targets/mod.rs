@@ -47,9 +47,16 @@ pub fn do_resolves() -> Result<()> {
 fn table_resolves(table: &Table) -> Result<()> {
     let mut v = Vec::with_capacity(128);
     read_layout(table, |repo, layout| {
-        v.push((repo.user, repo.repo, layout.resolves, layout.packages_info));
+        v.push((repo.user, repo.repo, layout));
     })?;
-    for (user, repo, resolves, pkgs) in v {
+    for (user, repo, layout) in v {
+        let CacheLayout {
+            root_path,
+            packages_info: pkgs,
+            resolves,
+            ..
+        } = layout;
+
         // (pkg_name, target) => at least target_overridden once
         let mut pkg_tar_specified = new_map_with_cap(resolves.len());
         let mut sources = Vec::with_capacity(64);
@@ -70,7 +77,7 @@ fn table_resolves(table: &Table) -> Result<()> {
         crate::write_to_file(&dir, "resolved", &resolved)?;
 
         for info in &pkgs {
-            Source::push(info, &pkg_tar_specified, &mut sources);
+            Source::push(info, &pkg_tar_specified, &root_path, &mut sources);
         }
         sources
             .sort_unstable_by(|a, b| (a.pkg, a.target, a.source).cmp(&(b.pkg, b.target, b.source)));
@@ -110,6 +117,7 @@ impl<'a> Source<'a> {
     pub fn push(
         info: &'a CachePackageInfo,
         pkg_tar_specified: &IndexMap<(&str, &str), bool>,
+        repo_root: &Utf8Path,
         v: &mut Vec<Source<'a>>,
     ) {
         for (target, sources) in &info.targets.map {
@@ -123,12 +131,16 @@ impl<'a> Source<'a> {
 
             for source in sources {
                 let (desc, path) = source.descibe();
+                let path = match path {
+                    Some(p) => p.strip_prefix(repo_root).unwrap_or(p),
+                    None => "".into(),
+                };
                 v.push(Source {
                     pkg,
                     source,
                     target,
                     src: desc,
-                    path: path.unwrap_or("".into()),
+                    path,
                     used,
                     specified,
                 });
