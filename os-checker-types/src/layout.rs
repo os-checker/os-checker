@@ -100,7 +100,7 @@ pub struct CacheResolve {
     pub pkg_name: XString,
     pub target: String,
     /// 仅当自定义检查命令出现 --target 时为 true
-    pub target_overriden: bool,
+    pub target_overridden: bool,
     pub channel: String,
     pub checker: CheckerTool,
     /// 完整的检查命令字符串（一定包含 --target）：

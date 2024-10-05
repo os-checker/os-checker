@@ -317,7 +317,7 @@ impl Layout {
                 .map(|r| CacheResolve {
                     pkg_name: r.pkg_name.clone(),
                     target: r.target.clone(),
-                    target_overriden: r.target_overriden,
+                    target_overridden: r.target_overridden,
                     channel: get_channel(r.toolchain.unwrap_or(0)),
                     checker: r.checker.into(),
                     cmd: r.cmd.clone(),
