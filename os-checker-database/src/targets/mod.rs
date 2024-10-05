@@ -150,31 +150,26 @@ use serde::Serialize;
 struct Resolve<'a> {
     pkg: &'a str,
     toolchain: &'a str,
-    specifed: bool,
     checker: CheckerTool,
     target: &'a str,
-    heuristic: bool,
     cmd: &'a str,
 }
 
 impl<'a> Resolve<'a> {
-    fn new(resolve: &'a CacheResolve, pkgs: &[CachePackageInfo]) -> Self {
+    fn new(resolve: &'a CacheResolve) -> Self {
         let CacheResolve {
             pkg_name,
             target,
-            target_overriden,
             channel,
             checker,
             cmd,
+            ..
         } = resolve;
-        let info = &pkgs.iter().find(|p| p.pkg_name == *pkg_name).unwrap();
         Self {
             pkg: pkg_name,
             toolchain: channel,
-            specifed: *target_overriden,
             checker: *checker,
             target,
-            heuristic: info.targets.map.contains_key(target),
             cmd,
         }
     }
@@ -194,10 +189,10 @@ fn table_resolves(table: &Table) -> Result<()> {
     read_layout(table, |repo, layout| {
         v.push((repo.user, repo.repo, layout.resolves, layout.packages_info));
     })?;
-    for (user, repo, resolves, pkgs) in v {
+    for (user, repo, resolves, _) in v {
         let mut v = Vec::with_capacity(64);
         for resolve in &resolves {
-            v.push(Resolve::new(resolve, &pkgs));
+            v.push(Resolve::new(resolve));
         }
         v.sort_unstable();
         let dir = format!("targets/{user}/{repo}");
