@@ -22,7 +22,7 @@ pub struct Resolve {
     pub pkg_dir: Utf8PathBuf,
     pub target: String,
     /// 仅当自定义检查命令出现 --target 时为 true
-    pub target_overriden: bool,
+    pub target_overridden: bool,
     pub toolchain: Option<usize>,
     pub checker: CheckerTool,
     /// 完整的检查命令字符串（一定包含 --target）：
@@ -39,7 +39,7 @@ impl Resolve {
             pkg_name: pkg.name.into(),
             pkg_dir: pkg.dir.to_owned(),
             target: pkg.target.to_owned(),
-            target_overriden: false,
+            target_overridden: false,
             toolchain: pkg.toolchain,
             checker,
             cmd,
@@ -59,7 +59,7 @@ impl Resolve {
             pkg_name: pkg.name.into(),
             pkg_dir: pkg.dir.to_owned(),
             target,
-            target_overriden: true,
+            target_overridden: true,
             toolchain: pkg.toolchain,
             checker,
             cmd,
@@ -73,7 +73,7 @@ impl Resolve {
             pkg_name: self.pkg_name.clone(),
             pkg_dir: self.pkg_dir.clone(),
             target: self.target.clone(),
-            target_overriden: self.target_overriden, // 无实际含义
+            target_overridden: self.target_overridden, // 无实际含义
             toolchain: self.toolchain,
             checker: CheckerTool::Cargo,
             cmd: format!("VRITUAL={} cargo", self.checker.name()),
@@ -87,7 +87,7 @@ impl Resolve {
             pkg_name: pkg_name.into(), // 无实际含义
             pkg_dir: repo_root,        // 无实际含义
             target: host_target_triple().to_owned(),
-            target_overriden: false, // 无实际含义
+            target_overridden: false, // 无实际含义
             toolchain: None,
             checker: CheckerTool::Cargo,
             cmd: "VRITUAL=LayoutParseError cargo".to_owned(),
@@ -128,7 +128,7 @@ impl Resolve {
         'line: for line in lines {
             for pkg in pkgs {
                 let value = custom(line, pkg, checker)?;
-                let target_overriden = value.target_overriden;
+                let target_overriden = value.target_overridden;
                 resolved.push(value);
                 if target_overriden {
                     // 已经从自定义命令中覆盖了所有搜索到的 targets，因此无需继续

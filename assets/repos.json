@@ -1,3 +1,4 @@
 {
-  "os-checker/os-checker-test-suite": {}
+  "os-checker/os-checker-test-suite": {},
+  "elliott10/lwext4_rust": {}
 }

@@ -28,6 +28,8 @@ pub use utils::Result;
 
 mod logger;
 
+mod targets;
+
 #[cfg(feature = "batch")]
 #[instrument(level = "trace")]
 fn main() -> Result<()> {
@@ -77,12 +79,17 @@ fn main() -> Result<()> {
         }
     }
 
+    // 生成 targets 列表
+    targets::do_resolves()?;
+
     #[cfg(feature = "clear_batch")]
     {
         let batch_dir = Utf8PathBuf::from_iter([BASE_DIR, "batch"]);
         info!("正在清除 {batch_dir}");
         fs::remove_dir_all(&batch_dir)?;
         info!("已清除 {batch_dir}");
+        fs::remove_file(CACHE_REDB)?;
+        info!("已清除 {}", CACHE_REDB);
     }
 
     Ok(())
@@ -222,3 +229,5 @@ fn write_to_file<T: Serialize>(dir: &str, target: &str, t: &T) -> Result<()> {
 
     Ok(())
 }
+
+pub const CACHE_REDB: &str = "cache.redb";

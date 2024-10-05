@@ -24,7 +24,7 @@ impl CargoMetaData {
 
 pub type Workspaces = IndexMap<Utf8PathBuf, CargoMetaData>;
 
-#[derive(Serialize, Deserialize, Encode, Decode, Default)]
+#[derive(Encode, Decode, Default)]
 pub struct CacheLayout {
     /// 仓库根目录的完整路径，可用于去除 Metadata 中的路径前缀，让路径看起来更清爽
     #[musli(with = musli::serde)]
@@ -40,6 +40,7 @@ pub struct CacheLayout {
     /// The order is by pkg name and dir path.
     #[musli(with = musli::serde)]
     pub packages_info: Box<[CachePackageInfo]>,
+    pub resolves: Box<[CacheResolve]>,
 }
 
 redb_value!(CacheLayout, name: "OsCheckerCacheLayout",
@@ -61,7 +62,7 @@ impl fmt::Debug for CacheLayout {
 /// Refer to https://github.com/os-checker/os-checker/issues/26 for more info.
 // FIXME: 把 tag 和 path 分开
 // TODO: 在明确指定 targets 的情况下，还需要脚本指定的 targets 吗？(关于安装和 resolve)
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum TargetSource {
     RustToolchainToml(Utf8PathBuf),
     CargoConfigToml(Utf8PathBuf),
@@ -75,6 +76,29 @@ pub enum TargetSource {
     DetectedByRepoGithub(Utf8PathBuf),
     DetectedByRepoScripts(Utf8PathBuf),
     // OverriddenInOsCheckerJson, // 覆盖操作直接在生成 cmd 时进行，暂时不会被记录
+}
+
+impl TargetSource {
+    pub fn descibe(&self) -> (&'static str, Option<&Utf8Path>) {
+        match self {
+            TargetSource::RustToolchainToml(p) => ("RustToolchainToml", Some(p)),
+            TargetSource::CargoConfigToml(p) => ("CargoConfigToml", Some(p)),
+            TargetSource::CargoTomlDocsrsInPkgDefault(p) => {
+                ("CargoTomlDocsrsInPkgDefault", Some(p))
+            }
+            TargetSource::CargoTomlDocsrsInWorkspaceDefault(p) => {
+                ("CargoTomlDocsrsInWorkspaceDefault", Some(p))
+            }
+            TargetSource::CargoTomlDocsrsInPkg(p) => ("CargoTomlDocsrsInPkg", Some(p)),
+            TargetSource::CargoTomlDocsrsInWorkspace(p) => ("CargoTomlDocsrsInWorkspace", Some(p)),
+            TargetSource::UnspecifiedDefaultToHostTarget => {
+                ("UnspecifiedDefaultToHostTarget", None)
+            }
+            TargetSource::DetectedByPkgScripts(p) => ("DetectedByPkgScripts", Some(p)),
+            TargetSource::DetectedByRepoGithub(p) => ("DetectedByRepoGithub", Some(p)),
+            TargetSource::DetectedByRepoScripts(p) => ("DetectedByRepoScripts", Some(p)),
+        }
+    }
 }
 
 /// A list of target triples obtained from multiple sources.
@@ -91,14 +115,15 @@ pub struct CachePackageInfo {
     pub pkg_dir: Utf8PathBuf,
     pub targets: Targets,
     pub channel: String,
-    pub resolves: Box<[CacheResolve]>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Encode, Decode)]
+#[derive(Debug, Encode, Decode)]
 pub struct CacheResolve {
+    #[musli(with = musli::serde)]
+    pub pkg_name: XString,
     pub target: String,
     /// 仅当自定义检查命令出现 --target 时为 true
-    pub target_overriden: bool,
+    pub target_overridden: bool,
     pub channel: String,
     pub checker: CheckerTool,
     /// 完整的检查命令字符串（一定包含 --target）：

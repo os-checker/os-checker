@@ -136,13 +136,13 @@ impl fmt::Debug for Layout {
 impl Layout {
     #[instrument(level = "trace")]
     pub fn parse(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
-        let root_path = Utf8PathBuf::from(repo_root);
+        let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
 
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded);
         ensure!(
             !cargo_tomls.is_empty(),
-            "repo_root `{repo_root}` (规范路径为 `{}`) 不是 Rust 项目，因为不包含任何 Cargo.toml",
-            root_path.canonicalize_utf8()?
+            "repo_root `{repo_root}` (规范路径为 `{root_path}`) 不是 Rust \
+             项目，因为不包含任何 Cargo.toml",
         );
         debug!(?cargo_tomls);
 
@@ -300,16 +300,6 @@ impl Layout {
                 pkg_dir: info.pkg_dir.clone(),
                 targets: info.targets.clone().into(),
                 channel: get_channel(info.toolchain.unwrap_or(0)),
-                resolves: resolves
-                    .iter()
-                    .map(|r| CacheResolve {
-                        target: r.target.clone(),
-                        target_overriden: r.target_overriden,
-                        channel: get_channel(r.toolchain.unwrap_or(0)),
-                        checker: r.checker.into(),
-                        cmd: r.cmd.clone(),
-                    })
-                    .collect(),
             })
             .collect();
 
@@ -322,6 +312,17 @@ impl Layout {
                 .map(|(k, v)| (k.clone(), CargoMetaData::from_meta_data(v).unwrap()))
                 .collect(),
             packages_info,
+            resolves: resolves
+                .iter()
+                .map(|r| CacheResolve {
+                    pkg_name: r.pkg_name.clone(),
+                    target: r.target.clone(),
+                    target_overridden: r.target_overridden,
+                    channel: get_channel(r.toolchain.unwrap_or(0)),
+                    checker: r.checker.into(),
+                    cmd: r.cmd.clone(),
+                })
+                .collect(),
         };
 
         db_repo.set_layout_cache(layout);
