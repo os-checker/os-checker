@@ -10,6 +10,8 @@ use std::{
 
 #[macro_use]
 extern crate tracing;
+#[macro_use]
+extern crate eyre;
 
 /// 架构下拉框之类每个页面的基础信息
 mod basic;

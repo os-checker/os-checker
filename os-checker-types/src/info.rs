@@ -7,6 +7,12 @@ pub struct InfoKey {
     pub config: crate::db::RepoConfig,
 }
 
+impl InfoKey {
+    pub fn user_repo(&self) -> [&str; 2] {
+        self.repo.user_repo()
+    }
+}
+
 redb_value!(@key InfoKey, name: "OsCheckerInfoKey",
     read_err: "Not a valid info key.",
     write_err: "Info key can't be encoded to bytes."

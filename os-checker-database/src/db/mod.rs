@@ -42,6 +42,7 @@ pub fn check_key_uniqueness<K: Hash + Eq + Debug>(
 ) -> Result<()> {
     let mut count = new_map_with_cap(iter.len());
     iter.for_each(|k| count_key(k, &mut count));
-    let invalid: Vec<_> = count.iter().filter(|(k, c)| c != u8).collect();
-    ensure!(invalid.is_empty(), "invalid = {invalid:#?}")
+    let invalid: Vec<_> = count.iter().filter(|(k, c)| **c != 1u8).collect();
+    ensure!(invalid.is_empty(), "invalid = {invalid:#?}");
+    Ok(())
 }
