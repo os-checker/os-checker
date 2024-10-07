@@ -2,7 +2,7 @@ name: Run Checkers
 
 on:
   push:
-    branches: [ main, feat/db-targets ]
+    branches: [ main, feat/db-resolved-count ]
 
 env:
   # gh cli needs this token
