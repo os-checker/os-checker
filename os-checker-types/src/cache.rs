@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 // 由于我们想对每个检查出了结果时缓存，而不是在仓库所有检查完成时缓存，这里需要重复数据。
 // 减少数据重复，需要新定义一个结构，在缓存和 PackagesOutputs 上。
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Encode, Decode, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct CacheRepoKeyCmd {
     #[musli(with = musli::serde)]
     pub pkg_name: XString,
@@ -10,10 +10,16 @@ pub struct CacheRepoKeyCmd {
     pub cmd: CacheCmd,
 }
 
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Encode, Decode, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct CacheRepoKey {
     pub repo: CacheRepo,
     pub cmd: CacheRepoKeyCmd,
+}
+
+impl CacheRepoKey {
+    pub fn user_repo(&self) -> [&str; 2] {
+        self.repo.user_repo()
+    }
 }
 
 redb_value!(@key CacheRepoKey, name: "OsCheckerCacheKey",
@@ -21,7 +27,7 @@ redb_value!(@key CacheRepoKey, name: "OsCheckerCacheKey",
     write_err: "Cache key can't be encoded to bytes."
 );
 
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Encode, Decode, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct CacheRepo {
     #[musli(with = musli::serde)]
     pub user: XString,
@@ -32,7 +38,13 @@ pub struct CacheRepo {
     pub branch: XString,
 }
 
-#[derive(Debug, Encode, Decode, Clone)]
+impl CacheRepo {
+    pub fn user_repo(&self) -> [&str; 2] {
+        [&self.user, &self.repo]
+    }
+}
+
+#[derive(Debug, Encode, Decode, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct CacheChecker {
     pub checker: crate::CheckerTool,
     // If we don't care about the version, use None.
@@ -40,7 +52,7 @@ pub struct CacheChecker {
     pub sha: Option<String>,
 }
 
-#[derive(Debug, Encode, Decode, Clone)]
+#[derive(Debug, Encode, Decode, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct CacheCmd {
     pub cmd: String,
     pub target: String,
