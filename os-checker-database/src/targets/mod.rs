@@ -1,9 +1,10 @@
 use crate::{
-    db::read_table,
+    db::{check_key_uniqueness, read_table},
     utils::{new_map_with_cap, IndexMap},
     Result,
 };
 use camino::{Utf8Path, Utf8PathBuf};
+use eyre::ensure;
 use os_checker_types::{db::*, CheckerTool, XString};
 use serde::Serialize;
 
@@ -47,6 +48,11 @@ pub fn do_resolves() -> Result<()> {
         v.push((key.repo.user, key.repo.repo, layout));
         Ok(())
     })?;
+    {
+        let _span = error_span!("do_resolves_layout", table = %LAYOUT).entered();
+        check_key_uniqueness(v.iter().map(|(user, repo, _)| (&**user, &**repo)))?;
+    }
+
     table_resolves(&v)?;
 
     Ok(())
