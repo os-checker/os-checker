@@ -52,7 +52,7 @@ pub fn do_resolves() -> Result<()> {
     })?;
     {
         let _span = error_span!("do_resolves_layout", table = %LAYOUT).entered();
-        check_key_uniqueness(layouts.iter().map(|(key, _)| key.user_repo()))?;
+        // check_key_uniqueness(layouts.iter().map(|(key, _)| key.user_repo()))?;
     }
 
     let mut data = new_map_with_cap(1024);
