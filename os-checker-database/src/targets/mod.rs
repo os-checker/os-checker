@@ -1,4 +1,5 @@
 use crate::{
+    db::read_table,
     utils::{new_map_with_cap, IndexMap},
     Result,
 };
@@ -13,10 +14,11 @@ struct Resolve<'a> {
     checker: CheckerTool,
     target: &'a str,
     cmd: &'a str,
+    count: usize,
 }
 
 impl<'a> Resolve<'a> {
-    fn new(resolve: &'a CacheResolve) -> Self {
+    fn new(resolve: &'a CacheResolve, count: usize) -> Self {
         let CacheResolve {
             pkg_name,
             target,
@@ -31,6 +33,7 @@ impl<'a> Resolve<'a> {
             checker: *checker,
             target,
             cmd,
+            count,
         }
     }
 }
@@ -38,18 +41,19 @@ impl<'a> Resolve<'a> {
 pub fn do_resolves() -> Result<()> {
     let db = redb::Database::open(crate::CACHE_REDB)?;
     let txn = db.begin_read()?;
-    let table = txn.open_table(LAYOUT)?;
-    table_resolves(&table)?;
+
+    let mut v = Vec::with_capacity(128);
+    read_table(&txn, LAYOUT, |key, layout| {
+        v.push((key.repo.user, key.repo.repo, layout));
+        Ok(())
+    })?;
+    table_resolves(&v)?;
 
     Ok(())
 }
 
-fn table_resolves(table: &Table) -> Result<()> {
-    let mut v = Vec::with_capacity(128);
-    read_layout(table, |repo, layout| {
-        v.push((repo.user, repo.repo, layout));
-    })?;
-    for (user, repo, layout) in &v {
+fn table_resolves(v: &[(XString, XString, CacheLayout)]) -> Result<()> {
+    for (user, repo, layout) in v {
         let CacheLayout {
             root_path,
             packages_info: pkgs,
@@ -69,7 +73,7 @@ fn table_resolves(table: &Table) -> Result<()> {
                 .and_modify(|b| *b |= resolve.target_overridden)
                 .or_insert(resolve.target_overridden);
 
-            resolved.push(Resolve::new(resolve));
+            resolved.push(Resolve::new(resolve, 0));
         }
 
         resolved.sort_unstable();
@@ -90,19 +94,19 @@ fn table_resolves(table: &Table) -> Result<()> {
     Ok(())
 }
 
-type Table = redb::ReadOnlyTable<InfoKey, CacheLayout>;
-
-fn read_layout(table: &Table, mut f: impl FnMut(CacheRepo, CacheLayout)) -> Result<()> {
-    use redb::{ReadableTable, ReadableTableMetadata};
-
-    for ele in table.iter()? {
-        let (guard_k, guard_v) = ele?;
-        let key = guard_k.value().repo;
-        let value = guard_v.value();
-        f(key, value);
-    }
-    Ok(())
-}
+// type Table = redb::ReadOnlyTable<InfoKey, CacheLayout>;
+//
+// fn read_layout(table: &Table, mut f: impl FnMut(CacheRepo, CacheLayout)) -> Result<()> {
+//     use redb::{ReadableTable, ReadableTableMetadata};
+//
+//     for ele in table.iter()? {
+//         let (guard_k, guard_v) = ele?;
+//         let key = guard_k.value().repo;
+//         let value = guard_v.value();
+//         f(key, value);
+//     }
+//     Ok(())
+// }
 
 #[derive(Debug, Serialize)]
 struct Source<'a> {

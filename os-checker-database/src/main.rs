@@ -30,6 +30,8 @@ mod logger;
 
 mod targets;
 
+mod db;
+
 #[cfg(feature = "batch")]
 #[instrument(level = "trace")]
 fn main() -> Result<()> {
