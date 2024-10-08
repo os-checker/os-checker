@@ -13,6 +13,16 @@ pub struct CheckValue {
     pub timestamp_end: u64,
 }
 
+impl Default for CheckValue {
+    fn default() -> Self {
+        Self {
+            keys: vec![],
+            timestamp_start: now(),
+            timestamp_end: 0,
+        }
+    }
+}
+
 redb_value!(CheckValue, name: "OsCheckerCheckValue",
     read_err: "Not a valid check value.",
     write_err: "Check value can't be encoded to bytes.");

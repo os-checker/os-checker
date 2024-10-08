@@ -7,6 +7,12 @@ pub use std::fmt;
 
 use time::OffsetDateTime;
 
+/// Returns the current unix timestamp in milliseconds.
+pub fn now() -> u64 {
+    let t = time::OffsetDateTime::from(std::time::SystemTime::now());
+    unix_timestamp_milli(t)
+}
+
 pub fn unix_timestamp_milli(t: OffsetDateTime) -> u64 {
     let milli = t.millisecond() as u64;
     let unix_t_secs = t.unix_timestamp() as u64;

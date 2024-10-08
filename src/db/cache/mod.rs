@@ -178,7 +178,7 @@ impl fmt::Debug for CacheValue {
 impl CacheValue {
     pub fn new(resolve: &Resolve, duration_ms: u64, data: Vec<OutputDataInner>) -> Self {
         CacheValue {
-            unix_timestamp_milli: now(),
+            unix_timestamp_milli: os_checker_types::now(),
             cmd: CacheRepoKeyCmd::new(resolve),
             diagnostics: OutputData { duration_ms, data },
         }
@@ -225,10 +225,4 @@ impl CacheValue {
     pub fn to_db_value(&self) -> out::CacheValue {
         self.clone().into()
     }
-}
-
-/// Returns the current unix timestamp in milliseconds.
-pub fn now() -> u64 {
-    let t = time::OffsetDateTime::from(std::time::SystemTime::now());
-    super::unix_timestamp_milli(t)
 }
