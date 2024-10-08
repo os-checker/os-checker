@@ -48,6 +48,11 @@ impl CheckValue {
         self.timestamp_end == 0
     }
 
+    pub fn is_same_keys(&self, other: &Self) -> bool {
+        // We could use PartialEq to do the comparison, but for simplicity, compare bytes here.
+        musli::storage::to_vec(&self.keys).unwrap() == musli::storage::to_vec(&other.keys).unwrap()
+    }
+
     /// Should be called once a new repo is being checked.
     pub fn push_info_key(&mut self, info: InfoKey) {
         self.keys.push(Keys {
