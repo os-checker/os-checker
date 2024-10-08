@@ -343,7 +343,7 @@ struct ArgsDb {
     #[argh(switch)]
     done: bool,
     /// redb file path; this will be created if not exists
-    #[argh(option)]
+    #[argh(positional)]
     db: Utf8PathBuf,
 }
 
