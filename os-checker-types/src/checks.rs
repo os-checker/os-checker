@@ -80,10 +80,10 @@ pub struct Keys {
 
 impl fmt::Debug for Keys {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let repo = &self.info.repo;
+        let [user, repo] = &self.info.repo.user_repo();
         f.debug_struct("Keys")
             .field("cache.len", &self.cache.len())
-            .field("info.repo", &repo.user_repo())
+            .field("info.repo", &format!("{user}/{repo}"))
             .finish()
     }
 }
