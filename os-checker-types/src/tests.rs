@@ -14,7 +14,7 @@ fn cache_redb() -> Result<()> {
     let last_checks = table.last()?.unwrap();
     let id = last_checks.0.value();
     let checks = last_checks.1.value();
-    dbg!(id, checks);
+    dbg!(id, &checks, &checks.keys);
 
     stats(DATA, &txn)?;
     stats(INFO, &txn)?;
