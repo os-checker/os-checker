@@ -23,6 +23,30 @@ impl Default for CheckValue {
     }
 }
 
+impl CheckValue {
+    pub fn set_complete(&mut self) {
+        self.timestamp_end = now();
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.timestamp_end == 0
+    }
+
+    /// Should be called once a new repo is being checked.
+    pub fn push_info_key(&mut self, info: InfoKey) {
+        self.keys.push(Keys {
+            cache: vec![],
+            info,
+        });
+    }
+
+    /// NOTE: push_info_key must be called before this function is called.
+    /// This function also means a checking is done.
+    pub fn push_cache_key(&mut self, cache: CacheRepoKey) {
+        self.keys.last_mut().unwrap().cache.push(cache);
+    }
+}
+
 redb_value!(CheckValue, name: "OsCheckerCheckValue",
     read_err: "Not a valid check value.",
     write_err: "Check value can't be encoded to bytes.");
