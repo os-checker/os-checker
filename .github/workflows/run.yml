@@ -19,8 +19,8 @@ env:
   # force downloading repos and check running
   FORCE_REPO_CHECK: false
   # use which configs
-  # CONFIGS: repos.json # for debug single repo
-  CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
+  CONFIGS: repos.json # for debug single repo
+  # CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
 
 jobs:
   run:
@@ -40,7 +40,7 @@ jobs:
           cp assets/repos-default.json ~/check/
           cp assets/repos-embassy.json ~/check/
           cd ~/check
-          gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
+          # gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
           # gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb.tar.xz
           # tar -xJvf cache.redb.tar.xz
           ls -alh
@@ -88,8 +88,8 @@ jobs:
           cd ~/check
           make clone_database
           cd database
-          # git switch debug
-          # echo "切换到 debug 分支"
+          git switch debug
+          echo "切换到 debug 分支"
           git pull --rebase # 防止二次运行 CI 时落后于远程分支
 
           rm -rf batch # 移除旧的 batch 数据
