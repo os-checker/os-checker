@@ -189,6 +189,9 @@ impl RepoOutput {
         .entered();
 
         let info = config.new_info()?;
+        if let Some(db) = config.db() {
+            info.check_push_info_key(db)?;
+        }
 
         if utils::force_repo_check() {
             warn!("强制运行检查（不影响已有的检查缓存结果）");

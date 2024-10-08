@@ -196,6 +196,10 @@ impl InfoKeyValue {
     pub fn set_layout_cache(&self, layout: CacheLayout, db: &Db) -> Result<()> {
         db.set_layout(&self.key.to_db_key(), &layout)
     }
+
+    pub fn check_push_info_key(&self, db: &Db) -> Result<()> {
+        db.check_push_info_key(self.key.clone().into())
+    }
 }
 
 #[test]
