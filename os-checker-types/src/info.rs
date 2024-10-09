@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Debug, Encode, Decode)]
+#[derive(Debug, Encode, Decode, Clone)]
 pub struct InfoKey {
     pub repo: crate::db::CacheRepo,
     #[musli(with = musli::serde)]
