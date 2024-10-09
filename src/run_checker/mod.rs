@@ -233,6 +233,8 @@ impl RepoOutput {
         outputs.sort_by_name_and_checkers();
         if let Some(db) = repo.config.db() {
             info.set_complete(db)?;
+            // push check item if caching is done
+            info.check_push_info_key(db)?;
             info!("已设置键缓存 complete 为 true");
         }
 
