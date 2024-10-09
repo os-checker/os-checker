@@ -1,7 +1,7 @@
 use crate::{
-    db::{check_key_uniqueness, read_table},
+    db::{check_key_uniqueness, read_table, LastChecks},
     utils::{new_map_with_cap, IndexMap},
-    Result,
+    write_to_file, Result,
 };
 use camino::{Utf8Path, Utf8PathBuf};
 use eyre::ensure;
@@ -45,70 +45,57 @@ pub fn do_resolves() -> Result<()> {
     let db = redb::Database::open(crate::CACHE_REDB)?;
     let txn = db.begin_read()?;
 
-    let mut layouts = Vec::with_capacity(128);
-    read_table(&txn, LAYOUT, |key, layout| {
-        layouts.push((key, layout));
-        Ok(())
-    })?;
-    {
-        let _span = error_span!("do_resolves_layout", table = %LAYOUT).entered();
-        // check_key_uniqueness(layouts.iter().map(|(key, _)| key.user_repo()))?;
-    }
+    let checks = LastChecks::new(&txn)?;
 
-    let mut data = new_map_with_cap(1024);
-    read_table(&txn, DATA, |key, cache| {
-        let diag = &cache.diagnostics;
-        data.insert(key, (diag.data.len(), diag.duration_ms));
-        Ok(())
-    })?;
-    // {
-    //     let _span = error_span!("do_resolves_data", table = %DATA).entered();
-    //     check_key_uniqueness(data.iter().map(|(user, repo, _, _)| (&**user, &**repo)))?;
-    // }
+    let mut v_user_repo = Vec::with_capacity(checks.repo_counts());
 
-    // let (data_len, layouts_len) = (data.len(), layouts.len());
-    // ensure!(
-    //     data_len == layouts_len,
-    //     "data_len {data_len} ≠ layouts_len {layouts_len}"
-    // );
-    //
-    // let mut map: LayoutData = new_map_with_cap(data_len);
-    // for (user, repo, count, duration) in &data {
-    //     map.insert((&**user, &**repo), (None, *count, *duration));
-    // }
-    // for (user, repo, layout) in &layouts {
-    //     if let Some((value, _, _)) = map.get_mut(&(&**user, &**repo)) {
-    //         *value = Some(layout);
-    //     } else {
-    //         bail!("{user}/{repo} exsits in DATA but not in LAYOUT table.");
-    //     }
-    // }
+    checks.with_layout_cache(|info_key, cache_keys| {
+        let user = info_key.repo.user.clone();
+        let repo = info_key.repo.repo.clone();
 
-    table_resolves(&layouts, &data)?;
+        let _span = error_span!("do_resolves", ?user, ?repo).entered();
 
-    Ok(())
-}
-
-type LayoutData<'a> = IndexMap<(&'a str, &'a str), (Option<&'a CacheLayout>, usize, u64)>;
-
-fn table_resolves(
-    layouts: &[(InfoKey, CacheLayout)],
-    data: &IndexMap<CacheRepoKey, (usize, u64)>,
-) -> Result<()> {
-    for (key, layout) in layouts {
-        let [user, repo] = key.user_repo();
+        let layout = checks.read_layout(info_key)?;
         let CacheLayout {
             root_path,
             packages_info: pkgs,
             resolves,
             ..
-        } = layout;
+        } = &layout;
+
+        #[derive(Hash, PartialEq, Eq)]
+        struct CmdKeyRef<'a> {
+            pkg: &'a str,
+            target: &'a str,
+            channel: &'a str,
+            checker: CheckerTool,
+            cmd: &'a str,
+        }
+
+        let caches = cache_keys
+            .iter()
+            .map(|k| checks.read_cache(k))
+            .collect::<Result<Vec<_>>>()?;
+        let mut map_cmd = new_map_with_cap(caches.len());
+        for cache in &caches {
+            map_cmd.insert(
+                CmdKeyRef {
+                    pkg: &cache.cmd.pkg_name,
+                    target: &cache.cmd.cmd.target,
+                    channel: &cache.cmd.cmd.channel,
+                    checker: cache.cmd.checker.checker,
+                    cmd: &cache.cmd.cmd.cmd,
+                },
+                (cache.diagnostics.data.len(), cache.diagnostics.duration_ms),
+            );
+        }
+
+        let capacity = resolves.len();
 
         // (pkg_name, target) => at least target_overridden once
-        let mut pkg_tar_specified = new_map_with_cap(resolves.len());
-        let mut sources = Vec::with_capacity(64);
-        let mut resolved = Vec::with_capacity(64);
+        let mut pkg_tar_specified = new_map_with_cap(capacity);
 
+        let mut resolved = Vec::with_capacity(capacity);
         for resolve in resolves {
             let pkg_target = (&*resolve.pkg_name, &*resolve.target);
             pkg_tar_specified
@@ -116,62 +103,43 @@ fn table_resolves(
                 .and_modify(|b| *b |= resolve.target_overridden)
                 .or_insert(resolve.target_overridden);
 
-            let data_key = CacheRepoKey {
-                repo: key.repo.clone(),
-                cmd: CacheRepoKeyCmd {
-                    pkg_name: resolve.pkg_name.clone(),
-                    checker: CacheChecker {
-                        checker: resolve.checker,
-                        version: None,
-                        sha: None,
-                    },
-                    cmd: CacheCmd {
-                        cmd: resolve.cmd.clone(),
-                        target: resolve.target.clone(),
-                        channel: resolve.channel.clone(),
-                        features: vec![],
-                        flags: vec![],
-                    },
-                },
+            let cmd_key = CmdKeyRef {
+                pkg: &resolve.pkg_name,
+                target: &resolve.target,
+                channel: &resolve.channel,
+                checker: resolve.checker,
+                cmd: &resolve.cmd,
             };
-            let &(count, ms) = data.get(&data_key).unwrap();
-            resolved.push(Resolve::new(resolve, count, ms));
+            let (count, ms) = map_cmd.get(&cmd_key).unwrap();
+            resolved.push(Resolve::new(resolve, *count, *ms));
         }
-
         resolved.sort_unstable();
         let dir = format!("targets/{user}/{repo}");
-        crate::write_to_file(&dir, "resolved", &resolved)?;
+        write_to_file(&dir, "resolved", &resolved)?;
 
+        let mut sources = Vec::with_capacity(pkgs.len());
         for info in pkgs {
             Source::push(info, &pkg_tar_specified, root_path, &mut sources);
         }
         sources
             .sort_unstable_by(|a, b| (a.pkg, a.target, a.source).cmp(&(b.pkg, b.target, b.source)));
-        crate::write_to_file(&dir, "sources", &sources)?;
-    }
+        write_to_file(&dir, "sources", &sources)?;
+
+        v_user_repo.push((user, repo));
+
+        Ok(())
+    })?;
 
     let map_user_repo = user_repo(
-        layouts.len(),
-        layouts.iter().map(|(key, _)| key.user_repo()),
+        v_user_repo.len(),
+        v_user_repo
+            .iter()
+            .map(|(user, repo)| [user.as_str(), repo.as_str()]),
     );
-    crate::write_to_file("", "user_repo", &map_user_repo)?;
+    write_to_file("", "user_repo", &map_user_repo)?;
 
     Ok(())
 }
-
-// type Table = redb::ReadOnlyTable<InfoKey, CacheLayout>;
-//
-// fn read_layout(table: &Table, mut f: impl FnMut(CacheRepo, CacheLayout)) -> Result<()> {
-//     use redb::{ReadableTable, ReadableTableMetadata};
-//
-//     for ele in table.iter()? {
-//         let (guard_k, guard_v) = ele?;
-//         let key = guard_k.value().repo;
-//         let value = guard_v.value();
-//         f(key, value);
-//     }
-//     Ok(())
-// }
 
 #[derive(Debug, Serialize)]
 struct Source<'a> {

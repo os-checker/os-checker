@@ -6,6 +6,7 @@ mod toolchain;
 pub use toolchain::*;
 
 pub mod cache;
+pub mod checks;
 pub mod config;
 pub mod info;
 pub mod layout;
@@ -13,6 +14,7 @@ pub mod table;
 
 pub mod db {
     pub use crate::cache::*;
+    pub use crate::checks::*;
     pub use crate::config::RepoConfig;
     pub use crate::info::*;
     pub use crate::layout::*;

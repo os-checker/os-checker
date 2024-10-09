@@ -20,6 +20,8 @@ struct Batch {
     size: String,
 }
 
+const DB: &str = "cache.redb";
+
 #[instrument(level = "trace")]
 fn main() -> Result<()> {
     logger::init();
@@ -69,7 +71,7 @@ fn main() -> Result<()> {
                 "--emit",
                 emit.as_str(),
                 "--db",
-                "cache.redb"
+                DB
             );
             info!(cmd = ?expr);
             expr.run()?;
@@ -86,10 +88,10 @@ fn main() -> Result<()> {
 
 fn upload_cache() -> Result<()> {
     // cmd!("ls", "-alh").run()?;
-    let tag = var("TAG_CACHE").unwrap_or_else(|_| "cache.redb".to_owned());
-    let args = format!("release upload --clobber -R os-checker/database {tag} cache.redb");
+    let tag = var("TAG_CACHE").unwrap();
+    let args = format!("release upload --clobber -R os-checker/database {tag} {DB}");
     cmd("gh", args.split(" ")).run()?;
-    info!("Successfully upload cache.redb.");
+    info!("Successfully upload {DB}.");
     Ok(())
 }
 

@@ -50,6 +50,7 @@ impl Args {
             }
             SubArgs::Batch(batch) => batch.execute()?,
             SubArgs::Schema(schema) => gen_schema(&schema.path)?,
+            SubArgs::Db(db) => db.execute()?,
         }
         Ok(())
     }
@@ -73,6 +74,7 @@ enum SubArgs {
     Run(ArgsRun),
     Batch(ArgsBatch),
     Schema(ArgsSchema),
+    Db(ArgsDb),
 }
 
 /// Display the layouts without installing toolchains or checkers.
@@ -257,6 +259,7 @@ impl ArgsRun {
         // 丢弃其他数据库句柄
         drop(outs);
         // 压缩缓存数据库文件
+        // FIXME: this moves to db --done
         if let Some(db) = db {
             db.compact();
         }
@@ -327,4 +330,32 @@ pub fn repos_base_dir() -> Utf8PathBuf {
         .as_ref()
         .expect("REPOS_BASE_DIR 尚未设置值")
         .clone()
+}
+
+/// Cache redb manipulation.
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand, name = "db")]
+struct ArgsDb {
+    /// this should be called before all checks start
+    #[argh(switch)]
+    start: bool,
+    /// this should be called after all checks finish
+    #[argh(switch)]
+    done: bool,
+    /// redb file path; this will be created if not exists
+    #[argh(positional)]
+    db: Utf8PathBuf,
+}
+
+impl ArgsDb {
+    fn execute(&self) -> Result<()> {
+        let db = Db::new(&self.db)?;
+        if self.start {
+            db.new_check()
+        } else if self.done {
+            db.check_set_complete()
+        } else {
+            Ok(())
+        }
+    }
 }

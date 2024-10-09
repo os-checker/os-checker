@@ -9,6 +9,13 @@ fn cache_redb() -> Result<()> {
 
     let txn = db.begin_read()?;
 
+    stats(CHECKS, &txn)?;
+    let table = txn.open_table(CHECKS)?;
+    let last_checks = table.last()?.unwrap();
+    let id = last_checks.0.value();
+    let checks = last_checks.1.value();
+    dbg!(id, &checks, &checks.keys);
+
     stats(DATA, &txn)?;
     stats(INFO, &txn)?;
     stats(LAYOUT, &txn)?;

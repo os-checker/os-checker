@@ -2,9 +2,9 @@ use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;
 use os_checker_types::db::{
-    CacheLayout, CacheRepoKey, CacheValue, Info, InfoKey, DATA, INFO, LAYOUT,
+    CacheLayout, CacheRepoKey, CacheValue, CheckValue, Info, InfoKey, CHECKS, DATA, INFO, LAYOUT,
 };
-use redb::{Database, Key, Table, TableDefinition, Value};
+use redb::{Database, Key, ReadableTable, Table, TableDefinition, Value};
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -98,5 +98,68 @@ impl Db {
         } else {
             error!("Unable to get the unique db handler");
         }
+    }
+}
+
+impl Db {
+    fn check_write_last(&self, f: impl FnOnce(&mut CheckValue)) -> Result<()> {
+        self.write(CHECKS, |t| {
+            let (key, mut value) = match t.last()? {
+                Some((guard_k, guard_v)) => (guard_k.value(), guard_v.value()),
+                None => bail!(
+                    "The last check item is not available in {CHECKS}. \
+                     A new check should be created."
+                ),
+            };
+            f(&mut value);
+            t.insert(&key, &value)?;
+            Ok(())
+        })
+    }
+
+    /// Create a new check item only with key set.
+    pub fn new_check(&self) -> Result<()> {
+        self.write(CHECKS, |t| {
+            let key = match t.last()? {
+                Some((guard_k, _)) => guard_k.value() + 1,
+                None => 0,
+            };
+            t.insert(key, &Default::default())?;
+            info!(key, "Successfully create a new check item.");
+            Ok(())
+        })
+    }
+
+    // push info key
+    pub fn check_push_info_key(&self, info: InfoKey) -> Result<()> {
+        self.check_write_last(|check| check.push_info_key(info))
+    }
+
+    // set check complete + merge
+    pub fn check_set_complete(&self) -> Result<()> {
+        self.check_write_last(|check| check.set_complete())?;
+
+        let txn = self.db.begin_write()?;
+        let mut table = txn.open_table(CHECKS)?;
+
+        let last = table
+            .iter()?
+            .rev()
+            .take(2)
+            .map(|res| res.map(|(k, v)| (k.value(), v.value())))
+            .collect::<Result<Vec<_>, _>>()?;
+        if let [(_, last1_v), (last2_k, last2_v)] = last.as_slice() {
+            if last1_v.is_same_keys(last2_v) {
+                // use the second to last id, and remove the item
+                table.pop_last()?;
+                table.pop_last()?;
+                table.insert(last2_k, last1_v)?;
+            }
+        }
+
+        drop(table);
+        txn.commit()?;
+
+        Ok(())
     }
 }

@@ -199,6 +199,9 @@ impl RepoOutput {
                         info!("成功获取完整的仓库检查结果键缓存");
                         match info_cache.get_cache_values(db) {
                             Ok(caches) => {
+                                // push check item if caching is found
+                                info.check_push_info_key(db)?;
+
                                 return Ok(Either::Right(FastOutputs {
                                     config,
                                     outputs: caches.into(),
@@ -230,6 +233,8 @@ impl RepoOutput {
         outputs.sort_by_name_and_checkers();
         if let Some(db) = repo.config.db() {
             info.set_complete(db)?;
+            // push check item if caching is done
+            info.check_push_info_key(db)?;
             info!("已设置键缓存 complete 为 true");
         }
 
