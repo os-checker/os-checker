@@ -46,6 +46,7 @@ pub fn read_last_checks(txn: &ReadTransaction) -> Result<(u32, CheckValue)> {
 pub struct LastChecks<'txn> {
     txn: &'txn ReadTransaction,
     checks: CheckValue,
+    info: ReadOnlyTable<InfoKey, Info>,
     layout: ReadOnlyTable<InfoKey, CacheLayout>,
     cache: ReadOnlyTable<CacheRepoKey, CacheValue>,
 }
@@ -53,11 +54,13 @@ pub struct LastChecks<'txn> {
 impl<'txn> LastChecks<'txn> {
     pub fn new(txn: &'txn ReadTransaction) -> Result<Self> {
         let (_, checks) = read_last_checks(txn)?;
+        let info = txn.open_table(INFO)?;
         let layout = txn.open_table(LAYOUT)?;
         let cache = txn.open_table(DATA)?;
         Ok(Self {
             txn,
             checks,
+            info,
             layout,
             cache,
         })
@@ -72,7 +75,9 @@ impl<'txn> LastChecks<'txn> {
         mut f: impl FnMut(&InfoKey, &[CacheRepoKey]) -> Result<()>,
     ) -> Result<()> {
         for key in &self.checks.keys {
-            f(&key.info, &key.cache)?;
+            let info_key = &key.info;
+            let info = self.read_info(info_key)?;
+            f(info_key, &info.caches)?;
         }
         Ok(())
     }
@@ -81,7 +86,15 @@ impl<'txn> LastChecks<'txn> {
         let _span = error_span!("read_layout", ?info_key).entered();
         let guard = self.layout.get(info_key)?;
         Ok(guard
-            .with_context(|| "Info key refers to None value.")?
+            .with_context(|| "info key refers to none value.")?
+            .value())
+    }
+
+    pub fn read_info(&self, info_key: &InfoKey) -> Result<Info> {
+        let _span = error_span!("read_info", ?info_key).entered();
+        let guard = self.info.get(info_key)?;
+        Ok(guard
+            .with_context(|| "Info key refers to none value.")?
             .value())
     }
 

@@ -189,9 +189,6 @@ impl RepoOutput {
         .entered();
 
         let info = config.new_info()?;
-        if let Some(db) = config.db() {
-            info.check_push_info_key(db)?;
-        }
 
         if utils::force_repo_check() {
             warn!("强制运行检查（不影响已有的检查缓存结果）");
@@ -202,6 +199,9 @@ impl RepoOutput {
                         info!("成功获取完整的仓库检查结果键缓存");
                         match info_cache.get_cache_values(db) {
                             Ok(caches) => {
+                                // push check item if caching is found
+                                info.check_push_info_key(db)?;
+
                                 return Ok(Either::Right(FastOutputs {
                                     config,
                                     outputs: caches.into(),

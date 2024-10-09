@@ -98,11 +98,6 @@ impl<'a> DbRepo<'a> {
         if let Err(err) = self.info.append_cache_key(key, self.db) {
             error!(%err, ?key, "Unable to save the info cache.");
         }
-
-        // 写入 checks 表
-        if let Err(err) = self.db.check_push_cache_key(key.clone().into()) {
-            error!(%err, ?key, "Unable to push cache key to checks table.");
-        }
     }
 
     /// 写入 layout 缓存

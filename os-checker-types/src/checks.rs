@@ -1,7 +1,4 @@
-use crate::{
-    db::{CacheRepoKey, InfoKey},
-    prelude::*,
-};
+use crate::{db::InfoKey, prelude::*};
 
 #[derive(Encode, Decode)]
 pub struct CheckValue {
@@ -55,16 +52,7 @@ impl CheckValue {
 
     /// Should be called once a new repo is being checked.
     pub fn push_info_key(&mut self, info: InfoKey) {
-        self.keys.push(Keys {
-            cache: vec![],
-            info,
-        });
-    }
-
-    /// NOTE: push_info_key must be called before this function is called.
-    /// This function also means a checking is done.
-    pub fn push_cache_key(&mut self, cache: CacheRepoKey) {
-        self.keys.last_mut().unwrap().cache.push(cache);
+        self.keys.push(Keys { info });
     }
 }
 
@@ -74,7 +62,6 @@ redb_value!(CheckValue, name: "OsCheckerCheckValue",
 
 #[derive(Encode, Decode)]
 pub struct Keys {
-    pub cache: Vec<CacheRepoKey>,
     pub info: InfoKey,
 }
 
@@ -82,7 +69,6 @@ impl fmt::Debug for Keys {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let [user, repo] = &self.info.repo.user_repo();
         f.debug_struct("Keys")
-            .field("cache.len", &self.cache.len())
             .field("info.repo", &format!("{user}/{repo}"))
             .finish()
     }

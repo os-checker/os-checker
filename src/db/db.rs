@@ -135,11 +135,6 @@ impl Db {
         self.check_write_last(|check| check.push_info_key(info))
     }
 
-    // push cache key
-    pub fn check_push_cache_key(&self, cache: CacheRepoKey) -> Result<()> {
-        self.check_write_last(|check| check.push_cache_key(cache))
-    }
-
     // set check complete + merge
     pub fn check_set_complete(&self) -> Result<()> {
         self.check_write_last(|check| check.set_complete())?;
