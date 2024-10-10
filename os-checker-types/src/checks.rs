@@ -39,6 +39,10 @@ impl Default for CheckValue {
 impl CheckValue {
     pub fn set_complete(&mut self) {
         self.timestamp_end = now();
+        // sort keys by repo, but not include configs because normally each check item
+        // should be with single config
+        self.keys
+            .sort_unstable_by(|a, b| a.info.repo.cmp(&b.info.repo));
     }
 
     pub fn is_complete(&self) -> bool {
