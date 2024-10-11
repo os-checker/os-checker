@@ -416,6 +416,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
+name = "jsonxf"
+version = "1.1.2"
+source = "git+https://github.com/os-checker/jsonxf.git?branch=make-getopts-optional#dee19fa556443bc85a4e0a5db3213c5baa7d2847"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -567,6 +575,7 @@ dependencies = [
  "hashbrown 0.15.0",
  "indexmap",
  "itertools",
+ "jsonxf",
  "musli",
  "os-checker-types",
  "prettydiff",
