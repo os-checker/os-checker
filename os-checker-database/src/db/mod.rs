@@ -106,22 +106,3 @@ impl<'txn> LastChecks<'txn> {
             .value())
     }
 }
-
-fn count_key<K: Hash + Eq + Debug>(k: K, map: &mut IndexMap<K, u8>) {
-    if let Some(count) = map.get_mut(&k) {
-        error!(key = ?k, "The occurrence shouldn't be more than 1.");
-        *count += 1;
-    } else {
-        map.insert(k, 1);
-    }
-}
-
-pub fn check_key_uniqueness<K: Hash + Eq + Debug>(
-    iter: impl ExactSizeIterator<Item = K>,
-) -> Result<()> {
-    let mut count = new_map_with_cap(iter.len());
-    iter.for_each(|k| count_key(k, &mut count));
-    let invalid: Vec<_> = count.iter().filter(|(k, c)| **c != 1u8).collect();
-    ensure!(invalid.is_empty(), "invalid = {invalid:#?}");
-    Ok(())
-}

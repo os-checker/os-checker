@@ -43,6 +43,8 @@ impl CheckValue {
         // should be with single config
         self.keys
             .sort_unstable_by(|a, b| a.info.repo.cmp(&b.info.repo));
+        // double check there are unique repos
+        check_key_uniqueness(self.keys.iter().map(|k| k.info.user_repo())).unwrap();
     }
 
     pub fn is_complete(&self) -> bool {

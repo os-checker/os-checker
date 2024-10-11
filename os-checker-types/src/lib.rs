@@ -1,4 +1,9 @@
 #[macro_use]
+extern crate tracing;
+#[macro_use]
+extern crate eyre;
+
+#[macro_use]
 mod prelude;
 pub use prelude::*;
 

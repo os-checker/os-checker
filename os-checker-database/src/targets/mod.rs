@@ -1,5 +1,5 @@
 use crate::{
-    db::{check_key_uniqueness, read_table, LastChecks},
+    db::{read_table, LastChecks},
     utils::{new_map_with_cap, IndexMap},
     write_to_file, Result,
 };

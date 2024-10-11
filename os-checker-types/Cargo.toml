@@ -23,3 +23,5 @@ cargo_metadata = { workspace = true }
 # # branch = "workspace_default_members-serde-default"
 # rev = "dc53ab2"
 
+tracing = { workspace = true }
+eyre = { workspace = true }

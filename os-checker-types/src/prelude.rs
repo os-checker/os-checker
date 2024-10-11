@@ -1,10 +1,12 @@
 pub use camino::{Utf8Path, Utf8PathBuf};
 pub use compact_str::CompactString as XString;
+pub use eyre::Result;
 pub use indexmap::IndexMap;
 pub use musli::{Decode, Encode};
 pub use serde::{Deserialize, Serialize};
 pub use std::fmt;
 
+use std::{fmt::Debug, hash::Hash};
 use time::OffsetDateTime;
 
 /// Returns the current unix timestamp in milliseconds.
@@ -91,4 +93,23 @@ macro_rules! redb_value {
             }
         }
     };
+}
+
+fn count_key<K: Hash + Eq + Debug>(k: K, map: &mut IndexMap<K, u8>) {
+    if let Some(count) = map.get_mut(&k) {
+        error!(key = ?k, "The occurrence shouldn't be more than 1.");
+        *count += 1;
+    } else {
+        map.insert(k, 1);
+    }
+}
+
+pub fn check_key_uniqueness<K: Hash + Eq + Debug>(
+    iter: impl ExactSizeIterator<Item = K>,
+) -> Result<()> {
+    let mut count = IndexMap::with_capacity(iter.len());
+    iter.for_each(|k| count_key(k, &mut count));
+    let invalid: Vec<_> = count.iter().filter(|(_, c)| **c != 1u8).collect();
+    ensure!(invalid.is_empty(), "invalid = {invalid:#?}");
+    Ok(())
 }

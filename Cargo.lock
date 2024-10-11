@@ -612,12 +612,14 @@ dependencies = [
  "camino",
  "cargo_metadata",
  "compact_str",
+ "eyre",
  "indexmap",
  "musli",
  "redb",
  "serde",
  "serde_json",
  "time",
+ "tracing",
 ]
 
 [[package]]
