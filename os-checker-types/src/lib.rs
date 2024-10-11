@@ -174,6 +174,7 @@ pub enum CheckerTool {
     Miri,
     Clippy,
     SemverChecks,
+    Audit,
     Mirai,
     Lockbud,
     Fmt,
