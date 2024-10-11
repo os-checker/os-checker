@@ -48,19 +48,9 @@ pub type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
 fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
     let mut map = IndexMap::new();
     for cargo_toml in cargo_tomls {
-        // 暂时不解析依赖的原因：
-        // * 不需要依赖信息
-        // * 加快的解析速度
-        // * 如何处理 features? features 会影响依赖吗？（待确认）
-        //
-        // 需要解析依赖的原因：
-        // * 从 `[target.'cfg(...)'.*dependencies]` 中搜索 target：注意，如果这一条会比较难，因为
-        //   有可能它为 target_os 或者 target_family 之类宽泛的平台名称，与我们所需的三元组不直接相关。
-        //
-        // [`DepKindInfo`]: https://docs.rs/cargo_metadata/0.18.1/cargo_metadata/struct.DepKindInfo.html#structfield.target
+        // NOTE: 一旦支持 features，这里可能需要传递它们
         let metadata = MetadataCommand::new()
             .manifest_path(cargo_toml)
-            .no_deps()
             .exec()
             .map_err(|err| eyre!("无法读取 cargo metadata 的结果：{err}"))?;
         let root = &metadata.workspace_root;
