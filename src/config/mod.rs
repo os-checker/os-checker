@@ -7,16 +7,16 @@ use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::Context;
 use itertools::Itertools;
 use serde::{ser::SerializeMap, Deserialize, Serialize, Serializer};
+use serde_json::Value;
 
 mod cmd;
 use cmd::*;
 
-mod uri;
-mod validate;
-use serde_json::Value;
-pub use validate::Resolve;
+mod resolve;
+pub use resolve::Resolve;
 
 mod merge_from_json;
+mod uri;
 
 mod checker;
 pub use checker::{CheckerTool, TOOLS};
