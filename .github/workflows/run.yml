@@ -37,7 +37,8 @@ jobs:
           cp Makefile ~/check/
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
-          cp assets/repos-default.json ~/check/
+          # cp assets/repos-default.json ~/check/
+          wget https://raw.githubusercontent.com/os-checker/kern-crates.github/refs/heads/os-checker/repos-default.json -P ~/check/
           cp assets/repos-embassy.json ~/check/
           cd ~/check
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
