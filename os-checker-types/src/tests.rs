@@ -1,7 +1,6 @@
 use crate::table::*;
+use eyre::{ContextCompat, Result};
 use redb::*;
-
-type Result<T, E = Box<dyn Send + Sync + std::error::Error>> = std::result::Result<T, E>;
 
 #[test]
 fn cache_redb() -> Result<()> {
@@ -23,11 +22,21 @@ fn cache_redb() -> Result<()> {
     let table = txn.open_table(LAYOUT)?;
     for (idx, item) in table.iter()?.enumerate() {
         let layout = item?.1.value();
+        let _span = error_span!("cache_redb-layout", idx, ?layout.root_path).entered();
         for ws in layout.workspaces.values() {
-            assert!(
-                ws.meta_data().is_ok(),
-                "[idx={idx}] Metadata deserialization failure."
-            );
+            match ws.meta_data() {
+                Ok(data) => {
+                    let _span_metadata =
+                        error_span!("cache_redb-metadata", ?data.workspace_root).entered();
+                    data.resolve
+                        .as_ref()
+                        .with_context(|| "Dependencies are not resolved in metadata.")?;
+                }
+                Err(err) => {
+                    let _span_err = error_span!("cache_redb-metadata-err", ?err).entered();
+                    bail!("Metadata deserialization failure.")
+                }
+            }
         }
     }
 
