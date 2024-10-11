@@ -15,7 +15,7 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # cache.redb tag in database release
-  TAG_CACHE: cache-v4.redb # cache.redb # cache-v2.redb
+  TAG_CACHE: cache-v5.redb
   # force downloading repos and check running
   FORCE_REPO_CHECK: true
   # use which configs
