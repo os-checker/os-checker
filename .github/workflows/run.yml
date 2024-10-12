@@ -17,7 +17,7 @@ env:
   # cache.redb tag in database release
   TAG_CACHE: cache-v5.redb
   # force downloading repos and check running
-  # FORCE_REPO_CHECK: true
+  FORCE_REPO_CHECK: false
   # use which configs
   # CONFIGS: repos.json # for debug single repo
   CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
@@ -49,6 +49,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt, clippy
+
+      - name: Run cargo_audit test
+        run: cargo test -- cargo_audit --nocapture
 
       - name: Install os-checker
         run: cargo install --path . --force
