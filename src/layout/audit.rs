@@ -212,7 +212,7 @@ fn recursive_dependencies<'a>(
     nodes: &Nodes,
     n: &mut usize,
 ) {
-    dbg!(n);
+    dbg!(&n);
     *n += 1;
     for (direct_dep, dep_idx) in graph.edges(idx).map(|edge| {
         let dep = edge.weight();
