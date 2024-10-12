@@ -31,13 +31,8 @@ jobs:
         with:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: cargo bin
-        run: |
-          ls -alh ~/.cargo/bin/
-          cd ~
-          git clone https://github.com/rustsec/rustsec.git
-          cd rustsec
-          cargo install --path cargo-audit --force
+      - name: cargo audit
+        run: make audit
 
       - name: Prepare Makefile and repos JSONs
         run: |
