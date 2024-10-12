@@ -117,6 +117,20 @@ impl Resolve {
         resolved.extend(iter.map(cargo_mirai));
     }
 
+    pub fn audit(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
+        resolved.reserve(pkgs.len());
+        for pkg in pkgs {
+            if let Some(audit) = pkg.audit {
+                resolved.push(Self::new(
+                    pkg,
+                    CheckerTool::Audit,
+                    audit.cmd(),
+                    audit.cmd_expr(),
+                ));
+            }
+        }
+    }
+
     #[instrument(level = "trace")]
     pub fn custom(
         pkgs: &[Pkg],

@@ -24,7 +24,6 @@ use rustsec::{
         dependency::graph::{Graph, NodeIndex, Nodes},
         Dependency,
     },
-    package::Package,
     Report,
 };
 use std::rc::Rc;
@@ -67,6 +66,16 @@ impl CargoAudit {
 
     pub fn new(workspace_dir: &Utf8Path) -> Result<Rc<Self>> {
         cargo_audit(workspace_dir).map(Rc::new)
+    }
+
+    pub fn cmd(&self) -> String {
+        "cargo audit".to_owned()
+    }
+
+    pub fn cmd_expr(&self) -> duct::Expression {
+        let mut path = self.lock_file.clone();
+        path.pop();
+        cmd!("cargo", "audit").dir(path)
     }
 
     /// returns the map where the key is pkg name and the value is audit result
