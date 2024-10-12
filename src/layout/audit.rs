@@ -218,8 +218,9 @@ fn recursive_dependencies<'a>(
         (dep, *nodes.get(dep).unwrap())
     }) {
         println!("[n={n} dep_idx={}] {}", dep_idx.index(), direct_dep.name);
-        map.insert(direct_dep);
-        recursive_dependencies(map, dep_idx, graph, nodes, n);
+        if map.insert(direct_dep) {
+            recursive_dependencies(map, dep_idx, graph, nodes, n);
+        }
     }
 }
 
