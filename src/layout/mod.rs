@@ -8,12 +8,13 @@ use crate::{
     utils::walk_dir,
     Result, XString,
 };
+use audit::CargoAudit;
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
 use indexmap::IndexMap;
-use std::fmt;
+use std::{fmt, rc::Rc};
 
 #[cfg(test)]
 mod tests;
@@ -206,6 +207,9 @@ impl Layout {
         // 从根本上解决这个问题，必须不允许同名 package，比如统一成
         // 路径，或者对同名 package 进行检查，必须包含额外的路径。
         // 无论如何，这都带来复杂性，目前来看并不值得。
+
+        let audit = CargoAudit::new_for_pkgs(self.workspaces.keys())?;
+
         let map: IndexMap<_, _> = self
             .packages_info
             .iter()
@@ -216,6 +220,7 @@ impl Layout {
                         pkg_dir: info.pkg_dir.clone(),
                         targets: info.targets.keys().cloned().collect(),
                         toolchain: info.toolchain,
+                        audit: audit.get(&info.pkg_name).cloned(),
                     },
                 )
             })
@@ -363,6 +368,7 @@ impl Packages {
                             pkg_dir: Utf8PathBuf::new(),
                             targets: vec![host.clone()],
                             toolchain: Some(0),
+                            audit: None,
                         },
                     )
                 })
@@ -399,12 +405,15 @@ impl std::ops::Deref for Packages {
     }
 }
 
+type Audit = Option<Rc<CargoAudit>>;
+
 #[derive(Debug)]
 pub struct PackageInfoShared {
     /// manifest_dir, i.e. manifest_path without Cargo.toml
     pkg_dir: Utf8PathBuf,
     targets: Vec<String>,
     toolchain: Option<usize>,
+    audit: Audit,
 }
 
 impl PackageInfoShared {
@@ -417,6 +426,7 @@ impl PackageInfoShared {
                 dir: &self.pkg_dir,
                 target,
                 toolchain: self.toolchain,
+                audit: self.audit.as_deref(),
             })
             .collect()
     }
@@ -428,4 +438,5 @@ pub struct Pkg<'a> {
     pub dir: &'a Utf8Path,
     pub target: &'a str,
     pub toolchain: Option<usize>,
+    pub audit: Option<&'a CargoAudit>,
 }

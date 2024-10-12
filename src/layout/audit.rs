@@ -18,7 +18,7 @@
 use crate::{utils::cmd_run, Result, XString};
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 use rustsec::{
     cargo_lock::{
         dependency::graph::{Graph, NodeIndex, Nodes},
@@ -27,6 +27,7 @@ use rustsec::{
     package::Package,
     Report,
 };
+use std::rc::Rc;
 
 #[instrument(level = "info")]
 fn generate_lockfile(workspace_dir: &Utf8Path) -> Result<()> {
@@ -62,6 +63,25 @@ impl CargoAudit {
 
     pub fn output(&self) -> String {
         format!("{}\n{}", self.output, self.json)
+    }
+
+    pub fn new(workspace_dir: &Utf8Path) -> Result<Rc<Self>> {
+        cargo_audit(workspace_dir).map(Rc::new)
+    }
+
+    /// returns the map where the key is pkg name and the value is audit result
+    pub fn new_for_pkgs<'a>(
+        dirs: impl Iterator<Item = &'a Utf8PathBuf>,
+    ) -> Result<IndexMap<XString, Rc<Self>>> {
+        let mut map = IndexMap::new();
+        for dir in dirs {
+            let audit = Self::new(dir)?;
+            for pkg in &audit.problematic_pkgs {
+                // NOTE: there is supposed to be no pkg name aliasing.
+                map.insert(pkg.clone(), audit.clone());
+            }
+        }
+        Ok(map)
     }
 }
 
@@ -137,6 +157,8 @@ fn parse_cargo_lock(
             let idx = *nodes.get(dep).unwrap();
             recursive_dependencies(&mut map, idx, graph, nodes);
         }
+        // TODO: maybe we could point out which dependencies are problematic,
+        // though they are in output and json.
         for dep in problematic {
             // local pkg contains a problematic dependency in the graph
             if map.contains(&dep) {
