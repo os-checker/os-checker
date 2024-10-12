@@ -18,7 +18,7 @@ either = "1"
 schemars = { version = "1.0.0-alpha.15", features = ["preserve_order", "indexmap2"] }
 strip-ansi-escapes = "0.2"
 jsonxf = {git="https://github.com/os-checker/jsonxf.git", branch="make-getopts-optional", default-features = false}
-rustsec = { version = "0.29", default-features = false, features = ["dependency-tree"] }
+rustsec = { version = "0.30.0-rc.0", default-features = false, features = ["dependency-tree"] }
 # replace_with = "0.1"
 
 # error handling
