@@ -194,6 +194,7 @@ fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Re
             (Clippy, Left(true)) => Resolve::clippy(pkgs, v),
             (Lockbud, Left(true)) => Resolve::lockbud(pkgs, v),
             (Mirai, Left(true)) => Resolve::mirai(pkgs, v),
+            (Audit, Left(true)) => Resolve::audit(pkgs, v),
             (c, Right(s)) => Resolve::custom(pkgs, s, c, v)?,
             _ => (),
         }
