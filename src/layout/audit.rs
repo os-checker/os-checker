@@ -217,7 +217,7 @@ fn recursive_dependencies<'a>(
         let dep = edge.weight();
         (dep, *nodes.get(dep).unwrap())
     }) {
-        println!("[n={n} dep_idx={dep_idx}] {}", direct_dep.name);
+        println!("[n={n} dep_idx={}] {}", dep_idx.index(), direct_dep.name);
         map.insert(direct_dep);
         recursive_dependencies(map, dep_idx, graph, nodes, n);
     }
