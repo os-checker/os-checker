@@ -18,6 +18,7 @@
 use crate::{utils::cmd_run, Result, XString};
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
+use eyre::Context;
 use indexmap::{IndexMap, IndexSet};
 use rustsec::{
     cargo_lock::{
@@ -118,7 +119,8 @@ fn cargo_audit(workspace_dir: &Utf8Path) -> Result<CargoAudit> {
 
     let json = cmd_run("cargo", &["audit", "--json"], workspace_dir)?;
 
-    let report: rustsec::Report = serde_json::from_str(&json)?;
+    let report: rustsec::Report = serde_json::from_str(&json)
+        .with_context(|| format!("Fail to parse json as a rustsec::Report:\n{json}"))?;
     if !report.vulnerabilities.found && report.warnings.is_empty() {
         return Ok(CargoAudit {
             problematic_pkgs: vec![],
