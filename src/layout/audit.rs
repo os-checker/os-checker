@@ -62,6 +62,10 @@ impl CargoAudit {
         !self.problematic_pkgs.is_empty()
     }
 
+    // FIXME: There might possibily be a Cargo error output, because cargo-audit itself
+    // might fail due to like Cargo.lock format version changes.
+    // So it'd be better to emit normal output or Cargo output.
+    // See https://github.com/os-checker/os-checker/issues/42#issuecomment-2408453064
     pub fn output(&self) -> &str {
         &self.output
     }

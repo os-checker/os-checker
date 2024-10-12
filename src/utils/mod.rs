@@ -95,7 +95,7 @@ pub fn cmd_run(bin: &str, args: &[&str], dir: &Utf8Path) -> Result<String> {
 
     if !output.status.success() {
         let raw_err = String::from_utf8_lossy(&output.stderr);
-        bail!("{raw_err}");
+        bail!("raw_err={raw_err}");
     }
 
     String::from_utf8(output.stdout).with_context(|| "stdout contains invalid UTF-8 chars")
