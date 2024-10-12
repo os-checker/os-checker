@@ -174,6 +174,7 @@ pub enum Kind {
     Miri,
     /// semver-checks
     SemverViolation,
+    Audit,
     Mirai,
     #[serde(rename = "Lockbud(Probably)")]
     LockbudProbably,
@@ -197,6 +198,7 @@ impl Kinds {
                 Cargo,
                 ClippyError,
                 ClippyWarn,
+                Audit,
                 Mirai,
                 LockbudProbably,
                 LockbudPossibly,
@@ -205,6 +207,7 @@ impl Kinds {
             mapping: serde_json::json!({
                 "cargo": [Cargo],
                 "clippy": [ClippyError, ClippyWarn],
+                "audit": [Audit],
                 "mirai": [Mirai],
                 "lockbud": [LockbudProbably, LockbudPossibly],
                 "fmt": [Unformatted]

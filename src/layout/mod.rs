@@ -8,12 +8,13 @@ use crate::{
     utils::walk_dir,
     Result, XString,
 };
+use audit::CargoAudit;
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
 use indexmap::IndexMap;
-use std::fmt;
+use std::{fmt, rc::Rc};
 
 #[cfg(test)]
 mod tests;
@@ -24,6 +25,9 @@ use targets::PackageInfo;
 
 mod detect_targets;
 pub use detect_targets::RustToolchain;
+
+/// run cargo audit but share the result with related pkgs
+mod audit;
 
 /// 寻找仓库内所有 Cargo.toml 所在的路径
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
@@ -48,19 +52,9 @@ pub type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
 fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
     let mut map = IndexMap::new();
     for cargo_toml in cargo_tomls {
-        // 暂时不解析依赖的原因：
-        // * 不需要依赖信息
-        // * 加快的解析速度
-        // * 如何处理 features? features 会影响依赖吗？（待确认）
-        //
-        // 需要解析依赖的原因：
-        // * 从 `[target.'cfg(...)'.*dependencies]` 中搜索 target：注意，如果这一条会比较难，因为
-        //   有可能它为 target_os 或者 target_family 之类宽泛的平台名称，与我们所需的三元组不直接相关。
-        //
-        // [`DepKindInfo`]: https://docs.rs/cargo_metadata/0.18.1/cargo_metadata/struct.DepKindInfo.html#structfield.target
+        // NOTE: 一旦支持 features，这里可能需要传递它们
         let metadata = MetadataCommand::new()
             .manifest_path(cargo_toml)
-            .no_deps()
             .exec()
             .map_err(|err| eyre!("无法读取 cargo metadata 的结果：{err}"))?;
         let root = &metadata.workspace_root;
@@ -205,7 +199,6 @@ impl Layout {
         &self.root_path
     }
 
-    #[instrument(level = "trace")]
     pub fn packages(&self) -> Result<Packages> {
         // FIXME: 这里开始假设一个仓库不存在同名 package；这其实不正确：
         // 如果具有多个 workspaces，那么可能存在同名 package。
@@ -214,6 +207,9 @@ impl Layout {
         // 从根本上解决这个问题，必须不允许同名 package，比如统一成
         // 路径，或者对同名 package 进行检查，必须包含额外的路径。
         // 无论如何，这都带来复杂性，目前来看并不值得。
+
+        let audit = CargoAudit::new_for_pkgs(self.workspaces.keys())?;
+
         let map: IndexMap<_, _> = self
             .packages_info
             .iter()
@@ -224,6 +220,7 @@ impl Layout {
                         pkg_dir: info.pkg_dir.clone(),
                         targets: info.targets.keys().cloned().collect(),
                         toolchain: info.toolchain,
+                        audit: audit.get(&info.pkg_name).cloned(),
                     },
                 )
             })
@@ -371,6 +368,7 @@ impl Packages {
                             pkg_dir: Utf8PathBuf::new(),
                             targets: vec![host.clone()],
                             toolchain: Some(0),
+                            audit: None,
                         },
                     )
                 })
@@ -407,12 +405,15 @@ impl std::ops::Deref for Packages {
     }
 }
 
+pub type Audit = Option<Rc<CargoAudit>>;
+
 #[derive(Debug)]
 pub struct PackageInfoShared {
     /// manifest_dir, i.e. manifest_path without Cargo.toml
     pkg_dir: Utf8PathBuf,
     targets: Vec<String>,
     toolchain: Option<usize>,
+    audit: Audit,
 }
 
 impl PackageInfoShared {
@@ -425,6 +426,7 @@ impl PackageInfoShared {
                 dir: &self.pkg_dir,
                 target,
                 toolchain: self.toolchain,
+                audit: self.audit.as_ref(),
             })
             .collect()
     }
@@ -436,4 +438,5 @@ pub struct Pkg<'a> {
     pub dir: &'a Utf8Path,
     pub target: &'a str,
     pub toolchain: Option<usize>,
+    pub audit: Option<&'a Rc<CargoAudit>>,
 }

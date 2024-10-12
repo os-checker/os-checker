@@ -7,6 +7,7 @@ use crate::{
     db::{
         out::CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db, InfoKeyValue, OutputDataInner,
     },
+    layout::Audit,
     output::{Cmd, Data, Kind},
     Result,
 };
@@ -47,6 +48,7 @@ impl RawOutput {
         let data = match &self.parsed {
             OutputParsed::Fmt(v) => data_unformatted(v, root),
             OutputParsed::Clippy(v) => data_rustc(CheckerTool::Clippy, v, root),
+            OutputParsed::Audit(a) => data_audit(a, root),
             OutputParsed::Mirai(v) => data_rustc(CheckerTool::Mirai, v, root),
             OutputParsed::Lockbud(s) => data_lockbud(s),
             OutputParsed::Cargo { source, stderr } => data_cargo(source, stderr),
@@ -129,6 +131,16 @@ fn data_lockbud(s: &str) -> Vec<OutputDataInner> {
         };
         let data = OutputDataInner::new("Not supported to display yet.".into(), kind, s.to_owned());
         vec![data]
+    }
+}
+
+fn data_audit(a: &Audit, root: &Utf8Path) -> Vec<OutputDataInner> {
+    if let Some(audit) = a {
+        let file = strip_prefix(audit.lock_file(), root).to_owned();
+        let raw = audit.output().to_owned();
+        vec![OutputDataInner::new(file, Kind::Audit, raw)]
+    } else {
+        vec![]
     }
 }
 

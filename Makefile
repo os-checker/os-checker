@@ -34,3 +34,14 @@ clone_database:
 # print repos info without installing anything
 layout:
 	@os-checker layout $(ARGS_CONFIGS) 2>&1 | tee $(BATCH_DIR)/layout.txt
+
+audit:
+	gh release download --clobber -R os-checker/database $(TAG_CACHE) -p cargo-audit -D ~/.cargo/bin/ || make install_audit
+
+install_audit:
+	ls -alh ~/.cargo/bin/ \
+		&& cd ~ \
+		&& git clone https://github.com/rustsec/rustsec.git \
+		&& cd rustsec \
+		&& cargo install --path cargo-audit --force \
+		&& gh release upload --clobber -R os-checker/database $(TAG_CACHE) ~/.cargo/bin/cargo-audit

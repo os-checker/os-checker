@@ -194,7 +194,6 @@ fn main() -> Result<()> {
 }
 
 /// 写入 filetree 和 repos 的 filetree 数据；这无需聚合
-#[instrument(level = "trace")]
 fn write_filetree(json: &JsonOutput) -> Result<()> {
     let file_tree_all = file_tree::all_targets(json);
     write_to_file(FILETREE_DIR, ALL_TARGETS, &file_tree_all)?;
