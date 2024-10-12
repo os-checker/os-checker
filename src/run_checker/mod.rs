@@ -1,7 +1,7 @@
 use crate::{
     config::{CheckerTool, Config, Resolve},
     db::{CacheRepo, InfoKeyValue},
-    layout::Layout,
+    layout::{Audit, Layout},
     output::JsonOutput,
     Result, XString,
 };
@@ -389,7 +389,7 @@ fn run_check(
         ),
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
         CheckerTool::Miri => todo!(),
-        CheckerTool::Audit => todo!(),
+        CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::SemverChecks => todo!(),
         // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
         CheckerTool::Cargo => panic!("Don't specify cargo as a checker. It's a virtual one."),
@@ -412,6 +412,7 @@ fn run_check(
 enum OutputParsed {
     Fmt(Box<[FmtMessage]>),
     Clippy(Box<[RustcMessage]>),
+    Audit(Audit),
     Mirai(Box<[RustcMessage]>),
     Lockbud(String),
     Cargo { source: CargoSource, stderr: String },
@@ -457,6 +458,11 @@ impl OutputParsed {
                     1
                 }
             }
+            // 这个计数也是粗糙的
+            OutputParsed::Audit(audit) => audit
+                .as_deref()
+                .map(|a| a.is_problematic() as usize)
+                .unwrap_or(0),
             // NOTE: 这个计数不准确，但也不能调用 Vec:::len，因为它包含的 Vec 是动态的，
             // 而最终输出到 JSON 的计数并不调用此方法，因此这里简单的设置为 0，
             // 虽然从最终计数看，cargo 的诊断数量应为 Vec::len。

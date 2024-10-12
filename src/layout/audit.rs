@@ -36,20 +36,22 @@ fn generate_lockfile(workspace_dir: &Utf8Path) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub struct CargoAudit {
-    pub problematic_pkgs: Vec<XString>,
-    pub output: String,
-    pub json: String,
+    problematic_pkgs: Vec<XString>,
+    tree: String,
+    json: String,
+    output: String,
     /// parsed from json
-    pub report: Report,
-    pub lock_file: Utf8PathBuf,
+    report: Report,
+    lock_file: Utf8PathBuf,
 }
 
 impl std::fmt::Debug for CargoAudit {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("CargoAudit")
             .field("problematic_pkgs", &self.problematic_pkgs)
-            .field("output", &self.output)
+            .field("tree", &self.tree)
             .field("lock_file", &self.lock_file)
             .finish()
     }
@@ -60,8 +62,12 @@ impl CargoAudit {
         !self.problematic_pkgs.is_empty()
     }
 
-    pub fn output(&self) -> String {
-        format!("{}\n{}", self.output, self.json)
+    pub fn output(&self) -> &str {
+        &self.output
+    }
+
+    pub fn lock_file(&self) -> &Utf8Path {
+        &self.lock_file
     }
 
     pub fn new(workspace_dir: &Utf8Path) -> Result<Rc<Self>> {
@@ -72,6 +78,8 @@ impl CargoAudit {
         "cargo audit".to_owned()
     }
 
+    /// NOTE: this is not meaningful because cargo-audit only needs
+    /// Cargo.lock, but members may not have it.
     pub fn cmd_expr(&self) -> duct::Expression {
         let mut path = self.lock_file.clone();
         path.pop();
@@ -110,14 +118,15 @@ fn cargo_audit(workspace_dir: &Utf8Path) -> Result<CargoAudit> {
     if !report.vulnerabilities.found && report.warnings.is_empty() {
         return Ok(CargoAudit {
             problematic_pkgs: vec![],
-            output: String::new(),
+            tree: String::new(),
             json,
+            output: String::new(),
             report,
             lock_file,
         });
     }
 
-    let output = cmd_run("cargo", &["audit"], workspace_dir)?;
+    let tree = cmd_run("cargo", &["audit"], workspace_dir)?;
 
     let mut problematic = IndexSet::<Dependency>::new();
     let vulnerable = &report.vulnerabilities.list;
@@ -127,15 +136,19 @@ fn cargo_audit(workspace_dir: &Utf8Path) -> Result<CargoAudit> {
 
     let problematic_pkgs = parse_cargo_lock(&lock_file, &problematic)?;
 
-    let json = match jsonxf::pretty_print(&json) {
-        Ok(json) => json,
-        Err(json) => json,
+    let output = {
+        let json = match jsonxf::pretty_print(&json) {
+            Ok(json) => json,
+            Err(json) => json,
+        };
+        format!("{tree}\n{json}")
     };
 
     Ok(CargoAudit {
         problematic_pkgs,
-        output,
+        tree,
         json,
+        output,
         report,
         lock_file,
     })

@@ -405,7 +405,7 @@ impl std::ops::Deref for Packages {
     }
 }
 
-type Audit = Option<Rc<CargoAudit>>;
+pub type Audit = Option<Rc<CargoAudit>>;
 
 #[derive(Debug)]
 pub struct PackageInfoShared {
@@ -426,7 +426,7 @@ impl PackageInfoShared {
                 dir: &self.pkg_dir,
                 target,
                 toolchain: self.toolchain,
-                audit: self.audit.as_deref(),
+                audit: self.audit.as_ref(),
             })
             .collect()
     }
@@ -438,5 +438,5 @@ pub struct Pkg<'a> {
     pub dir: &'a Utf8Path,
     pub target: &'a str,
     pub toolchain: Option<usize>,
-    pub audit: Option<&'a CargoAudit>,
+    pub audit: Option<&'a Rc<CargoAudit>>,
 }

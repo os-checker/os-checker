@@ -8,7 +8,7 @@
 
 use super::{cargo_clippy, cargo_fmt, cargo_lockbud, cargo_mirai, checker::CheckerTool, custom};
 use crate::{
-    layout::Pkg,
+    layout::{Audit, Pkg},
     output::{get_toolchain, host_target_triple},
     Result, XString,
 };
@@ -30,6 +30,8 @@ pub struct Resolve {
     pub cmd: String,
     /// 待运行的检查命令
     pub expr: Expression,
+    /// The result of cargo-audit has already been there.
+    pub audit: Audit,
 }
 
 impl Resolve {
@@ -44,6 +46,7 @@ impl Resolve {
             checker,
             cmd,
             expr,
+            audit: None,
         }
     }
 
@@ -64,6 +67,7 @@ impl Resolve {
             checker,
             cmd,
             expr,
+            audit: None,
         }
     }
 
@@ -78,6 +82,7 @@ impl Resolve {
             checker: CheckerTool::Cargo,
             cmd: format!("VRITUAL={} cargo", self.checker.name()),
             expr: duct::cmd!("false"), // 无实际含义
+            audit: None,
         }
     }
 
@@ -92,6 +97,7 @@ impl Resolve {
             checker: CheckerTool::Cargo,
             cmd: "VRITUAL=LayoutParseError cargo".to_owned(),
             expr: duct::cmd!("false"), // 无实际含义
+            audit: None,
         }
     }
 
@@ -121,12 +127,9 @@ impl Resolve {
         resolved.reserve(pkgs.len());
         for pkg in pkgs {
             if let Some(audit) = pkg.audit {
-                resolved.push(Self::new(
-                    pkg,
-                    CheckerTool::Audit,
-                    audit.cmd(),
-                    audit.cmd_expr(),
-                ));
+                let mut val = Self::new(pkg, CheckerTool::Audit, audit.cmd(), audit.cmd_expr());
+                val.audit = Some(audit.clone());
+                resolved.push(val);
             }
         }
     }
