@@ -25,6 +25,9 @@ use targets::PackageInfo;
 mod detect_targets;
 pub use detect_targets::RustToolchain;
 
+/// run cargo audit but share the result with related pkgs
+mod audit;
+
 /// 寻找仓库内所有 Cargo.toml 所在的路径
 fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
     let mut cargo_tomls = walk_dir(repo_root, 10, dirs_excluded, |file_path| {
@@ -195,7 +198,6 @@ impl Layout {
         &self.root_path
     }
 
-    #[instrument(level = "trace")]
     pub fn packages(&self) -> Result<Packages> {
         // FIXME: 这里开始假设一个仓库不存在同名 package；这其实不正确：
         // 如果具有多个 workspaces，那么可能存在同名 package。

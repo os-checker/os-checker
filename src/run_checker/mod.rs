@@ -117,7 +117,6 @@ impl Repo {
         }
     }
 
-    #[instrument(level = "trace")]
     fn resolve(&self) -> Result<Either<Vec<Resolve>, &str>> {
         match self.layout.get_parse_error() {
             Some(err) => Ok(Either::Right(err)),

@@ -9,7 +9,7 @@ use eyre::Context;
 
 /// 安装工具链。dir 一般指向 rust-toolchain 所在的目录。
 /// 安装成功时，返回 stdout 的字节（即 rustup show 的输出。
-#[instrument(level = "trace")]
+#[instrument(level = "info")]
 pub fn install_toolchain(dir: &Utf8Path) -> Result<Vec<u8>> {
     let output = cmd!("rustup", "show")
         .dir(dir)
