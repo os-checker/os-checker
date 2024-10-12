@@ -1,9 +1,3 @@
 {
-  "os-checker/os-checker": {},
-  "os-checker/os-checker-test-suite": {},
-  "Byte-OS/lose-net-stack": {
-    "cmds": {
-      "audit": false
-    }
-  }
+  "arceos-org/arceos": {}
 }
