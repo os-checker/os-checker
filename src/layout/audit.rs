@@ -117,7 +117,12 @@ fn cargo_audit(workspace_dir: &Utf8Path) -> Result<CargoAudit> {
         generate_lockfile(workspace_dir)?;
     }
 
-    let json = cmd_run("cargo", &["audit", "--json", "-c", "never"], workspace_dir)?;
+    let json = cmd_run(
+        "cargo",
+        &["audit", "--json", "-c", "never"],
+        workspace_dir,
+        true,
+    )?;
 
     let report: rustsec::Report = serde_json::from_str(&json)
         .with_context(|| format!("Fail to parse json as a rustsec::Report:\n{json}"))?;
@@ -132,7 +137,7 @@ fn cargo_audit(workspace_dir: &Utf8Path) -> Result<CargoAudit> {
         });
     }
 
-    let tree = cmd_run("cargo", &["audit", "-c", "never"], workspace_dir)?;
+    let tree = cmd_run("cargo", &["audit", "-c", "never"], workspace_dir, true)?;
 
     let mut problematic = IndexSet::<Dependency>::new();
     let vulnerable = &report.vulnerabilities.list;

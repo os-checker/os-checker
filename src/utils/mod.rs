@@ -83,7 +83,9 @@ pub fn execution_time_ms<T>(op: impl FnOnce() -> T) -> (u64, T) {
     (duration_ms, value)
 }
 
-pub fn cmd_run(bin: &str, args: &[&str], dir: &Utf8Path) -> Result<String> {
+/// ignore_fail means when the cmd returns error, still reads stdout.
+/// It must be set to true when a checker use exit code to indicate bad diagnostics.
+pub fn cmd_run(bin: &str, args: &[&str], dir: &Utf8Path, ignore_fail: bool) -> Result<String> {
     let _span = error_span!("cmd_run", bin, ?args).entered();
 
     let output = cmd(bin, args)
@@ -93,7 +95,7 @@ pub fn cmd_run(bin: &str, args: &[&str], dir: &Utf8Path) -> Result<String> {
         .stderr_capture()
         .run()?;
 
-    if !output.status.success() {
+    if !ignore_fail && !output.status.success() {
         let raw_err = String::from_utf8_lossy(&output.stderr);
         bail!("raw_err={raw_err}");
     }
