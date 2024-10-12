@@ -184,11 +184,13 @@ fn parse_cargo_lock(
     let mut problematic_local_pkgs = Vec::new();
 
     let mut map = IndexSet::<&Dependency>::new();
+    let mut n = 0;
     for pkg in &local_pkgs {
         map.clear();
+        n = 0;
         for dep in &pkg.dependencies {
             let idx = *nodes.get(dep).unwrap();
-            recursive_dependencies(&mut map, idx, graph, nodes);
+            recursive_dependencies(&mut map, idx, graph, nodes, &mut n);
         }
         // TODO: maybe we could point out which dependencies are problematic,
         // though they are in output and json.
@@ -208,13 +210,16 @@ fn recursive_dependencies<'a>(
     idx: NodeIndex,
     graph: &'a Graph,
     nodes: &Nodes,
+    n: &mut usize,
 ) {
+    dbg!(n);
+    *n += 1;
     for (direct_dep, dep_idx) in graph.edges(idx).map(|edge| {
         let dep = edge.weight();
         (dep, *nodes.get(dep).unwrap())
     }) {
         map.insert(direct_dep);
-        recursive_dependencies(map, dep_idx, graph, nodes);
+        recursive_dependencies(map, dep_idx, graph, nodes, n);
     }
 }
 
