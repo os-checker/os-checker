@@ -180,6 +180,7 @@ pub enum Kind {
     LockbudProbably,
     #[serde(rename = "Lockbud(Possibly)")]
     LockbudPossibly,
+    Rap,
     Cargo,
 }
 

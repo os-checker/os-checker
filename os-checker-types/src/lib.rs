@@ -139,6 +139,7 @@ pub enum Kind {
     LockbudProbably,
     #[serde(rename = "Lockbud(Possibly)")]
     LockbudPossibly,
+    Rap,
     Cargo,
 }
 
@@ -155,6 +156,7 @@ impl Kind {
             Kind::Mirai => "Mirai",
             Kind::LockbudProbably => "Lockbud(Probably)",
             Kind::LockbudPossibly => "Lockbud(Possibly)",
+            Kind::Rap => "Rap",
             Kind::Cargo => "Cargo",
         }
     }
@@ -179,5 +181,6 @@ pub enum CheckerTool {
     Audit,
     Mirai,
     Lockbud,
+    Rap,
     Fmt,
 }

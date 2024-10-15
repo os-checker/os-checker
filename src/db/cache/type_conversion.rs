@@ -124,6 +124,7 @@ impl From<CheckerTool> for os_checker_types::CheckerTool {
             CheckerTool::Audit => Self::Audit,
             CheckerTool::Mirai => Self::Mirai,
             CheckerTool::Lockbud => Self::Lockbud,
+            CheckerTool::Rap => Self::Rap,
             CheckerTool::Cargo => Self::Cargo,
         }
     }
@@ -141,6 +142,7 @@ impl From<Kind> for os_checker_types::Kind {
             Kind::Mirai => Self::Mirai,
             Kind::LockbudProbably => Self::LockbudProbably,
             Kind::LockbudPossibly => Self::LockbudPossibly,
+            Kind::Rap => Self::Rap,
             Kind::Cargo => Self::Cargo,
         }
     }
@@ -265,6 +267,7 @@ impl From<os_checker_types::CheckerTool> for CheckerTool {
             os_checker_types::CheckerTool::Audit => Self::Audit,
             os_checker_types::CheckerTool::Mirai => Self::Mirai,
             os_checker_types::CheckerTool::Lockbud => Self::Lockbud,
+            os_checker_types::CheckerTool::Rap => Self::Rap,
             os_checker_types::CheckerTool::Cargo => Self::Cargo,
         }
     }
@@ -282,6 +285,7 @@ impl From<os_checker_types::Kind> for Kind {
             os_checker_types::Kind::Mirai => Self::Mirai,
             os_checker_types::Kind::LockbudProbably => Self::LockbudProbably,
             os_checker_types::Kind::LockbudPossibly => Self::LockbudPossibly,
+            os_checker_types::Kind::Rap => Self::Rap,
             os_checker_types::Kind::Cargo => Self::Cargo,
         }
     }
