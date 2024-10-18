@@ -16,8 +16,7 @@ upload:
 	XZ_OPT=-e9 tar -cJvf cache.redb.tar.xz cache.redb
 	ls -alh
 	gh release upload --clobber -R os-checker/database $(TAG_CACHE) cache.redb.tar.xz
-	cp ~/.cargo/os-checker os-checker
-	gh release upload --clobber -R os-checker/database $(TAG_CACHE) os-checker
+	gh release upload --clobber -R os-checker/database $(TAG_CACHE) ~/.cargo/bin/os-checker
 
 run:
 	@os-checker run $(ARGS_CONFIGS) --emit $(SINGLE_JSON) --db cache.redb
