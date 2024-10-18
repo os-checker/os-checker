@@ -52,10 +52,12 @@ jobs:
         with:
           components: rustfmt, clippy
 
-      - name: Install checkers
+      - name: Install Checkers
         run: |
-          # 安装 lockbud，减少源码编译的时间
+          # install lockbud 
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/lockbud/releases/download/v0.1.0/lockbud-installer.sh | sh
+          # install mirai
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh | sh
           # install rap
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p rap -p cargo-rap 
           chmod +x rap && mv rap ~/.cargo/bin/
