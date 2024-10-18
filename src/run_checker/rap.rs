@@ -16,7 +16,7 @@ pub fn parse_rap_result(stderr: &[u8]) -> String {
     _ = writer.flush();
     let bytes = writer.into_inner().unwrap();
     let rap_output = String::from_utf8_lossy(&bytes).into_owned();
-    info!(rap_output);
+    info!(rap_output, ?stderr);
     rap_output
 }
 
