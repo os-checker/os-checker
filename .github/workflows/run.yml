@@ -48,6 +48,8 @@ jobs:
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p rap -p cargo-rap # install rap
           mv rap ~/.cargo/bin/
           mv cargo-rap ~/.cargo/bin/
+          ls -alh ~/.cargo/bin/
+          which rap
           # tar -xJvf cache.redb.tar.xz
           ls -alh
 
