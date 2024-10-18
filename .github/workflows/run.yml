@@ -17,10 +17,10 @@ env:
   # cache.redb tag in database release
   TAG_CACHE: cache-v6.redb
   # force downloading repos and check running
-  FORCE_REPO_CHECK: false
+  FORCE_REPO_CHECK: true
   # use which configs
-  # CONFIGS: repos.json # for debug single repo
-  CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
+  CONFIGS: repos.json # for debug single repo
+  # CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
 
 jobs:
   run:
@@ -45,7 +45,7 @@ jobs:
           cp assets/repos-embassy.json ~/check/
           cd ~/check
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
-          # gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb.tar.xz
+          gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p rap cargo-rap # install rap
           # tar -xJvf cache.redb.tar.xz
           ls -alh
 
