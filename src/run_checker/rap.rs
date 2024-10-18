@@ -1,22 +1,16 @@
-use std::io::Write;
+use std::fmt::Write;
 
 /// See https://github.com/Artisan-Lab/RAP/issues/53
 pub fn parse_rap_result(stderr: &[u8]) -> String {
     // rap doesn't provide no-color option
     let stderr = String::from_utf8(strip_ansi_escapes::strip(stderr)).unwrap();
-    let mut writer = strip_ansi_escapes::Writer::new(Vec::with_capacity(stderr.len() / 2));
+    let mut rap_output = String::with_capacity(stderr.len() / 2);
 
     for line in stderr.lines() {
         if line.contains("RAP-FRONT|WARN") {
-            match writer.write_all(line.as_bytes()) {
-                Ok(_) => _ = writer.write(b"\n"),
-                Err(err) => error!(line, ?err, "strip_ansi_escapes for rap output"),
-            }
+            _ = writeln!(&mut rap_output, "{line}");
         }
     }
-    _ = writer.flush();
-    let bytes = writer.into_inner().unwrap();
-    let rap_output = String::from_utf8_lossy(&bytes).into_owned();
     info!(rap_output, ?stderr);
     rap_output
 }
