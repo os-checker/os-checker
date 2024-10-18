@@ -9,8 +9,7 @@ use itertools::Itertools;
 use serde::{ser::SerializeMap, Deserialize, Serialize, Serializer};
 use serde_json::Value;
 
-mod cmd;
-use cmd::*;
+pub mod cmd;
 
 mod resolve;
 pub use resolve::Resolve;

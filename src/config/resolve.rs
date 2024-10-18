@@ -6,7 +6,7 @@
 //!     * 如果指定包名，则校验是否定义于仓库内：需要 repo layout 信息
 //!     * 如果指定 features，则校验是否定义于 package 内：需要 cargo metadata 信息
 
-use super::{cargo_clippy, cargo_fmt, cargo_lockbud, cargo_mirai, checker::CheckerTool, custom};
+use super::{cmd::*, CheckerTool};
 use crate::{
     layout::{Audit, Pkg},
     output::{get_toolchain, host_target_triple},
@@ -131,6 +131,14 @@ impl Resolve {
                 val.audit = Some(audit.clone());
                 resolved.push(val);
             }
+        }
+    }
+
+    pub fn rap(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
+        resolved.reserve(pkgs.len() * 2);
+        for pkg in pkgs {
+            resolved.push(cargo_rap_uaf(pkg));
+            resolved.push(cargo_rap_memoryleak(pkg));
         }
     }
 
