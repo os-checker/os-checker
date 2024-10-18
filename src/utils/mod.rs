@@ -18,6 +18,9 @@ pub const BASE_DIR_CHECKERS: &str = "/tmp/os-checker/checkers";
 /// 特殊的编译目标，os-checker 目前不支持在这上面运行检查。
 pub const PECULIAR_TARGETS: &[&str] = &["x86_64-fuchsia", "avr-unknown-gnu-atmega328"];
 
+/// 本机工具链（目前假设 CI 的运行平台）
+pub const HOST_TARGET: &str = "x86_64-unknown-linux-gnu";
+
 /// 检查工具固定的工具链
 pub const PLUS_TOOLCHAIN_HOST: &str = "+nightly";
 pub const TOOLCHAIN_LOCKBUD: &str = "nightly-2024-05-21";

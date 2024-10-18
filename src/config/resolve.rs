@@ -10,6 +10,7 @@ use super::{cmd::*, CheckerTool};
 use crate::{
     layout::{Audit, Pkg},
     output::{get_toolchain, host_target_triple},
+    utils::HOST_TARGET,
     Result, XString,
 };
 use cargo_metadata::camino::Utf8PathBuf;
@@ -117,9 +118,7 @@ impl Resolve {
     /// 因此只在某些条件下开启。
     pub fn mirai(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
         // 暂时只在 x86_64-unknown-linux-gnu 上检查
-        let iter = pkgs
-            .iter()
-            .filter(|pkg| pkg.target == "x86_64-unknown-linux-gnu");
+        let iter = pkgs.iter().filter(|pkg| pkg.target == HOST_TARGET);
         resolved.extend(iter.map(cargo_mirai));
     }
 
@@ -137,8 +136,11 @@ impl Resolve {
     pub fn rap(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
         resolved.reserve(pkgs.len() * 2);
         for pkg in pkgs {
-            resolved.push(cargo_rap_uaf(pkg));
-            resolved.push(cargo_rap_memoryleak(pkg));
+            // FIXME: 暂时只在 x86_64-unknown-linux-gnu 上检查，因为 Rap 尚未支持 --target 参数
+            if pkg.target == HOST_TARGET {
+                resolved.push(cargo_rap_uaf(pkg));
+                resolved.push(cargo_rap_memoryleak(pkg));
+            }
         }
     }
 
