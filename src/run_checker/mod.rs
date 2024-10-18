@@ -328,7 +328,7 @@ fn run_check(
     db_repo: Option<DbRepo>,
 ) -> Result<()> {
     // 从缓存中获取结果，如果获取成功，则不执行实际的检查
-    if outputs.fetch_cache(&resolve, db_repo) {
+    if !resolve.force_check() && outputs.fetch_cache(&resolve, db_repo) {
         return Ok(());
     }
 

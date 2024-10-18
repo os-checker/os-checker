@@ -144,6 +144,11 @@ impl Resolve {
         }
     }
 
+    /// force checking even if a cache exists
+    pub fn force_check(&self) -> bool {
+        matches!(self.checker, CheckerTool::Rap)
+    }
+
     #[instrument(level = "trace")]
     pub fn custom(
         pkgs: &[Pkg],
