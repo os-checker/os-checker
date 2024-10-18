@@ -11,7 +11,7 @@ pub fn parse_rap_result(stderr: &[u8]) -> String {
             _ = writeln!(&mut rap_output, "{line}");
         }
     }
-    info!(rap_output, ?stderr);
+    // info!(rap_output, ?stderr);
     rap_output
 }
 
