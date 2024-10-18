@@ -51,6 +51,7 @@ impl RawOutput {
             OutputParsed::Audit(a) => data_audit(a, root),
             OutputParsed::Mirai(v) => data_rustc(CheckerTool::Mirai, v, root),
             OutputParsed::Lockbud(s) => data_lockbud(s),
+            OutputParsed::Rap(s) => data_rap(s),
             OutputParsed::Cargo { source, stderr } => data_cargo(source, stderr),
         };
 
@@ -129,7 +130,25 @@ fn data_lockbud(s: &str) -> Vec<OutputDataInner> {
         } else {
             Kind::LockbudProbably
         };
-        let data = OutputDataInner::new("Not supported to display yet.".into(), kind, s.to_owned());
+        let data = OutputDataInner::new(
+            "[lockbud] Not supported to display yet.".into(),
+            kind,
+            s.to_owned(),
+        );
+        vec![data]
+    }
+}
+
+fn data_rap(s: &str) -> Vec<OutputDataInner> {
+    if s.is_empty() {
+        Vec::new()
+    } else {
+        // FIXME: 目前 rap 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
+        let data = OutputDataInner::new(
+            "[rap] Not supported to display yet.".into(),
+            Kind::Rap,
+            s.to_owned(),
+        );
         vec![data]
     }
 }

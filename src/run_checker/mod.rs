@@ -17,6 +17,8 @@ use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
 
 mod lockbud;
+mod rap;
+
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
 pub use utils::DbRepo;
@@ -388,7 +390,7 @@ fn run_check(
                 .collect::<Result<_>>()?,
         ),
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
-        CheckerTool::Rap => todo!(),
+        CheckerTool::Rap => OutputParsed::Rap(rap::parse_rap_result(&raw.stderr)),
         CheckerTool::Miri => todo!(),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::SemverChecks => todo!(),
@@ -415,7 +417,9 @@ enum OutputParsed {
     Clippy(Box<[RustcMessage]>),
     Audit(Audit),
     Mirai(Box<[RustcMessage]>),
+    // TODO: a good type for Lockbud and Rap output is Option<String>
     Lockbud(String),
+    Rap(String),
     Cargo { source: CargoSource, stderr: String },
 }
 
@@ -452,7 +456,7 @@ impl OutputParsed {
                     _ => None,
                 })
                 .sum(),
-            OutputParsed::Lockbud(s) => {
+            OutputParsed::Lockbud(s) | OutputParsed::Rap(s) => {
                 if s.is_empty() {
                     0
                 } else {
