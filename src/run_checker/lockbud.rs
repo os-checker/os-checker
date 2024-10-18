@@ -2,7 +2,8 @@ use super::CargoMessage;
 
 #[cfg(test)]
 pub fn get_lockbud_result() -> crate::Result<String> {
-    let out = duct::cmd!("cargo", "+nightly-2024-05-21", "lockbud", "-k", "all")
+    let toolchain = crate::utils::PLUS_TOOLCHAIN_LOCKBUD;
+    let out = duct::cmd!("cargo", toolchain, "lockbud", "-k", "all")
         .dir("repos/os-checker-test-suite")
         .stderr_capture()
         .run()?;

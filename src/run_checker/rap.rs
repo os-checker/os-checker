@@ -7,12 +7,29 @@ pub fn parse_rap_result(stderr: &[u8]) -> String {
 
     for line in stderr.lines() {
         if line.contains("RAP-FRONT|WARN") {
-            if let Err(err) = writer.write_all(line.as_bytes()) {
-                error!(line, ?err, "strip_ansi_escapes for rap output");
+            match writer.write_all(line.as_bytes()) {
+                Ok(_) => _ = writer.write(b"\n"),
+                Err(err) => error!(line, ?err, "strip_ansi_escapes for rap output"),
             }
         }
     }
     _ = writer.flush();
     let bytes = writer.into_inner().unwrap();
     String::from_utf8_lossy(&bytes).into_owned()
+}
+
+#[test]
+pub fn get_rap_result() -> crate::Result<()> {
+    let toolchain = crate::utils::PLUS_TOOLCHAIN_RAP;
+    let out = duct::cmd!("cargo", toolchain, "rap", "-F")
+        .dir("../os-checker-test-suite/rap-checks-this")
+        .stderr_capture()
+        .unchecked()
+        .run()?;
+    println!(
+        "stderr={}\nparsed={}",
+        std::str::from_utf8(&out.stderr).unwrap(),
+        parse_rap_result(&out.stderr)
+    );
+    Ok(())
 }
