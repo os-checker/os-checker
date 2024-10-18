@@ -52,6 +52,16 @@ jobs:
         with:
           components: rustfmt, clippy
 
+      - name: Install checkers
+        run: |
+          # 安装 lockbud，减少源码编译的时间
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/lockbud/releases/download/v0.1.0/lockbud-installer.sh | sh
+          # install rap
+          gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p rap -p cargo-rap 
+          chmod +x rap && mv rap ~/.cargo/bin/
+          chmod +x cargo-rap && mv cargo-rap ~/.cargo/bin/
+          ls -alh ~/.cargo/bin/
+
       - name: Install os-checker
         run: cargo install --path . --force
 
@@ -60,14 +70,6 @@ jobs:
 
       - name: Run All Checkers
         run: |
-          # 安装 lockbud，减少源码编译的时间
-          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/lockbud/releases/download/v0.1.0/lockbud-installer.sh | sh
-          # install rap
-          gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p rap -p cargo-rap 
-          mv rap ~/.cargo/bin/
-          mv cargo-rap ~/.cargo/bin/
-          ls -alh ~/.cargo/bin/
-          which rap
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           df -alh
           cd ~/check
