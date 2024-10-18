@@ -132,7 +132,9 @@ fn check_or_install_checkers() -> Result<()> {
 
     install("lockbud", TOOLCHAIN_LOCKBUD, setup_lockbud)?;
     install("mirai", TOOLCHAIN_MIRAI, setup_mirai)?;
-    install_checker_toolchain("rap", TOOLCHAIN_RAP)?;
+    install("rap", TOOLCHAIN_RAP, || {
+        bail!("Rap should be installed manually for now.")
+    })?;
 
     Ok(())
 }
