@@ -149,6 +149,10 @@ impl Resolve {
         matches!(self.checker, CheckerTool::Rap)
     }
 
+    pub fn outdated(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
+        resolved.extend(pkgs.iter().map(cargo_outdated));
+    }
+
     #[instrument(level = "trace")]
     pub fn custom(
         pkgs: &[Pkg],

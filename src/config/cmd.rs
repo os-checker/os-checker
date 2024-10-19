@@ -130,6 +130,13 @@ pub fn cargo_rap_memoryleak(pkg: &Pkg) -> Resolve {
     Resolve::new(pkg, CheckerTool::Rap, cmd, expr)
 }
 
+pub fn cargo_outdated(pkg: &Pkg) -> Resolve {
+    let expr = cmd!("cargo", "outdated", "-R", "--exit-code=2").dir(pkg.dir);
+    debug!(?expr);
+    let cmd = "cargo outdated -R --exit-code=2".to_owned();
+    Resolve::new(pkg, CheckerTool::Outdated, cmd, expr)
+}
+
 /// 自定义检查命令。
 #[instrument(level = "trace")]
 pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
