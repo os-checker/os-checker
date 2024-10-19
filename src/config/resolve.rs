@@ -138,8 +138,7 @@ impl Resolve {
         for pkg in pkgs {
             // FIXME: 暂时只在 x86_64-unknown-linux-gnu 上检查，因为 Rap 尚未支持 --target 参数
             if pkg.target == HOST_TARGET {
-                resolved.push(cargo_rap_uaf(pkg));
-                resolved.push(cargo_rap_memoryleak(pkg));
+                resolved.push(cargo_rap(pkg));
             }
         }
     }
