@@ -7,7 +7,7 @@ pub fn parse_rap_result(stderr: &[u8]) -> String {
     let mut rap_output = String::with_capacity(stderr.len() / 2);
 
     for line in stderr.lines() {
-        if line.contains("RAP-FRONT|WARN") {
+        if line.contains("RAP|WARN") {
             _ = writeln!(&mut rap_output, "{line}");
         }
     }
