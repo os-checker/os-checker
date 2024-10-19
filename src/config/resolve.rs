@@ -194,7 +194,7 @@ impl Resolve {
         format!(
             "pkg={pkg_name}, checker={checker:?}\n\
             toolchain={toolchain}, target={target}\n\
-            pkg_dir={pkg_dir}\ncmd={cmd}",
+            pkg_dir={pkg_dir}\ncmd={cmd}\n",
         )
     }
 }
