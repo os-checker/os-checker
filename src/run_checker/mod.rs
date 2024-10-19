@@ -328,7 +328,9 @@ fn run_check(
     db_repo: Option<DbRepo>,
 ) -> Result<()> {
     // 从缓存中获取结果，如果获取成功，则不执行实际的检查
+    // FIXME: 当 force_check 后如果 Cargo 不再有诊断，那么下次读取缓存的话，那么会看到旧的 Cargo 诊断？
     if !resolve.force_check() && outputs.fetch_cache(&resolve, db_repo) {
+        // if outputs.fetch_cache(&resolve, db_repo) {
         return Ok(());
     }
 
