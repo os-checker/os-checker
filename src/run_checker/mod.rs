@@ -392,7 +392,7 @@ fn run_check(
                 .collect::<Result<_>>()?,
         ),
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
-        CheckerTool::Rap => OutputParsed::Rap(rap::parse_rap_result(&raw.stderr)),
+        CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
         CheckerTool::Miri => todo!(),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::SemverChecks => todo!(),

@@ -176,4 +176,22 @@ impl Resolve {
         // 0 表示 host toolchain
         get_toolchain(self.toolchain.unwrap_or(0))
     }
+
+    /// Some diagnostics are hard/impossible to know the source, so paste these useful info to them.
+    pub fn display(&self) -> String {
+        let Self {
+            pkg_name,
+            pkg_dir,
+            target,
+            checker,
+            cmd,
+            ..
+        } = self;
+        let toolchain = self.toolchain();
+        format!(
+            "pkg={pkg_name}, checker={checker:?}\n\
+            toolchain={toolchain}, target={target}\n\
+            pkg_dir={pkg_dir}\ncmd={cmd}",
+        )
+    }
 }
