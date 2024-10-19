@@ -131,7 +131,7 @@ pub fn cargo_rap_memoryleak(pkg: &Pkg) -> Resolve {
 }
 
 pub fn cargo_outdated(pkg: &Pkg) -> Resolve {
-    let expr = cmd!("cargo", "outdated", "-R", "--exit-code=2").dir(pkg.dir);
+    let expr = cmd!("cargo", "outdated", "-R", "--exit-code=2", "--color=never").dir(pkg.dir);
     debug!(?expr);
     let cmd = "cargo outdated -R --exit-code=2".to_owned();
     Resolve::new(pkg, CheckerTool::Outdated, cmd, expr)
