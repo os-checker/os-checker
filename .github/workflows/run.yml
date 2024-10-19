@@ -15,7 +15,9 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # cache.redb tag in database release
-  TAG_CACHE: cache-v6.redb
+  TAG_CACHE: cache-v7.redb
+  # compiled checker binaries
+  TAG_CHECKER_DOWNLOAD: cache-v6.redb
   # force downloading repos and check running
   FORCE_REPO_CHECK: true
   # use which configs
@@ -31,8 +33,8 @@ jobs:
         with:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: cargo audit
-        run: make audit
+      # - name: cargo audit
+      #   run: make audit
 
       - name: Prepare Makefile and repos JSONs
         run: |
@@ -58,8 +60,10 @@ jobs:
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/lockbud/releases/download/v0.1.0/lockbud-installer.sh | sh
           # install mirai
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh | sh
+          # install audit
+          gh release download --clobber -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p cargo-audit -D ~/.cargo/bin/
           # install rap
-          gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p rap -p cargo-rap 
+          gh release download -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p rap -p cargo-rap 
           chmod +x rap && mv rap ~/.cargo/bin/
           chmod +x cargo-rap && mv cargo-rap ~/.cargo/bin/
           ls -alh ~/.cargo/bin/
