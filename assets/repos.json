@@ -1,3 +1,7 @@
 {
-  "kern-crates/rust-sel4": {}
+  "kern-crates/rust-sel4": {
+    "cmds": {
+      "mirai": false
+    }
+  }
 }
