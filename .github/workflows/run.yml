@@ -64,6 +64,10 @@ jobs:
           chmod +x rap && mv rap ~/.cargo/bin/
           chmod +x cargo-rap && mv cargo-rap ~/.cargo/bin/
           ls -alh ~/.cargo/bin/
+          # install outdated
+          wget https://github.com/kbknapp/cargo-outdated/releases/download/v0.15.0/cargo-outdated-0.15.0-x86_64-unknown-linux-musl.tar.gz
+          tar xvzf cargo-outdated-0.15.0-x86_64-unknown-linux-musl.tar.gz
+          mv cargo-outdated ~/.cargo/bin/
 
       - name: Install os-checker
         run: cargo install --path . --force
