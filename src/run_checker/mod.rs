@@ -393,8 +393,9 @@ fn run_check(
         ),
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
         CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
-        CheckerTool::Miri => todo!(),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
+        CheckerTool::Outdated => todo!(),
+        CheckerTool::Miri => todo!(),
         CheckerTool::SemverChecks => todo!(),
         // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
         CheckerTool::Cargo => panic!("Don't specify cargo as a checker. It's a virtual one."),
