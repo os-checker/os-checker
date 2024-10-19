@@ -17,7 +17,7 @@ env:
   # cache.redb tag in database release
   TAG_CACHE: cache-v8.redb
   # compiled checker binaries
-  TAG_CHECKER_DOWNLOAD: cache-v6.redb
+  TAG_CHECKER_DOWNLOAD: cache-v7.redb
   # force downloading repos and check running
   FORCE_REPO_CHECK: true
   # use which configs
