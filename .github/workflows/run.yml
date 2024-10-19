@@ -19,10 +19,10 @@ env:
   # compiled checker binaries
   TAG_CHECKER_DOWNLOAD: cache-v6.redb
   # force downloading repos and check running
-  FORCE_REPO_CHECK: true
+  FORCE_REPO_CHECK: false
   # use which configs
-  CONFIGS: repos-ui.json # for debug single repo
-  # CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
+  # CONFIGS: repos.json # for debug single repo
+  CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
 
 jobs:
   run:
