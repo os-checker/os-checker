@@ -17,6 +17,8 @@ use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
 
 mod lockbud;
+mod rap;
+
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
 pub use utils::DbRepo;
@@ -326,6 +328,8 @@ fn run_check(
     db_repo: Option<DbRepo>,
 ) -> Result<()> {
     // 从缓存中获取结果，如果获取成功，则不执行实际的检查
+    // FIXME: 当 force_check 后如果 Cargo 不再有诊断，那么下次读取缓存的话，那么会看到旧的 Cargo 诊断？
+    // if !resolve.force_check() && outputs.fetch_cache(&resolve, db_repo) {
     if outputs.fetch_cache(&resolve, db_repo) {
         return Ok(());
     }
@@ -388,6 +392,7 @@ fn run_check(
                 .collect::<Result<_>>()?,
         ),
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
+        CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
         CheckerTool::Miri => todo!(),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::SemverChecks => todo!(),
@@ -414,7 +419,9 @@ enum OutputParsed {
     Clippy(Box<[RustcMessage]>),
     Audit(Audit),
     Mirai(Box<[RustcMessage]>),
+    // TODO: a good type for Lockbud and Rap output is Option<String>
     Lockbud(String),
+    Rap(String),
     Cargo { source: CargoSource, stderr: String },
 }
 
@@ -451,7 +458,7 @@ impl OutputParsed {
                     _ => None,
                 })
                 .sum(),
-            OutputParsed::Lockbud(s) => {
+            OutputParsed::Lockbud(s) | OutputParsed::Rap(s) => {
                 if s.is_empty() {
                     0
                 } else {

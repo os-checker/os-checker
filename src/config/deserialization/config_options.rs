@@ -122,13 +122,14 @@ impl Cmds {
                 Lockbud => ENABLED,
                 Mirai => ENABLED,
                 Audit => ENABLED,
+                Rap => ENABLED,
             },
         }
     }
 
     /// TODO: 其他工具待完成
     pub fn enable_all_checkers(&mut self) {
-        for checker in [Fmt, Clippy, Lockbud, Mirai, Audit] {
+        for checker in [Fmt, Clippy, Lockbud, Mirai, Audit, Rap] {
             self.entry(checker)
                 .and_modify(|cmd| *cmd = ENABLED)
                 .or_insert(ENABLED);

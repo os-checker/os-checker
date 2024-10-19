@@ -2,7 +2,7 @@ use crate::{
     config::{CheckerTool, Resolve},
     layout::Pkg,
     output::host_toolchain,
-    utils::{PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI},
+    utils::{PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI, PLUS_TOOLCHAIN_RAP},
     Result,
 };
 use duct::cmd;
@@ -90,6 +90,44 @@ pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
     debug!(?expr);
     let cmd = format!("cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target} --message-format=json");
     Resolve::new(pkg, CheckerTool::Mirai, cmd, expr)
+}
+
+/// 运行 cargo rap 检查 use after free 的命令
+pub fn cargo_rap_uaf(pkg: &Pkg) -> Resolve {
+    // let target = pkg.target;
+
+    let expr = cmd!(
+        "cargo",
+        PLUS_TOOLCHAIN_RAP,
+        "rap",
+        "-F" // -F -M 尚不同时支持；也不支持指定 --target
+             // "--target",
+             // target,
+    )
+    .env("RAP_LOG", "WARN")
+    .dir(pkg.dir);
+    debug!(?expr);
+    let cmd = format!("cargo {PLUS_TOOLCHAIN_RAP} rap -F");
+    Resolve::new(pkg, CheckerTool::Rap, cmd, expr)
+}
+
+/// 运行 cargo rap 检查 memory leak 的命令
+pub fn cargo_rap_memoryleak(pkg: &Pkg) -> Resolve {
+    // let target = pkg.target;
+
+    let expr = cmd!(
+        "cargo",
+        PLUS_TOOLCHAIN_RAP,
+        "rap",
+        "-M" // -F -M 尚不同时支持；也不支持指定 --target
+             // "--target",
+             // target,
+    )
+    .env("RAP_LOG", "WARN")
+    .dir(pkg.dir);
+    debug!(?expr);
+    let cmd = format!("cargo {PLUS_TOOLCHAIN_RAP} rap -M");
+    Resolve::new(pkg, CheckerTool::Rap, cmd, expr)
 }
 
 /// 自定义检查命令。

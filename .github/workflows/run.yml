@@ -15,7 +15,9 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # cache.redb tag in database release
-  TAG_CACHE: cache-v6.redb
+  TAG_CACHE: cache-v7.redb
+  # compiled checker binaries
+  TAG_CHECKER_DOWNLOAD: cache-v7.redb
   # force downloading repos and check running
   FORCE_REPO_CHECK: false
   # use which configs
@@ -31,9 +33,6 @@ jobs:
         with:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: cargo audit
-        run: make audit
-
       - name: Prepare Makefile and repos JSONs
         run: |
           mkdir -p ~/check/batch
@@ -45,13 +44,26 @@ jobs:
           cp assets/repos-embassy.json ~/check/
           cd ~/check
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
-          # gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb.tar.xz
           # tar -xJvf cache.redb.tar.xz
           ls -alh
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt, clippy
+
+      - name: Install Checkers
+        run: |
+          # install lockbud 
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/lockbud/releases/download/v0.1.0/lockbud-installer.sh | sh
+          # install mirai
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh | sh
+          # install audit
+          gh release download --clobber -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p cargo-audit -D ~/.cargo/bin/
+          # install rap
+          gh release download -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p rap -p cargo-rap 
+          chmod +x rap && mv rap ~/.cargo/bin/
+          chmod +x cargo-rap && mv cargo-rap ~/.cargo/bin/
+          ls -alh ~/.cargo/bin/
 
       - name: Install os-checker
         run: cargo install --path . --force
@@ -61,15 +73,15 @@ jobs:
 
       - name: Run All Checkers
         run: |
-          # 安装 lockbud，减少源码编译的时间
-          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/lockbud/releases/download/v0.1.0/lockbud-installer.sh | sh
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           df -alh
           cd ~/check
           os-checker db --start cache.redb
+
           make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
           # 仅在支持新检查时采用 batch，因为中途一旦出错，只使用 run 无法在中途上传检查结果的缓存数据
           # batch --size 8 #|| echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+
           os-checker db --done cache.redb
 
       - name: Run cache_redb test
@@ -94,8 +106,10 @@ jobs:
           cd ~/check
           make clone_database
           cd database
+
           # git switch debug
           # echo "切换到 debug 分支"
+
           git pull --rebase # 防止二次运行 CI 时落后于远程分支
 
           rm -rf batch # 移除旧的 batch 数据

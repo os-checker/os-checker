@@ -180,6 +180,7 @@ pub enum Kind {
     LockbudProbably,
     #[serde(rename = "Lockbud(Possibly)")]
     LockbudPossibly,
+    Rap,
     Cargo,
 }
 
@@ -200,6 +201,7 @@ impl Kinds {
                 ClippyWarn,
                 Audit,
                 Mirai,
+                Rap,
                 LockbudProbably,
                 LockbudPossibly,
                 Unformatted,
@@ -209,6 +211,7 @@ impl Kinds {
                 "clippy": [ClippyError, ClippyWarn],
                 "audit": [Audit],
                 "mirai": [Mirai],
+                "rap": [Rap],
                 "lockbud": [LockbudProbably, LockbudPossibly],
                 "fmt": [Unformatted]
             }),

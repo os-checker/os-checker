@@ -1,3 +1,4 @@
 {
-  "arceos-org/arceos": {}
+  "os-checker/os-checker-test-suite": {},
+  "kern-crates/rvfs": {}
 }

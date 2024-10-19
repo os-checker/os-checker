@@ -6,10 +6,11 @@
 //!     * 如果指定包名，则校验是否定义于仓库内：需要 repo layout 信息
 //!     * 如果指定 features，则校验是否定义于 package 内：需要 cargo metadata 信息
 
-use super::{cargo_clippy, cargo_fmt, cargo_lockbud, cargo_mirai, checker::CheckerTool, custom};
+use super::{cmd::*, CheckerTool};
 use crate::{
     layout::{Audit, Pkg},
     output::{get_toolchain, host_target_triple},
+    utils::HOST_TARGET,
     Result, XString,
 };
 use cargo_metadata::camino::Utf8PathBuf;
@@ -117,9 +118,7 @@ impl Resolve {
     /// 因此只在某些条件下开启。
     pub fn mirai(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
         // 暂时只在 x86_64-unknown-linux-gnu 上检查
-        let iter = pkgs
-            .iter()
-            .filter(|pkg| pkg.target == "x86_64-unknown-linux-gnu");
+        let iter = pkgs.iter().filter(|pkg| pkg.target == HOST_TARGET);
         resolved.extend(iter.map(cargo_mirai));
     }
 
@@ -132,6 +131,22 @@ impl Resolve {
                 resolved.push(val);
             }
         }
+    }
+
+    pub fn rap(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
+        resolved.reserve(pkgs.len() * 2);
+        for pkg in pkgs {
+            // FIXME: 暂时只在 x86_64-unknown-linux-gnu 上检查，因为 Rap 尚未支持 --target 参数
+            if pkg.target == HOST_TARGET {
+                resolved.push(cargo_rap_uaf(pkg));
+                resolved.push(cargo_rap_memoryleak(pkg));
+            }
+        }
+    }
+
+    /// force checking even if a cache exists
+    pub fn force_check(&self) -> bool {
+        matches!(self.checker, CheckerTool::Rap)
     }
 
     #[instrument(level = "trace")]
@@ -160,5 +175,23 @@ impl Resolve {
     pub fn toolchain(&self) -> String {
         // 0 表示 host toolchain
         get_toolchain(self.toolchain.unwrap_or(0))
+    }
+
+    /// Some diagnostics are hard/impossible to know the source, so paste these useful info to them.
+    pub fn display(&self) -> String {
+        let Self {
+            pkg_name,
+            pkg_dir,
+            target,
+            checker,
+            cmd,
+            ..
+        } = self;
+        let toolchain = self.toolchain();
+        format!(
+            "pkg={pkg_name}, checker={checker:?}\n\
+            toolchain={toolchain}, target={target}\n\
+            pkg_dir={pkg_dir}\ncmd={cmd}",
+        )
     }
 }
