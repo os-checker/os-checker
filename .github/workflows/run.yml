@@ -15,7 +15,7 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # cache.redb tag in database release
-  TAG_CACHE: cache-v7.redb
+  TAG_CACHE: cache-v8.redb
   # compiled checker binaries
   TAG_CHECKER_DOWNLOAD: cache-v7.redb
   # force downloading repos and check running
