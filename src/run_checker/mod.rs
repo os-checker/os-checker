@@ -17,6 +17,7 @@ use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
 
 mod lockbud;
+mod outdated;
 mod rap;
 
 /// 把获得的输出转化成 JSON 所需的输出
@@ -393,8 +394,9 @@ fn run_check(
         ),
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
         CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
-        CheckerTool::Miri => todo!(),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
+        CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),
+        CheckerTool::Miri => todo!(),
         CheckerTool::SemverChecks => todo!(),
         // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
         CheckerTool::Cargo => panic!("Don't specify cargo as a checker. It's a virtual one."),
@@ -422,6 +424,7 @@ enum OutputParsed {
     // TODO: a good type for Lockbud and Rap output is Option<String>
     Lockbud(String),
     Rap(String),
+    Outdated(String),
     Cargo { source: CargoSource, stderr: String },
 }
 
@@ -458,7 +461,7 @@ impl OutputParsed {
                     _ => None,
                 })
                 .sum(),
-            OutputParsed::Lockbud(s) | OutputParsed::Rap(s) => {
+            OutputParsed::Lockbud(s) | OutputParsed::Rap(s) | OutputParsed::Outdated(s) => {
                 if s.is_empty() {
                     0
                 } else {

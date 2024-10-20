@@ -138,8 +138,7 @@ impl Resolve {
         for pkg in pkgs {
             // FIXME: 暂时只在 x86_64-unknown-linux-gnu 上检查，因为 Rap 尚未支持 --target 参数
             if pkg.target == HOST_TARGET {
-                resolved.push(cargo_rap_uaf(pkg));
-                resolved.push(cargo_rap_memoryleak(pkg));
+                resolved.push(cargo_rap(pkg));
             }
         }
     }
@@ -147,6 +146,10 @@ impl Resolve {
     /// force checking even if a cache exists
     pub fn force_check(&self) -> bool {
         matches!(self.checker, CheckerTool::Rap)
+    }
+
+    pub fn outdated(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
+        resolved.extend(pkgs.iter().map(cargo_outdated));
     }
 
     #[instrument(level = "trace")]
@@ -191,7 +194,7 @@ impl Resolve {
         format!(
             "pkg={pkg_name}, checker={checker:?}\n\
             toolchain={toolchain}, target={target}\n\
-            pkg_dir={pkg_dir}\ncmd={cmd}",
+            pkg_dir={pkg_dir}\ncmd={cmd}\n\n",
         )
     }
 }

@@ -181,6 +181,7 @@ pub enum Kind {
     #[serde(rename = "Lockbud(Possibly)")]
     LockbudPossibly,
     Rap,
+    Outdated,
     Cargo,
 }
 
@@ -204,6 +205,7 @@ impl Kinds {
                 Rap,
                 LockbudProbably,
                 LockbudPossibly,
+                Outdated,
                 Unformatted,
             ],
             mapping: serde_json::json!({
@@ -213,6 +215,7 @@ impl Kinds {
                 "mirai": [Mirai],
                 "rap": [Rap],
                 "lockbud": [LockbudProbably, LockbudPossibly],
+                "outdated": [Outdated],
                 "fmt": [Unformatted]
             }),
         }

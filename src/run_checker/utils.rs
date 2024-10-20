@@ -52,6 +52,7 @@ impl RawOutput {
             OutputParsed::Mirai(v) => data_rustc(CheckerTool::Mirai, v, root),
             OutputParsed::Lockbud(s) => data_lockbud(s),
             OutputParsed::Rap(s) => data_rap(s),
+            OutputParsed::Outdated(s) => data_outdated(s),
             OutputParsed::Cargo { source, stderr } => data_cargo(source, stderr),
         };
 
@@ -147,6 +148,19 @@ fn data_rap(s: &str) -> Vec<OutputDataInner> {
         let data = OutputDataInner::new(
             "[rap] Not supported to display yet.".into(),
             Kind::Rap,
+            s.to_owned(),
+        );
+        vec![data]
+    }
+}
+
+fn data_outdated(s: &str) -> Vec<OutputDataInner> {
+    if s.is_empty() {
+        Vec::new()
+    } else {
+        let data = OutputDataInner::new(
+            "[outdated direct dependencies]".into(),
+            Kind::Outdated,
             s.to_owned(),
         );
         vec![data]
