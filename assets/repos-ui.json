@@ -40,5 +40,10 @@
     "cmds": {
       "mirai": false
     }
+  },
+  "kern-crates/rust-sel4": {
+    "cmds": {
+      "mirai": false
+    }
   }
 }
