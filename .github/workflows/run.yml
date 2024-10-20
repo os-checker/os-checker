@@ -82,9 +82,9 @@ jobs:
           cd ~/check
           os-checker db --start cache.redb
 
-          # make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
           # 仅在支持新检查时采用 batch，因为中途一旦出错，只使用 run 无法在中途上传检查结果的缓存数据
-          batch --size 8 #|| echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          # batch --size 8 #|| echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
 
           os-checker db --done cache.redb
 
@@ -111,8 +111,8 @@ jobs:
           make clone_database
           cd database
 
-          git switch debug
-          echo "切换到 debug 分支"
+          # git switch debug
+          # echo "切换到 debug 分支"
 
           git pull --rebase # 防止二次运行 CI 时落后于远程分支
 
