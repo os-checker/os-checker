@@ -53,7 +53,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly-2024-10-18
+          toolchain: nightly-2024-10-24
           components: rustfmt, clippy
 
       - name: Install Checkers
