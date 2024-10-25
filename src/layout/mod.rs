@@ -233,7 +233,8 @@ impl Layout {
             let duplicates: Vec<_> = count.iter().filter(|(_, c)| **c != 1).collect();
             bail!("暂不支持一个代码仓库中出现同名 packages：{duplicates:?}");
         }
-        Ok(Packages { map })
+        let repo_root = self.repo_root().to_owned();
+        Ok(Packages { repo_root, map })
     }
 
     // pub fn rust_toolchain_idxs(&self) -> Vec<usize> {
@@ -350,6 +351,7 @@ fn installation(info: &[PackageInfo]) -> IndexMap<usize, Vec<String>> {
 
 #[derive(Debug)]
 pub struct Packages {
+    repo_root: Utf8PathBuf,
     /// The order is by pkg_name and pkd_dir.
     map: IndexMap<XString, PackageInfoShared>,
 }
@@ -359,6 +361,7 @@ impl Packages {
     pub fn test_new(pkgs: &[&str]) -> Self {
         let host = crate::output::host_target_triple().to_owned();
         Packages {
+            repo_root: Utf8PathBuf::new(),
             map: pkgs
                 .iter()
                 .map(|name| {
@@ -392,7 +395,8 @@ impl Packages {
             let (_, name, info) = self.get_full(pkg).unwrap();
             for pat in globs {
                 // once glob is matched, skip the pkg
-                if pat.matches(info.pkg_dir.as_str()) {
+                let pkg_dir = info.pkg_dir.strip_prefix(&self.repo_root).unwrap();
+                if pat.matches(pkg_dir.as_str()) {
                     continue;
                 }
             }
