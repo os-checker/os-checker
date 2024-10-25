@@ -1,7 +1,11 @@
 {
-  "os-checker/os-checker-test-suite": {
+  "AsyncModules/embassy-priority": {
     "meta": {
-      "skip_pkg_dir_globs": "*-checks-this"
+      "skip_pkg_dir_globs": [
+        "docs/**",
+        "examples/**",
+        "tests/**"
+      ]
     }
   }
 }
