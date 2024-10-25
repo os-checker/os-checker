@@ -60,5 +60,10 @@
     "cmds": {
       "mirai": false
     }
+  },
+  "yuoo655/ext4_rs": {
+    "cmds": {
+      "mirai": false
+    }
   }
 }
