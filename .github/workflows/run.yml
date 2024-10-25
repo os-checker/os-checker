@@ -16,13 +16,15 @@ env:
   PUSH: true
   # cache.redb tag in database release
   TAG_CACHE: cache-v8.redb
+  # repos-default.json tag in database release
+  TAG_CACHE_REPOS_DEFAULT: cache-v8.redb
   # compiled checker binaries
   TAG_CHECKER_DOWNLOAD: cache-v7.redb
   # force downloading repos and check running
   FORCE_REPO_CHECK: false
   # use which configs
-  CONFIGS: repos.json # for debug single repo
-  # CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
+  # CONFIGS: repos.json # for debug single repo
+  CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
 
 jobs:
   run:
@@ -40,7 +42,7 @@ jobs:
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
           # cp assets/repos-default.json ~/check/
-          wget https://raw.githubusercontent.com/os-checker/kern-crates.github/refs/heads/os-checker/repos-default.json -P ~/check/
+          gh release download -R os-checker/database ${{ env.TAG_CACHE_REPOS_DEFAULT }} -p repos-default.json -D ~/check/
           cp assets/repos-embassy.json ~/check/
           cd ~/check
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
