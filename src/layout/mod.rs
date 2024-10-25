@@ -396,7 +396,9 @@ impl Packages {
             for pat in globs {
                 // once glob is matched, skip the pkg
                 let pkg_dir = info.pkg_dir.strip_prefix(&self.repo_root).unwrap();
-                if pat.matches(pkg_dir.as_str()) {
+                let matches = pat.matches(pkg_dir.as_str());
+                info!(matches, ?pat, ?pkg_dir);
+                if !matches {
                     continue;
                 }
             }
