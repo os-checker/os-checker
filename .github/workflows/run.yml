@@ -44,9 +44,9 @@ jobs:
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
           gh release download -R os-checker/database ${{ env.TAG_CACHE_REPOS_DEFAULT }} -p repos-default.json -D ~/check/
-          mv repos-default.json repos-default-raw.json
+          mv ~/check/repos-default.json ~/check/repos-default-raw.json
           # temporarily disable qclic/e1000e-frame
-          jq 'del(."qclic/e1000e-frame")' repos-default-raw.json > repos-default.json
+          jq 'del(."qclic/e1000e-frame")' ~/check/repos-default-raw.json > ~/check/repos-default.json
           cd ~/check
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
           # tar -xJvf cache.redb.tar.xz
