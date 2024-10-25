@@ -5,6 +5,9 @@
         "crates/examples/**",
         "crates/hacking/**"
       ]
+    },
+    "cmds": {
+      "mirai": false
     }
   }
 }
