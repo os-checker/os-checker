@@ -384,7 +384,7 @@ impl Packages {
         I: Iterator<Item = &'a str>,
     {
         // default to all searched pkgs
-        let mut map: IndexMap = self
+        let mut map: IndexMap<&str, &PackageInfoShared> = self
             .iter()
             .map(|(name, info)| (name.as_str(), info))
             .collect();
@@ -395,7 +395,7 @@ impl Packages {
             for pat in globs {
                 let matches = pat.matches(pkg_dir.as_str());
                 if matches {
-                    map.swap_remove(name);
+                    map.swap_remove(name.as_str());
                 }
             }
         }
