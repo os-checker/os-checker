@@ -43,9 +43,7 @@ jobs:
           cp Makefile ~/check/
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
-          # cp assets/repos-default.json ~/check/
           gh release download -R os-checker/database ${{ env.TAG_CACHE_REPOS_DEFAULT }} -p repos-default.json -D ~/check/
-          cp assets/repos-embassy.json ~/check/
           cd ~/check
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
           # tar -xJvf cache.redb.tar.xz
