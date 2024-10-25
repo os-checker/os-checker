@@ -5,6 +5,7 @@ use crate::{
     Result,
 };
 use cargo_metadata::camino::Utf8Path;
+use eyre::Context;
 use indexmap::IndexMap;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -90,7 +91,6 @@ impl RepoConfig {
         Ok(v)
     }
 
-    #[instrument(level = "trace")]
     fn validate_pkgs(&self, repo: &str, pkgs: &Packages) -> Result<()> {
         for pkg_name in self.packages.keys() {
             ensure!(
@@ -104,7 +104,6 @@ impl RepoConfig {
     /// cmds is from new_with_all_checkers_enabled
     ///
     /// 这个其实可以做到解析 JSON 那个步骤，但为了更好的错误报告，在这附加 repo 或者 pkg 信息
-    #[instrument(level = "trace")]
     fn validate_checker(&self, repo: &str, cmds: &Cmds) -> Result<()> {
         // validate repo's checkers in cmds
         for cmd in self.cmds.keys() {
@@ -122,7 +121,6 @@ impl RepoConfig {
     }
 
     // self is a pkg config
-    #[instrument(level = "trace")]
     fn validate_checker_in_pkg(&self, repo: &str, pkg: &str, cmds: &Cmds) -> Result<()> {
         for cmd in self.cmds.keys() {
             ensure!(
@@ -135,7 +133,6 @@ impl RepoConfig {
     }
 
     /// 检查自定义命令是否与 checker 匹配
-    #[instrument(level = "trace")]
     pub fn validate_checker_name(&self, repo: &str) -> Result<()> {
         for (checker, cmd) in &*self.cmds {
             let name = checker.name();
@@ -152,7 +149,6 @@ impl RepoConfig {
     }
 
     // self is a pkg config
-    #[instrument(level = "trace")]
     pub fn validate_checker_name_in_pkg(&self, repo: &str, pkg: &str) -> Result<()> {
         for (checker, cmd) in &*self.cmds {
             let name = checker.name();
@@ -162,6 +158,14 @@ impl RepoConfig {
                      doesn't contain the corresponding checker name `{name}`"
                 );
             }
+        }
+        Ok(())
+    }
+
+    pub fn validate_skip_packages_globs(&self, repo: &str) -> Result<()> {
+        if let Some(meta) = &self.meta {
+            meta.check_skip_packages_globs()
+                .with_context(|| format!("{repo}'s meta.skip_packages_globs value is invalid."))?;
         }
         Ok(())
     }
@@ -185,7 +189,6 @@ impl RepoConfig {
 }
 
 /// TODO: 其他工具待完成
-#[instrument(level = "trace")]
 fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Result<()> {
     use either::{Left, Right};
     use CheckerTool::*;

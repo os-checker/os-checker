@@ -174,13 +174,20 @@ impl Meta {
         self.skip_packages_globs
             .as_slice()
             .iter()
-            .filter_map(|s| {
-                glob::Pattern::new(s)
-                    .with_context(|| format!("{s} is not a valid glob pattern."))
-                    .ok()
-            })
+            .filter_map(|s| glob_pattern(s).ok())
             .collect()
     }
+
+    pub fn check_skip_packages_globs(&self) -> Result<()> {
+        for s in self.skip_packages_globs.as_slice() {
+            glob_pattern(s)?;
+        }
+        Ok(())
+    }
+}
+
+fn glob_pattern(s: &str) -> Result<glob::Pattern> {
+    glob::Pattern::new(s).with_context(|| format!("{s} is not a valid glob pattern."))
 }
 
 fn defalt_skip_packages_globs() -> MaybeMulti {
