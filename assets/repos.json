@@ -1,10 +1,9 @@
 {
-  "AsyncModules/embassy-priority": {
+  "kern-crates/rust-sel4": {
     "meta": {
       "skip_pkg_dir_globs": [
-        "docs/**",
-        "examples/**",
-        "tests/**"
+        "crates/examples/**",
+        "crates/hacking/**"
       ]
     }
   }
