@@ -17,7 +17,7 @@ env:
   # push to which database branch 
   DATABASE: debug
   # cache.redb tag in database release
-  TAG_CACHE: cache-v8.redb
+  TAG_CACHE: cache-v9.redb
   # repos-default.json tag in database release
   TAG_CACHE_REPOS_DEFAULT: cache-v8.redb
   # compiled checker binaries
