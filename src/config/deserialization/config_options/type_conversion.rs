@@ -29,11 +29,9 @@ impl From<Cmds> for out::Cmds {
 
 impl From<Meta> for out::Meta {
     fn from(value: Meta) -> Self {
-        let Meta {
-            skip_packages_globs,
-        } = value;
+        let Meta { skip_pkg_dir_globs } = value;
         Self {
-            skip_packages_globs: skip_packages_globs.into(),
+            skip_pkg_dir_globs: skip_pkg_dir_globs.into(),
         }
     }
 }
@@ -66,11 +64,9 @@ impl From<out::Cmds> for Cmds {
 
 impl From<out::Meta> for Meta {
     fn from(value: out::Meta) -> Self {
-        let out::Meta {
-            skip_packages_globs,
-        } = value;
+        let out::Meta { skip_pkg_dir_globs } = value;
         Self {
-            skip_packages_globs: skip_packages_globs.into(),
+            skip_pkg_dir_globs: skip_pkg_dir_globs.into(),
         }
     }
 }

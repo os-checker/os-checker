@@ -63,5 +63,5 @@ impl Cmds {
 
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, Clone)]
 pub struct Meta {
-    pub skip_packages_globs: MaybeMulti,
+    pub skip_pkg_dir_globs: MaybeMulti,
 }

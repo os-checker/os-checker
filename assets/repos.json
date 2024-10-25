@@ -1,7 +1,7 @@
 {
   "os-checker/os-checker-test-suite": {
     "meta": {
-      "skip_packages_globs": "*-checks-this"
+      "skip_pkg_dir_globs": "*-checks-this"
     }
   }
 }

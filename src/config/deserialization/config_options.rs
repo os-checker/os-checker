@@ -165,21 +165,21 @@ impl std::ops::DerefMut for Cmds {
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Meta {
-    #[serde(default = "defalt_skip_packages_globs")]
-    skip_packages_globs: MaybeMulti,
+    #[serde(default = "defalt_skip_pkg_dir_globs")]
+    skip_pkg_dir_globs: MaybeMulti,
 }
 
 impl Meta {
-    pub fn skip_packages_globs(&self) -> Box<[glob::Pattern]> {
-        self.skip_packages_globs
+    pub fn skip_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
+        self.skip_pkg_dir_globs
             .as_slice()
             .iter()
             .filter_map(|s| glob_pattern(s).ok())
             .collect()
     }
 
-    pub fn check_skip_packages_globs(&self) -> Result<()> {
-        for s in self.skip_packages_globs.as_slice() {
+    pub fn check_skip_pkg_dir_globs(&self) -> Result<()> {
+        for s in self.skip_pkg_dir_globs.as_slice() {
             glob_pattern(s)?;
         }
         Ok(())
@@ -190,14 +190,14 @@ fn glob_pattern(s: &str) -> Result<glob::Pattern> {
     glob::Pattern::new(s).with_context(|| format!("{s} is not a valid glob pattern."))
 }
 
-fn defalt_skip_packages_globs() -> MaybeMulti {
+fn defalt_skip_pkg_dir_globs() -> MaybeMulti {
     MaybeMulti::Multi(vec![])
 }
 
 impl Default for Meta {
     fn default() -> Self {
         Self {
-            skip_packages_globs: defalt_skip_packages_globs(),
+            skip_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
         }
     }
 }

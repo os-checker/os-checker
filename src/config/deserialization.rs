@@ -51,7 +51,7 @@ impl RepoConfig {
 
         // 待检查的 pkgs
         let selected_pkgs = packages.select(
-            &self.skip_packages_globs(),
+            &self.skip_pkg_dir_globs(),
             self.packages.keys().map(|s| s.as_str()),
         );
 
@@ -162,10 +162,10 @@ impl RepoConfig {
         Ok(())
     }
 
-    pub fn validate_skip_packages_globs(&self, repo: &str) -> Result<()> {
+    pub fn validate_skip_pkg_dir_globs(&self, repo: &str) -> Result<()> {
         if let Some(meta) = &self.meta {
-            meta.check_skip_packages_globs()
-                .with_context(|| format!("{repo}'s meta.skip_packages_globs value is invalid."))?;
+            meta.check_skip_pkg_dir_globs()
+                .with_context(|| format!("{repo}'s meta.skip_pkg_dir_globs value is invalid."))?;
         }
         Ok(())
     }
@@ -175,10 +175,10 @@ impl RepoConfig {
     // TODO: setup environment for repo
     // pub fn setup(&self) {}
 
-    fn skip_packages_globs(&self) -> Box<[glob::Pattern]> {
+    fn skip_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
         self.meta
             .as_ref()
-            .map(|m| m.skip_packages_globs())
+            .map(|m| m.skip_pkg_dir_globs())
             .unwrap_or_default()
     }
 

@@ -203,7 +203,7 @@ impl TryFrom<Value> for Configs {
                     let config =
                         RepoConfig::deserialize(deserializer).with_context(|| PARSE_JSON_ERROR)?;
                     config.validate_checker_name(&repo)?;
-                    config.validate_skip_packages_globs(&repo)?;
+                    config.validate_skip_pkg_dir_globs(&repo)?;
                     info!(?config);
                     Ok(Config {
                         uri: uri::uri(repo)?,
