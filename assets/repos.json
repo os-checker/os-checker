@@ -1,5 +1,5 @@
 {
-  "os-chekcer/os-checker-test-suite": {
+  "os-checker/os-checker-test-suite": {
     "meta": {
       "skip_packages_globs": "*-checks-this"
     }
