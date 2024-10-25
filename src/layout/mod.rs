@@ -383,29 +383,32 @@ impl Packages {
     where
         I: Iterator<Item = &'a str>,
     {
-        let mut v = Vec::with_capacity(self.len());
+        // default to all searched pkgs
+        let mut map: IndexMap = self
+            .iter()
+            .map(|(name, info)| (name.as_str(), info))
+            .collect();
 
-        if globs.is_empty() {
-            v.extend(self.iter().map(|(name, info)| (name.as_str(), info)));
-            return v;
-        }
-
-        for pkg in pkgs {
-            // 已经校验过 pkg name 了
-            let (_, name, info) = self.get_full(pkg).unwrap();
+        for (name, info) in &self.map {
+            // once glob is matched, skip the pkg
+            let pkg_dir = info.pkg_dir.strip_prefix(&self.repo_root).unwrap();
             for pat in globs {
-                // once glob is matched, skip the pkg
-                let pkg_dir = info.pkg_dir.strip_prefix(&self.repo_root).unwrap();
                 let matches = pat.matches(pkg_dir.as_str());
-                info!(matches, ?pat, ?pkg_dir);
-                if !matches {
-                    continue;
+                if matches {
+                    map.swap_remove(name);
                 }
             }
-            v.push((name.as_str(), info));
         }
 
-        v
+        // 已经校验过 pkg name 了；pkgs 来自 packages 字段，一定检查它们
+        // 在已经 skip 过的 pkgs 上，可由 packages 指定回来
+        map.extend(pkgs.map(|pkg| {
+            let (_, name, info) = self.get_full(pkg).unwrap();
+            (name.as_str(), info)
+        }));
+
+        map.sort_unstable_keys();
+        map.into_iter().collect()
     }
 }
 
