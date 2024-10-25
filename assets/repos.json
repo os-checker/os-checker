@@ -4,7 +4,7 @@
       "skip_pkg_dir_globs": [
         "crates/examples/**",
         "crates/hacking/**",
-        ""
+        "a"
       ]
     },
     "cmds": {
