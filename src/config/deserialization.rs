@@ -50,7 +50,7 @@ impl RepoConfig {
 
         // 待检查的 pkgs
         let selected_pkgs = packages.select(
-            self.all_packages(),
+            &self.skip_packages_globs(),
             self.packages.keys().map(|s| s.as_str()),
         );
 
@@ -171,8 +171,11 @@ impl RepoConfig {
     // TODO: setup environment for repo
     // pub fn setup(&self) {}
 
-    fn all_packages(&self) -> bool {
-        self.meta.as_ref().map(|m| m.all_packages()).unwrap_or(true)
+    fn skip_packages_globs(&self) -> Box<[glob::Pattern]> {
+        self.meta
+            .as_ref()
+            .map(|m| m.skip_packages_globs())
+            .unwrap_or_default()
     }
 
     /// 将 packages 按名称排序

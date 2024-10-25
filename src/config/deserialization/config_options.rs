@@ -1,4 +1,5 @@
 use super::*;
+use eyre::Context;
 use CheckerTool::*;
 
 mod type_conversion;
@@ -164,24 +165,32 @@ impl std::ops::DerefMut for Cmds {
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Meta {
-    /// 当它为 false 时，对所有 pkgs 禁用检查。
-    /// 该选项只适用于 repo；如果在 packages 内设置，则无效
-    #[serde(default = "defalt_all_packages")]
-    all_packages: bool,
+    #[serde(default = "defalt_skip_packages_globs")]
+    skip_packages_globs: MaybeMulti,
 }
 
 impl Meta {
-    pub fn all_packages(&self) -> bool {
-        self.all_packages
+    pub fn skip_packages_globs(&self) -> Box<[glob::Pattern]> {
+        self.skip_packages_globs
+            .as_slice()
+            .iter()
+            .filter_map(|s| {
+                glob::Pattern::new(s)
+                    .with_context(|| format!("{s} is not a valid glob pattern."))
+                    .ok()
+            })
+            .collect()
     }
 }
 
-fn defalt_all_packages() -> bool {
-    true
+fn defalt_skip_packages_globs() -> MaybeMulti {
+    MaybeMulti::Multi(vec![])
 }
 
 impl Default for Meta {
     fn default() -> Self {
-        Self { all_packages: true }
+        Self {
+            skip_packages_globs: defalt_skip_packages_globs(),
+        }
     }
 }
