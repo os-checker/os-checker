@@ -9,6 +9,14 @@
     "RepoConfig": {
       "type": "object",
       "properties": {
+        "meta": {
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "#/definitions/Meta"
+            }
+          ]
+        },
         "setup": {
           "nullable": true,
           "allOf": [
@@ -18,6 +26,15 @@
           ]
         },
         "targets": {
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "#/definitions/Targets"
+            }
+          ]
+        },
+        "no_install_targets": {
+          "description": "暂时只作用于 repo",
           "nullable": true,
           "allOf": [
             {
@@ -36,8 +53,18 @@
         }
       }
     },
-    "Setup": {
-      "$ref": "#/definitions/MaybeMulti"
+    "Meta": {
+      "type": "object",
+      "properties": {
+        "skip_packages_globs": {
+          "default": [],
+          "allOf": [
+            {
+              "$ref": "#/definitions/MaybeMulti"
+            }
+          ]
+        }
+      }
     },
     "MaybeMulti": {
       "anyOf": [
@@ -51,6 +78,9 @@
           }
         }
       ]
+    },
+    "Setup": {
+      "$ref": "#/definitions/MaybeMulti"
     },
     "Targets": {
       "$ref": "#/definitions/MaybeMulti"
