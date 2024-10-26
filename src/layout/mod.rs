@@ -233,7 +233,8 @@ impl Layout {
             let duplicates: Vec<_> = count.iter().filter(|(_, c)| **c != 1).collect();
             bail!("暂不支持一个代码仓库中出现同名 packages：{duplicates:?}");
         }
-        Ok(Packages { map })
+        let repo_root = self.repo_root().to_owned();
+        Ok(Packages { repo_root, map })
     }
 
     // pub fn rust_toolchain_idxs(&self) -> Vec<usize> {
@@ -350,6 +351,7 @@ fn installation(info: &[PackageInfo]) -> IndexMap<usize, Vec<String>> {
 
 #[derive(Debug)]
 pub struct Packages {
+    repo_root: Utf8PathBuf,
     /// The order is by pkg_name and pkd_dir.
     map: IndexMap<XString, PackageInfoShared>,
 }
@@ -359,6 +361,7 @@ impl Packages {
     pub fn test_new(pkgs: &[&str]) -> Self {
         let host = crate::output::host_target_triple().to_owned();
         Packages {
+            repo_root: Utf8PathBuf::new(),
             map: pkgs
                 .iter()
                 .map(|name| {
@@ -376,24 +379,36 @@ impl Packages {
         }
     }
 
-    pub fn select<'a, I>(&self, all_packages: bool, pkgs: I) -> Vec<(&str, &PackageInfoShared)>
+    pub fn select<'a, I>(&self, globs: &[glob::Pattern], pkgs: I) -> Vec<(&str, &PackageInfoShared)>
     where
         I: Iterator<Item = &'a str>,
     {
-        let mut v = Vec::with_capacity(self.len());
+        // default to all searched pkgs
+        let mut map: IndexMap<&str, &PackageInfoShared> = self
+            .iter()
+            .map(|(name, info)| (name.as_str(), info))
+            .collect();
 
-        if all_packages {
-            v.extend(self.iter().map(|(name, info)| (name.as_str(), info)));
-        } else {
-            // 禁用所有 pkgs 的检查，但指定了某些 pkgs 进行检查
-            for pkg in pkgs {
-                // 已经校验过 pkg name 了
-                let (_, name, info) = self.get_full(pkg).unwrap();
-                v.push((name.as_str(), info));
+        for (name, info) in &self.map {
+            // once glob is matched, skip the pkg
+            let pkg_dir = info.pkg_dir.strip_prefix(&self.repo_root).unwrap();
+            for pat in globs {
+                let matches = pat.matches(pkg_dir.as_str());
+                if matches {
+                    map.swap_remove(name.as_str());
+                }
             }
         }
 
-        v
+        // 已经校验过 pkg name 了；pkgs 来自 packages 字段，一定检查它们
+        // 在已经 skip 过的 pkgs 上，可由 packages 指定回来
+        map.extend(pkgs.map(|pkg| {
+            let (_, name, info) = self.get_full(pkg).unwrap();
+            (name.as_str(), info)
+        }));
+
+        map.sort_unstable_keys();
+        map.into_iter().collect()
     }
 }
 

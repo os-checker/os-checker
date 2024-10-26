@@ -1,4 +1,5 @@
 use super::*;
+use eyre::Context;
 use CheckerTool::*;
 
 mod type_conversion;
@@ -164,24 +165,39 @@ impl std::ops::DerefMut for Cmds {
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Meta {
-    /// 当它为 false 时，对所有 pkgs 禁用检查。
-    /// 该选项只适用于 repo；如果在 packages 内设置，则无效
-    #[serde(default = "defalt_all_packages")]
-    all_packages: bool,
+    #[serde(default = "defalt_skip_pkg_dir_globs")]
+    skip_pkg_dir_globs: MaybeMulti,
 }
 
 impl Meta {
-    pub fn all_packages(&self) -> bool {
-        self.all_packages
+    pub fn skip_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
+        self.skip_pkg_dir_globs
+            .as_slice()
+            .iter()
+            .filter_map(|s| glob_pattern(s).ok())
+            .collect()
+    }
+
+    pub fn check_skip_pkg_dir_globs(&self) -> Result<()> {
+        for s in self.skip_pkg_dir_globs.as_slice() {
+            glob_pattern(s)?;
+        }
+        Ok(())
     }
 }
 
-fn defalt_all_packages() -> bool {
-    true
+fn glob_pattern(s: &str) -> Result<glob::Pattern> {
+    glob::Pattern::new(s).with_context(|| format!("{s} is not a valid glob pattern."))
+}
+
+fn defalt_skip_pkg_dir_globs() -> MaybeMulti {
+    MaybeMulti::Multi(vec![])
 }
 
 impl Default for Meta {
     fn default() -> Self {
-        Self { all_packages: true }
+        Self {
+            skip_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
+        }
     }
 }

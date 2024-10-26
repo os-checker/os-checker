@@ -14,17 +14,19 @@ env:
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
   PUSH: true
+  # push to which database branch 
+  DATABASE: debug
   # cache.redb tag in database release
-  TAG_CACHE: cache-v8.redb
+  TAG_CACHE: cache-v10.redb
   # repos-default.json tag in database release
   TAG_CACHE_REPOS_DEFAULT: cache-v8.redb
   # compiled checker binaries
   TAG_CHECKER_DOWNLOAD: cache-v7.redb
   # force downloading repos and check running
-  FORCE_REPO_CHECK: false
+  FORCE_REPO_CHECK: true
   # use which configs
   # CONFIGS: repos.json # for debug single repo
-  CONFIGS: repos-default.json repos-ui.json repos-embassy.json # full repo list
+  CONFIGS: repos-default.json repos-ui.json # full repo list
 
 jobs:
   run:
@@ -33,7 +35,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.SSH_PRIVATE_KEY_GITEE }}
 
       - name: Prepare Makefile and repos JSONs
         run: |
@@ -41,9 +45,10 @@ jobs:
           cp Makefile ~/check/
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
-          # cp assets/repos-default.json ~/check/
           gh release download -R os-checker/database ${{ env.TAG_CACHE_REPOS_DEFAULT }} -p repos-default.json -D ~/check/
-          cp assets/repos-embassy.json ~/check/
+          mv ~/check/repos-default.json ~/check/repos-default-raw.json
+          # temporarily disable qclic/e1000e-frame
+          jq 'del(."qclic/e1000e-frame")' ~/check/repos-default-raw.json > ~/check/repos-default.json
           cd ~/check
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
           # tar -xJvf cache.redb.tar.xz
@@ -51,7 +56,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly-2024-10-18
+          toolchain: nightly-2024-10-24
           components: rustfmt, clippy
 
       - name: Install Checkers
@@ -85,9 +90,9 @@ jobs:
           cd ~/check
           os-checker db --start cache.redb
 
-          # make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
           # 仅在支持新检查时采用 batch，因为中途一旦出错，只使用 run 无法在中途上传检查结果的缓存数据
-          batch --size 8 #|| echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          # batch --size 8 #|| echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
 
           os-checker db --done cache.redb
 
@@ -114,8 +119,8 @@ jobs:
           make clone_database
           cd database
 
-          git switch debug
-          echo "切换到 debug 分支"
+          git switch ${{ env.DATABASE }}
+          echo "切换到 ${{ env.DATABASE }} 分支"
 
           git pull --rebase # 防止二次运行 CI 时落后于远程分支
 
