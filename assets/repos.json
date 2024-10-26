@@ -1,13 +1,3 @@
 {
-  "kern-crates/rust-sel4": {
-    "meta": {
-      "skip_pkg_dir_globs": [
-        "crates/examples/**",
-        "crates/hacking/**"
-      ]
-    },
-    "cmds": {
-      "mirai": false
-    }
-  }
+  "qclic/e1000e-frame": {}
 }
