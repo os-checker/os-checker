@@ -16,6 +16,7 @@ use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
 
+mod geiger;
 mod lockbud;
 mod outdated;
 mod rap;
@@ -396,7 +397,7 @@ fn run_check(
         CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),
-        CheckerTool::Geiger => todo!(),
+        CheckerTool::Geiger => OutputParsed::Geiger(geiger::parse(&raw, &resolve)),
         CheckerTool::Miri => todo!(),
         CheckerTool::SemverChecks => todo!(),
         // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
@@ -426,6 +427,7 @@ enum OutputParsed {
     Lockbud(String),
     Rap(String),
     Outdated(String),
+    Geiger(String),
     Cargo { source: CargoSource, stderr: String },
 }
 
@@ -462,7 +464,10 @@ impl OutputParsed {
                     _ => None,
                 })
                 .sum(),
-            OutputParsed::Lockbud(s) | OutputParsed::Rap(s) | OutputParsed::Outdated(s) => {
+            OutputParsed::Lockbud(s)
+            | OutputParsed::Rap(s)
+            | OutputParsed::Outdated(s)
+            | OutputParsed::Geiger(s) => {
                 if s.is_empty() {
                     0
                 } else {
