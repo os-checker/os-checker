@@ -48,6 +48,9 @@
         "examples/**",
         "tests/**"
       ]
+    },
+    "cmds": {
+      "mirai": false
     }
   },
   "kern-crates/rust-sel4": {
