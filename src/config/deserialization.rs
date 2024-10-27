@@ -203,6 +203,7 @@ fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Re
             (Audit, Left(true)) => Resolve::audit(pkgs, v),
             (Rap, Left(true)) => Resolve::rap(pkgs, v),
             (Outdated, Left(true)) => Resolve::outdated(pkgs, v),
+            (Geiger, Left(true)) => Resolve::geiger(pkgs, v),
             (c, Right(s)) => Resolve::custom(pkgs, s, c, v)?,
             _ => (),
         }
