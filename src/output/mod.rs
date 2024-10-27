@@ -182,6 +182,7 @@ pub enum Kind {
     LockbudPossibly,
     Rap,
     Outdated,
+    Geiger,
     Cargo,
 }
 
@@ -206,6 +207,7 @@ impl Kinds {
                 LockbudProbably,
                 LockbudPossibly,
                 Outdated,
+                Geiger,
                 Unformatted,
             ],
             mapping: serde_json::json!({
@@ -216,6 +218,7 @@ impl Kinds {
                 "rap": [Rap],
                 "lockbud": [LockbudProbably, LockbudPossibly],
                 "outdated": [Outdated],
+                "geiger": [Geiger],
                 "fmt": [Unformatted]
             }),
         }

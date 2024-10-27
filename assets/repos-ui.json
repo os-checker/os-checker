@@ -1,26 +1,4 @@
 {
-  "arceos-org/arceos": {
-    "packages": {
-      "bwbench-client": {
-        "targets": "x86_64-unknown-linux-gnu"
-      },
-      "deptool": {
-        "targets": "x86_64-unknown-linux-gnu"
-      },
-      "arceos-shell": {
-        "targets": "x86_64-unknown-linux-gnu"
-      },
-      "arceos-httpserver": {
-        "targets": "x86_64-unknown-linux-gnu"
-      },
-      "arceos-httpclient": {
-        "targets": "x86_64-unknown-linux-gnu"
-      },
-      "arceos-helloworld": {
-        "targets": "x86_64-unknown-linux-gnu"
-      }
-    }
-  },
   "kern-crates/arceos": {
     "packages": {
       "bwbench-client": {
@@ -61,15 +39,6 @@
   "kern-crates/safe-virtio-drivers": {
     "cmds": {
       "mirai": false
-    }
-  },
-  "AsyncModules/embassy-priority": {
-    "meta": {
-      "skip_pkg_dir_globs": [
-        "docs/**",
-        "examples/**",
-        "tests/**"
-      ]
     }
   },
   "kern-crates/rust-sel4": {

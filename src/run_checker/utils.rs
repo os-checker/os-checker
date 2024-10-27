@@ -53,6 +53,7 @@ impl RawOutput {
             OutputParsed::Lockbud(s) => data_lockbud(s),
             OutputParsed::Rap(s) => data_rap(s),
             OutputParsed::Outdated(s) => data_outdated(s),
+            OutputParsed::Geiger(s) => data_geiger(s),
             OutputParsed::Cargo { source, stderr } => data_cargo(source, stderr),
         };
 
@@ -161,6 +162,19 @@ fn data_outdated(s: &str) -> Vec<OutputDataInner> {
         let data = OutputDataInner::new(
             "[outdated direct dependencies]".into(),
             Kind::Outdated,
+            s.to_owned(),
+        );
+        vec![data]
+    }
+}
+
+fn data_geiger(s: &str) -> Vec<OutputDataInner> {
+    if s.is_empty() {
+        Vec::new()
+    } else {
+        let data = OutputDataInner::new(
+            "[geiger] Unsafe Code statistics".into(),
+            Kind::Geiger,
             s.to_owned(),
         );
         vec![data]
