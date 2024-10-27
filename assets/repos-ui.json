@@ -41,18 +41,6 @@
       "mirai": false
     }
   },
-  "AsyncModules/embassy-priority": {
-    "meta": {
-      "skip_pkg_dir_globs": [
-        "docs/**",
-        "examples/**",
-        "tests/**"
-      ]
-    },
-    "cmds": {
-      "mirai": false
-    }
-  },
   "kern-crates/rust-sel4": {
     "meta": {
       "skip_pkg_dir_globs": [
