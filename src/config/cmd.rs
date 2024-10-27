@@ -118,7 +118,8 @@ pub fn cargo_geiger(pkg: &Pkg) -> Resolve {
         "geiger",
         "--output-format",
         "Ascii",
-        "--color=never",
+        "--color",
+        "never",
     )
     .dir(pkg.dir);
     debug!(?expr);
