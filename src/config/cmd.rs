@@ -113,7 +113,14 @@ pub fn cargo_rap(pkg: &Pkg) -> Resolve {
 pub fn cargo_geiger(pkg: &Pkg) -> Resolve {
     // let target = pkg.target;
 
-    let expr = cmd!("cargo", "geiger", "--output-format", "Ascii").dir(pkg.dir);
+    let expr = cmd!(
+        "cargo",
+        "geiger",
+        "--output-format",
+        "Ascii",
+        "--color=never",
+    )
+    .dir(pkg.dir);
     debug!(?expr);
     let cmd = "cargo geiger --output-format Ascii".to_owned();
     Resolve::new(pkg, CheckerTool::Geiger, cmd, expr)
