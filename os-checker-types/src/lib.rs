@@ -141,6 +141,7 @@ pub enum Kind {
     LockbudPossibly,
     Rap,
     Outdated,
+    Geiger,
     Cargo,
 }
 
@@ -159,6 +160,7 @@ impl Kind {
             Kind::LockbudPossibly => "Lockbud(Possibly)",
             Kind::Rap => "Rap",
             Kind::Outdated => "Outdated",
+            Kind::Geiger => "Geiger",
             Kind::Cargo => "Cargo",
         }
     }
@@ -177,13 +179,14 @@ pub struct Kinds {
 pub enum CheckerTool {
     /// 这是一个虚拟的检查工具，它表示 stderr 中含 `^error:` 的情况
     Cargo,
-    Miri,
     Clippy,
+    Miri,
     SemverChecks,
     Audit,
     Mirai,
     Lockbud,
     Rap,
     Outdated,
+    Geiger,
     Fmt,
 }

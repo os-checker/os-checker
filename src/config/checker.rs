@@ -1,7 +1,8 @@
 use musli::{Decode, Encode};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-pub const TOOLS: usize = 6; // 目前支持的检查工具数量
+
+pub const TOOLS: usize = 11; // 目前支持的检查工具数量
 
 /// 检查工具
 #[derive(
@@ -30,6 +31,7 @@ pub enum CheckerTool {
     Lockbud,
     Rap,
     Outdated,
+    Geiger,
     /// 这是一个虚拟的检查工具，它表示 stderr 中含 `^error:` 的情况
     Cargo,
 }
@@ -47,6 +49,7 @@ impl CheckerTool {
             CheckerTool::Lockbud => "lockbud",
             CheckerTool::Rap => "rap",
             CheckerTool::Outdated => "outdated",
+            CheckerTool::Geiger => "geiger",
             CheckerTool::Cargo => "cargo",
         }
     }

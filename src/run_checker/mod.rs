@@ -396,6 +396,7 @@ fn run_check(
         CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),
+        CheckerTool::Geiger => todo!(),
         CheckerTool::Miri => todo!(),
         CheckerTool::SemverChecks => todo!(),
         // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
