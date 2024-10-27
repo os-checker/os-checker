@@ -143,6 +143,16 @@ impl Resolve {
         }
     }
 
+    pub fn geiger(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
+        resolved.reserve(pkgs.len());
+        for pkg in pkgs {
+            // FIXME: 保险起见暂时只在 x86_64-unknown-linux-gnu 上检查，虽然 geiger 支持条件编译参数
+            if pkg.target == HOST_TARGET {
+                resolved.push(cargo_geiger(pkg));
+            }
+        }
+    }
+
     /// force checking even if a cache exists
     pub fn force_check(&self) -> bool {
         matches!(self.checker, CheckerTool::Rap)
