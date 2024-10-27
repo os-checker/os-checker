@@ -125,13 +125,14 @@ impl Cmds {
                 Audit => ENABLED,
                 Rap => ENABLED,
                 Outdated => ENABLED,
+                Geiger => ENABLED,
             },
         }
     }
 
     /// TODO: 其他工具待完成
     pub fn enable_all_checkers(&mut self) {
-        for checker in [Fmt, Clippy, Lockbud, Mirai, Audit, Rap, Outdated] {
+        for checker in [Fmt, Clippy, Lockbud, Mirai, Audit, Rap, Outdated, Geiger] {
             self.entry(checker)
                 .and_modify(|cmd| *cmd = ENABLED)
                 .or_insert(ENABLED);
