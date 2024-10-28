@@ -2,6 +2,8 @@ use crate::table::*;
 use eyre::{ContextCompat, Result};
 use redb::*;
 
+mod musli_tests;
+
 #[test]
 fn cache_redb() -> Result<()> {
     let db = test_database("..");
