@@ -12,6 +12,7 @@ use cargo_metadata::{
 };
 use either::Either;
 use eyre::Context;
+use itertools::Itertools;
 use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
@@ -145,10 +146,15 @@ impl Repo {
         let db_repo = db.map(|db| DbRepo::new(db, &repo, info));
 
         match err_or_resolve {
-            Either::Left(resolves) => {
+            Either::Left(mut resolves) => {
                 self.layout.set_layout_cache(&resolves, db_repo);
-                for resolve in resolves {
-                    run_check(resolve, &mut outputs, db_repo)?;
+
+                resolves.sort_by_key(|r| r.checker);
+                for (checker, v) in &resolves.into_iter().chunk_by(|r| r.checker) {
+                    checker.cargo_clean(&self.layout.workspace_dirs());
+                    for resolve in v {
+                        run_check(resolve, &mut outputs, db_repo)?;
+                    }
                 }
             }
             Either::Right(err) => {

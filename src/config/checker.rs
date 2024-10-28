@@ -1,6 +1,8 @@
+use camino::Utf8Path;
 use musli::{Decode, Encode};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use CheckerTool::*;
 
 pub const TOOLS: usize = 11; // 目前支持的检查工具数量
 
@@ -40,17 +42,30 @@ impl CheckerTool {
     /// The checker name invoked in CLI
     pub fn name(self) -> &'static str {
         match self {
-            CheckerTool::Fmt => "fmt",
-            CheckerTool::Clippy => "clippy",
-            CheckerTool::Miri => "miri",
-            CheckerTool::SemverChecks => "semver-checks",
-            CheckerTool::Audit => "audit",
-            CheckerTool::Mirai => "mirai",
-            CheckerTool::Lockbud => "lockbud",
-            CheckerTool::Rap => "rap",
-            CheckerTool::Outdated => "outdated",
-            CheckerTool::Geiger => "geiger",
-            CheckerTool::Cargo => "cargo",
+            Fmt => "fmt",
+            Clippy => "clippy",
+            Miri => "miri",
+            SemverChecks => "semver-checks",
+            Audit => "audit",
+            Mirai => "mirai",
+            Lockbud => "lockbud",
+            Rap => "rap",
+            Outdated => "outdated",
+            Geiger => "geiger",
+            Cargo => "cargo",
+        }
+    }
+
+    /// To reduce outdated artifacts of other checkers,
+    /// call cargo clean before some checkers start.
+    pub fn cargo_clean(self, workspace_dirs: &[&Utf8Path]) {
+        if matches!(self, Mirai | Rap | Geiger) {
+            let clean = &duct::cmd!("cargo", "clean");
+            for dir in workspace_dirs {
+                if let Err(err) = clean.clone().dir(dir).run() {
+                    error!(?self, %dir, ?err, "Failed to call cargo clean.");
+                }
+            }
         }
     }
 }

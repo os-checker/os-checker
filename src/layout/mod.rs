@@ -325,6 +325,11 @@ impl Layout {
 
         db_repo.set_layout_cache(layout);
     }
+
+    /// All dir paths of workspace in the repo.
+    pub fn workspace_dirs(&self) -> Vec<&Utf8Path> {
+        self.workspaces.keys().map(|p| p.as_path()).collect()
+    }
 }
 
 fn installation(info: &[PackageInfo]) -> IndexMap<usize, Vec<String>> {
