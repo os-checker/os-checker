@@ -120,6 +120,7 @@ pub struct Data {
 
 /// The kind a checker reports.
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, PartialEq, Eq, Clone, Copy, Hash)]
+#[musli(name_all = "name")]
 pub enum Kind {
     /// fmt
     Unformatted,
@@ -175,6 +176,7 @@ pub struct Kinds {
 #[derive(
     Debug, Serialize, Deserialize, Encode, Decode, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash,
 )]
+#[musli(name_all = "name")]
 #[serde(rename_all = "kebab-case")]
 pub enum CheckerTool {
     /// 这是一个虚拟的检查工具，它表示 stderr 中含 `^error:` 的情况
