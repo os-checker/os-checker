@@ -204,7 +204,7 @@ impl TryFrom<Value> for Configs {
                         RepoConfig::deserialize(deserializer).with_context(|| PARSE_JSON_ERROR)?;
                     config.validate_checker_name(&repo)?;
                     config.validate_skip_pkg_dir_globs(&repo)?;
-                    info!(?config);
+                    debug!(?config);
                     Ok(Config {
                         uri: uri::uri(repo)?,
                         config: Box::new(config),
