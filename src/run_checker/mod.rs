@@ -401,6 +401,7 @@ fn run_check(
         ),
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
         CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
+        CheckerTool::Rudra => todo!(),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),
         CheckerTool::Geiger => OutputParsed::Geiger(geiger::parse(&raw, &resolve)),
