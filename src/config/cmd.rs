@@ -2,7 +2,9 @@ use crate::{
     config::{CheckerTool, Resolve},
     layout::Pkg,
     output::host_toolchain,
-    utils::{PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI, PLUS_TOOLCHAIN_RAP},
+    utils::{
+        PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI, PLUS_TOOLCHAIN_RAP, PLUS_TOOLCHAIN_RUDRA,
+    },
     Result,
 };
 use duct::cmd;
@@ -108,6 +110,13 @@ pub fn cargo_rap(pkg: &Pkg) -> Resolve {
     debug!(?expr);
     let cmd = format!("cargo {PLUS_TOOLCHAIN_RAP} rap -F -M");
     Resolve::new(pkg, CheckerTool::Rap, cmd, expr)
+}
+
+pub fn cargo_rudra(pkg: &Pkg) -> Resolve {
+    let expr = cmd!("cargo", PLUS_TOOLCHAIN_RUDRA, "rudra",).dir(pkg.dir);
+    debug!(?expr);
+    let cmd = format!("cargo {PLUS_TOOLCHAIN_RUDRA} rudra");
+    Resolve::new(pkg, CheckerTool::Rudra, cmd, expr)
 }
 
 pub fn cargo_geiger(pkg: &Pkg) -> Resolve {
