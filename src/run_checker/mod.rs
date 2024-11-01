@@ -21,6 +21,7 @@ mod geiger;
 mod lockbud;
 mod outdated;
 mod rap;
+mod rudra;
 
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
@@ -401,7 +402,7 @@ fn run_check(
         ),
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
         CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
-        CheckerTool::Rudra => todo!(),
+        CheckerTool::Rudra => OutputParsed::Rudra(rudra::parse(&raw.stderr, &resolve)),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),
         CheckerTool::Geiger => OutputParsed::Geiger(geiger::parse(&raw, &resolve)),
@@ -433,6 +434,7 @@ enum OutputParsed {
     // TODO: a good type for Lockbud and Rap output is Option<String>
     Lockbud(String),
     Rap(String),
+    Rudra(String),
     Outdated(String),
     Geiger(String),
     Cargo { source: CargoSource, stderr: String },
@@ -473,6 +475,7 @@ impl OutputParsed {
                 .sum(),
             OutputParsed::Lockbud(s)
             | OutputParsed::Rap(s)
+            | OutputParsed::Rudra(s)
             | OutputParsed::Outdated(s)
             | OutputParsed::Geiger(s) => {
                 if s.is_empty() {
