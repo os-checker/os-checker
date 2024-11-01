@@ -23,7 +23,7 @@ env:
   # compiled checker binaries
   TAG_CHECKER_DOWNLOAD: cache-v7.redb
   # force downloading repos and check running
-  FORCE_REPO_CHECK: false
+  FORCE_REPO_CHECK: true
   # use which configs
   CONFIGS: repos.json # for debug single repo
   # CONFIGS: repos-default.json repos-ui.json # full repo list
