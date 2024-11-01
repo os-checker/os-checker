@@ -2,7 +2,10 @@ use super::{
     git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD,
     PLUS_TOOLCHAIN_MIRAI, TOOLCHAIN_LOCKBUD, TOOLCHAIN_RAP,
 };
-use crate::{utils::TOOLCHAIN_MIRAI, Result};
+use crate::{
+    utils::{TOOLCHAIN_MIRAI, TOOLCHAIN_RUDRA},
+    Result,
+};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use duct::{cmd, Expression};
 use eyre::Context;
@@ -134,6 +137,9 @@ fn check_or_install_checkers() -> Result<()> {
     install("mirai", TOOLCHAIN_MIRAI, setup_mirai)?;
     install("rap", TOOLCHAIN_RAP, || {
         bail!("Rap should be installed manually for now.")
+    })?;
+    install("rudra", TOOLCHAIN_RUDRA, || {
+        bail!("Rudra should be installed manually for now.")
     })?;
 
     Ok(())
