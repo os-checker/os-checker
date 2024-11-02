@@ -25,8 +25,8 @@ env:
   # force downloading repos and check running
   FORCE_REPO_CHECK: true
   # use which configs
-  # CONFIGS: repos.json # for debug single repo
-  CONFIGS: repos-default.json repos-ui.json # full repo list
+  CONFIGS: repos-ui.json # for debug single repo
+  # CONFIGS: repos-default.json repos-ui.json # full repo list
 
 jobs:
   run:
