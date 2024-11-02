@@ -15,9 +15,9 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # push to which database branch 
-  DATABASE: main
+  DATABASE: debug
   # cache.redb tag in database release
-  TAG_CACHE: cache-v10.redb
+  TAG_CACHE: cache-v11.redb
   # repos-default.json tag in database release
   TAG_CACHE_REPOS_DEFAULT: cache-v8.redb
   # compiled checker binaries
