@@ -15,7 +15,7 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # push to which database branch 
-  DATABASE: debug
+  DATABASE: main
   # cache.redb tag in database release
   TAG_CACHE: cache-v11.redb
   # repos-default.json tag in database release
@@ -23,7 +23,7 @@ env:
   # compiled checker binaries
   TAG_CHECKER_DOWNLOAD: cache-v7.redb
   # force downloading repos and check running
-  FORCE_REPO_CHECK: true
+  FORCE_REPO_CHECK: false
   # use which configs
   # CONFIGS: repos-ui.json # for debug single repo
   CONFIGS: repos-default.json repos-ui.json # full repo list
