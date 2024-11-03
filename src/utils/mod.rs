@@ -23,13 +23,18 @@ pub const HOST_TARGET: &str = "x86_64-unknown-linux-gnu";
 
 /// 检查工具固定的工具链
 pub const PLUS_TOOLCHAIN_HOST: &str = "+nightly";
+
 pub const TOOLCHAIN_LOCKBUD: &str = "nightly-2024-05-21";
 pub const PLUS_TOOLCHAIN_LOCKBUD: &str = "+nightly-2024-05-21";
+
 pub const TOOLCHAIN_MIRAI: &str = "nightly-2023-12-30";
 pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2023-12-30";
 
 pub const TOOLCHAIN_RAP: &str = "nightly-2024-06-30";
 pub const PLUS_TOOLCHAIN_RAP: &str = "+nightly-2024-06-30";
+
+pub const TOOLCHAIN_RUDRA: &str = "nightly-2021-10-21";
+pub const PLUS_TOOLCHAIN_RUDRA: &str = "+nightly-2021-10-21";
 
 /// git clone 一个仓库到一个 dir。
 /// 如果该仓库已存在，则 git pull 拉取最新的代码。

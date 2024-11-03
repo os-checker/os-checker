@@ -52,6 +52,7 @@ impl RawOutput {
             OutputParsed::Mirai(v) => data_rustc(CheckerTool::Mirai, v, root),
             OutputParsed::Lockbud(s) => data_lockbud(s),
             OutputParsed::Rap(s) => data_rap(s),
+            OutputParsed::Rudra(s) => data_rudra(s),
             OutputParsed::Outdated(s) => data_outdated(s),
             OutputParsed::Geiger(s) => data_geiger(s),
             OutputParsed::Cargo { source, stderr } => data_cargo(source, stderr),
@@ -149,6 +150,20 @@ fn data_rap(s: &str) -> Vec<OutputDataInner> {
         let data = OutputDataInner::new(
             "[rap] Not supported to display yet.".into(),
             Kind::Rap,
+            s.to_owned(),
+        );
+        vec![data]
+    }
+}
+
+fn data_rudra(s: &str) -> Vec<OutputDataInner> {
+    if s.is_empty() {
+        Vec::new()
+    } else {
+        // FIXME: 目前 rudra 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
+        let data = OutputDataInner::new(
+            "[rudra] Not supported to display yet.".into(),
+            Kind::Rudra,
             s.to_owned(),
         );
         vec![data]

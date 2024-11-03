@@ -32,6 +32,7 @@ pub enum CheckerTool {
     Mirai,
     Lockbud,
     Rap,
+    Rudra,
     Outdated,
     Geiger,
     /// 这是一个虚拟的检查工具，它表示 stderr 中含 `^error:` 的情况
@@ -50,6 +51,7 @@ impl CheckerTool {
             Mirai => "mirai",
             Lockbud => "lockbud",
             Rap => "rap",
+            Rudra => "rudra",
             Outdated => "outdated",
             Geiger => "geiger",
             Cargo => "cargo",

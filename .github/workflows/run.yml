@@ -15,9 +15,9 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # push to which database branch 
-  DATABASE: debug
+  DATABASE: main
   # cache.redb tag in database release
-  TAG_CACHE: cache-v10.redb
+  TAG_CACHE: cache-v11.redb
   # repos-default.json tag in database release
   TAG_CACHE_REPOS_DEFAULT: cache-v8.redb
   # compiled checker binaries
@@ -71,11 +71,15 @@ jobs:
           gh release download -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p rap -p cargo-rap 
           chmod +x rap && mv rap ~/.cargo/bin/
           chmod +x cargo-rap && mv cargo-rap ~/.cargo/bin/
+          # install rudra
+          gh release download -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p rudra -p cargo-rudra 
+          chmod +x rudra && mv rudra ~/.cargo/bin/
+          chmod +x cargo-rudra && mv cargo-rudra ~/.cargo/bin/
           # install outdated
           wget https://github.com/kbknapp/cargo-outdated/releases/download/v0.15.0/cargo-outdated-0.15.0-x86_64-unknown-linux-musl.tar.gz
           tar xvzf cargo-outdated-0.15.0-x86_64-unknown-linux-musl.tar.gz
           mv cargo-outdated ~/.cargo/bin/
-          # install audit
+          # install geiger
           gh release download --clobber -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p cargo-geiger -D ~/.cargo/bin/
           chmod +x ~/.cargo/bin/cargo-geiger
           ls -alh ~/.cargo/bin/

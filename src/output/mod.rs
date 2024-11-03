@@ -181,6 +181,7 @@ pub enum Kind {
     #[serde(rename = "Lockbud(Possibly)")]
     LockbudPossibly,
     Rap,
+    Rudra,
     Outdated,
     Geiger,
     Cargo,
@@ -204,6 +205,7 @@ impl Kinds {
                 Audit,
                 Mirai,
                 Rap,
+                Rudra,
                 LockbudProbably,
                 LockbudPossibly,
                 Outdated,
@@ -216,6 +218,7 @@ impl Kinds {
                 "audit": [Audit],
                 "mirai": [Mirai],
                 "rap": [Rap],
+                "rudra": [Rudra],
                 "lockbud": [LockbudProbably, LockbudPossibly],
                 "outdated": [Outdated],
                 "geiger": [Geiger],
