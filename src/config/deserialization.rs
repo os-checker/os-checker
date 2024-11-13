@@ -44,7 +44,6 @@ pub struct RepoConfig {
 
 impl RepoConfig {
     /// 每个 package 及其对应的检查命令
-    #[instrument(level = "trace")]
     pub fn resolve(&self, repo: &str, packages: &Packages) -> Result<Vec<Resolve>> {
         // validate pkg names in packages
         self.validate_pkgs(repo, packages)?;
