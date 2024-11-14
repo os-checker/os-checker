@@ -36,7 +36,7 @@ pub struct Args {
 impl Args {
     #[instrument(level = "trace")]
     pub fn execute(self) -> Result<()> {
-        init_repos_base_dir(self.first_config());
+        init_repos_base_dir(self.base_dir());
         match self.sub_args {
             SubArgs::Layout(layout) => layout.execute()?,
             SubArgs::Run(run) => {
@@ -55,15 +55,20 @@ impl Args {
         Ok(())
     }
 
-    fn first_config(&self) -> &str {
+    fn base_dir(&self) -> Utf8PathBuf {
+        const BASE_DIR: &str = "repos";
+
+        let file_stem = |config: &str| {
+            let config = Utf8Path::new(config);
+            Utf8PathBuf::from(config.file_stem().expect("配置文件不含 file stem"))
+        };
+
         match &self.sub_args {
-            SubArgs::Run(run) => &run.config as &[_],
-            SubArgs::Batch(batch) => &batch.config,
-            _ => &[],
+            SubArgs::Run(run) => file_stem(&run.config[0]),
+            SubArgs::Batch(batch) => file_stem(&batch.config[0]),
+            SubArgs::Layout(layout) => layout.base_dir.clone().unwrap_or_else(|| BASE_DIR.into()),
+            _ => BASE_DIR.into(),
         }
-        .first()
-        .map(|s| &**s)
-        .unwrap_or("repos")
     }
 }
 
@@ -86,6 +91,18 @@ struct ArgsLayout {
     /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]
     config: Vec<String>,
+    /// base folder in which a repo locates. e.g. `--base-dir /tmp` means `user/repo` will locate in `/tmp/user/repo`.
+    #[argh(option)]
+    base_dir: Option<Utf8PathBuf>,
+    /// display targets of packages for a given repos. The packages are filterred out as specified
+    /// in the config.
+    ///
+    /// The argument should be a list of `user/repo` separated with comma like `a/b,c/d`. Empty
+    /// string means all repos.
+    ///
+    /// Repos not in the given list will not be downloaded and parsed.
+    #[argh(option)]
+    list_targets: Option<String>,
 }
 
 /// Run checkers on all repos.
@@ -295,6 +312,10 @@ impl ArgsLayout {
         dbg!(repos);
         Ok(())
     }
+
+    fn list_targets(&self) -> Result<()> {
+        Ok(())
+    }
 }
 
 impl ArgsBatch {
@@ -309,9 +330,7 @@ impl ArgsBatch {
 
 static REPOS_BASE_DIR: Mutex<Option<Utf8PathBuf>> = Mutex::new(None);
 
-fn init_repos_base_dir(config: &str) {
-    let config = Utf8Path::new(config);
-    let path = Utf8PathBuf::from(config.file_stem().expect("配置文件不含 file stem"));
+fn init_repos_base_dir(path: Utf8PathBuf) {
     // 按照 config.json 设置目录名为 config
     if !path.exists() {
         debug!(%path, "创建 REPOS_BASE_DIR");
