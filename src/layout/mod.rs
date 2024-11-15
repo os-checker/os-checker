@@ -259,9 +259,7 @@ impl Layout {
         dbg!(&targets.no_install, &self.installation);
         // remove no_install_targets from global toolchain
         for idx in self.installation.keys().copied() {
-            for no_install in targets.no_install {
-                remove_targets(idx, &targets.no_install);
-            }
+            remove_targets(idx, targets.no_install);
         }
         // remove no_install_targets from local repos
         for no_install in targets.no_install {
