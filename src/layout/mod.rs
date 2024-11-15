@@ -256,7 +256,6 @@ impl Layout {
                 *old = targets.repo.to_vec();
             }
         }
-        dbg!(&targets.no_install, &self.installation);
         // remove no_install_targets from global toolchain
         for idx in self.installation.keys().copied() {
             remove_targets(idx, targets.no_install);
@@ -265,11 +264,10 @@ impl Layout {
         for no_install in targets.no_install {
             for v in self.installation.values_mut() {
                 if let Some(pos) = v.iter().position(|t| t == no_install) {
-                    dbg!(v.remove(pos));
+                    v.remove(pos);
                 }
             }
         }
-        dbg!(&self.installation);
     }
 
     /// 安装仓库工具链，并在主机和检查工具所在的工具链上安装 targets。

@@ -119,7 +119,7 @@ pub fn remove_targets(idx: usize, remove: &[String]) {
     };
     for no_install in remove {
         if let Some(pos) = targets.iter().position(|t| t == no_install) {
-            dbg!(targets.remove(pos));
+            targets.remove(pos);
         }
     }
 }
