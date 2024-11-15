@@ -131,13 +131,16 @@ impl Repo {
         }
     }
 
-    fn run_check(&self, info: &InfoKeyValue) -> Result<PackagesOutputs> {
+    fn run_check(
+        &self,
+        info: &InfoKeyValue,
+        install_err: Option<String>,
+    ) -> Result<PackagesOutputs> {
         let user = self.config.user_name();
         let repo = self.config.repo_name();
         let _span = debug_span!("run_check", user, repo).entered();
 
         let mut outputs = PackagesOutputs::new();
-        let err_or_resolve = self.resolve()?;
 
         let db = self.config.db();
         let repo = {
@@ -147,6 +150,12 @@ impl Repo {
         info.assert_eq_sha(&repo);
         let db_repo = db.map(|db| DbRepo::new(db, &repo, info));
 
+        if let Some(err) = install_err {
+            self.push_cargo_layout_parse_error(&err, &mut outputs, db_repo);
+            return Ok(outputs);
+        }
+
+        let err_or_resolve = self.resolve()?;
         match err_or_resolve {
             Either::Left(mut resolves) => {
                 self.layout.set_layout_cache(&resolves, db_repo);
@@ -161,14 +170,23 @@ impl Repo {
             }
             Either::Right(err) => {
                 self.layout.set_layout_cache(&[], db_repo);
-                // NOTE: 无法从 repo 中知道 pkg 信息，因此为空
-                let pkg_name = String::new();
-                let repo_root = self.layout.repo_root();
-                let output = Output::new_cargo_from_layout_parse_error(&pkg_name, repo_root, err);
-                outputs.push_cargo_layout_parse_error(pkg_name, output, db_repo);
+                self.push_cargo_layout_parse_error(err, &mut outputs, db_repo);
             }
         }
         Ok(outputs)
+    }
+
+    fn push_cargo_layout_parse_error(
+        &self,
+        err: &str,
+        outputs: &mut PackagesOutputs,
+        db_repo: Option<DbRepo<'_>>,
+    ) {
+        // NOTE: 无法从 repo 中知道 pkg 信息，因此为空
+        let pkg_name = String::new();
+        let repo_root = self.layout.repo_root();
+        let output = Output::new_cargo_from_layout_parse_error(&pkg_name, repo_root, err);
+        outputs.push_cargo_layout_parse_error(pkg_name, output, db_repo);
     }
 
     /// 提前删除仓库目录
@@ -242,9 +260,12 @@ impl RepoOutput {
             .set_installation_targets(repo.config.targets_specified());
 
         info!(repo_root = %repo.layout.repo_root(), "install toolchains");
-        repo.layout.install_toolchains()?;
+        let install_err = match repo.layout.install_toolchains() {
+            Ok(_) => None,
+            Err(err) => Some(format!("{err:?}")),
+        };
 
-        let mut outputs = repo.run_check(&info)?;
+        let mut outputs = repo.run_check(&info, install_err)?;
         outputs.sort_by_name_and_checkers();
         if let Some(db) = repo.config.db() {
             info.set_complete(db)?;
