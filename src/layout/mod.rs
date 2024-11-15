@@ -260,10 +260,11 @@ impl Layout {
         for no_install in targets.no_install {
             for v in self.installation.values_mut() {
                 if let Some(pos) = v.iter().position(|t| t == no_install) {
-                    v.remove(pos);
+                    dbg!(v.remove(pos));
                 }
             }
         }
+        dbg!(&self.installation);
     }
 
     /// 安装仓库工具链，并在主机和检查工具所在的工具链上安装 targets。
