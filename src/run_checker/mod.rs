@@ -169,7 +169,6 @@ impl Repo {
                 }
             }
             Either::Right(err) => {
-                self.layout.set_layout_cache(&[], db_repo);
                 self.push_cargo_layout_parse_error(err, &mut outputs, db_repo);
             }
         }
@@ -182,6 +181,7 @@ impl Repo {
         outputs: &mut PackagesOutputs,
         db_repo: Option<DbRepo<'_>>,
     ) {
+        self.layout.set_layout_cache(&[], db_repo);
         // NOTE: 无法从 repo 中知道 pkg 信息，因此为空
         let pkg_name = String::new();
         let repo_root = self.layout.repo_root();
