@@ -423,7 +423,7 @@ impl RustToolchain {
 
             let repo_dir = self.toml_path.parent().unwrap();
             let stdout = install_toolchain(repo_dir)?;
-            info!(install = String::from_utf8(stdout)?);
+            info!(install = ?String::from_utf8(stdout)?);
 
             let output = cmd!(
                 "rustup",
