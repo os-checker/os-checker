@@ -6,6 +6,7 @@ use crate::{
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::Context;
 use itertools::Itertools;
+use os_checker_types::db::ListTargets;
 use serde::{ser::SerializeMap, Deserialize, Serialize, Serializer};
 use serde_json::Value;
 
@@ -90,6 +91,20 @@ impl Config {
 
     pub fn clean_repo_dir(&self) -> Result<()> {
         self.uri.clean_repo_dir()
+    }
+
+    pub fn list_targets(&self, pkgs: &Packages) -> Result<Vec<ListTargets>> {
+        Ok(self
+            .config
+            .selected_pkgs(pkgs)?
+            .into_iter()
+            .map(|(pkg, info)| ListTargets {
+                user: self.user_name().into(),
+                repo: self.repo_name().into(),
+                pkg: pkg.into(),
+                targets: info.targets(),
+            })
+            .collect())
     }
 }
 

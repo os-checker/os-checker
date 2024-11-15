@@ -131,6 +131,14 @@ pub struct CacheResolve {
     pub cmd: String,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ListTargets {
+    pub user: XString,
+    pub repo: XString,
+    pub pkg: XString,
+    pub targets: Vec<String>,
+}
+
 #[test]
 fn workspaces() {
     #[derive(Encode, Decode)]

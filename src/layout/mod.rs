@@ -450,6 +450,10 @@ impl PackageInfoShared {
             })
             .collect()
     }
+
+    pub fn targets(&self) -> Vec<String> {
+        self.targets.clone()
+    }
 }
 
 #[derive(Debug)]

@@ -13,6 +13,7 @@ use cargo_metadata::{
 use either::Either;
 use eyre::Context;
 use itertools::Itertools;
+use os_checker_types::db::ListTargets;
 use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
@@ -174,6 +175,10 @@ impl Repo {
     #[instrument(level = "trace")]
     pub fn clean_repo_dir(&self) -> Result<()> {
         self.config.clean_repo_dir()
+    }
+
+    pub fn list_targets(&self) -> Result<Vec<ListTargets>> {
+        self.config.list_targets(&self.layout.packages()?)
     }
 }
 

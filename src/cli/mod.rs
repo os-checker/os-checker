@@ -9,9 +9,11 @@ use argh::FromArgs;
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use either::Either;
 use eyre::ContextCompat;
+use itertools::Itertools;
 use serde::Serialize;
 use std::{
     fs::File,
+    io,
     sync::{
         atomic::{AtomicBool, Ordering},
         Mutex,
@@ -178,7 +180,7 @@ impl Emit {
     {
         // trick to have stacked dyn trait objects
         let (mut writer1, mut writer2);
-        let writer: &mut dyn std::io::Write = match &self {
+        let writer: &mut dyn io::Write = match &self {
             Emit::Json => {
                 writer1 = std::io::stdout();
                 &mut writer1
@@ -308,8 +310,14 @@ impl ArgsLayout {
     #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
         SETUP.store(false, Ordering::Relaxed);
-        let repos = norun(&self.config)?;
-        dbg!(repos);
+
+        if self.list_targets.is_some() {
+            self.list_targets()?;
+        } else {
+            let repos = norun(&self.config)?;
+            dbg!(repos);
+        }
+
         Ok(())
     }
 
@@ -320,12 +328,19 @@ impl ArgsLayout {
             .map(|s| s.split(',').collect::<Vec<_>>());
         let repos = repos.as_deref();
 
-        let repos: Vec<_> = configurations(configs)?
+        let targets: Vec<_> = configurations(&self.config)?
             .into_inner()
             .into_iter()
             .filter(|config| config.is_in_repos(repos))
-            .map(Repo::try_from)
-            .collect::<Result<_>>()?;
+            .map(|config| Repo::try_from(config)?.list_targets())
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .flatten()
+            .sorted_unstable_by(|a, b| (&a.user, &a.repo, &a.pkg).cmp(&(&b.user, &b.repo, &b.pkg)))
+            .collect();
+
+        serde_json::to_writer_pretty(io::stdout(), &targets)?;
+
         Ok(())
     }
 }

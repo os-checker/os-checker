@@ -1,7 +1,7 @@
 use super::checker::CheckerTool;
 use crate::{
     config::{checker::TOOLS, Resolve},
-    layout::{Packages, Pkg},
+    layout::{PackageInfoShared, Packages, Pkg},
     Result,
 };
 use cargo_metadata::camino::Utf8Path;
@@ -45,14 +45,9 @@ pub struct RepoConfig {
 impl RepoConfig {
     /// 每个 package 及其对应的检查命令
     pub fn resolve(&self, repo: &str, packages: &Packages) -> Result<Vec<Resolve>> {
-        // validate pkg names in packages
-        self.validate_pkgs(repo, packages)?;
+        let _span = error_span!("resolve", repo).entered();
 
-        // 待检查的 pkgs
-        let selected_pkgs = packages.select(
-            &self.skip_pkg_dir_globs(),
-            self.packages.keys().map(|s| s.as_str()),
-        );
+        let selected_pkgs = self.selected_pkgs(packages)?;
 
         let mut cmds = Cmds::new_with_all_checkers_enabled();
 
@@ -90,11 +85,22 @@ impl RepoConfig {
         Ok(v)
     }
 
-    fn validate_pkgs(&self, repo: &str, pkgs: &Packages) -> Result<()> {
+    pub fn selected_pkgs<'a>(
+        &self,
+        packages: &'a Packages,
+    ) -> Result<Vec<(&'a str, &'a PackageInfoShared)>> {
+        self.validate_pkgs(packages)?;
+        Ok(packages.select(
+            &self.skip_pkg_dir_globs(),
+            self.packages.keys().map(|s| s.as_str()),
+        ))
+    }
+
+    fn validate_pkgs(&self, pkgs: &Packages) -> Result<()> {
         for pkg_name in self.packages.keys() {
             ensure!(
                 pkgs.contains_key(&**pkg_name),
-                "The package `{pkg_name}` is not in the repo `{repo}`."
+                "The package `{pkg_name}` is not in the repo."
             );
         }
         Ok(())
