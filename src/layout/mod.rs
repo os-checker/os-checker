@@ -256,6 +256,7 @@ impl Layout {
                 *old = targets.repo.to_vec();
             }
         }
+        dbg!(&targets.no_install, &self.installation);
         for no_install in targets.no_install {
             for v in self.installation.values_mut() {
                 if let Some(pos) = v.iter().position(|t| t == no_install) {
