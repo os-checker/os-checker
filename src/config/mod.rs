@@ -49,6 +49,19 @@ impl Config {
         self.uri.user_name()
     }
 
+    pub fn is_in_repos(&self, repos: Option<&[&str]>) -> bool {
+        if let Some(v) = repos {
+            let key = self.uri.key();
+            for &repo in v {
+                if key == repo {
+                    return true;
+                }
+            }
+        }
+        // the config doesn't belong to any repo in the list, or the list is none
+        false
+    }
+
     pub fn set_db(&mut self, db: Option<Db>) {
         self.db = db;
     }

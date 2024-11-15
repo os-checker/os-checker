@@ -314,6 +314,18 @@ impl ArgsLayout {
     }
 
     fn list_targets(&self) -> Result<()> {
+        let repos = self
+            .list_targets
+            .as_deref()
+            .map(|s| s.split(',').collect::<Vec<_>>());
+        let repos = repos.as_deref();
+
+        let repos: Vec<_> = configurations(configs)?
+            .into_inner()
+            .into_iter()
+            .filter(|config| config.is_in_repos(repos))
+            .map(Repo::try_from)
+            .collect::<Result<_>>()?;
         Ok(())
     }
 }
