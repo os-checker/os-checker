@@ -8,7 +8,7 @@
       ]
     }
   },
-  "kern-crates/arceos": {
+  "arceos-org/arceos": {
     "packages": {
       "bwbench-client": {
         "targets": "x86_64-unknown-linux-gnu"
@@ -30,10 +30,10 @@
       }
     }
   },
-  "kern-crates/sel4_cspace": {
+  "rel4team/sel4_cspace": {
     "targets": "riscv64gc-unknown-none-elf"
   },
-  "kern-crates/rcore-tutorial-v3-with-hal-component": {
+  "sysones/rcore-tutorial-v3-with-hal-component": {
     "targets": "x86_64-unknown-linux-gnu"
   },
   "Starry-OS/Starry": {
@@ -42,15 +42,15 @@
   "kern-crates/zCore": {
     "no_install_targets": "x86_64-unknown-uefi"
   },
-  "kern-crates/rboot": {
+  "rcore-os/rboot": {
     "no_install_targets": "x86_64-unknown-uefi"
   },
-  "kern-crates/safe-virtio-drivers": {
+  "os-module/safe-virtio-drivers": {
     "cmds": {
       "mirai": false
     }
   },
-  "kern-crates/rust-sel4": {
+  "seL4/rust-sel4": {
     "meta": {
       "skip_pkg_dir_globs": [
         "crates/examples/**",
