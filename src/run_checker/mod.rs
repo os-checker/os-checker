@@ -262,7 +262,7 @@ impl RepoOutput {
         info!(repo_root = %repo.layout.repo_root(), "install toolchains");
         let install_err = match repo.layout.install_toolchains() {
             Ok(_) => None,
-            Err(err) => Some(format!("{err:?}")),
+            Err(err) => Some(strip_ansi_escapes::strip_str(format!("{err:?}"))),
         };
 
         let mut outputs = repo.run_check(&info, install_err)?;
