@@ -422,7 +422,8 @@ impl RustToolchain {
             self.need_install_clippy = true;
 
             let repo_dir = self.toml_path.parent().unwrap();
-            install_toolchain(repo_dir)?;
+            let stdout = install_toolchain(repo_dir)?;
+            info!(install = String::from_utf8(stdout)?);
 
             let output = cmd!(
                 "rustup",
