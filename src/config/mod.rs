@@ -201,6 +201,18 @@ impl Configs {
 
         Ok(())
     }
+
+    pub fn check_given_repos(&self, repos: &[&str]) -> Result<()> {
+        let mut set: IndexSet<_> = self.0.iter().map(|c| c.uri.key()).collect();
+        set.sort_unstable();
+        for repo in repos {
+            ensure!(
+                set.contains(repo),
+                "{repo} is not in config repos:\n{set:?}"
+            );
+        }
+        Ok(())
+    }
 }
 
 impl Serialize for Configs {

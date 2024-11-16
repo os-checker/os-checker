@@ -326,7 +326,10 @@ impl ArgsLayout {
         let list_targets = self.list_targets.as_deref().unwrap();
         let repos = list_targets.split(',').collect::<Vec<_>>();
 
-        let targets: Vec<_> = configurations(&self.config)?
+        let configs = configurations(&self.config)?;
+        configs.check_given_repos(&repos)?;
+
+        let targets: Vec<_> = configs
             .into_inner()
             .into_iter()
             .filter(|config| config.is_in_repos(&repos))
