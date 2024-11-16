@@ -15,7 +15,7 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # push to which database branch 
-  DATABASE: debug
+  DATABASE: main
   # cache.redb tag in database release
   TAG_CACHE: cache-v11.redb
   # repos-default.json tag in database release
