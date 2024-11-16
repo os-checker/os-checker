@@ -3,7 +3,7 @@
 use crate::{
     config::{Resolve, TargetsSpecifed},
     db::out::{CacheLayout, CachePackageInfo, CacheResolve, CargoMetaData},
-    output::{get_channel, install_toolchain_idx, uninstall_toolchains},
+    output::{get_channel, install_toolchain_idx, remove_targets, uninstall_toolchains},
     run_checker::DbRepo,
     utils::walk_dir,
     Result, XString,
@@ -256,6 +256,11 @@ impl Layout {
                 *old = targets.repo.to_vec();
             }
         }
+        // remove no_install_targets from global toolchain
+        for idx in self.installation.keys().copied() {
+            remove_targets(idx, targets.no_install);
+        }
+        // remove no_install_targets from local repos
         for no_install in targets.no_install {
             for v in self.installation.values_mut() {
                 if let Some(pos) = v.iter().position(|t| t == no_install) {
@@ -449,6 +454,10 @@ impl PackageInfoShared {
                 audit: self.audit.as_ref(),
             })
             .collect()
+    }
+
+    pub fn targets(&self) -> Vec<String> {
+        self.targets.clone()
     }
 }
 

@@ -16,6 +16,7 @@ use std::{fmt::Write, sync::LazyLock};
 
 /// 当 os-checker 内部支持新检查时，将这个值设置为 true，
 /// 来强制运行仓库检查（不影响已有的检查缓存结果）。
+/// NOTE: cargo error 的检查结果总是在强制运行仓库检查时更新。
 pub fn force_repo_check() -> bool {
     static FORCE_REPO_CHECK: LazyLock<bool> = LazyLock::new(|| {
         std::env::var("FORCE_REPO_CHECK")

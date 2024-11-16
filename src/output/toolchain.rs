@@ -2,7 +2,7 @@ use crate::{cli::is_not_layout, layout::RustToolchain, Result};
 use cargo_metadata::camino::Utf8Path;
 use duct::cmd;
 use eyre::ContextCompat;
-use indexmap::IndexMap;
+use indexmap::{map::MutableKeys, IndexMap};
 use regex::Regex;
 use serde::Serialize;
 use std::sync::{LazyLock, Mutex};
@@ -109,6 +109,19 @@ pub fn get_toolchain(idx: usize) -> String {
     let mut toolchain = String::new();
     get_toolchain_f(idx, |t| toolchain = t.channel.clone());
     toolchain
+}
+
+pub fn remove_targets(idx: usize, remove: &[String]) {
+    let map = &mut *GLOBAL.installed.lock().unwrap();
+    let toolchain = map.get_index_mut2(idx).unwrap().0;
+    let Some(targets) = &mut toolchain.targets else {
+        return;
+    };
+    for no_install in remove {
+        if let Some(pos) = targets.iter().position(|t| t == no_install) {
+            targets.remove(pos);
+        }
+    }
 }
 
 /// 这和 get_toolchain 获取的 channel 几乎一样，但在主机工具链上，统一为

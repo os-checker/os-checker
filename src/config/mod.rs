@@ -5,7 +5,9 @@ use crate::{
 };
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::Context;
+use indexmap::IndexSet;
 use itertools::Itertools;
+use os_checker_types::db::ListTargets;
 use serde::{ser::SerializeMap, Deserialize, Serialize, Serializer};
 use serde_json::Value;
 
@@ -49,6 +51,17 @@ impl Config {
         self.uri.user_name()
     }
 
+    pub fn is_in_repos(&self, repos: &[&str]) -> bool {
+        let key = self.uri.key();
+        for &repo in repos {
+            if key == repo {
+                return true;
+            }
+        }
+        // the config doesn't belong to any repo in the list, or the list is none
+        false
+    }
+
     pub fn set_db(&mut self, db: Option<Db>) {
         self.db = db;
     }
@@ -77,6 +90,20 @@ impl Config {
 
     pub fn clean_repo_dir(&self) -> Result<()> {
         self.uri.clean_repo_dir()
+    }
+
+    pub fn list_targets(&self, pkgs: &Packages) -> Result<Vec<ListTargets>> {
+        Ok(self
+            .config
+            .selected_pkgs(pkgs)?
+            .into_iter()
+            .map(|(pkg, info)| ListTargets {
+                user: self.user_name().into(),
+                repo: self.repo_name().into(),
+                pkg: pkg.into(),
+                targets: info.targets(),
+            })
+            .collect())
     }
 }
 
@@ -172,6 +199,18 @@ impl Configs {
             path.pop();
         }
 
+        Ok(())
+    }
+
+    pub fn check_given_repos(&self, repos: &[&str]) -> Result<()> {
+        let mut set: IndexSet<_> = self.0.iter().map(|c| c.uri.key()).collect();
+        set.sort_unstable();
+        for repo in repos {
+            ensure!(
+                set.contains(repo),
+                "{repo} is not in config repos:\n{set:?}"
+            );
+        }
         Ok(())
     }
 }

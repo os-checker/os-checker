@@ -9,9 +9,11 @@ use argh::FromArgs;
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use either::Either;
 use eyre::ContextCompat;
+use itertools::Itertools;
 use serde::Serialize;
 use std::{
     fs::File,
+    io,
     sync::{
         atomic::{AtomicBool, Ordering},
         Mutex,
@@ -36,7 +38,7 @@ pub struct Args {
 impl Args {
     #[instrument(level = "trace")]
     pub fn execute(self) -> Result<()> {
-        init_repos_base_dir(self.first_config());
+        init_repos_base_dir(self.base_dir());
         match self.sub_args {
             SubArgs::Layout(layout) => layout.execute()?,
             SubArgs::Run(run) => {
@@ -55,15 +57,20 @@ impl Args {
         Ok(())
     }
 
-    fn first_config(&self) -> &str {
+    fn base_dir(&self) -> Utf8PathBuf {
+        const BASE_DIR: &str = "repos";
+
+        let file_stem = |config: &str| {
+            let config = Utf8Path::new(config);
+            Utf8PathBuf::from(config.file_stem().expect("配置文件不含 file stem"))
+        };
+
         match &self.sub_args {
-            SubArgs::Run(run) => &run.config as &[_],
-            SubArgs::Batch(batch) => &batch.config,
-            _ => &[],
+            SubArgs::Run(run) => file_stem(&run.config[0]),
+            SubArgs::Batch(batch) => file_stem(&batch.config[0]),
+            SubArgs::Layout(layout) => layout.base_dir.clone().unwrap_or_else(|| BASE_DIR.into()),
+            _ => BASE_DIR.into(),
         }
-        .first()
-        .map(|s| &**s)
-        .unwrap_or("repos")
     }
 }
 
@@ -86,6 +93,18 @@ struct ArgsLayout {
     /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]
     config: Vec<String>,
+    /// base folder in which a repo locates. e.g. `--base-dir /tmp` means `user/repo` will locate in `/tmp/user/repo`.
+    #[argh(option)]
+    base_dir: Option<Utf8PathBuf>,
+    /// display targets of packages for a given repos. The packages are filterred out as specified
+    /// in the config.
+    ///
+    /// The argument should be a list of `user/repo` separated with comma like `a/b,c/d`. Empty
+    /// string means all repos.
+    ///
+    /// Repos not in the given list will not be downloaded and parsed.
+    #[argh(option)]
+    list_targets: Option<String>,
 }
 
 /// Run checkers on all repos.
@@ -161,7 +180,7 @@ impl Emit {
     {
         // trick to have stacked dyn trait objects
         let (mut writer1, mut writer2);
-        let writer: &mut dyn std::io::Write = match &self {
+        let writer: &mut dyn io::Write = match &self {
             Emit::Json => {
                 writer1 = std::io::stdout();
                 &mut writer1
@@ -291,8 +310,38 @@ impl ArgsLayout {
     #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
         SETUP.store(false, Ordering::Relaxed);
-        let repos = norun(&self.config)?;
-        dbg!(repos);
+
+        // FIXME: 我们需要支持 repos 为 None 的情况吗？它代表所有仓库，有意义，但没有需求。
+        if self.list_targets.is_some() {
+            self.list_targets()?;
+        } else {
+            let repos = norun(&self.config)?;
+            dbg!(repos);
+        }
+
+        Ok(())
+    }
+
+    fn list_targets(&self) -> Result<()> {
+        let list_targets = self.list_targets.as_deref().unwrap();
+        let repos = list_targets.split(',').collect::<Vec<_>>();
+
+        let configs = configurations(&self.config)?;
+        configs.check_given_repos(&repos)?;
+
+        let targets: Vec<_> = configs
+            .into_inner()
+            .into_iter()
+            .filter(|config| config.is_in_repos(&repos))
+            .map(|config| Repo::try_from(config)?.list_targets())
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .flatten()
+            .sorted_unstable_by(|a, b| (&a.user, &a.repo, &a.pkg).cmp(&(&b.user, &b.repo, &b.pkg)))
+            .collect();
+
+        serde_json::to_writer_pretty(io::stdout(), &targets)?;
+
         Ok(())
     }
 }
@@ -309,9 +358,7 @@ impl ArgsBatch {
 
 static REPOS_BASE_DIR: Mutex<Option<Utf8PathBuf>> = Mutex::new(None);
 
-fn init_repos_base_dir(config: &str) {
-    let config = Utf8Path::new(config);
-    let path = Utf8PathBuf::from(config.file_stem().expect("配置文件不含 file stem"));
+fn init_repos_base_dir(path: Utf8PathBuf) {
     // 按照 config.json 设置目录名为 config
     if !path.exists() {
         debug!(%path, "创建 REPOS_BASE_DIR");

@@ -4,7 +4,7 @@ version = "0.4.0"
 edition = "2021"
 license = "MIT"
 rust-version = "1.80"
-exclude = ["assets", ".github", "repos", "tests", "examples", "Makefile"]
+exclude = ["assets", ".github", "repos", "tests", "examples", "Makefile", "dist-workspace.toml"]
 repository = "https://github.com/os-checker/os-checker"
 description = "Run a collection of checkers targeting Rust crates, and report bad checking results and statistics."
 
