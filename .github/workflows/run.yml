@@ -106,6 +106,10 @@ jobs:
           cp ~/check/cache.redb .
           cargo test -p os-checker-types -- --nocapture cache_redb
 
+      - name: Run layout --list-targets test
+        run: |
+          os-checker layout --list-targets os-checker/os-checker,os-checker/os-checker-test-suite
+
       - name: Update cache.redb
         run: |
           cd ~/check
