@@ -5,6 +5,7 @@ use crate::{
 };
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use eyre::Context;
+use indexmap::IndexSet;
 use itertools::Itertools;
 use os_checker_types::db::ListTargets;
 use serde::{ser::SerializeMap, Deserialize, Serialize, Serializer};
@@ -50,13 +51,11 @@ impl Config {
         self.uri.user_name()
     }
 
-    pub fn is_in_repos(&self, repos: Option<&[&str]>) -> bool {
-        if let Some(v) = repos {
-            let key = self.uri.key();
-            for &repo in v {
-                if key == repo {
-                    return true;
-                }
+    pub fn is_in_repos(&self, repos: &[&str]) -> bool {
+        let key = self.uri.key();
+        for &repo in repos {
+            if key == repo {
+                return true;
             }
         }
         // the config doesn't belong to any repo in the list, or the list is none

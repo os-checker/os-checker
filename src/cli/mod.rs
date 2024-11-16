@@ -311,6 +311,7 @@ impl ArgsLayout {
     fn execute(&self) -> Result<()> {
         SETUP.store(false, Ordering::Relaxed);
 
+        // FIXME: 我们需要支持 repos 为 None 的情况吗？它代表所有仓库，有意义，但没有需求。
         if self.list_targets.is_some() {
             self.list_targets()?;
         } else {
@@ -322,16 +323,13 @@ impl ArgsLayout {
     }
 
     fn list_targets(&self) -> Result<()> {
-        let repos = self
-            .list_targets
-            .as_deref()
-            .map(|s| s.split(',').collect::<Vec<_>>());
-        let repos = repos.as_deref();
+        let list_targets = self.list_targets.as_deref().unwrap();
+        let repos = list_targets.split(',').collect::<Vec<_>>();
 
         let targets: Vec<_> = configurations(&self.config)?
             .into_inner()
             .into_iter()
-            .filter(|config| config.is_in_repos(repos))
+            .filter(|config| config.is_in_repos(&repos))
             .map(|config| Repo::try_from(config)?.list_targets())
             .collect::<Result<Vec<_>>>()?
             .into_iter()
