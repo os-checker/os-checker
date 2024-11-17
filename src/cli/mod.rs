@@ -12,8 +12,7 @@ use eyre::ContextCompat;
 use itertools::Itertools;
 use serde::Serialize;
 use std::{
-    fs::File,
-    io,
+    fs, io,
     sync::{
         atomic::{AtomicBool, Ordering},
         Mutex,
@@ -182,11 +181,11 @@ impl Emit {
         let (mut writer1, mut writer2);
         let writer: &mut dyn io::Write = match &self {
             Emit::Json => {
-                writer1 = std::io::stdout();
+                writer1 = io::stdout();
                 &mut writer1
             }
             Emit::JsonFile(p) => {
-                writer2 = File::create(p)?;
+                writer2 = fs::File::create(p)?;
                 &mut writer2
             }
         };
@@ -362,7 +361,7 @@ fn init_repos_base_dir(path: Utf8PathBuf) {
     // 按照 config.json 设置目录名为 config
     if !path.exists() {
         debug!(%path, "创建 REPOS_BASE_DIR");
-        std::fs::create_dir(&path).unwrap();
+        fs::create_dir_all(&path).unwrap();
     }
     debug!(%path, "正在初始化 REPOS_BASE_DIR");
     *REPOS_BASE_DIR.lock().unwrap() = Some(path);
