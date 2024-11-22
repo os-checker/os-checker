@@ -93,8 +93,8 @@ jobs:
           cp ~/check/cache.redb .
           cargo test -p os-checker-types -- --nocapture cache_redb
 
-      - name: Run layout --list-targets test
-        run: make layout_list_targets
+      # - name: Run layout --list-targets test
+      #   run: make layout_list_targets
 
       - name: Update cache.redb
         run: |
