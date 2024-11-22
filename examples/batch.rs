@@ -36,8 +36,10 @@ fn main() -> Result<()> {
     args.extend(["--out-dir", config_dir.as_str()]);
     args.extend(["--size", &batch.size]);
 
+    let configs = var(OS_CHECKER_CONFIGS)?;
+    info!(?configs);
     cmd("os-checker", args)
-        .env(OS_CHECKER_CONFIGS, var(OS_CHECKER_CONFIGS)?)
+        .env(OS_CHECKER_CONFIGS, configs)
         .run()?;
 
     let [mut count_json_file, mut count_repos] = [0usize; 2];

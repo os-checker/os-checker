@@ -77,6 +77,8 @@ impl Args {
 
     /// Try reading `OS_CHECKER_CONFIGS` env var if no config is given.
     fn set_configs(&mut self) -> Result<()> {
+        const OS_CHECKER_CONFIGS: &str = "OS_CHECKER_CONFIGS";
+
         let mut_config = match &mut self.sub_args {
             SubArgs::Layout(layout) => &mut layout.config,
             SubArgs::Run(run) => &mut run.config,
@@ -85,11 +87,13 @@ impl Args {
             SubArgs::Db(_) => return Ok(()),
         };
         if mut_config.is_empty() {
-            if let Ok(configs) = std::env::var("OS_CHECKER_CONFIGS") {
-                info!("Set OS_CHECKER_CONFIGS as --config arguments.");
+            if let Ok(configs) = std::env::var(OS_CHECKER_CONFIGS) {
+                info!("Set {OS_CHECKER_CONFIGS} as --config arguments.");
                 mut_config.extend(configs.trim().split(" ").map(|c| c.trim().to_owned()));
             } else {
-                bail!("Neither OS_CHECKER_CONFIGS nor --config exists. Please provide one of them.")
+                bail!(
+                    "Neither {OS_CHECKER_CONFIGS} nor --config exists. Please provide one of them."
+                )
             }
         }
         Ok(())
