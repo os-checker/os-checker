@@ -1,5 +1,7 @@
 use crate::Result;
 use argh::FromArgs;
+use serde_json::to_writer_pretty;
+use std::io::stdout;
 
 /// Emit merged infomation based on given configs. The command will not download any artifacts,
 /// unlike layout subcommand does.
@@ -27,6 +29,19 @@ pub struct ArgsConfig {
 
 impl ArgsConfig {
     pub fn execute(&self) -> Result<()> {
+        let configs = super::configurations(&self.config)?;
+
+        if self.merged {
+            to_writer_pretty(stdout(), &configs)?;
+            return Ok(());
+        }
+
+        if self.list_repos {
+            let repos = configs.list_repos();
+            to_writer_pretty(stdout(), &repos)?;
+            return Ok(());
+        }
+
         Ok(())
     }
 }
