@@ -18,6 +18,7 @@ struct Batch {
 }
 
 const DB: &str = "cache.redb";
+const OS_CHECKER_CONFIGS: &str = "OS_CHECKER_CONFIGS";
 
 #[instrument(level = "trace")]
 fn main() -> Result<()> {
@@ -34,7 +35,10 @@ fn main() -> Result<()> {
     args.push("batch");
     args.extend(["--out-dir", config_dir.as_str()]);
     args.extend(["--size", &batch.size]);
-    cmd("os-checker", args).run()?;
+
+    cmd("os-checker", args)
+        .env(OS_CHECKER_CONFIGS, var(OS_CHECKER_CONFIGS)?)
+        .run()?;
 
     let [mut count_json_file, mut count_repos] = [0usize; 2];
     // NOTE: 这里没有对文件排序，所以不是完全按字母表顺序检查（虽然文件内的仓库是字母顺序）
