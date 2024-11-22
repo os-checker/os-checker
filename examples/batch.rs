@@ -1,9 +1,6 @@
 // #!/usr/bin/env -S cargo +nightly -Zscript
 
 #[macro_use]
-extern crate eyre;
-
-#[macro_use]
 extern crate tracing;
 
 use argh::FromArgs;
@@ -33,21 +30,8 @@ fn main() -> Result<()> {
     let config_dir = base_dir.join("config");
     let batch_dir = base_dir.join("batch");
 
-    let configs: Vec<_> = var("CONFIGS")?
-        .trim()
-        .split(" ")
-        .map(Utf8PathBuf::from)
-        .collect();
-    info!(?configs);
-    ensure!(!configs.is_empty(), "CONFIGS env var should be specified.");
-    for config in &configs {
-        ensure!(config.exists(), "{config} does not exists.");
-    }
-    let arg_configs = configs.iter().flat_map(|c| ["--config", c.as_str()]);
-
     let mut args = Vec::<&str>::with_capacity(16);
     args.push("batch");
-    args.extend(arg_configs);
     args.extend(["--out-dir", config_dir.as_str()]);
     args.extend(["--size", &batch.size]);
     cmd("os-checker", args).run()?;
