@@ -20,6 +20,8 @@ use std::{
     time::SystemTime,
 };
 
+mod arg_config;
+
 pub fn args() -> Args {
     let arguments = argh::from_env();
     debug!(?arguments);
@@ -52,6 +54,7 @@ impl Args {
                 debug!(%repos_dir, "清理成功");
             }
             SubArgs::Batch(batch) => batch.execute()?,
+            SubArgs::Config(config) => config.execute()?,
             SubArgs::Schema(schema) => gen_schema(&schema.path)?,
             SubArgs::Db(db) => db.execute()?,
         }
@@ -82,6 +85,7 @@ impl Args {
             SubArgs::Layout(layout) => &mut layout.config,
             SubArgs::Run(run) => &mut run.config,
             SubArgs::Batch(batch) => &mut batch.config,
+            SubArgs::Config(config) => &mut config.config,
             SubArgs::Schema(_) => return Ok(()),
             SubArgs::Db(_) => return Ok(()),
         };
@@ -105,6 +109,7 @@ enum SubArgs {
     Layout(ArgsLayout),
     Run(ArgsRun),
     Batch(ArgsBatch),
+    Config(arg_config::ArgsConfig),
     Schema(ArgsSchema),
     Db(ArgsDb),
 }
