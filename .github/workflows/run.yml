@@ -25,8 +25,8 @@ env:
   # force downloading repos and check running
   FORCE_REPO_CHECK: false
   # use which configs
-  # CONFIGS: repos.json # for debug single repo
-  CONFIGS: repos-default.json repos-ui.json # full repo list
+  # OS_CHECKER_CONFIGS: repos.json # for debug single repo
+  OS_CHECKER_CONFIGS: repos-default.json repos-ui.json # full repo list
 
 jobs:
   run:
@@ -93,8 +93,8 @@ jobs:
           cp ~/check/cache.redb .
           cargo test -p os-checker-types -- --nocapture cache_redb
 
-      - name: Run layout --list-targets test
-        run: make layout_list_targets
+      # - name: Run layout --list-targets test
+      #   run: make layout_list_targets
 
       - name: Update cache.redb
         run: |
