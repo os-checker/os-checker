@@ -15,7 +15,7 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # push to which database branch 
-  DATABASE: main
+  DATABASE: debug
   # cache.redb tag in database release
   TAG_CACHE: cache-v11.redb
   # repos-default.json tag in database release
@@ -59,28 +59,15 @@ jobs:
 
       - name: Install Checkers
         run: |
-          # install lockbud 
-          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/lockbud/releases/download/v0.1.0/lockbud-installer.sh | sh
-          # install mirai
-          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh | sh
-          # install audit
-          gh release download --clobber -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p cargo-audit -D ~/.cargo/bin/
-          # install rap
-          gh release download -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p rap -p cargo-rap 
-          chmod +x rap && mv rap ~/.cargo/bin/
-          chmod +x cargo-rap && mv cargo-rap ~/.cargo/bin/
-          # install rudra
-          gh release download -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p rudra -p cargo-rudra 
-          chmod +x rudra && mv rudra ~/.cargo/bin/
-          chmod +x cargo-rudra && mv cargo-rudra ~/.cargo/bin/
-          # install outdated
-          wget https://github.com/kbknapp/cargo-outdated/releases/download/v0.15.0/cargo-outdated-0.15.0-x86_64-unknown-linux-musl.tar.gz
-          tar xvzf cargo-outdated-0.15.0-x86_64-unknown-linux-musl.tar.gz
-          mv cargo-outdated ~/.cargo/bin/
-          # install geiger
-          gh release download --clobber -R os-checker/database ${{ env.TAG_CHECKER_DOWNLOAD }} -p cargo-geiger -D ~/.cargo/bin/
-          chmod +x ~/.cargo/bin/cargo-geiger
-          ls -alh ~/.cargo/bin/
+          gh release download --clobber -R os-checker/database precompiled-checkers -p checkers.tar.xz
+          tar -xvJf checkers.tar.xz -C ~/.cargo/bin/
+          cargo audit --version
+          cargo outdated --version
+          cargo geiger --version
+          rustup default nightly-2021-10-21 && cargo rudra --help
+          rustup default nightly-2024-02-05 && cargo mirai --help
+          rustup default nightly-2024-10-05 && cargo lockbud --help
+          rustup default nightly-2024-10-12 && cargo rap --help
 
       - name: Install os-checker
         run: cargo install --path . --force
@@ -121,7 +108,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          cargo install --path os-checker-database -F clear_batch
+          cargo install --path os-checker-database
 
           cd ~/check
           make clone_database

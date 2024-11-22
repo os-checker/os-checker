@@ -12,9 +12,6 @@ pub use installation::{
     init as installation_init, install_toolchain, rustup_target_add, rustup_target_add_for_checkers,
 };
 
-/// Temp dir for os-checker, used for installing checkers.
-pub const BASE_DIR_CHECKERS: &str = "/tmp/os-checker/checkers";
-
 /// 特殊的编译目标，os-checker 目前不支持在这上面运行检查。
 pub const PECULIAR_TARGETS: &[&str] = &["x86_64-fuchsia", "avr-unknown-gnu-atmega328"];
 
@@ -24,17 +21,10 @@ pub const HOST_TARGET: &str = "x86_64-unknown-linux-gnu";
 /// 检查工具固定的工具链
 pub const PLUS_TOOLCHAIN_HOST: &str = "+nightly";
 
-pub const TOOLCHAIN_LOCKBUD: &str = "nightly-2024-05-21";
-pub const PLUS_TOOLCHAIN_LOCKBUD: &str = "+nightly-2024-05-21";
-
-pub const TOOLCHAIN_MIRAI: &str = "nightly-2023-12-30";
-pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2023-12-30";
-
-pub const TOOLCHAIN_RAP: &str = "nightly-2024-06-30";
-pub const PLUS_TOOLCHAIN_RAP: &str = "+nightly-2024-06-30";
-
-pub const TOOLCHAIN_RUDRA: &str = "nightly-2021-10-21";
 pub const PLUS_TOOLCHAIN_RUDRA: &str = "+nightly-2021-10-21";
+pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2024-02-05";
+pub const PLUS_TOOLCHAIN_LOCKBUD: &str = "+nightly-2024-10-05";
+pub const PLUS_TOOLCHAIN_RAP: &str = "+nightly-2024-10-12";
 
 /// git clone 一个仓库到一个 dir。
 /// 如果该仓库已存在，则 git pull 拉取最新的代码。
