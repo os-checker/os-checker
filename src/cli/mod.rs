@@ -88,7 +88,10 @@ impl Args {
             return;
         }
         if let Ok(configs) = std::env::var("OS_CHECKER_CONFIGS") {
+            info!("Set OS_CHECKER_CONFIGS as --config arguments.");
             mut_config.extend(configs.trim().split(" ").map(|c| c.trim().to_owned()));
+        } else {
+            bail!("Neither OS_CHECKER_CONFIGS nor --config exists. Please provide one of them.")
         }
     }
 }
