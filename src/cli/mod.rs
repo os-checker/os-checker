@@ -244,9 +244,8 @@ impl std::str::FromStr for Emit {
 /// 返回值表示每个仓库的合并之后的配置信息。
 #[instrument(level = "trace")]
 fn configurations(configs: &[String]) -> Result<Configs> {
-    const DEFAULT: &str = "repos.json";
-    let config = match configs {
-        [] => Configs::from_json_path(DEFAULT.into())?,
+    Ok(match configs {
+        [] => bail!("No configuration JSON is given."),
         [path] => Configs::from_json_path(path.as_str().into())?,
         paths => {
             let configs = paths
@@ -258,8 +257,7 @@ fn configurations(configs: &[String]) -> Result<Configs> {
                 .reduce(Configs::merge)
                 .with_context(|| format!("无法从 {paths:?} 合并到一个 Configs"))?
         }
-    };
-    Ok(config)
+    })
 }
 
 /// 读取和合并配置，然后在每个仓库上执行检查。
