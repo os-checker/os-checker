@@ -34,7 +34,7 @@ mod targets;
 
 mod db;
 
-#[cfg(feature = "batch")]
+#[cfg(any(feature = "batch", feature = "clear_batch"))]
 #[instrument(level = "trace")]
 fn main() -> Result<()> {
     logger::init();
