@@ -5,8 +5,10 @@ Configs(
                 "user1/repo",
             ),
             config: RepoConfig {
+                meta: None,
                 setup: None,
                 targets: None,
+                no_install_targets: None,
                 cmds: Cmds {
                     map: {
                         Fmt: false,
@@ -14,14 +16,17 @@ Configs(
                 },
                 packages: {},
             },
+            db: None,
         },
         Config {
             uri: Github(
                 "user2/repo",
             ),
             config: RepoConfig {
+                meta: None,
                 setup: None,
                 targets: None,
+                no_install_targets: None,
                 cmds: Cmds {
                     map: {
                         Clippy: "cargo clippy",
@@ -29,25 +34,30 @@ Configs(
                 },
                 packages: {},
             },
+            db: None,
         },
         Config {
             uri: Github(
                 "user3/repo",
             ),
             config: RepoConfig {
+                meta: None,
                 setup: None,
                 targets: None,
+                no_install_targets: None,
                 cmds: Cmds {
                     map: {},
                 },
                 packages: {
                     "a": RepoConfig {
+                        meta: None,
                         setup: None,
                         targets: Some(
                             Targets(
                                 "x86_64-unknown-linux-gnu",
                             ),
                         ),
+                        no_install_targets: None,
                         cmds: Cmds {
                             map: {},
                         },
@@ -55,6 +65,7 @@ Configs(
                     },
                 },
             },
+            db: None,
         },
     ],
 )
