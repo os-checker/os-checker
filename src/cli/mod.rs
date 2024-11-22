@@ -96,6 +96,7 @@ impl Args {
                 )
             }
         }
+        info!(?mut_config);
         Ok(())
     }
 }
