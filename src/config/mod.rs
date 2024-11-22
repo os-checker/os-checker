@@ -213,6 +213,10 @@ impl Configs {
         }
         Ok(())
     }
+
+    pub fn list_repos(&self) -> Vec<&str> {
+        self.0.iter().map(|config| config.uri.key()).collect()
+    }
 }
 
 impl Serialize for Configs {

@@ -31,9 +31,6 @@ pub use utils::DbRepo;
 mod packages_outputs;
 use packages_outputs::PackagesOutputs;
 
-#[cfg(test)]
-mod tests;
-
 pub struct RepoOutput {
     repo: Repo,
     outputs: PackagesOutputs,
