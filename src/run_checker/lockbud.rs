@@ -1,15 +1,5 @@
 use super::CargoMessage;
 
-#[cfg(test)]
-pub fn get_lockbud_result() -> crate::Result<String> {
-    let toolchain = crate::utils::PLUS_TOOLCHAIN_LOCKBUD;
-    let out = duct::cmd!("cargo", toolchain, "lockbud", "-k", "all")
-        .dir("repos/os-checker-test-suite")
-        .stderr_capture()
-        .run()?;
-    Ok(parse_lockbud_result(&out.stderr))
-}
-
 pub fn parse_lockbud_result(stderr: &[u8]) -> String {
     let tag = "[2024"; // 目前只能通过日志识别
     let mut count = 0usize;
@@ -28,4 +18,25 @@ pub fn parse_lockbud_result(stderr: &[u8]) -> String {
         }
     }
     v.join("\n")
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Result;
+
+    fn get_lockbud_result() -> Result<String> {
+        let toolchain = crate::utils::PLUS_TOOLCHAIN_LOCKBUD;
+        let out = duct::cmd!("cargo", toolchain, "lockbud", "-k", "all")
+            .dir("repos/os-checker-test-suite")
+            .stderr_capture()
+            .run()?;
+        Ok(super::parse_lockbud_result(&out.stderr))
+    }
+
+    #[test]
+    fn lockbud_output() -> Result<()> {
+        let s = get_lockbud_result()?;
+        println!("{s}");
+        Ok(())
+    }
 }
