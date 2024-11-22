@@ -20,7 +20,7 @@ upload:
 	gh release upload --clobber -R os-checker/database $(TAG_PRECOMPILED_CHECKERS)  ~/.cargo/bin/os-checker
 
 run:
-	@OS_CHECKER_CONFIGS=$(OS_CHECKER_CONFIGS) os-checker run --emit $(SINGLE_JSON) --db cache.redb
+	@OS_CHECKER_CONFIGS="$(OS_CHECKER_CONFIGS)" os-checker run --emit $(SINGLE_JSON) --db cache.redb
 
 # author zjp-CN, and commiter bot
 clone_database:
@@ -35,10 +35,10 @@ clone_database:
 
 # print repos info without installing anything
 layout:
-	@OS_CHECKER_CONFIGS=$(OS_CHECKER_CONFIGS) os-checker layout 2>&1 | tee $(BATCH_DIR)/layout.txt
+	@OS_CHECKER_CONFIGS="$(OS_CHECKER_CONFIGS)" os-checker layout 2>&1 | tee $(BATCH_DIR)/layout.txt
 
 layout_list_targets:
-	cd $(BASE_DIR) && OS_CHECKER_CONFIGS=$(OS_CHECKER_CONFIGS) os-checker layout --list-targets seL4/rust-sel4
+	cd $(BASE_DIR) && OS_CHECKER_CONFIGS="$(OS_CHECKER_CONFIGS)" os-checker layout --list-targets seL4/rust-sel4
 
 audit:
 	gh release download --clobber -R os-checker/database $(TAG_CACHE) -p cargo-audit -D ~/.cargo/bin/ || make install_audit
