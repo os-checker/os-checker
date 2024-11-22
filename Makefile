@@ -23,8 +23,8 @@ run:
 
 # author zjp-CN, and commiter bot
 clone_database:
-	@git config --global user.name "zjp-CN"
-	@git config --global user.email "jiping_zhou@foxmail.com"
+	@git config --global user.name "zjp-CN[bot]"
+	@git config --global user.email "zjp-CN[bot]@users.noreply.github.com"
 	@git config --global committer.name "zjp-CN[bot]"
 	@git config --global committer.email "zjp-CN[bot]@users.noreply.github.com"
 	@
