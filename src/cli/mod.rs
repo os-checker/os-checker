@@ -37,9 +37,8 @@ pub struct Args {
 impl Args {
     #[instrument(level = "trace")]
     pub fn execute(mut self) -> Result<()> {
-        init_repos_base_dir(self.base_dir());
-
         self.set_configs()?;
+        init_repos_base_dir(self.base_dir());
 
         match self.sub_args {
             SubArgs::Layout(layout) => layout.execute()?,
@@ -96,7 +95,6 @@ impl Args {
                 )
             }
         }
-        info!(?mut_config);
         Ok(())
     }
 }
