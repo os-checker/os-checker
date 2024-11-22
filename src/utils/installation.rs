@@ -1,12 +1,6 @@
-use super::{
-    git_clone, BASE_DIR_CHECKERS, PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD,
-    PLUS_TOOLCHAIN_MIRAI, TOOLCHAIN_LOCKBUD, TOOLCHAIN_RAP,
-};
-use crate::{
-    utils::{TOOLCHAIN_MIRAI, TOOLCHAIN_RUDRA},
-    Result,
-};
-use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
+use super::{PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI};
+use crate::Result;
+use cargo_metadata::camino::Utf8Path;
 use duct::{cmd, Expression};
 use eyre::Context;
 
@@ -72,76 +66,24 @@ fn run_cmd(expr: Expression, mut err: impl FnMut() -> String) -> Result<()> {
     Ok(())
 }
 
-fn setup_lockbud() -> Result<()> {
-    let url = "https://github.com/BurtonQin/lockbud.git";
-    let dir = &Utf8PathBuf::from_iter([BASE_DIR_CHECKERS, "lockbud"]);
-    git_clone(dir, url)?;
-    cmd!("rustup", "show").dir(dir).run()?;
-    cmd!("cargo", "install", "--path", ".", "--force")
-        .dir(dir)
-        .run()?;
-    Ok(())
-}
-
-fn setup_mirai() -> Result<()> {
-    const URL: &str =
-        "https://github.com/os-checker/MIRAI/releases/download/v1.1.9/mirai-installer.sh";
-    cmd!("curl", "--proto", "=https", "--tlsv1.2", "-LsSf", URL)
-        .pipe(cmd!("sh"))
-        .run()
-        .with_context(|| "安装 mirai 失败")?;
-    install_checker_toolchain("mirai", TOOLCHAIN_MIRAI)?;
-    Ok(())
-}
-
-fn detect_checker_if_exists(checker_bin: &str) -> bool {
+fn detect_checker_if_exists(checker_bin: &str) -> Result<()> {
     match cmd!("which", checker_bin).read() {
         Ok(location) => {
             info!(checker_bin, location);
-            true
+            Ok(())
         }
         Err(err) => {
-            error!(err = %err, "未找到 {checker_bin}");
-            false
+            // error!(err = %err, "未找到 {checker_bin}");
+            Err(err).context(format!("未找到 {checker_bin}"))
         }
     }
 }
 
-fn install_checker_toolchain(checker_bin: &str, toolchain: &str) -> Result<()> {
-    cmd!("rustup", "toolchain", "install", toolchain).run()?;
-    info!(
-        checker_bin,
-        "toolchain specified by the checker is installed."
-    );
-    Ok(())
-}
-
-/// 该函数检查是否存在 checker，如果不存在，则安装到本地。
-/// 如果检查工具存在，确保安装该工具指定的工具链。
-/// 该函数不安装 targets。
-fn check_or_install_checkers() -> Result<()> {
-    fn install(
-        checker_bin: &str,
-        toolchain: &str,
-        setup: impl FnOnce() -> Result<()>,
-    ) -> Result<()> {
-        if !detect_checker_if_exists(checker_bin) {
-            setup()?;
-        } else {
-            install_checker_toolchain(checker_bin, toolchain)?;
-        }
-        Ok(())
-    }
-
-    install("lockbud", TOOLCHAIN_LOCKBUD, setup_lockbud)?;
-    install("mirai", TOOLCHAIN_MIRAI, setup_mirai)?;
-    install("rap", TOOLCHAIN_RAP, || {
-        bail!("Rap should be installed manually for now.")
-    })?;
-    install("rudra", TOOLCHAIN_RUDRA, || {
-        bail!("Rudra should be installed manually for now.")
-    })?;
-
+fn detect_checkers() -> Result<()> {
+    detect_checker_if_exists("rap")?;
+    detect_checker_if_exists("lockbud")?;
+    detect_checker_if_exists("mirai")?;
+    detect_checker_if_exists("rudra")?;
     Ok(())
 }
 
@@ -152,16 +94,14 @@ pub fn init() {
     static INIT_INSTALLATION: Once = Once::new();
     INIT_INSTALLATION.call_once(|| {
         crate::output::init_toolchain_info();
-        check_or_install_checkers().unwrap();
+        detect_checkers().unwrap();
     });
 }
 
 #[test]
 fn which_checker() {
     crate::logger::test_init(Some("debug"), "");
-    dbg!(
-        detect_checker_if_exists("lockbud"),
-        detect_checker_if_exists("mirai"),
-        detect_checker_if_exists("mirai2"),
-    );
+    detect_checker_if_exists("lockbud").unwrap();
+    detect_checker_if_exists("mirai").unwrap();
+    detect_checker_if_exists("mirai2").unwrap();
 }
