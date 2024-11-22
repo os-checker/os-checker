@@ -1,8 +1,7 @@
 BASE_DIR ?= ~/check
 BATCH_DIR ?= $(BASE_DIR)/batch
 # CONFIG_DIR ?= $(BASE_DIR)/config
-CONFIGS ?= repos-default.json repos-ui.json repos-embassy.json
-ARGS_CONFIGS ?= $(shell echo "$(CONFIGS)" | awk '{for(i=1;i<=NF;i++) printf("--config %s ", $$i)}')
+OS_CHECKER_CONFIGS ?= repos-default.json repos-ui.json
 TAG_PRECOMPILED_CHECKERS ?= precompiled-checkers
 
 ifeq ($(PUSH),true)
@@ -21,7 +20,7 @@ upload:
 	gh release upload --clobber -R os-checker/database $(TAG_PRECOMPILED_CHECKERS)  ~/.cargo/bin/os-checker
 
 run:
-	@os-checker run $(ARGS_CONFIGS) --emit $(SINGLE_JSON) --db cache.redb
+	@OS_CHECKER_CONFIGS=$(OS_CHECKER_CONFIGS) os-checker run --emit $(SINGLE_JSON) --db cache.redb
 
 # author zjp-CN, and commiter bot
 clone_database:
@@ -36,10 +35,10 @@ clone_database:
 
 # print repos info without installing anything
 layout:
-	@os-checker layout $(ARGS_CONFIGS) 2>&1 | tee $(BATCH_DIR)/layout.txt
+	@OS_CHECKER_CONFIGS=$(OS_CHECKER_CONFIGS) os-checker layout 2>&1 | tee $(BATCH_DIR)/layout.txt
 
 layout_list_targets:
-	cd $(BASE_DIR) && os-checker layout $(ARGS_CONFIGS) --list-targets seL4/rust-sel4
+	cd $(BASE_DIR) && OS_CHECKER_CONFIGS=$(OS_CHECKER_CONFIGS) os-checker layout --list-targets seL4/rust-sel4
 
 audit:
 	gh release download --clobber -R os-checker/database $(TAG_CACHE) -p cargo-audit -D ~/.cargo/bin/ || make install_audit
