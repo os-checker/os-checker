@@ -32,7 +32,7 @@ redb = { workspace = true }
 musli = { workspace = true }
 
 [features]
-default = ["batch"]
+default = ["clear_batch"]
 single = []
 batch = []
 clear_batch = [] # 清除 BASE_DIR/batch 目录

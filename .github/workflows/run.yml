@@ -121,7 +121,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          cargo install --path os-checker-database -F clear_batch
+          cargo install --path os-checker-database
 
           cd ~/check
           make clone_database
