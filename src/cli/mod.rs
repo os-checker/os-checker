@@ -39,7 +39,7 @@ impl Args {
     pub fn execute(mut self) -> Result<()> {
         init_repos_base_dir(self.base_dir());
 
-        self.set_configs();
+        self.set_configs()?;
 
         match self.sub_args {
             SubArgs::Layout(layout) => layout.execute()?,
@@ -76,23 +76,23 @@ impl Args {
     }
 
     /// Try reading `OS_CHECKER_CONFIGS` env var if no config is given.
-    fn set_configs(&mut self) {
+    fn set_configs(&mut self) -> Result<()> {
         let mut_config = match &mut self.sub_args {
             SubArgs::Layout(layout) => &mut layout.config,
             SubArgs::Run(run) => &mut run.config,
             SubArgs::Batch(batch) => &mut batch.config,
-            SubArgs::Schema(_) => return,
-            SubArgs::Db(_) => return,
+            SubArgs::Schema(_) => return Ok(()),
+            SubArgs::Db(_) => return Ok(()),
         };
-        if !mut_config.is_empty() {
-            return;
+        if mut_config.is_empty() {
+            if let Ok(configs) = std::env::var("OS_CHECKER_CONFIGS") {
+                info!("Set OS_CHECKER_CONFIGS as --config arguments.");
+                mut_config.extend(configs.trim().split(" ").map(|c| c.trim().to_owned()));
+            } else {
+                bail!("Neither OS_CHECKER_CONFIGS nor --config exists. Please provide one of them.")
+            }
         }
-        if let Ok(configs) = std::env::var("OS_CHECKER_CONFIGS") {
-            info!("Set OS_CHECKER_CONFIGS as --config arguments.");
-            mut_config.extend(configs.trim().split(" ").map(|c| c.trim().to_owned()));
-        } else {
-            bail!("Neither OS_CHECKER_CONFIGS nor --config exists. Please provide one of them.")
-        }
+        Ok(())
     }
 }
 
