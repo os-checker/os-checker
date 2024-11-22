@@ -96,6 +96,14 @@ jobs:
       # - name: Run layout --list-targets test
       #   run: make layout_list_targets
 
+      - name: Run config --merged or --list-repos
+        run: |
+          cd ~/check
+          echo "os-checker config --merged"
+          os-checker config --merged
+          echo "os-checker config --list-repos"
+          os-checker config --list-repos
+
       - name: Update cache.redb
         run: |
           cd ~/check
