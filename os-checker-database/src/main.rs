@@ -35,7 +35,6 @@ mod targets;
 mod db;
 
 #[cfg(any(feature = "batch", feature = "clear_batch"))]
-#[instrument(level = "trace")]
 fn main() -> Result<()> {
     logger::init();
 
@@ -100,8 +99,8 @@ fn main() -> Result<()> {
 }
 
 /// 查找某个目录下面的 json 文件（不递归）
-#[instrument(level = "trace")]
 fn json_paths(dir: &str) -> Result<Vec<Utf8PathBuf>> {
+    let _span = error_span!("json_paths", dir).entered();
     Ok(Utf8Path::new(dir)
         .read_dir_utf8()?
         .filter_map(|entry| {
@@ -117,8 +116,8 @@ fn json_paths(dir: &str) -> Result<Vec<Utf8PathBuf>> {
 }
 
 /// 查找某个目录下面的目录（不递归）
-#[instrument(level = "trace")]
 fn subdir_paths(dir: &str) -> Result<Vec<Utf8PathBuf>> {
+    let _span = error_span!("subdir_paths", dir).entered();
     Ok(Utf8Path::new(dir)
         .read_dir_utf8()?
         .filter_map(|entry| {
@@ -133,8 +132,9 @@ fn subdir_paths(dir: &str) -> Result<Vec<Utf8PathBuf>> {
         .collect_vec())
 }
 
-#[instrument(level = "trace")]
 fn write_batch_basic_home(json: &JsonOutput, batch: &str) -> Result<()> {
+    let _span = error_span!("write_batch_basic_home", batch).entered();
+
     // Write basic JSON
     write_to_file("batch/basic", batch, &basic::all(json))?;
     for (repo, b) in basic::by_repo(json) {
@@ -153,14 +153,13 @@ fn write_batch_basic_home(json: &JsonOutput, batch: &str) -> Result<()> {
     Ok(())
 }
 
-#[instrument(level = "trace")]
 fn read_json(path: &Utf8Path) -> Result<JsonOutput> {
+    let _span = error_span!("read_json", ?path).entered();
     let file = fs::File::open(path)?;
     Ok(serde_json::from_reader(BufReader::new(file))?)
 }
 
 /// Clear old data
-#[instrument(level = "trace")]
 fn clear_base_dir() -> Result<()> {
     if let Err(err) = fs::remove_dir_all(BASE_DIR) {
         error!("{err:?}");
@@ -222,6 +221,9 @@ const ALL_TARGETS: &str = "All-Targets";
 
 fn write_to_file<T: Serialize>(dir: &str, target: &str, t: &T) -> Result<()> {
     let mut path = Utf8PathBuf::from_iter([BASE_DIR, dir]);
+
+    let _span = error_span!("write_to_file", ?path).entered();
+
     fs::create_dir_all(&path)?;
 
     path.push(format!("{target}.json"));
