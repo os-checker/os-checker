@@ -1,3 +1,15 @@
+# v0.4.2
+
+添加 `config` 子命令和 `--merged`、`--list-repos` 参数。
+
+# v0.4.1
+
+添加 `layout --list-targets` 参数。
+
+# v0.4.0
+
+集成更多检查工具： rap、mirai、rudra、audit、outdated、geiger。
+
 # v0.3.0
 
 os-checker CLI 支持数据库缓存每条检查命令的结果和仓库完整的检查结果。
