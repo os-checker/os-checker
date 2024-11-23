@@ -203,7 +203,6 @@ pub enum Emit {
 }
 
 impl Emit {
-    #[instrument(level = "trace")]
     fn emit<T>(&self, json: &T) -> Result<()>
     where
         T: std::fmt::Debug + Serialize,
@@ -216,6 +215,12 @@ impl Emit {
                 &mut writer1
             }
             Emit::JsonFile(p) => {
+                let _span = error_span!("emit", ?p).entered();
+                if let Some(parent) = p.parent() {
+                    if !parent.exists() {
+                        fs::create_dir_all(parent)?;
+                    }
+                }
                 writer2 = fs::File::create(p)?;
                 &mut writer2
             }
