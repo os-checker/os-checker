@@ -106,9 +106,9 @@ jobs:
 
       - name: Update cache.redb
         run: |
+          cargo install --path os-checker-database
           cd ~/check
           df -alh
-          cargo install --path os-checker-database
           make upload
 
       - name: Commit And Push To database repo
