@@ -18,6 +18,8 @@ upload:
 	gh release upload --clobber -R os-checker/database $(TAG_CACHE) cache.redb.tar.xz
 	gh release upload --clobber -R os-checker/database $(TAG_CACHE) ~/.cargo/bin/os-checker
 	gh release upload --clobber -R os-checker/database $(TAG_PRECOMPILED_CHECKERS)  ~/.cargo/bin/os-checker
+	XZ_OPT=-e9 tar -cJvf os-checker.tar.xz ~/.cargo/bin/os-checker ~/.cargo/bin/os-checker-database ~/.cargo/bin/batch
+	gh release upload --clobber -R os-checker/database $(TAG_PRECOMPILED_CHECKERS)  os-checker.tar.xz
 
 run:
 	@OS_CHECKER_CONFIGS="$(OS_CHECKER_CONFIGS)" os-checker run --emit $(SINGLE_JSON) --db cache.redb

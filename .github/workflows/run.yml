@@ -108,6 +108,7 @@ jobs:
         run: |
           cd ~/check
           df -alh
+          cargo install --path os-checker-database
           make upload
 
       - name: Commit And Push To database repo
@@ -116,8 +117,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          cargo install --path os-checker-database
-
           cd ~/check
           make clone_database
           cd database
