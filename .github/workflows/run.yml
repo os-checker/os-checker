@@ -2,7 +2,7 @@ name: Run Checkers
 
 on:
   push:
-    branches: [ main, feat/* ]
+    branches: [ main, feat/*, fix/* ]
   schedule:
     - cron: '0 20 * * *'
   workflow_dispatch:
