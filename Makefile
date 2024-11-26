@@ -41,14 +41,3 @@ layout:
 
 layout_list_targets:
 	cd $(BASE_DIR) && OS_CHECKER_CONFIGS="$(OS_CHECKER_CONFIGS)" os-checker layout --list-targets seL4/rust-sel4
-
-audit:
-	gh release download --clobber -R os-checker/database $(TAG_CACHE) -p cargo-audit -D ~/.cargo/bin/ || make install_audit
-
-install_audit:
-	ls -alh ~/.cargo/bin/ \
-		&& cd ~ \
-		&& git clone https://github.com/rustsec/rustsec.git \
-		&& cd rustsec \
-		&& cargo install --path cargo-audit --force \
-		&& gh release upload --clobber -R os-checker/database $(TAG_CACHE) ~/.cargo/bin/cargo-audit
