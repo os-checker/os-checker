@@ -3,6 +3,9 @@ name: Run Checkers
 on:
   push:
     branches: [ main, feat/* ]
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
 
 env:
   # gh cli needs this token
