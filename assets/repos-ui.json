@@ -82,6 +82,9 @@
       }
     }
   },
+  "arceos-org/arceos-apps": {
+    "targets": "x86_64-unknown-linux-gnu"
+  },
   "rel4team/sel4_cspace": {
     "targets": "riscv64gc-unknown-none-elf"
   },
