@@ -177,7 +177,7 @@ struct Column {
 
 fn columns(order: &[Kind]) -> Vec<Column> {
     let rename = indexmap::indexmap! {
-        Kind::Unformatted => "未格式化",
+        Kind::Unformatted => "Unformatted",
         Kind::ClippyWarn => "Clippy (Warn)",
         Kind::ClippyError => "Clippy (Error)",
         Kind::LockbudPossibly => "Lockbud (Possibly)",
