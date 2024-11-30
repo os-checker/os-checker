@@ -120,10 +120,10 @@ pub fn cargo_rudra(pkg: &Pkg) -> Resolve {
 }
 
 pub fn cargo_geiger(pkg: &Pkg) -> Resolve {
-    // let target = pkg.target;
-
+    let toolchain = host_toolchain();
     let expr = cmd!(
         "cargo",
+        &toolchain,
         "geiger",
         "--output-format",
         "Ascii",
@@ -132,14 +132,23 @@ pub fn cargo_geiger(pkg: &Pkg) -> Resolve {
     )
     .dir(pkg.dir);
     debug!(?expr);
-    let cmd = "cargo geiger --output-format Ascii".to_owned();
+    let cmd = format!("cargo {toolchain} geiger --output-format Ascii");
     Resolve::new(pkg, CheckerTool::Geiger, cmd, expr)
 }
 
 pub fn cargo_outdated(pkg: &Pkg) -> Resolve {
-    let expr = cmd!("cargo", "outdated", "-R", "--exit-code=2", "--color=never").dir(pkg.dir);
+    let toolchain = host_toolchain();
+    let expr = cmd!(
+        "cargo",
+        &toolchain,
+        "outdated",
+        "-R",
+        "--exit-code=2",
+        "--color=never"
+    )
+    .dir(pkg.dir);
     debug!(?expr);
-    let cmd = "cargo outdated -R --exit-code=2".to_owned();
+    let cmd = format!("cargo {toolchain} outdated -R --exit-code=2");
     Resolve::new(pkg, CheckerTool::Outdated, cmd, expr)
 }
 
