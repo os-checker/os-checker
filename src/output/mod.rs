@@ -173,6 +173,7 @@ pub enum Kind {
     /// miri
     Miri,
     /// semver-checks
+    #[serde(rename = "Semver Violation")]
     SemverViolation,
     Audit,
     Mirai,
@@ -202,6 +203,7 @@ impl Kinds {
                 Cargo,
                 ClippyError,
                 ClippyWarn,
+                SemverViolation,
                 Audit,
                 Mirai,
                 Rap,
@@ -215,6 +217,7 @@ impl Kinds {
             mapping: serde_json::json!({
                 "cargo": [Cargo],
                 "clippy": [ClippyError, ClippyWarn],
+                "semver-checks": [SemverViolation],
                 "audit": [Audit],
                 "mirai": [Mirai],
                 "rap": [Rap],
