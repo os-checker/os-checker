@@ -13,7 +13,7 @@ use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use std::{fmt, rc::Rc};
 
 #[cfg(test)]
@@ -208,6 +208,7 @@ impl Layout {
         // 路径，或者对同名 package 进行检查，必须包含额外的路径。
         // 无论如何，这都带来复杂性，目前来看并不值得。
 
+        let libs = lib_pkgs(&self.workspaces);
         let audit = CargoAudit::new_for_pkgs(self.workspaces.keys())?;
 
         let map: IndexMap<_, _> = self
@@ -221,6 +222,7 @@ impl Layout {
                         targets: info.targets.keys().cloned().collect(),
                         toolchain: info.toolchain,
                         audit: audit.get(&info.pkg_name).cloned(),
+                        is_lib: libs.contains(&info.pkg_name),
                     },
                 )
             })
@@ -236,11 +238,6 @@ impl Layout {
         let repo_root = self.repo_root().to_owned();
         Ok(Packages { repo_root, map })
     }
-
-    // pub fn rust_toolchain_idxs(&self) -> Vec<usize> {
-    //     let toolchains = self.packages_info.iter().filter_map(|p| p.toolchain);
-    //     toolchains.sorted().dedup().collect()
-    // }
 
     pub fn set_installation_targets(&mut self, targets: TargetsSpecifed) {
         // 如果配置文件设置了 targets，则直接覆盖
@@ -382,6 +379,7 @@ impl Packages {
                             targets: vec![host.clone()],
                             toolchain: Some(0),
                             audit: None,
+                            is_lib: true,
                         },
                     )
                 })
@@ -439,6 +437,8 @@ pub struct PackageInfoShared {
     targets: Vec<String>,
     toolchain: Option<usize>,
     audit: Audit,
+    /// cargo-semver-checks only works for lib crate
+    is_lib: bool,
 }
 
 impl PackageInfoShared {
@@ -468,4 +468,21 @@ pub struct Pkg<'a> {
     pub target: &'a str,
     pub toolchain: Option<usize>,
     pub audit: Option<&'a Rc<CargoAudit>>,
+}
+
+fn lib_pkgs(workspaces: &Workspaces) -> IndexSet<XString> {
+    let mut set = IndexSet::new();
+    for ws in workspaces.values() {
+        'p: for p in ws.workspace_packages() {
+            for target in &p.targets {
+                for kind in &target.kind {
+                    if kind == "lib" {
+                        set.insert(XString::new(&*p.name));
+                        continue 'p;
+                    }
+                }
+            }
+        }
+    }
+    set
 }
