@@ -1,5 +1,3 @@
 {
-  "rcore-os/rboot": {
-    "no_install_targets": "x86_64-unknown-uefi"
-  }
+  "os-checker/os-checker": {}
 }
