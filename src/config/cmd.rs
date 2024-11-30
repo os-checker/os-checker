@@ -153,8 +153,7 @@ pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
     )
     .dir(pkg.dir);
     debug!(?expr);
-    let cmd = format!("cargo cargo_semver_checks --target {}", pkg.target);
-    info!(cmd);
+    let cmd = format!("cargo semver-checks --target {}", pkg.target);
     Resolve::new(pkg, CheckerTool::SemverChecks, cmd, expr)
 }
 
