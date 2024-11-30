@@ -23,6 +23,7 @@ mod lockbud;
 mod outdated;
 mod rap;
 mod rudra;
+mod semver_checks;
 
 /// 把获得的输出转化成 JSON 所需的输出
 mod utils;
@@ -430,7 +431,9 @@ fn run_check(
         CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),
         CheckerTool::Geiger => OutputParsed::Geiger(geiger::parse(&raw, &resolve)),
         CheckerTool::Miri => todo!(),
-        CheckerTool::SemverChecks => todo!(),
+        CheckerTool::SemverChecks => {
+            OutputParsed::SemverChecks(semver_checks::parse(&raw, &resolve))
+        }
         // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
         CheckerTool::Cargo => panic!("Don't specify cargo as a checker. It's a virtual one."),
     };
@@ -460,6 +463,7 @@ enum OutputParsed {
     Rudra(String),
     Outdated(String),
     Geiger(String),
+    SemverChecks(String),
     Cargo { source: CargoSource, stderr: String },
 }
 
@@ -500,7 +504,8 @@ impl OutputParsed {
             | OutputParsed::Rap(s)
             | OutputParsed::Rudra(s)
             | OutputParsed::Outdated(s)
-            | OutputParsed::Geiger(s) => {
+            | OutputParsed::Geiger(s)
+            | OutputParsed::SemverChecks(s) => {
                 if s.is_empty() {
                     0
                 } else {

@@ -66,6 +66,7 @@ fn custom_cmd() {
         target: "x86_64-unknown-linux-gnu",
         toolchain: Some(0),
         audit: None,
+        is_lib: true,
     };
     expect![[r#"
         Resolve {

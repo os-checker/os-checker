@@ -56,6 +56,7 @@ impl RawOutput {
             OutputParsed::Rudra(s) => data_rudra(s),
             OutputParsed::Outdated(s) => data_outdated(s),
             OutputParsed::Geiger(s) => data_geiger(s),
+            OutputParsed::SemverChecks(s) => data_semver_checks(s),
             OutputParsed::Cargo { source, stderr } => data_cargo(source, stderr),
         };
 
@@ -178,6 +179,19 @@ fn data_outdated(s: &str) -> Vec<OutputDataInner> {
         let data = OutputDataInner::new(
             "[outdated direct dependencies]".into(),
             Kind::Outdated,
+            s.to_owned(),
+        );
+        vec![data]
+    }
+}
+
+fn data_semver_checks(s: &str) -> Vec<OutputDataInner> {
+    if s.is_empty() {
+        Vec::new()
+    } else {
+        let data = OutputDataInner::new(
+            "[semver checks]".into(),
+            Kind::SemverViolation,
             s.to_owned(),
         );
         vec![data]
