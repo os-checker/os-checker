@@ -452,6 +452,7 @@ impl PackageInfoShared {
                 target,
                 toolchain: self.toolchain,
                 audit: self.audit.as_ref(),
+                is_lib: self.is_lib,
             })
             .collect()
     }
@@ -468,6 +469,7 @@ pub struct Pkg<'a> {
     pub target: &'a str,
     pub toolchain: Option<usize>,
     pub audit: Option<&'a Rc<CargoAudit>>,
+    pub is_lib: bool,
 }
 
 fn lib_pkgs(workspaces: &Workspaces) -> IndexSet<XString> {

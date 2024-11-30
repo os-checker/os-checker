@@ -143,6 +143,20 @@ pub fn cargo_outdated(pkg: &Pkg) -> Resolve {
     Resolve::new(pkg, CheckerTool::Outdated, cmd, expr)
 }
 
+pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
+    let expr = cmd!(
+        "cargo",
+        "semver-checks",
+        "--target",
+        pkg.target,
+        "--color=never"
+    )
+    .dir(pkg.dir);
+    debug!(?expr);
+    let cmd = format!("cargo cargo_semver_checks --target {}", pkg.target);
+    Resolve::new(pkg, CheckerTool::SemverChecks, cmd, expr)
+}
+
 /// 自定义检查命令。
 #[instrument(level = "trace")]
 pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
