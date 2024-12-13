@@ -52,7 +52,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           toolchain: nightly-2024-11-21
-          components: rustfmt, clippy
+          components: rustfmt, clippy, miri
 
       - name: Install Checkers
         run: |
@@ -63,6 +63,7 @@ jobs:
           cargo geiger --version
           cargo semver-checks --version
           cargo nextest --version
+          cargo miri --version
           rustup default nightly-2021-10-21 && cargo rudra --help
           rustup default nightly-2024-02-05 && cargo mirai --help
           rustup default nightly-2024-10-05 && cargo lockbud --help
