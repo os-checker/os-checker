@@ -62,6 +62,7 @@ jobs:
           cargo outdated --version
           cargo geiger --version
           cargo semver-checks --version
+          cargo nextest --version
           rustup default nightly-2021-10-21 && cargo rudra --help
           rustup default nightly-2024-02-05 && cargo mirai --help
           rustup default nightly-2024-10-05 && cargo lockbud --help
