@@ -64,6 +64,8 @@ jobs:
           cargo semver-checks --version
           cargo nextest --version
           cargo miri --version
+          # Only perform automatic setup, but without asking questions (for getting a proper libstd)
+          cargo miri setup
           rustup default nightly-2021-10-21 && cargo rudra --help
           rustup default nightly-2024-02-05 && cargo mirai --help
           rustup default nightly-2024-10-05 && cargo lockbud --help
