@@ -131,7 +131,8 @@
     "meta": {
       "skip_pkg_dir_globs": [
         "crates/examples/**",
-        "crates/hacking/**"
+        "crates/private/**",
+        "hacking/**"
       ]
     },
     "cmds": {
