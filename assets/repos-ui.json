@@ -116,9 +116,6 @@
   "sysones/rcore-tutorial-v3-with-hal-component": {
     "targets": "x86_64-unknown-linux-gnu"
   },
-  "Starry-OS/Starry": {
-    "targets": "x86_64-unknown-linux-gnu"
-  },
   "kern-crates/zCore": {
     "no_install_targets": "x86_64-unknown-uefi"
   },
