@@ -32,6 +32,9 @@
       },
       "arceos-helloworld": {
         "targets": "x86_64-unknown-linux-gnu"
+      },
+      "mingo": {
+        "targets": "aarch64-unknown-none-softfloat"
       }
     }
   },
@@ -84,6 +87,9 @@
       },
       "arceos-helloworld": {
         "targets": "x86_64-unknown-linux-gnu"
+      },
+      "mingo": {
+        "targets": "aarch64-unknown-none-softfloat"
       }
     }
   },
