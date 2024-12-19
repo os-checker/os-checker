@@ -6,6 +6,11 @@
         "examples/**",
         "tests/**"
       ]
+    },
+    "packages": {
+      "embassy-net-tuntap": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
     }
   },
   "arceos-org/arceos": {
