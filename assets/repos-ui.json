@@ -154,5 +154,8 @@
         "targets": "x86_64-unknown-linux-gnu"
       }
     }
+  },
+  "rel4team/sel4_task": {
+    "targets": "riscv64gc-unknown-none-elf"
   }
 }
