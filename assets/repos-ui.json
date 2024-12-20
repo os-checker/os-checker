@@ -143,5 +143,16 @@
     "cmds": {
       "mirai": false
     }
+  },
+  "Godones/rCoreloongArch": {
+    "targets": "loongarch64-unknown-none",
+    "packages": {
+      "vbe": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "easy-fs-fuse": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
+    }
   }
 }
