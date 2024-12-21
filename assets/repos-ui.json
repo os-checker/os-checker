@@ -93,9 +93,6 @@
       }
     }
   },
-  "arceos-org/arceos-apps": {
-    "targets": "x86_64-unknown-linux-gnu"
-  },
   "qclic/sparreal-os": {
     "packages": {
       "xtask": {
