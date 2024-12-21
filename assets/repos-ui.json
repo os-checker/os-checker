@@ -157,5 +157,14 @@
   },
   "rel4team/sel4_task": {
     "targets": "riscv64gc-unknown-none-elf"
+  },
+  "rel4team/sel4_vspace": {
+    "targets": "riscv64gc-unknown-none-elf"
+  },
+  "rel4team/sel4_common": {
+    "targets": "riscv64gc-unknown-none-elf"
+  },
+  "rel4team/sel4_ipc": {
+    "targets": "riscv64gc-unknown-none-elf"
   }
 }
