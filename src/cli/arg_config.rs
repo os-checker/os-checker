@@ -3,7 +3,7 @@ use argh::FromArgs;
 use serde_json::to_writer_pretty;
 use std::io::stdout;
 
-/// Emit merged infomation based on given configs. The command will not download any artifacts,
+/// emit merged infomation based on given configs. The command will not download any artifacts,
 /// unlike layout subcommand does.
 ///
 /// NOTE: arguments except config are exclusive, because any of them will write valid JSON data
@@ -12,7 +12,7 @@ use std::io::stdout;
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "config")]
 pub struct ArgsConfig {
-    /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
+    /// a path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
     /// for the defined format. This can be specified multiple times like
     /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]

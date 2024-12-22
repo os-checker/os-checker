@@ -6,6 +6,11 @@
         "examples/**",
         "tests/**"
       ]
+    },
+    "packages": {
+      "embassy-net-tuntap": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
     }
   },
   "arceos-org/arceos": {
@@ -27,6 +32,9 @@
       },
       "arceos-helloworld": {
         "targets": "x86_64-unknown-linux-gnu"
+      },
+      "mingo": {
+        "targets": "aarch64-unknown-none-softfloat"
       }
     }
   },
@@ -79,11 +87,11 @@
       },
       "arceos-helloworld": {
         "targets": "x86_64-unknown-linux-gnu"
+      },
+      "mingo": {
+        "targets": "aarch64-unknown-none-softfloat"
       }
     }
-  },
-  "arceos-org/arceos-apps": {
-    "targets": "x86_64-unknown-linux-gnu"
   },
   "qclic/sparreal-os": {
     "packages": {
@@ -105,9 +113,6 @@
   "sysones/rcore-tutorial-v3-with-hal-component": {
     "targets": "x86_64-unknown-linux-gnu"
   },
-  "Starry-OS/Starry": {
-    "targets": "x86_64-unknown-linux-gnu"
-  },
   "kern-crates/zCore": {
     "no_install_targets": "x86_64-unknown-uefi"
   },
@@ -123,7 +128,8 @@
     "meta": {
       "skip_pkg_dir_globs": [
         "crates/examples/**",
-        "crates/hacking/**"
+        "crates/private/**",
+        "hacking/**"
       ]
     },
     "cmds": {
@@ -134,5 +140,31 @@
     "cmds": {
       "mirai": false
     }
+  },
+  "Godones/rCoreloongArch": {
+    "targets": "loongarch64-unknown-none",
+    "packages": {
+      "vbe": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "easy-fs-fuse": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
+    }
+  },
+  "rel4team/sel4_task": {
+    "targets": "riscv64gc-unknown-none-elf"
+  },
+  "rel4team/sel4_vspace": {
+    "targets": "riscv64gc-unknown-none-elf"
+  },
+  "rel4team/sel4_common": {
+    "targets": "riscv64gc-unknown-none-elf"
+  },
+  "rel4team/sel4_ipc": {
+    "targets": "riscv64gc-unknown-none-elf"
+  },
+  "Godones/loongArch64": {
+    "targets": "loongarch64-unknown-none"
   }
 }

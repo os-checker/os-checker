@@ -118,7 +118,7 @@ enum SubArgs {
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "layout")]
 struct ArgsLayout {
-    /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
+    /// a path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
     /// for the defined format. This can be specified multiple times like
     /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]
@@ -141,7 +141,7 @@ struct ArgsLayout {
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "run")]
 pub struct ArgsRun {
-    /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
+    /// a path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
     /// for the defined format. This can be specified multiple times like
     /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]
@@ -167,7 +167,7 @@ pub struct ArgsRun {
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "batch")]
 struct ArgsBatch {
-    /// A path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
+    /// a path to json configuration file. Refer to https://github.com/os-checker/os-checker/blob/main/assets/JSON-config.md
     /// for the defined format. This can be specified multiple times like
     /// `--config a.json --config b.json`, with the merge from left to right (the config in right wins).
     #[argh(option)]
@@ -177,7 +177,8 @@ struct ArgsBatch {
     #[argh(option)]
     out_dir: Utf8PathBuf,
 
-    /// `--size n` generates at most n repos in each batch json config.
+    /// the argument:
+    /// `--size n` generates at most n repos in each batch json config;
     /// `--size 0` generates a single json merged from all repos.
     #[argh(option)]
     size: usize,
