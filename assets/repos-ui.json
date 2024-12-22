@@ -163,5 +163,8 @@
   },
   "rel4team/sel4_ipc": {
     "targets": "riscv64gc-unknown-none-elf"
+  },
+  "Godones/loongArch64": {
+    "targets": "loongarch64-unknown-none"
   }
 }
