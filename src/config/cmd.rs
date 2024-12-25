@@ -95,15 +95,17 @@ pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
 }
 
 pub fn cargo_rap(pkg: &Pkg) -> Resolve {
-    // let target = pkg.target;
+    let target = pkg.target;
 
     let expr = cmd!(
         "cargo",
         PLUS_TOOLCHAIN_RAP,
         "rap",
         "-F",
-        "-M" // "--target",
-             // target,
+        "-M",
+        "--",
+        "--target",
+        target,
     )
     .env("RAP_LOG", "WARN")
     .dir(pkg.dir);
