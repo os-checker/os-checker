@@ -51,11 +51,12 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly-2024-11-21
+          toolchain: nightly-2024-12-24
           components: rustfmt, clippy
 
       - name: Install Checkers
         run: |
+          rustup default
           gh release download --clobber -R os-checker/database precompiled-checkers -p checkers.tar.xz
           tar -xvJf checkers.tar.xz -C ~/.cargo/bin/
           cargo audit --version
@@ -66,6 +67,7 @@ jobs:
           rustup default nightly-2024-02-05 && cargo mirai --help
           rustup default nightly-2024-10-05 && cargo lockbud --help
           rustup default nightly-2024-10-12 && cargo rap --help
+          rustup default nightly-2024-12-24
 
       - name: Install os-checker
         run: cargo install --path . --force
