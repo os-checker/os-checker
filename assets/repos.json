@@ -1,4 +1,3 @@
 {
-  "os-checker/os-checker-test-suite": {},
-  "arceos-org/flatten_objects": {}
+  "arceos-org/page_table_multiarch": {}
 }
