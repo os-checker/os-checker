@@ -115,10 +115,13 @@ impl Repo {
             .with_context(|| eyre!("无法解析 `{repo_root}` 内的 Rust 项目布局"));
         match layout {
             Ok(layout) => Self { layout, config },
-            Err(err) => Self {
-                layout: Layout::empty(repo_root, err),
-                config,
-            },
+            Err(err) => {
+                error!(?err);
+                Self {
+                    layout: Layout::empty(repo_root, err),
+                    config,
+                }
+            }
         }
     }
 
