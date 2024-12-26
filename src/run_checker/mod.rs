@@ -455,7 +455,7 @@ fn run_check(
         resolve,
     };
 
-    outputs.push_output_with_cargo(output, db_repo);
+    outputs.push_output_with_cargo(output, db_repo, now_utc);
 
     Ok(())
 }
