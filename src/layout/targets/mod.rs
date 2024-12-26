@@ -134,15 +134,14 @@ impl Targets {
         self.push(target, path, TargetSource::RustToolchainToml);
     }
 
-    #[instrument(level = "trace")]
     fn merge_more(&mut self, pkg_dir: &Utf8Path, repo: &Targets) -> Result<()> {
+        super::detect_targets::scripts_in_pkg_dir(pkg_dir, self)?;
+        self.remove_peculiar_targets(); // 搜索的 pkg_dir 也会引入 peculiar_targets
+        self.merge(repo);
         if self.is_empty() {
             // 无指定的 targets
             self.unspecified_default();
         }
-        super::detect_targets::scripts_in_pkg_dir(pkg_dir, self)?;
-        self.remove_peculiar_targets(); // 搜索的 pkg_dir 也会引入 peculiar_targets
-        self.merge(repo);
         Ok(())
     }
 
