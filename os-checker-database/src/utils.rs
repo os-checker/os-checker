@@ -28,7 +28,7 @@ pub struct UserRepo<'a> {
     pub repo: &'a str,
 }
 
-impl<'a> UserRepo<'a> {
+impl UserRepo<'_> {
     pub fn print(self) {
         let Self { user, repo } = self;
         info!("{user}/{repo}");
