@@ -95,23 +95,26 @@ pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
 }
 
 pub fn cargo_rap(pkg: &Pkg) -> Resolve {
-    // let target = pkg.target;
+    let target = pkg.target;
 
     let expr = cmd!(
         "cargo",
         PLUS_TOOLCHAIN_RAP,
         "rap",
         "-F",
-        "-M" // "--target",
-             // target,
+        "-M",
+        "--",
+        "--target",
+        target,
     )
     .env("RAP_LOG", "WARN")
     .dir(pkg.dir);
     debug!(?expr);
-    let cmd = format!("cargo {PLUS_TOOLCHAIN_RAP} rap -F -M");
+    let cmd = format!("cargo {PLUS_TOOLCHAIN_RAP} rap -F -M -- --target {target}");
     Resolve::new(pkg, CheckerTool::Rap, cmd, expr)
 }
 
+// FIXME: check how cargo check arguments are supported by rudra
 pub fn cargo_rudra(pkg: &Pkg) -> Resolve {
     let expr = cmd!("cargo", PLUS_TOOLCHAIN_RUDRA, "rudra",).dir(pkg.dir);
     debug!(?expr);
