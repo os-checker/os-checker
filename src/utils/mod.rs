@@ -77,11 +77,12 @@ pub fn walk_dir<T>(
 }
 
 /// Perform an operation and get the execution time.
-pub fn execution_time_ms<T>(op: impl FnOnce() -> T) -> (u64, T) {
+pub fn execution_time_ms<T>(op: impl FnOnce() -> T) -> (time::OffsetDateTime, u64, T) {
+    let now_utc = time::OffsetDateTime::now_utc();
     let now = Instant::now();
     let value = op();
     let duration_ms = now.elapsed().as_millis() as u64;
-    (duration_ms, value)
+    (now_utc, duration_ms, value)
 }
 
 /// ignore_fail means when the cmd returns error, still reads stdout.
