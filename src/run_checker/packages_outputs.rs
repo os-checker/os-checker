@@ -207,7 +207,7 @@ fn extra_header(stderr: &str, resolve: &Resolve, now_utc: OffsetDateTime) -> Str
          // toolchain={toolchain}, target={target}\n\
          // pkg_dir={pkg_dir}\n\
          // cmd={cmd}\n\
-         // timestamp={now}\
+         // timestamp={now}\n\
          {stderr}"
     )
 }
