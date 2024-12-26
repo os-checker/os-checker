@@ -4,6 +4,7 @@ use color_eyre::owo_colors::OwoColorize;
 use indexmap::IndexMap;
 use regex::Regex;
 use std::sync::LazyLock;
+use time::OffsetDateTime;
 
 pub type PackageName = String;
 
@@ -117,10 +118,15 @@ impl PackagesOutputs {
         false
     }
 
-    pub fn push_output_with_cargo(&mut self, output: Output, db_repo: Option<DbRepo>) {
+    pub fn push_output_with_cargo(
+        &mut self,
+        output: Output,
+        db_repo: Option<DbRepo>,
+        now_utc: OffsetDateTime,
+    ) {
         let pkg_name = output.resolve.pkg_name.as_str();
         if let Some(v) = self.get_mut(pkg_name) {
-            if let Some(stderr_parsed) = cargo_stderr_stripped(&output) {
+            if let Some(stderr_parsed) = cargo_stderr_stripped(&output, now_utc) {
                 let output = output
                     .new_cargo_from_checker(stderr_parsed)
                     .to_cache(db_repo);
@@ -132,7 +138,7 @@ impl PackagesOutputs {
             let pkg_name = pkg_name.to_owned();
             let mut outputs = Outputs::new();
 
-            if let Some(stderr_parsed) = cargo_stderr_stripped(&output) {
+            if let Some(stderr_parsed) = cargo_stderr_stripped(&output, now_utc) {
                 outputs.push(
                     output
                         .new_cargo_from_checker(stderr_parsed)
@@ -161,7 +167,7 @@ impl PackagesOutputs {
 }
 
 /// Some means there is a cargo erroneous output to be created or updated.
-fn cargo_stderr_stripped(output: &Output) -> Option<String> {
+fn cargo_stderr_stripped(output: &Output, now_utc: OffsetDateTime) -> Option<String> {
     let resolve = &output.resolve;
     let raw_stderr = output.raw.stderr.as_slice();
     let stderr = String::from_utf8_lossy(raw_stderr);
@@ -180,11 +186,12 @@ fn cargo_stderr_stripped(output: &Output) -> Option<String> {
     let stderr_stripped = strip_ansi_escapes::strip(raw_stderr);
     let stderr = String::from_utf8_lossy(&stderr_stripped);
     // stderr 包含额外的 error: 信息，那么将所有 stderr 内容 作为 cargo 的检查结果
-    RE.is_match(&stderr).then(|| extra_header(&stderr, resolve))
+    RE.is_match(&stderr)
+        .then(|| extra_header(&stderr, resolve, now_utc))
 }
 
 // 在原始的 Cargo 输出的顶部增加必要的信息，方便浏览
-fn extra_header(stderr: &str, resolve: &Resolve) -> String {
+fn extra_header(stderr: &str, resolve: &Resolve, now_utc: OffsetDateTime) -> String {
     let Resolve {
         pkg_name,
         pkg_dir,
@@ -194,11 +201,13 @@ fn extra_header(stderr: &str, resolve: &Resolve) -> String {
         ..
     } = resolve;
     let toolchain = resolve.toolchain();
+    let now = now_utc.to_offset(time::macros::offset!(+8));
     format!(
         "// pkg_name={pkg_name}, checker={checker:?}\n\
          // toolchain={toolchain}, target={target}\n\
          // pkg_dir={pkg_dir}\n\
          // cmd={cmd}\n\
+         // timestamp={now}\
          {stderr}"
     )
 }

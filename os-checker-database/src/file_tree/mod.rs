@@ -74,7 +74,7 @@ pub struct FileTree<'a> {
     kinds_order: &'a [Kind],
 }
 
-impl<'a> FileTree<'a> {
+impl FileTree<'_> {
     pub fn split_by_repo(&self) -> Vec<FileTreeRepo> {
         let kinds_order = self.kinds_order;
         let group_by_repo = group_by(&self.data, |d| d.pkg.into_repo());
@@ -115,7 +115,7 @@ pub struct FileTreeRepo<'a> {
     kinds_order: &'a [Kind],
 }
 
-impl<'a> FileTreeRepo<'a> {
+impl FileTreeRepo<'_> {
     pub fn dir(&self) -> Utf8PathBuf {
         Utf8PathBuf::from_iter(["repos", self.repo.user, self.repo.repo])
     }

@@ -17,6 +17,7 @@ use os_checker_types::db::ListTargets;
 use regex::Regex;
 use serde::Deserialize;
 use std::{process::Output as RawOutput, sync::LazyLock};
+use time::OffsetDateTime;
 
 mod geiger;
 mod lockbud;
@@ -287,6 +288,7 @@ pub struct Output {
     parsed: OutputParsed,
     /// 该检查工具报告的总数量；与最后 os-checker 提供原始输出计算的数量应该一致
     count: usize,
+    now_utc: OffsetDateTime,
     duration_ms: u64,
     resolve: Resolve,
 }
@@ -297,6 +299,7 @@ impl std::fmt::Debug for Output {
             // .field("raw", &self.raw)
             // .field("parsed", &self.parsed)
             .field("count", &self.count)
+            .field("now_utc", &self.now_utc)
             .field("duration_ms", &self.duration_ms)
             .field("resolve", &self.resolve)
             .finish()
@@ -322,6 +325,7 @@ impl Output {
                 stderr: stderr_parsed,
             },
             count: 1, // 因为每个 checker 最多产生一个 cargo 诊断的方法
+            now_utc: OffsetDateTime::now_utc(),
             duration_ms: self.duration_ms,
             resolve: self.resolve.new_cargo(),
         }
@@ -342,6 +346,7 @@ impl Output {
             raw,
             parsed,
             count: 1,
+            now_utc: OffsetDateTime::now_utc(),
             duration_ms: 0,
             resolve: Resolve::new_cargo_layout_parse_error(pkg_name, repo_root.into()),
         }
@@ -371,7 +376,7 @@ fn run_check(
     }
 
     let expr = resolve.expr.clone();
-    let (duration_ms, raw) = crate::utils::execution_time_ms(|| {
+    let (now_utc, duration_ms, raw) = crate::utils::execution_time_ms(|| {
         expr.stderr_capture().stdout_capture().unchecked().run()
     });
     let raw = raw?;
@@ -445,11 +450,12 @@ fn run_check(
         raw,
         parsed,
         count,
+        now_utc,
         duration_ms,
         resolve,
     };
 
-    outputs.push_output_with_cargo(output, db_repo);
+    outputs.push_output_with_cargo(output, db_repo, now_utc);
 
     Ok(())
 }

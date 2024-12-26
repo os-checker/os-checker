@@ -134,13 +134,7 @@ impl Resolve {
     }
 
     pub fn rap(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
-        resolved.reserve(pkgs.len() * 2);
-        for pkg in pkgs {
-            // FIXME: 暂时只在 x86_64-unknown-linux-gnu 上检查（Rap 已经支持条件编译参数）
-            if pkg.target == HOST_TARGET {
-                resolved.push(cargo_rap(pkg));
-            }
-        }
+        resolved.extend(pkgs.iter().map(cargo_rap));
     }
 
     pub fn rudra(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
