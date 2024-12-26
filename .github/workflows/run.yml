@@ -17,6 +17,7 @@ env:
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
   PUSH: true
+  toolchain: nightly-2024-12-25
   # push to which database branch 
   DATABASE: debug
   # cache.redb tag in database release
@@ -51,7 +52,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly-2024-12-24
+          toolchain: ${{ env.toolchain }}
           components: rustfmt, clippy
 
       - name: Install Checkers
@@ -67,7 +68,7 @@ jobs:
           rustup default nightly-2024-02-05 && cargo mirai --help
           rustup default nightly-2024-10-05 && cargo lockbud --help
           rustup default nightly-2024-10-12 && cargo rap --help
-          rustup default nightly-2024-12-24
+          rustup default ${{ env.toolchain }}
 
       - name: Install os-checker
         run: cargo install --path . --force
