@@ -145,11 +145,8 @@ pub fn install_toolchain_idx(idx: usize, targets: &[String]) -> Result<()> {
     let mut toolchain = get_toolchain_owned(idx)?;
 
     // 合并新的 targets 并安装它们
-    info!(?toolchain);
     toolchain.append_targets(targets);
-    info!(?toolchain);
     toolchain.install_toolchain_and_components()?;
-    info!(?targets, ?toolchain.targets);
     toolchain.install_targets()?;
 
     Ok(())

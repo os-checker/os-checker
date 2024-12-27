@@ -356,7 +356,6 @@ fn installation(info: &[PackageInfo]) -> IndexMap<usize, Vec<String>> {
         v.sort_unstable();
         v.dedup();
     }
-    info!(?map);
     map
 }
 
