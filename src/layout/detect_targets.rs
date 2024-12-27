@@ -367,6 +367,7 @@ impl RustToolchain {
             return Ok(None);
         };
         let mut toolchain = toolchain.toolchain;
+        info!(%toml_path);
         toolchain.toml_path = toml_path;
         if is_not_layout() {
             // 不再解析工具链时安装这些，因为每个 pkg 检查工作空间下的
@@ -402,6 +403,7 @@ impl RustToolchain {
     pub fn install_targets(&self) -> Result<()> {
         if let Some(targets) = self.targets.as_deref() {
             let targets: Vec<_> = targets.iter().map(|s| s.as_str()).collect();
+            info!(%self.toml_path);
             let repo_dir = self.toml_path.parent().unwrap();
             rustup_target_add(&targets, repo_dir)?;
             rustup_target_add_for_checkers(&targets)?;
