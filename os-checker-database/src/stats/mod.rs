@@ -113,6 +113,11 @@ impl<'a> CountRepoSet<'a> {
             self.total.insert(repo);
             if count == 0 {
                 self.pass.insert(repo);
+            } else {
+                // ALL_TARGETS needs this:
+                // if a repo passes on a target, but doesn't on another,
+                // it should not pass on all targets.
+                self.pass.remove(repo);
             }
         }
         PassCountRepo {
