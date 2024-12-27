@@ -1,4 +1,3 @@
-use super::{PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI};
 use crate::Result;
 use cargo_metadata::camino::Utf8Path;
 use duct::{cmd, Expression};
@@ -46,10 +45,11 @@ pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
     };
 
     // FIXME: use Cow for non +nightly host toolchain?
-    install_targets(PLUS_TOOLCHAIN_HOST)?;
+    install_targets(super::PLUS_TOOLCHAIN_HOST)?;
 
-    install_targets(PLUS_TOOLCHAIN_LOCKBUD)?;
-    install_targets(PLUS_TOOLCHAIN_MIRAI)?;
+    install_targets(super::PLUS_TOOLCHAIN_LOCKBUD)?;
+    install_targets(super::PLUS_TOOLCHAIN_MIRAI)?;
+    install_targets(super::PLUS_TOOLCHAIN_RAP)?;
 
     Ok(())
 }
