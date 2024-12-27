@@ -24,7 +24,7 @@ pub fn install_toolchain(dir: &Utf8Path) -> Result<Vec<u8>> {
 
 pub fn rustup_target_add(targets: &[&str], dir: &Utf8Path) -> Result<()> {
     let expr = cmd("rustup", ["target", "add"].iter().chain(targets)).dir(dir);
-    info!(?expr, ?targets, %dir);
+    // info!(?expr, ?targets, %dir);
     run_cmd(expr, || {
         format!("在 {dir:?} 目录下安装如下 targets {targets:?} 失败")
     })

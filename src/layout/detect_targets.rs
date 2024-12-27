@@ -304,6 +304,7 @@ pub struct RustToolchain {
     pub profile: Option<XString>,
     pub targets: Option<Vec<String>>,
     pub components: Option<Vec<String>>,
+    /// 默认为空路径
     #[serde(skip_deserializing)]
     pub toml_path: Utf8PathBuf,
     /// 如果仓库的工具链没写 clippy，那么该字段为 true，表示 os-checker 会安装它
@@ -367,7 +368,6 @@ impl RustToolchain {
             return Ok(None);
         };
         let mut toolchain = toolchain.toolchain;
-        info!(%toml_path);
         toolchain.toml_path = toml_path;
         if is_not_layout() {
             // 不再解析工具链时安装这些，因为每个 pkg 检查工作空间下的
@@ -403,7 +403,6 @@ impl RustToolchain {
     pub fn install_targets(&self) -> Result<()> {
         if let Some(targets) = self.targets.as_deref() {
             let targets: Vec<_> = targets.iter().map(|s| s.as_str()).collect();
-            info!(%self.toml_path);
             let repo_dir = self.toml_path.parent().unwrap();
             rustup_target_add(&targets, repo_dir)?;
             rustup_target_add_for_checkers(&targets)?;
