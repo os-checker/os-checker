@@ -41,7 +41,9 @@ pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
 
     let mut install_targets = move |toolchain: &'static str| {
         args[0] = toolchain;
-        run_cmd(cmd("rustup", &args), || err(toolchain))
+        let expr = cmd("rustup", &args);
+        info!(?expr);
+        run_cmd(expr, || err(toolchain))
     };
 
     // FIXME: use Cow for non +nightly host toolchain?
