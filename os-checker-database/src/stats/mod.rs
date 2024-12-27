@@ -53,9 +53,15 @@ impl<'a> PassCountRepos<'a> {
 
         let mut count_set = CountRepoSet::new();
 
-        // All-Targets
-        let iter = self.map.iter().map(|(k, &c)| (k.repo, c));
-        v.push((ALL_TARGETS, count_set.counting(iter)));
+        // All-Targets: total count for each repo
+        let repo_count = self.map.iter().map(|(k, &c)| (k.repo, c)).fold(
+            AHashMap::new(),
+            |mut acc, (repo, c)| {
+                acc.entry(repo).and_modify(|e| *e += c).or_insert(c);
+                acc
+            },
+        );
+        v.push((ALL_TARGETS, count_set.counting(repo_count.into_iter())));
 
         // specific targets：这里的总计数全部来自该 target，而不是所有被检查仓库数量
         let targets = group_by(&self.map, |(k, _)| k.target);
@@ -113,11 +119,6 @@ impl<'a> CountRepoSet<'a> {
             self.total.insert(repo);
             if count == 0 {
                 self.pass.insert(repo);
-            } else {
-                // ALL_TARGETS needs this:
-                // if a repo passes on a target, but doesn't on another,
-                // it should not pass on all targets.
-                self.pass.remove(repo);
             }
         }
         PassCountRepo {
