@@ -70,12 +70,13 @@ pub enum TargetSource {
     CargoTomlDocsrsInWorkspaceDefault(Utf8PathBuf),
     CargoTomlDocsrsInPkg(Utf8PathBuf),
     CargoTomlDocsrsInWorkspace(Utf8PathBuf),
-    /// 非上面的方式指定，那么默认会增加一个 host target
-    UnspecifiedDefaultToHostTarget,
     DetectedByPkgScripts(Utf8PathBuf),
     DetectedByRepoGithub(Utf8PathBuf),
     DetectedByRepoScripts(Utf8PathBuf),
-    // OverriddenInOsCheckerJson, // 覆盖操作直接在生成 cmd 时进行，暂时不会被记录
+    // 被配置文件指定
+    SpecifiedInOsCheckerConfig,
+    /// 非上面的方式指定，那么默认会增加一个 host target
+    UnspecifiedDefaultToHostTarget,
 }
 
 impl TargetSource {
@@ -91,12 +92,13 @@ impl TargetSource {
             }
             TargetSource::CargoTomlDocsrsInPkg(p) => ("CargoTomlDocsrsInPkg", Some(p)),
             TargetSource::CargoTomlDocsrsInWorkspace(p) => ("CargoTomlDocsrsInWorkspace", Some(p)),
-            TargetSource::UnspecifiedDefaultToHostTarget => {
-                ("UnspecifiedDefaultToHostTarget", None)
-            }
             TargetSource::DetectedByPkgScripts(p) => ("DetectedByPkgScripts", Some(p)),
             TargetSource::DetectedByRepoGithub(p) => ("DetectedByRepoGithub", Some(p)),
             TargetSource::DetectedByRepoScripts(p) => ("DetectedByRepoScripts", Some(p)),
+            TargetSource::SpecifiedInOsCheckerConfig => ("SpecifiedInOsCheckerConfig", None),
+            TargetSource::UnspecifiedDefaultToHostTarget => {
+                ("UnspecifiedDefaultToHostTarget", None)
+            }
         }
     }
 }

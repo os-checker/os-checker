@@ -240,8 +240,8 @@ impl Layout {
     }
 
     pub fn set_installation_targets(&mut self, targets: TargetsSpecifed) {
-        // 如果配置文件设置了 targets，则直接覆盖
-        for info in &self.packages_info {
+        // 如果配置文件设置了 targets，则追加到安装列表
+        for info in &mut self.packages_info {
             let old = self
                 .installation
                 .get_mut(&info.toolchain.unwrap_or(0))
@@ -249,13 +249,16 @@ impl Layout {
             if let Some(pkg_targets) = targets.pkgs.get(&*info.pkg_name) {
                 // append package targets
                 old.extend_from_slice(pkg_targets);
+                info.add_specified_targets(pkg_targets);
             }
             // append repo targets
             old.extend_from_slice(targets.repo);
+            info.add_specified_targets(targets.repo);
             // remove repeated targets
             old.sort_unstable();
             old.dedup();
         }
+
         // remove no_install_targets from global toolchain
         for idx in self.installation.keys().copied() {
             remove_targets(idx, targets.no_install);
