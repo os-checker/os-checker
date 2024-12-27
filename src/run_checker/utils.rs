@@ -14,16 +14,33 @@ use crate::{
 use cargo_metadata::camino::Utf8Path;
 use std::{fmt::Write, sync::LazyLock};
 
+struct Global {
+    force_repo_check: bool,
+    force_run_check: bool,
+}
+
+fn var(env: &str) -> Option<bool> {
+    std::env::var(env)
+        .map(|val| matches!(&*val, "true" | "1"))
+        .ok()
+}
+
+static GLOBAL: LazyLock<Global> = LazyLock::new(|| Global {
+    force_repo_check: var("FORCE_REPO_CHECK").unwrap_or(false),
+    force_run_check: var("FORCE_RUN_CHECK").unwrap_or(false),
+});
+
 /// 当 os-checker 内部支持新检查时，将这个值设置为 true，
 /// 来强制运行仓库检查（不影响已有的检查缓存结果）。
 /// NOTE: cargo error 的检查结果总是在强制运行仓库检查时更新。
 pub fn force_repo_check() -> bool {
-    static FORCE_REPO_CHECK: LazyLock<bool> = LazyLock::new(|| {
-        std::env::var("FORCE_REPO_CHECK")
-            .map(|val| matches!(&*val, "true" | "1"))
-            .unwrap_or(false)
-    });
-    *FORCE_REPO_CHECK
+    GLOBAL.force_repo_check
+}
+
+/// 当运行到 run_check 时，是否强制运行检查，不检查是否有缓存。
+/// force_repo_check 会控制是否运行 run_check，而 force_run_check 会控制是否照顾缓存。
+pub fn force_run_check() -> bool {
+    GLOBAL.force_run_check
 }
 
 /// 将一次工具的检查命令推入一次 `Vec<Idx>`，并把原始输出全部推入 `Vec<Data>`。

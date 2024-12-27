@@ -304,6 +304,7 @@ pub struct RustToolchain {
     pub profile: Option<XString>,
     pub targets: Option<Vec<String>>,
     pub components: Option<Vec<String>>,
+    /// 默认为空路径
     #[serde(skip_deserializing)]
     pub toml_path: Utf8PathBuf,
     /// 如果仓库的工具链没写 clippy，那么该字段为 true，表示 os-checker 会安装它

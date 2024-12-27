@@ -1,4 +1,3 @@
-use super::{PLUS_TOOLCHAIN_HOST, PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI};
 use crate::Result;
 use cargo_metadata::camino::Utf8Path;
 use duct::{cmd, Expression};
@@ -23,10 +22,11 @@ pub fn install_toolchain(dir: &Utf8Path) -> Result<Vec<u8>> {
 }
 
 pub fn rustup_target_add(targets: &[&str], dir: &Utf8Path) -> Result<()> {
-    run_cmd(
-        cmd("rustup", ["target", "add"].iter().chain(targets)).dir(dir),
-        || format!("在 {dir:?} 目录下安装如下 targets {targets:?} 失败"),
-    )
+    let expr = cmd("rustup", ["target", "add"].iter().chain(targets)).dir(dir);
+    // info!(?expr, ?targets, %dir);
+    run_cmd(expr, || {
+        format!("在 {dir:?} 目录下安装如下 targets {targets:?} 失败")
+    })
 }
 
 #[instrument(level = "info")]
@@ -41,14 +41,16 @@ pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
 
     let mut install_targets = move |toolchain: &'static str| {
         args[0] = toolchain;
-        run_cmd(cmd("rustup", &args), || err(toolchain))
+        let expr = cmd("rustup", &args);
+        run_cmd(expr, || err(toolchain))
     };
 
     // FIXME: use Cow for non +nightly host toolchain?
-    install_targets(PLUS_TOOLCHAIN_HOST)?;
+    install_targets(super::PLUS_TOOLCHAIN_HOST)?;
 
-    install_targets(PLUS_TOOLCHAIN_LOCKBUD)?;
-    install_targets(PLUS_TOOLCHAIN_MIRAI)?;
+    install_targets(super::PLUS_TOOLCHAIN_LOCKBUD)?;
+    install_targets(super::PLUS_TOOLCHAIN_MIRAI)?;
+    install_targets(super::PLUS_TOOLCHAIN_RAP)?;
 
     Ok(())
 }

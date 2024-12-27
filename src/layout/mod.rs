@@ -241,17 +241,20 @@ impl Layout {
 
     pub fn set_installation_targets(&mut self, targets: TargetsSpecifed) {
         // 如果配置文件设置了 targets，则直接覆盖
-        let repo_overridden = !targets.repo.is_empty();
         for info in &self.packages_info {
             let old = self
                 .installation
                 .get_mut(&info.toolchain.unwrap_or(0))
                 .unwrap();
             if let Some(pkg_targets) = targets.pkgs.get(&*info.pkg_name) {
-                *old = pkg_targets.to_vec();
-            } else if repo_overridden {
-                *old = targets.repo.to_vec();
+                // append package targets
+                old.extend_from_slice(pkg_targets);
             }
+            // append repo targets
+            old.extend_from_slice(targets.repo);
+            // remove repeated targets
+            old.sort_unstable();
+            old.dedup();
         }
         // remove no_install_targets from global toolchain
         for idx in self.installation.keys().copied() {
