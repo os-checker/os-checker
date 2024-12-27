@@ -1,6 +1,3 @@
 {
-  "arceos-org/page_table_multiarch": {},
-  "arceos-hypervisor/axdevice": {},
-  "ZR233/arm-gic-driver": {},
-  "Starry-OS/arm_gic": {}
+  "qclic/fdt-parser": {}
 }
