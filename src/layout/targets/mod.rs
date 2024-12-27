@@ -202,4 +202,14 @@ impl PackageInfo {
             toolchain: toolchain.map(|val| val.store()),
         })
     }
+
+    pub fn add_specified_targets(&mut self, targets: &[String]) {
+        if targets.is_empty() {
+            return;
+        }
+        self.targets.remove_unspecified_default();
+        for target in targets {
+            self.targets.specified(target);
+        }
+    }
 }
