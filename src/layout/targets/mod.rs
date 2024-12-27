@@ -17,12 +17,13 @@ pub enum TargetSource {
     CargoTomlDocsrsInWorkspaceDefault(Utf8PathBuf),
     CargoTomlDocsrsInPkg(Utf8PathBuf),
     CargoTomlDocsrsInWorkspace(Utf8PathBuf),
-    /// 非上面的方式指定，那么默认会增加一个 host target
-    UnspecifiedDefaultToHostTarget,
     DetectedByPkgScripts(Utf8PathBuf),
     DetectedByRepoGithub(Utf8PathBuf),
     DetectedByRepoScripts(Utf8PathBuf),
-    // OverriddenInOsCheckerJson, // 覆盖操作直接在生成 cmd 时进行，暂时不会被记录
+    // 被配置文件指定
+    SpecifiedInOsCheckerConfig,
+    /// 非上面的方式指定，那么默认会增加一个 host target
+    UnspecifiedDefaultToHostTarget,
 }
 
 /// A list of target triples obtained from multiple sources.
@@ -66,10 +67,31 @@ impl Targets {
         let target = crate::output::host_target_triple();
         if let Some(source) = self.get_mut(target) {
             source.push(TargetSource::UnspecifiedDefaultToHostTarget);
+            warn!(
+                ?source,
+                "host target has already been added from a specific source."
+            );
         } else {
             self.insert(
                 target.to_owned(),
                 vec![TargetSource::UnspecifiedDefaultToHostTarget],
+            );
+        }
+    }
+
+    /// This will only be called before pushing the first specified target.
+    fn remove_unspecified_default(&mut self) {
+        let target = crate::output::host_target_triple();
+        self.shift_remove_entry(target);
+    }
+
+    fn specified(&mut self, target: &str) {
+        if let Some(source) = self.get_mut(target) {
+            source.push(TargetSource::SpecifiedInOsCheckerConfig);
+        } else {
+            self.insert(
+                target.to_owned(),
+                vec![TargetSource::SpecifiedInOsCheckerConfig],
             );
         }
     }
