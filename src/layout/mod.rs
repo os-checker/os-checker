@@ -248,8 +248,12 @@ impl Layout {
                 .get_mut(&info.toolchain.unwrap_or(0))
                 .unwrap();
             if let Some(pkg_targets) = targets.pkgs.get(&*info.pkg_name) {
-                *old = pkg_targets.to_vec();
+                // append package targets
+                old.extend_from_slice(pkg_targets);
+                old.sort_unstable();
+                old.dedup();
             } else if repo_overridden {
+                // override repo targets
                 *old = targets.repo.to_vec();
             }
         }
