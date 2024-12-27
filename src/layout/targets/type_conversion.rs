@@ -22,7 +22,6 @@ impl From<TargetSource> for out::TargetSource {
             TargetSource::CargoTomlDocsrsInWorkspace(utf8_path_buf) => {
                 Self::CargoTomlDocsrsInWorkspace(utf8_path_buf)
             }
-            TargetSource::UnspecifiedDefaultToHostTarget => Self::UnspecifiedDefaultToHostTarget,
             TargetSource::DetectedByPkgScripts(utf8_path_buf) => {
                 Self::DetectedByPkgScripts(utf8_path_buf)
             }
@@ -32,6 +31,8 @@ impl From<TargetSource> for out::TargetSource {
             TargetSource::DetectedByRepoScripts(utf8_path_buf) => {
                 Self::DetectedByRepoScripts(utf8_path_buf)
             }
+            TargetSource::SpecifiedInOsCheckerConfig => Self::SpecifiedInOsCheckerConfig,
+            TargetSource::UnspecifiedDefaultToHostTarget => Self::UnspecifiedDefaultToHostTarget,
         }
     }
 }
@@ -71,9 +72,6 @@ impl From<out::TargetSource> for TargetSource {
             out::TargetSource::CargoTomlDocsrsInWorkspace(utf8_path_buf) => {
                 Self::CargoTomlDocsrsInWorkspace(utf8_path_buf)
             }
-            out::TargetSource::UnspecifiedDefaultToHostTarget => {
-                Self::UnspecifiedDefaultToHostTarget
-            }
             out::TargetSource::DetectedByPkgScripts(utf8_path_buf) => {
                 Self::DetectedByPkgScripts(utf8_path_buf)
             }
@@ -82,6 +80,10 @@ impl From<out::TargetSource> for TargetSource {
             }
             out::TargetSource::DetectedByRepoScripts(utf8_path_buf) => {
                 Self::DetectedByRepoScripts(utf8_path_buf)
+            }
+            out::TargetSource::SpecifiedInOsCheckerConfig => Self::SpecifiedInOsCheckerConfig,
+            out::TargetSource::UnspecifiedDefaultToHostTarget => {
+                Self::UnspecifiedDefaultToHostTarget
             }
         }
     }
