@@ -15,6 +15,7 @@ use crate::{
 };
 use cargo_metadata::camino::Utf8PathBuf;
 use duct::Expression;
+use indexmap::IndexMap;
 
 /// 一个 package 待运行的检查命令（含 package 和 target triple）
 #[derive(Debug)]
@@ -24,6 +25,7 @@ pub struct Resolve {
     pub target: String,
     /// 仅当自定义检查命令出现 --target 时为 true
     pub target_overridden: bool,
+    pub env: IndexMap<String, String>,
     pub toolchain: Option<usize>,
     pub checker: CheckerTool,
     /// 完整的检查命令字符串（一定包含 --target）：
@@ -44,6 +46,7 @@ impl Resolve {
             target: pkg.target.to_owned(),
             target_overridden: false,
             toolchain: pkg.toolchain,
+            env: pkg.env.clone(),
             checker,
             cmd,
             expr,
@@ -65,6 +68,7 @@ impl Resolve {
             target,
             target_overridden: true,
             toolchain: pkg.toolchain,
+            env: pkg.env.clone(),
             checker,
             cmd,
             expr,
@@ -80,6 +84,7 @@ impl Resolve {
             target: self.target.clone(),
             target_overridden: self.target_overridden, // 无实际含义
             toolchain: self.toolchain,
+            env: IndexMap::default(),
             checker: CheckerTool::Cargo,
             cmd: format!("VRITUAL={} cargo", self.checker.name()),
             expr: duct::cmd!("false"), // 无实际含义
@@ -95,6 +100,7 @@ impl Resolve {
             target: host_target_triple().to_owned(),
             target_overridden: false, // 无实际含义
             toolchain: None,
+            env: IndexMap::default(),
             checker: CheckerTool::Cargo,
             cmd: "VRITUAL=LayoutParseError cargo".to_owned(),
             expr: duct::cmd!("false"), // 无实际含义

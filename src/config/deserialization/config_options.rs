@@ -181,6 +181,36 @@ impl std::ops::DerefMut for Cmds {
 pub struct Meta {
     #[serde(default = "defalt_skip_pkg_dir_globs")]
     skip_pkg_dir_globs: MaybeMulti,
+    /// { "target1": { "ENV1": "val" } }
+    #[serde(default)]
+    pub target_env: TargetEnv,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
+#[serde(transparent)]
+pub struct TargetEnv {
+    map: IndexMap<String, Env>,
+}
+
+impl TargetEnv {
+    pub fn merge(
+        &self,
+        target: &str,
+        global: &IndexMap<String, String>,
+    ) -> IndexMap<String, String> {
+        let mut map = global.clone();
+        if let Some(env) = self.map.get(target) {
+            // override env if exists
+            map.extend(env.map.clone());
+        }
+        map
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[serde(transparent)]
+struct Env {
+    map: IndexMap<String, String>,
 }
 
 impl Meta {
@@ -212,6 +242,21 @@ impl Default for Meta {
     fn default() -> Self {
         Self {
             skip_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
+            target_env: TargetEnv::default(),
         }
     }
+}
+
+#[test]
+fn target_env() {
+    let s = r#"
+{
+  "target_env": {
+    "target1": { "ENV1": "val" },
+    "target2": { "ENV2": "val", "ENV3": "val" }
+  }
+}"#;
+
+    let meta: Meta = serde_json::from_str(s).unwrap();
+    dbg!(&meta);
 }

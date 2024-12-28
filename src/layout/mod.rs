@@ -1,7 +1,7 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
 use crate::{
-    config::{Resolve, TargetsSpecifed},
+    config::{Resolve, TargetEnv, TargetsSpecifed},
     db::out::{CacheLayout, CachePackageInfo, CacheResolve, CargoMetaData},
     output::{get_channel, install_toolchain_idx, remove_targets, uninstall_toolchains},
     run_checker::DbRepo,
@@ -448,7 +448,13 @@ pub struct PackageInfoShared {
 }
 
 impl PackageInfoShared {
-    pub fn pkgs<'a>(&'a self, name: &'a str, targets: Option<&'a [String]>) -> Vec<Pkg<'a>> {
+    pub fn pkgs<'a>(
+        &'a self,
+        name: &'a str,
+        targets: Option<&'a [String]>,
+        env: Option<&'a IndexMap<String, String>>,
+        target_env: Option<&TargetEnv>,
+    ) -> Vec<Pkg<'a>> {
         targets
             .unwrap_or(&self.targets)
             .iter()
@@ -457,6 +463,12 @@ impl PackageInfoShared {
                 dir: &self.pkg_dir,
                 target,
                 toolchain: self.toolchain,
+                env: match (env, target_env) {
+                    (None, None) => IndexMap::default(),
+                    (None, Some(t)) => t.merge(target, &IndexMap::default()),
+                    (Some(g), None) => g.clone(),
+                    (Some(g), Some(t)) => t.merge(target, g),
+                },
                 audit: self.audit.as_ref(),
                 is_lib: self.is_lib,
             })
@@ -474,6 +486,7 @@ pub struct Pkg<'a> {
     pub dir: &'a Utf8Path,
     pub target: &'a str,
     pub toolchain: Option<usize>,
+    pub env: IndexMap<String, String>,
     pub audit: Option<&'a Rc<CargoAudit>>,
     pub is_lib: bool,
 }

@@ -15,6 +15,7 @@ use std::fmt::Debug;
 mod tests;
 
 mod config_options;
+pub use config_options::TargetEnv;
 use config_options::{Cmds, Meta, Setup, Targets};
 
 mod misc;
@@ -34,6 +35,8 @@ pub struct RepoConfig {
     /// 暂时只作用于 repo
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_install_targets: Option<Targets>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub env: Option<IndexMap<String, String>>,
     #[serde(default)]
     #[serde(skip_serializing_if = "Cmds::is_empty")]
     pub cmds: Cmds,
@@ -73,7 +76,12 @@ impl RepoConfig {
             };
 
             // if targets is empty, pick candidates detected from repo
-            let pkgs = info.pkgs(pkg_name, targets);
+            let pkgs = info.pkgs(
+                pkg_name,
+                targets,
+                self.env.as_ref(),
+                self.meta.as_ref().map(|m| &m.target_env),
+            );
 
             resolve_for_single_pkg(&cmds, &pkgs, &mut v)?;
 

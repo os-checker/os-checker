@@ -1,4 +1,4 @@
-use super::{Cmds, Meta, Setup, Targets};
+use super::{Cmds, Env, Meta, Setup, TargetEnv, Targets};
 use os_checker_types::config as out;
 
 // ********** CLI => os_checker_types **********
@@ -29,10 +29,28 @@ impl From<Cmds> for out::Cmds {
 
 impl From<Meta> for out::Meta {
     fn from(value: Meta) -> Self {
-        let Meta { skip_pkg_dir_globs } = value;
+        let Meta {
+            skip_pkg_dir_globs,
+            target_env,
+        } = value;
         Self {
             skip_pkg_dir_globs: skip_pkg_dir_globs.into(),
+            target_env: target_env.into(),
         }
+    }
+}
+
+impl From<TargetEnv> for out::TargetEnv {
+    fn from(value: TargetEnv) -> Self {
+        out::TargetEnv {
+            map: value.map.into_iter().map(|(k, v)| (k, v.into())).collect(),
+        }
+    }
+}
+
+impl From<Env> for out::Env {
+    fn from(value: Env) -> Self {
+        out::Env { map: value.map }
     }
 }
 
@@ -64,9 +82,27 @@ impl From<out::Cmds> for Cmds {
 
 impl From<out::Meta> for Meta {
     fn from(value: out::Meta) -> Self {
-        let out::Meta { skip_pkg_dir_globs } = value;
+        let out::Meta {
+            skip_pkg_dir_globs,
+            target_env,
+        } = value;
         Self {
             skip_pkg_dir_globs: skip_pkg_dir_globs.into(),
+            target_env: target_env.into(),
         }
+    }
+}
+
+impl From<out::TargetEnv> for TargetEnv {
+    fn from(value: out::TargetEnv) -> Self {
+        TargetEnv {
+            map: value.map.into_iter().map(|(k, v)| (k, v.into())).collect(),
+        }
+    }
+}
+
+impl From<out::Env> for Env {
+    fn from(value: out::Env) -> Self {
+        Env { map: value.map }
     }
 }
