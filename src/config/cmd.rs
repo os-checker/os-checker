@@ -36,11 +36,10 @@ fn add_env(mut expr: Expression, env: Option<&IndexMap<String, String>>) -> (Exp
 // For more information, try '--help'.
 pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
     let toolchain = host_toolchain();
-    let name = pkg.name;
-    let expr = cmd!("cargo", &toolchain, "fmt", "-p", name, "--", "--emit=json").dir(pkg.dir);
+    let expr = cmd!("cargo", &toolchain, "fmt", "--", "--emit=json").dir(pkg.dir);
     let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("{env_str}cargo {toolchain} fmt -p {name} -- --emit=json");
+    let cmd = format!("{env_str}cargo {toolchain} fmt -- --emit=json");
     Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
 }
 
