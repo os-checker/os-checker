@@ -21,7 +21,7 @@ env:
   # push to which database branch 
   DATABASE: main
   # cache.redb tag in database release
-  TAG_CACHE: cache-v12.redb
+  TAG_CACHE: cache-v11.redb
   # force downloading repos to run check 
   FORCE_REPO_CHECK: false
   # force running checks after downloading repos
