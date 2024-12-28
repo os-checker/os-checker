@@ -11,14 +11,12 @@ use duct::{cmd, Expression};
 use indexmap::IndexMap;
 use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
 
-fn add_env(mut expr: Expression, env: Option<&IndexMap<String, String>>) -> (Expression, String) {
+fn add_env(mut expr: Expression, env: &IndexMap<String, String>) -> (Expression, String) {
     use std::fmt::Write;
     let mut env_str = String::new();
-    if let Some(vars) = env {
-        for (name, val) in vars {
-            expr = expr.env(name, val);
-            _ = write!(env_str, "{name}={val:?} ");
-        }
+    for (name, val) in env {
+        expr = expr.env(name, val);
+        _ = write!(env_str, "{name}={val:?} ");
     }
     (expr, env_str)
 }
@@ -37,7 +35,7 @@ fn add_env(mut expr: Expression, env: Option<&IndexMap<String, String>>) -> (Exp
 pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
     let toolchain = host_toolchain();
     let expr = cmd!("cargo", &toolchain, "fmt", "--", "--emit=json").dir(pkg.dir);
-    let (expr, env_str) = add_env(expr, pkg.env);
+    let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!("{env_str}cargo {toolchain} fmt -- --emit=json");
     Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
@@ -56,7 +54,7 @@ pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
         "--message-format=json"
     )
     .dir(pkg.dir);
-    let (expr, env_str) = add_env(expr, pkg.env);
+    let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!("{env_str}cargo clippy --target {target} --no-deps --message-format=json");
     Resolve::new(pkg, CheckerTool::Clippy, cmd, expr)
@@ -85,7 +83,7 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
         // &lockbud_dir
     )
     .dir(pkg.dir);
-    let (expr, env_str) = add_env(expr, pkg.env);
+    let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd =
         format!("{env_str}cargo {PLUS_TOOLCHAIN_LOCKBUD} lockbud -k all -- --target {target}");
@@ -105,7 +103,7 @@ pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
         "--message-format=json"
     )
     .dir(pkg.dir);
-    let (expr, env_str) = add_env(expr, pkg.env);
+    let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!(
         "{env_str}cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target} --message-format=json"
@@ -128,7 +126,7 @@ pub fn cargo_rap(pkg: &Pkg) -> Resolve {
     )
     .env("RAP_LOG", "WARN")
     .dir(pkg.dir);
-    let (expr, env_str) = add_env(expr, pkg.env);
+    let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!("{env_str}cargo {PLUS_TOOLCHAIN_RAP} rap -F -M -- --target {target}");
     Resolve::new(pkg, CheckerTool::Rap, cmd, expr)
@@ -137,7 +135,7 @@ pub fn cargo_rap(pkg: &Pkg) -> Resolve {
 // FIXME: check how cargo check arguments are supported by rudra
 pub fn cargo_rudra(pkg: &Pkg) -> Resolve {
     let expr = cmd!("cargo", PLUS_TOOLCHAIN_RUDRA, "rudra",).dir(pkg.dir);
-    let (expr, env_str) = add_env(expr, pkg.env);
+    let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!("{env_str}cargo {PLUS_TOOLCHAIN_RUDRA} rudra");
     Resolve::new(pkg, CheckerTool::Rudra, cmd, expr)
@@ -155,7 +153,7 @@ pub fn cargo_geiger(pkg: &Pkg) -> Resolve {
         "never",
     )
     .dir(pkg.dir);
-    let (expr, env_str) = add_env(expr, pkg.env);
+    let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!("{env_str}cargo {toolchain} geiger --output-format Ascii");
     Resolve::new(pkg, CheckerTool::Geiger, cmd, expr)
@@ -172,7 +170,7 @@ pub fn cargo_outdated(pkg: &Pkg) -> Resolve {
         "--color=never"
     )
     .dir(pkg.dir);
-    let (expr, env_str) = add_env(expr, pkg.env);
+    let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!("{env_str}cargo {toolchain} outdated -R --exit-code=2");
     Resolve::new(pkg, CheckerTool::Outdated, cmd, expr)
@@ -189,7 +187,7 @@ pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
         "--color=never"
     )
     .dir(pkg.dir);
-    let (expr, env_str) = add_env(expr, pkg.env);
+    let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!(
         "{env_str}cargo {toolchain} semver-checks --target {}",

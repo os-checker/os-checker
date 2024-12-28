@@ -183,13 +183,28 @@ pub struct Meta {
     skip_pkg_dir_globs: MaybeMulti,
     /// { "target1": { "ENV1": "val" } }
     #[serde(default)]
-    target_env: TargetEnv,
+    pub target_env: TargetEnv,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
 #[serde(transparent)]
-struct TargetEnv {
+pub struct TargetEnv {
     map: IndexMap<String, Env>,
+}
+
+impl TargetEnv {
+    pub fn merge(
+        &self,
+        target: &str,
+        global: &IndexMap<String, String>,
+    ) -> IndexMap<String, String> {
+        let mut map = global.clone();
+        if let Some(env) = self.map.get(target) {
+            // override env if exists
+            map.extend(env.map.clone());
+        }
+        map
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]

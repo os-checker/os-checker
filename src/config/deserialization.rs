@@ -15,6 +15,7 @@ use std::fmt::Debug;
 mod tests;
 
 mod config_options;
+pub use config_options::TargetEnv;
 use config_options::{Cmds, Meta, Setup, Targets};
 
 mod misc;
@@ -75,7 +76,12 @@ impl RepoConfig {
             };
 
             // if targets is empty, pick candidates detected from repo
-            let pkgs = info.pkgs(pkg_name, targets, self.env.as_ref());
+            let pkgs = info.pkgs(
+                pkg_name,
+                targets,
+                self.env.as_ref(),
+                self.meta.as_ref().map(|m| &m.target_env),
+            );
 
             resolve_for_single_pkg(&cmds, &pkgs, &mut v)?;
 
