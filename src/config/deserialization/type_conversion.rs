@@ -13,6 +13,7 @@ impl From<RepoConfig> for out::RepoConfig {
             setup,
             targets,
             no_install_targets,
+            env,
             cmds,
             packages,
         } = value;
@@ -21,6 +22,7 @@ impl From<RepoConfig> for out::RepoConfig {
             setup: setup.map(|s| s.into()),
             targets: targets.map(|t| t.into()),
             no_install_targets: no_install_targets.map(|t| t.into()),
+            env,
             cmds: cmds.into(),
             packages: packages.into_iter().map(|(k, v)| (k, v.into())).collect(),
         }
@@ -55,6 +57,7 @@ impl From<out::RepoConfig> for RepoConfig {
             setup,
             targets,
             no_install_targets,
+            env,
             cmds,
             packages,
         } = value;
@@ -63,6 +66,7 @@ impl From<out::RepoConfig> for RepoConfig {
             setup: setup.map(|s| s.into()),
             targets: targets.map(|t| t.into()),
             no_install_targets: no_install_targets.map(|t| t.into()),
+            env,
             cmds: cmds.into(),
             packages: packages.into_iter().map(|(k, v)| (k, v.into())).collect(),
         }

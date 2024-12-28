@@ -7,6 +7,8 @@ pub struct RepoConfig {
     pub targets: Option<Targets>,
     pub no_install_targets: Option<Targets>,
     #[musli(with = musli::serde)]
+    pub env: Option<IndexMap<String, String>>,
+    #[musli(with = musli::serde)]
     pub cmds: Cmds,
     #[musli(with = musli::serde)]
     pub packages: IndexMap<String, RepoConfig>,

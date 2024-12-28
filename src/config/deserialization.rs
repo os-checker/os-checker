@@ -34,6 +34,8 @@ pub struct RepoConfig {
     /// 暂时只作用于 repo
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_install_targets: Option<Targets>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub env: Option<IndexMap<String, String>>,
     #[serde(default)]
     #[serde(skip_serializing_if = "Cmds::is_empty")]
     pub cmds: Cmds,
