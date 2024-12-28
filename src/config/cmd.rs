@@ -7,8 +7,21 @@ use crate::{
     },
     Result,
 };
-use duct::cmd;
+use duct::{cmd, Expression};
+use indexmap::IndexMap;
 use yash_syntax::syntax::{SimpleCommand, Unquote, Value};
+
+fn add_env(mut expr: Expression, env: Option<&IndexMap<String, String>>) -> (Expression, String) {
+    use std::fmt::Write;
+    let mut env_str = String::new();
+    if let Some(vars) = env {
+        for (name, val) in vars {
+            expr = expr.env(name, val);
+            _ = write!(env_str, "{name}={val:?} ");
+        }
+    }
+    (expr, env_str)
+}
 
 /// 默认运行 cargo fmt 的命令
 // NOTE: cargo fmt 不支持 --target 参数，但依然会在不同的 target_triple 上运行，
@@ -25,8 +38,9 @@ pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
     let toolchain = host_toolchain();
     let name = pkg.name;
     let expr = cmd!("cargo", &toolchain, "fmt", "-p", name, "--", "--emit=json").dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("cargo {toolchain} fmt -p {name} -- --emit=json");
+    let cmd = format!("{env_str}cargo {toolchain} fmt -p {name} -- --emit=json");
     Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
 }
 
@@ -43,8 +57,9 @@ pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
         "--message-format=json"
     )
     .dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("cargo clippy --target {target} --no-deps --message-format=json");
+    let cmd = format!("{env_str}cargo clippy --target {target} --no-deps --message-format=json");
     Resolve::new(pkg, CheckerTool::Clippy, cmd, expr)
 }
 
@@ -71,8 +86,10 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
         // &lockbud_dir
     )
     .dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("cargo {PLUS_TOOLCHAIN_LOCKBUD} lockbud -k all -- --target {target}");
+    let cmd =
+        format!("{env_str}cargo {PLUS_TOOLCHAIN_LOCKBUD} lockbud -k all -- --target {target}");
     Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
 }
 
@@ -89,8 +106,11 @@ pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
         "--message-format=json"
     )
     .dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target} --message-format=json");
+    let cmd = format!(
+        "{env_str}cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target} --message-format=json"
+    );
     Resolve::new(pkg, CheckerTool::Mirai, cmd, expr)
 }
 
@@ -109,16 +129,18 @@ pub fn cargo_rap(pkg: &Pkg) -> Resolve {
     )
     .env("RAP_LOG", "WARN")
     .dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("cargo {PLUS_TOOLCHAIN_RAP} rap -F -M -- --target {target}");
+    let cmd = format!("{env_str}cargo {PLUS_TOOLCHAIN_RAP} rap -F -M -- --target {target}");
     Resolve::new(pkg, CheckerTool::Rap, cmd, expr)
 }
 
 // FIXME: check how cargo check arguments are supported by rudra
 pub fn cargo_rudra(pkg: &Pkg) -> Resolve {
     let expr = cmd!("cargo", PLUS_TOOLCHAIN_RUDRA, "rudra",).dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("cargo {PLUS_TOOLCHAIN_RUDRA} rudra");
+    let cmd = format!("{env_str}cargo {PLUS_TOOLCHAIN_RUDRA} rudra");
     Resolve::new(pkg, CheckerTool::Rudra, cmd, expr)
 }
 
@@ -134,8 +156,9 @@ pub fn cargo_geiger(pkg: &Pkg) -> Resolve {
         "never",
     )
     .dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("cargo {toolchain} geiger --output-format Ascii");
+    let cmd = format!("{env_str}cargo {toolchain} geiger --output-format Ascii");
     Resolve::new(pkg, CheckerTool::Geiger, cmd, expr)
 }
 
@@ -150,8 +173,9 @@ pub fn cargo_outdated(pkg: &Pkg) -> Resolve {
         "--color=never"
     )
     .dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("cargo {toolchain} outdated -R --exit-code=2");
+    let cmd = format!("{env_str}cargo {toolchain} outdated -R --exit-code=2");
     Resolve::new(pkg, CheckerTool::Outdated, cmd, expr)
 }
 
@@ -166,8 +190,12 @@ pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
         "--color=never"
     )
     .dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, pkg.env);
     debug!(?expr);
-    let cmd = format!("cargo {toolchain} semver-checks --target {}", pkg.target);
+    let cmd = format!(
+        "{env_str}cargo {toolchain} semver-checks --target {}",
+        pkg.target
+    );
     Resolve::new(pkg, CheckerTool::SemverChecks, cmd, expr)
 }
 

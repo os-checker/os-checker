@@ -75,7 +75,7 @@ impl RepoConfig {
             };
 
             // if targets is empty, pick candidates detected from repo
-            let pkgs = info.pkgs(pkg_name, targets);
+            let pkgs = info.pkgs(pkg_name, targets, self.env.as_ref());
 
             resolve_for_single_pkg(&cmds, &pkgs, &mut v)?;
 

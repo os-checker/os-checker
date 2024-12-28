@@ -448,7 +448,12 @@ pub struct PackageInfoShared {
 }
 
 impl PackageInfoShared {
-    pub fn pkgs<'a>(&'a self, name: &'a str, targets: Option<&'a [String]>) -> Vec<Pkg<'a>> {
+    pub fn pkgs<'a>(
+        &'a self,
+        name: &'a str,
+        targets: Option<&'a [String]>,
+        env: Option<&'a IndexMap<String, String>>,
+    ) -> Vec<Pkg<'a>> {
         targets
             .unwrap_or(&self.targets)
             .iter()
@@ -457,6 +462,7 @@ impl PackageInfoShared {
                 dir: &self.pkg_dir,
                 target,
                 toolchain: self.toolchain,
+                env,
                 audit: self.audit.as_ref(),
                 is_lib: self.is_lib,
             })
@@ -474,6 +480,7 @@ pub struct Pkg<'a> {
     pub dir: &'a Utf8Path,
     pub target: &'a str,
     pub toolchain: Option<usize>,
+    pub env: Option<&'a IndexMap<String, String>>,
     pub audit: Option<&'a Rc<CargoAudit>>,
     pub is_lib: bool,
 }

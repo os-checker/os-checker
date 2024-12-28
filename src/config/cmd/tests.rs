@@ -65,6 +65,7 @@ fn custom_cmd() {
         dir: cargo_metadata::camino::Utf8Path::new("."),
         target: "x86_64-unknown-linux-gnu",
         toolchain: Some(0),
+        env: None,
         audit: None,
         is_lib: true,
     };
