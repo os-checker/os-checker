@@ -181,6 +181,21 @@ impl std::ops::DerefMut for Cmds {
 pub struct Meta {
     #[serde(default = "defalt_skip_pkg_dir_globs")]
     skip_pkg_dir_globs: MaybeMulti,
+    /// { "target1": { "ENV1": "val" } }
+    #[serde(default)]
+    target_env: TargetEnv,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
+#[serde(transparent)]
+struct TargetEnv {
+    map: IndexMap<String, Env>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[serde(transparent)]
+struct Env {
+    map: IndexMap<String, String>,
 }
 
 impl Meta {
@@ -212,6 +227,21 @@ impl Default for Meta {
     fn default() -> Self {
         Self {
             skip_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
+            target_env: TargetEnv::default(),
         }
     }
+}
+
+#[test]
+fn target_env() {
+    let s = r#"
+{
+  "target_env": {
+    "target1": { "ENV1": "val" },
+    "target2": { "ENV2": "val", "ENV3": "val" }
+  }
+}"#;
+
+    let meta: Meta = serde_json::from_str(s).unwrap();
+    dbg!(&meta);
 }

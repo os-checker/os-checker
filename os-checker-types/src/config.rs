@@ -66,4 +66,20 @@ impl Cmds {
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, Clone)]
 pub struct Meta {
     pub skip_pkg_dir_globs: MaybeMulti,
+    /// { "target1": { "ENV1": "val" } }
+    #[serde(default)]
+    #[musli(with = musli::serde)]
+    pub target_env: TargetEnv,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(transparent)]
+pub struct TargetEnv {
+    pub map: IndexMap<String, Env>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(transparent)]
+pub struct Env {
+    pub map: IndexMap<String, String>,
 }
