@@ -1,9 +1,8 @@
 {
-  "qclic/sparreal-os": {
-    "packages": {
-      "xtask": {
-        "targets": "x86_64-unknown-linux-gnu"
-      }
+  "shilei-massclouds/mmap": {
+    "env": {
+      "AX_ARCH": "riscv64",
+      "AX_PLATFORM": "riscv64-qemu-virt"
     }
   }
 }
