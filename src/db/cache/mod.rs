@@ -5,6 +5,7 @@ use crate::{
 };
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
+use indexmap::IndexMap;
 use os_checker_types::db as out;
 use std::fmt;
 
@@ -32,6 +33,7 @@ impl CacheRepoKeyCmd {
                 cmd: resolve.cmd.clone(),
                 target: resolve.target.clone(),
                 channel: get_channel(resolve.toolchain.unwrap_or(0)),
+                env: resolve.env.clone(),
                 // TODO: 待支持
                 features: vec![],
                 flags: vec![],
@@ -122,6 +124,7 @@ struct CacheCmd {
     target: String,
     /// FIXME: channel 转换回 RustToolchain 会丢失额外的信息
     channel: String,
+    env: IndexMap<String, String>,
     // Below is not necessary, and currently not implemented.
     features: Vec<XString>,
     /// rustcflags

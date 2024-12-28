@@ -70,6 +70,7 @@ impl From<CacheCmd> for out::CacheCmd {
             cmd,
             target,
             channel,
+            env,
             features,
             flags,
         } = value;
@@ -77,6 +78,7 @@ impl From<CacheCmd> for out::CacheCmd {
             cmd,
             target,
             channel,
+            env,
             features,
             flags,
         }
@@ -219,6 +221,7 @@ impl From<out::CacheCmd> for CacheCmd {
             cmd,
             target,
             channel,
+            env,
             features,
             flags,
         } = value;
@@ -226,6 +229,7 @@ impl From<out::CacheCmd> for CacheCmd {
             cmd,
             target,
             channel,
+            env,
             features,
             flags,
         }
