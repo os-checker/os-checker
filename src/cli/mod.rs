@@ -136,7 +136,7 @@ struct ArgsLayout {
     #[argh(option)]
     list_targets: Option<String>,
     /// json output file path. Default to layout.txt.
-    #[argh(option, default = "Utf8PathBuf::from(\"layout.txt\")")]
+    #[argh(option, default = "Utf8PathBuf::from(\"layout.json\")")]
     out: Utf8PathBuf,
 }
 
