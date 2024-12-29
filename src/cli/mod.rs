@@ -135,6 +135,9 @@ struct ArgsLayout {
     /// Repos not in the given list will not be downloaded and parsed.
     #[argh(option)]
     list_targets: Option<String>,
+    /// json output file path. Default to layout.txt.
+    #[argh(option, default = "Utf8PathBuf::from(\"layout.json\")")]
+    out: Utf8PathBuf,
 }
 
 /// Run checkers on all repos.
@@ -374,7 +377,8 @@ impl ArgsLayout {
             .sorted_unstable_by(|a, b| (&a.user, &a.repo, &a.pkg).cmp(&(&b.user, &b.repo, &b.pkg)))
             .collect();
 
-        serde_json::to_writer_pretty(io::stdout(), &targets)?;
+        let file = fs::File::create(&self.out)?;
+        serde_json::to_writer_pretty(file, &targets)?;
 
         Ok(())
     }
