@@ -19,16 +19,16 @@ env:
   PUSH: true
   toolchain: nightly-2024-12-26
   # push to which database branch 
-  DATABASE: main
+  DATABASE: debug
   # cache.redb tag in database release
   TAG_CACHE: cache-v12.redb
   # force downloading repos to run check 
-  FORCE_REPO_CHECK: false
+  FORCE_REPO_CHECK: true
   # force running checks after downloading repos
-  FORCE_RUN_CHECK: false
+  FORCE_RUN_CHECK: true
   # use which configs
-  # OS_CHECKER_CONFIGS: repos.json # for debug single repo
-  OS_CHECKER_CONFIGS: repos-default.json repos-ui.json # full repo list
+  OS_CHECKER_CONFIGS: repos.json # for debug single repo
+  # OS_CHECKER_CONFIGS: repos-default.json repos-ui.json # full repo list
 
 jobs:
   run:
@@ -71,6 +71,10 @@ jobs:
           rustup default nightly-2024-10-05 && cargo lockbud --help
           rustup default nightly-2024-10-12 && cargo rap --help
           rustup default ${{ env.toolchain }}
+
+      - name: Extra building environment required by OS libs
+        run: |
+          sudo apt install libudev-dev -y # ZR233/ostool requires
 
       - name: Install os-checker
         run: cargo install --path . --force
