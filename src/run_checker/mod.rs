@@ -376,11 +376,7 @@ fn run_check(
     }
 
     let (now_utc, duration_ms, raw) = crate::utils::execution_time_ms(|| {
-        let mut expr = resolve.expr.stderr_capture().stdout_capture().unchecked();
-        // Rap's diagnostics are printed to stdout, but logging is to stderr
-        if matches!(resolve.checker, CheckerTool::Rap) {
-            expr = expr.stdout_to_stderr();
-        }
+        let expr = resolve.expr.stderr_capture().stdout_capture().unchecked();
         expr.run()
     });
     let raw = raw?;
@@ -436,9 +432,9 @@ fn run_check(
                 })
                 .collect::<Result<_>>()?,
         ),
-        CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
-        CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
-        CheckerTool::Rudra => OutputParsed::Rudra(rudra::parse(&raw.stderr, &resolve)),
+        CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(stderr)),
+        CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(stderr, stdout, &resolve)),
+        CheckerTool::Rudra => OutputParsed::Rudra(rudra::parse(stderr, &resolve)),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),
         CheckerTool::Geiger => OutputParsed::Geiger(geiger::parse(&raw, &resolve)),
