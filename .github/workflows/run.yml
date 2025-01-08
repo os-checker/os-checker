@@ -66,10 +66,10 @@ jobs:
           cargo outdated --version
           cargo geiger --version
           cargo semver-checks --version
+          rustup default nightly-2025-01-04 && cargo mirai --help
+          rustup default nightly-2024-12-01 && cargo lockbud --help
+          rustup default nightly-2024-10-12 && cargo rapx --help
           rustup default nightly-2021-10-21 && cargo rudra --help
-          rustup default nightly-2024-02-05 && cargo mirai --help
-          rustup default nightly-2024-10-05 && cargo lockbud --help
-          rustup default nightly-2024-10-12 && cargo rap --help
           rustup default ${{ env.toolchain }}
 
       - name: Extra building environment required by OS libs
