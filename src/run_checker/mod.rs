@@ -375,9 +375,13 @@ fn run_check(
         return Ok(());
     }
 
-    let expr = resolve.expr.clone();
     let (now_utc, duration_ms, raw) = crate::utils::execution_time_ms(|| {
-        expr.stderr_capture().stdout_capture().unchecked().run()
+        let mut expr = resolve.expr.stderr_capture().stdout_capture().unchecked();
+        // Rap's diagnostics are printed to stdout, but logging is to stderr
+        if matches!(resolve.checker, CheckerTool::Rap) {
+            expr = expr.stdout_to_stderr();
+        }
+        expr.run()
     });
     let raw = raw?;
 
