@@ -16,6 +16,7 @@ use crate::{
 use cargo_metadata::camino::Utf8PathBuf;
 use duct::Expression;
 use indexmap::IndexMap;
+use time::OffsetDateTime;
 
 /// 一个 package 待运行的检查命令（含 package 和 target triple）
 #[derive(Debug)]
@@ -219,10 +220,13 @@ impl Resolve {
             ..
         } = self;
         let toolchain = self.toolchain();
+        // This timestamp is a bit later than the actual start/end time of checking.
+        // But for simplicity, let's keep it this way without timestamp argument requred.
+        let now = OffsetDateTime::now_utc().to_offset(time::macros::offset!(+8));
         format!(
             "pkg={pkg_name}, checker={checker:?}\n\
             toolchain={toolchain}, target={target}\n\
-            pkg_dir={pkg_dir}\ncmd={cmd}\n\n",
+            pkg_dir={pkg_dir}\ncmd={cmd}\ntimestamp={now}\n\n",
         )
     }
 }
