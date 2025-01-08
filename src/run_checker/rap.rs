@@ -24,6 +24,7 @@ pub fn get_rap_result() -> crate::Result<()> {
     let out = duct::cmd!("cargo", toolchain, "rapx", "-F")
         .dir("../os-checker-test-suite/rap-checks-this")
         .stderr_capture()
+        .stdout_capture()
         .unchecked()
         .run()?;
     println!(
