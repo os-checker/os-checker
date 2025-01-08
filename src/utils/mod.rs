@@ -22,8 +22,8 @@ pub const HOST_TARGET: &str = "x86_64-unknown-linux-gnu";
 pub const PLUS_TOOLCHAIN_HOST: &str = "+nightly";
 
 pub const PLUS_TOOLCHAIN_RUDRA: &str = "+nightly-2021-10-21";
-pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2024-02-05";
-pub const PLUS_TOOLCHAIN_LOCKBUD: &str = "+nightly-2024-10-05";
+pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2025-01-04";
+pub const PLUS_TOOLCHAIN_LOCKBUD: &str = "+nightly-2024-12-01";
 pub const PLUS_TOOLCHAIN_RAP: &str = "+nightly-2024-10-12";
 
 /// git clone 一个仓库到一个 dir。

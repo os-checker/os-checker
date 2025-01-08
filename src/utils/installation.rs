@@ -82,7 +82,7 @@ fn detect_checker_if_exists(checker_bin: &str) -> Result<()> {
 }
 
 fn detect_checkers() -> Result<()> {
-    detect_checker_if_exists("rap")?;
+    detect_checker_if_exists("rapx")?;
     detect_checker_if_exists("lockbud")?;
     detect_checker_if_exists("mirai")?;
     detect_checker_if_exists("rudra")?;

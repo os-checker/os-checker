@@ -1,5 +1,4 @@
 use crate::config::Resolve;
-use std::fmt::Write;
 
 pub fn rap_output(stderr: &[u8], resolve: &Resolve) -> String {
     let mut output = parse_rap_result(stderr);
@@ -9,25 +8,20 @@ pub fn rap_output(stderr: &[u8], resolve: &Resolve) -> String {
     output
 }
 
-/// See https://github.com/Artisan-Lab/RAP/issues/53
+/// See https://github.com/Artisan-Lab/RAPx/issues/53
 fn parse_rap_result(stderr: &[u8]) -> String {
-    // rap doesn't provide no-color option
+    // rap provides no-color option, but in case it doesn't work
     let stderr = String::from_utf8(strip_ansi_escapes::strip(stderr)).unwrap();
-    let mut rap_output = String::with_capacity(stderr.len() / 2);
-
-    for line in stderr.lines() {
-        if line.contains("RAP|WARN") {
-            _ = writeln!(&mut rap_output, "{line}");
-        }
+    if !stderr.contains("RAP|WARN") {
+        return String::new();
     }
-    info!(rap_output, ?stderr);
-    rap_output
+    stderr
 }
 
 #[test]
 pub fn get_rap_result() -> crate::Result<()> {
     let toolchain = crate::utils::PLUS_TOOLCHAIN_RAP;
-    let out = duct::cmd!("cargo", toolchain, "rap", "-F")
+    let out = duct::cmd!("cargo", toolchain, "rapx", "-F")
         .dir("../os-checker-test-suite/rap-checks-this")
         .stderr_capture()
         .unchecked()
