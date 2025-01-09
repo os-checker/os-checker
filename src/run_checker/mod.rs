@@ -433,7 +433,7 @@ fn run_check(
                 .collect::<Result<_>>()?,
         ),
         CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(stderr)),
-        CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(stderr, stdout, &resolve)),
+        CheckerTool::Rapx => OutputParsed::Rap(rap::rap_output(stderr, stdout, &resolve)),
         CheckerTool::Rudra => OutputParsed::Rudra(rudra::parse(stderr, &resolve)),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),

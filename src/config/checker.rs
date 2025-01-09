@@ -31,7 +31,7 @@ pub enum CheckerTool {
     Audit,
     Mirai,
     Lockbud,
-    Rap,
+    Rapx,
     Rudra,
     Outdated,
     Geiger,
@@ -50,7 +50,7 @@ impl CheckerTool {
             Audit => "audit",
             Mirai => "mirai",
             Lockbud => "lockbud",
-            Rap => "rap",
+            Rapx => "rapx",
             Rudra => "rudra",
             Outdated => "outdated",
             Geiger => "geiger",
@@ -61,7 +61,7 @@ impl CheckerTool {
     /// To reduce outdated artifacts of other checkers,
     /// call cargo clean before some checkers start.
     pub fn cargo_clean(self, workspace_dirs: &[&Utf8Path]) {
-        if matches!(self, Mirai | Rap | Geiger) {
+        if matches!(self, Mirai | Rapx | Geiger) {
             let clean = &duct::cmd!("cargo", "clean");
             for dir in workspace_dirs {
                 if let Err(err) = clean.clone().dir(dir).run() {
