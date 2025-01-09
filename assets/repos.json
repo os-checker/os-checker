@@ -1,3 +1,6 @@
 {
-  "os-checker/os-checker": {}
+  "ZR233/arm-gic-driver": {
+    "targets": "aarch64-unknown-none-softfloat"
+  },
+  "Starry-OS/arm_gic": {}
 }
