@@ -1,18 +1,4 @@
 {
-  "AsyncModules/embassy-priority": {
-    "meta": {
-      "skip_pkg_dir_globs": [
-        "docs/**",
-        "examples/**",
-        "tests/**"
-      ]
-    },
-    "packages": {
-      "embassy-net-tuntap": {
-        "targets": "x86_64-unknown-linux-gnu"
-      }
-    }
-  },
   "arceos-org/arceos": {
     "packages": {
       "bwbench-client": {
@@ -120,18 +106,6 @@
     "no_install_targets": "x86_64-unknown-uefi"
   },
   "os-module/safe-virtio-drivers": {
-    "cmds": {
-      "mirai": false
-    }
-  },
-  "seL4/rust-sel4": {
-    "meta": {
-      "skip_pkg_dir_globs": [
-        "crates/examples/**",
-        "crates/private/**",
-        "hacking/**"
-      ]
-    },
     "cmds": {
       "mirai": false
     }
