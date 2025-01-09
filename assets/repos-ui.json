@@ -140,5 +140,8 @@
   },
   "Godones/loongArch64": {
     "targets": "loongarch64-unknown-none"
+  },
+  "ZR233/arm-gic-driver": {
+    "targets": "aarch64-unknown-none-softfloat"
   }
 }
