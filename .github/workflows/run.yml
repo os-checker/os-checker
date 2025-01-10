@@ -45,6 +45,8 @@ jobs:
           cp Makefile ~/check/
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
+          cp assets/embassy.json ~/check/
+          cp assets/large.json ~/check/
           cd ~/check
           gh release download -R kern-crates/.github -p os-checker_config.json
           # temporarily disable qclic/e1000e-frame
