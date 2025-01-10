@@ -24,7 +24,7 @@
       }
     }
   },
-  "Starry-OS/Starry-New": {
+  "Starry-OS/Starry-Old": {
     "packages": {
       "bwbench-client": {
         "targets": "x86_64-unknown-linux-gnu"
