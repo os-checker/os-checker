@@ -168,7 +168,7 @@ fn data_rap(s: &str) -> Vec<OutputDataInner> {
         // FIXME: 目前 rap 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
         let data = OutputDataInner::new(
             "[rap] Not supported to display yet.".into(),
-            Kind::Rap,
+            Kind::Rapx,
             s.to_owned(),
         );
         vec![data]

@@ -375,9 +375,9 @@ fn run_check(
         return Ok(());
     }
 
-    let expr = resolve.expr.clone();
     let (now_utc, duration_ms, raw) = crate::utils::execution_time_ms(|| {
-        expr.stderr_capture().stdout_capture().unchecked().run()
+        let expr = resolve.expr.stderr_capture().stdout_capture().unchecked();
+        expr.run()
     });
     let raw = raw?;
 
@@ -432,9 +432,9 @@ fn run_check(
                 })
                 .collect::<Result<_>>()?,
         ),
-        CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(&raw.stderr)),
-        CheckerTool::Rap => OutputParsed::Rap(rap::rap_output(&raw.stderr, &resolve)),
-        CheckerTool::Rudra => OutputParsed::Rudra(rudra::parse(&raw.stderr, &resolve)),
+        CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(stderr)),
+        CheckerTool::Rapx => OutputParsed::Rap(rap::rap_output(stderr, stdout, &resolve)),
+        CheckerTool::Rudra => OutputParsed::Rudra(rudra::parse(stderr, &resolve)),
         CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
         CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),
         CheckerTool::Geiger => OutputParsed::Geiger(geiger::parse(&raw, &resolve)),

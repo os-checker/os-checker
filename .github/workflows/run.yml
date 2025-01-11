@@ -17,11 +17,11 @@ env:
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
   PUSH: true
-  toolchain: nightly-2024-12-26
+  toolchain: nightly-2025-01-07
   # push to which database branch 
   DATABASE: main
   # cache.redb tag in database release
-  TAG_CACHE: cache-v12.redb
+  TAG_CACHE: cache-v13.redb
   # force downloading repos to run check 
   FORCE_REPO_CHECK: false
   # force running checks after downloading repos
@@ -45,6 +45,8 @@ jobs:
           cp Makefile ~/check/
           cp assets/repos.json ~/check/
           cp assets/repos-ui.json ~/check/
+          cp assets/embassy.json ~/check/
+          cp assets/large.json ~/check/
           cd ~/check
           gh release download -R kern-crates/.github -p os-checker_config.json
           # temporarily disable qclic/e1000e-frame
@@ -66,10 +68,10 @@ jobs:
           cargo outdated --version
           cargo geiger --version
           cargo semver-checks --version
+          rustup default nightly-2025-01-04 && cargo mirai --help
+          rustup default nightly-2024-12-01 && cargo lockbud --help
+          rustup default nightly-2024-10-12 && cargo rapx --help
           rustup default nightly-2021-10-21 && cargo rudra --help
-          rustup default nightly-2024-02-05 && cargo mirai --help
-          rustup default nightly-2024-10-05 && cargo lockbud --help
-          rustup default nightly-2024-10-12 && cargo rap --help
           rustup default ${{ env.toolchain }}
 
       - name: Extra building environment required by OS libs
@@ -92,7 +94,7 @@ jobs:
 
           # make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
           # 仅在支持新检查时采用 batch，因为中途一旦出错，只使用 run 无法在中途上传检查结果的缓存数据
-          batch --size 8 #|| echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
+          batch --size 2 #|| echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
 
           os-checker db --done cache.redb
 

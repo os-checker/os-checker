@@ -1,0 +1,28 @@
+{
+  "AsyncModules/embassy-priority": {
+    "meta": {
+      "skip_pkg_dir_globs": [
+        "docs/**",
+        "examples/**",
+        "tests/**"
+      ]
+    },
+    "packages": {
+      "embassy-net-tuntap": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
+    }
+  },
+  "seL4/rust-sel4": {
+    "meta": {
+      "skip_pkg_dir_globs": [
+        "crates/examples/**",
+        "crates/private/**",
+        "hacking/**"
+      ]
+    },
+    "cmds": {
+      "mirai": false
+    }
+  }
+}

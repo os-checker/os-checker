@@ -117,19 +117,20 @@ pub fn cargo_rap(pkg: &Pkg) -> Resolve {
     let expr = cmd!(
         "cargo",
         PLUS_TOOLCHAIN_RAP,
-        "rap",
+        "rapx",
         "-F",
         "-M",
         "--",
         "--target",
         target,
+        "--color=never"
     )
     .env("RAP_LOG", "WARN")
     .dir(pkg.dir);
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
-    let cmd = format!("{env_str}cargo {PLUS_TOOLCHAIN_RAP} rap -F -M -- --target {target}");
-    Resolve::new(pkg, CheckerTool::Rap, cmd, expr)
+    let cmd = format!("{env_str}cargo {PLUS_TOOLCHAIN_RAP} rapx -F -M -- --target {target}");
+    Resolve::new(pkg, CheckerTool::Rapx, cmd, expr)
 }
 
 // FIXME: check how cargo check arguments are supported by rudra

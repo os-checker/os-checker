@@ -214,7 +214,7 @@ fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Re
             (Lockbud, Left(true)) => Resolve::lockbud(pkgs, v),
             (Mirai, Left(true)) => Resolve::mirai(pkgs, v),
             (Audit, Left(true)) => Resolve::audit(pkgs, v),
-            (Rap, Left(true)) => Resolve::rap(pkgs, v),
+            (Rapx, Left(true)) => Resolve::rap(pkgs, v),
             (Rudra, Left(true)) => Resolve::rudra(pkgs, v),
             (Outdated, Left(true)) => Resolve::outdated(pkgs, v),
             (Geiger, Left(true)) => Resolve::geiger(pkgs, v),
