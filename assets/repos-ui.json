@@ -79,13 +79,6 @@
       }
     }
   },
-  "qclic/sparreal-os": {
-    "packages": {
-      "xtask": {
-        "targets": "x86_64-unknown-linux-gnu"
-      }
-    }
-  },
   "qclic/fdt-parser": {
     "packages": {
       "dtb-tool": {
