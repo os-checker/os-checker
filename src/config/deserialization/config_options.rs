@@ -2,6 +2,7 @@ use super::*;
 use eyre::Context;
 use CheckerTool::*;
 
+mod features;
 mod type_conversion;
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
@@ -93,27 +94,6 @@ pub struct Setup(MaybeMulti);
 //         self.0.as_slice()
 //     }
 // }
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
-#[serde(untagged)]
-pub enum Features {
-    Complete(FeaturesCompleteState),
-    Simple(MaybeMulti),
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
-pub struct FeaturesCompleteState {
-    #[serde(rename = "F")]
-    f: String,
-    #[serde(rename = "no-default-features", default)]
-    no_default_features: bool,
-    #[serde(rename = "all-features", default)]
-    all_features: bool,
-    #[serde(default)]
-    targets: Vec<String>,
-}
-
-impl Features {}
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(transparent)]
