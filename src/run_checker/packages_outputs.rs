@@ -202,9 +202,11 @@ fn extra_header(stderr: &str, resolve: &Resolve, now_utc: OffsetDateTime) -> Str
     } = resolve;
     let toolchain = resolve.toolchain();
     let now = now_utc.to_offset(time::macros::offset!(+8));
+    let features = resolve.features_args.join(" ");
     format!(
         "// pkg_name={pkg_name}, checker={checker:?}\n\
          // toolchain={toolchain}, target={target}\n\
+         // features={features}\n\
          // pkg_dir={pkg_dir}\n\
          // cmd={cmd}\n\
          // timestamp={now}\n\

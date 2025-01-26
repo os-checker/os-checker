@@ -228,9 +228,11 @@ impl Resolve {
         // This timestamp is a bit later than the actual start/end time of checking.
         // But for simplicity, let's keep it this way without timestamp argument requred.
         let now = OffsetDateTime::now_utc().to_offset(time::macros::offset!(+8));
+        let features = self.features_args.join(" ");
         format!(
             "pkg={pkg_name}, checker={checker:?}\n\
             toolchain={toolchain}, target={target}\n\
+            features={features}\n\
             pkg_dir={pkg_dir}\ncmd={cmd}\ntimestamp={now}\n\n",
         )
     }

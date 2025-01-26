@@ -44,7 +44,6 @@ pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
 /// 默认运行 cargo clippy 的命令
 pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
     // 只分析传入 toml path 指向的 package，不分析其依赖
-    // let features_args = pkg.features_args.clone();
     let mut args = vec![
         "clippy",
         "--target",
@@ -59,7 +58,7 @@ pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
     let cmd = format!(
         "{env_str}cargo clippy --target {} {} --no-deps",
         pkg.target,
-        pkg.features_args.join(",")
+        pkg.features_args.join(" ")
     );
     Resolve::new(pkg, CheckerTool::Clippy, cmd, expr)
 }
@@ -88,7 +87,7 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
     let cmd = format!(
         "{env_str}cargo {PLUS_TOOLCHAIN_LOCKBUD} lockbud -k all -- --target {} {}",
         pkg.target,
-        pkg.features_args.join(",")
+        pkg.features_args.join(" ")
     );
     Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
 }
@@ -109,7 +108,7 @@ pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
     let cmd = format!(
         "{env_str}cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {} {}",
         pkg.target,
-        pkg.features_args.join(",")
+        pkg.features_args.join(" ")
     );
     Resolve::new(pkg, CheckerTool::Mirai, cmd, expr)
 }
@@ -132,7 +131,7 @@ pub fn cargo_rap(pkg: &Pkg) -> Resolve {
     let cmd = format!(
         "{env_str}cargo {PLUS_TOOLCHAIN_RAP} rapx -F -M -- --target {} {}",
         pkg.target,
-        pkg.features_args.join(",")
+        pkg.features_args.join(" ")
     );
     Resolve::new(pkg, CheckerTool::Rapx, cmd, expr)
 }
@@ -147,7 +146,7 @@ pub fn cargo_rudra(pkg: &Pkg) -> Resolve {
     let cmd = format!(
         "{env_str}cargo {PLUS_TOOLCHAIN_RUDRA} rudra --target {} {}",
         pkg.target,
-        pkg.features_args.join(",")
+        pkg.features_args.join(" ")
     );
     Resolve::new(pkg, CheckerTool::Rudra, cmd, expr)
 }
@@ -203,7 +202,7 @@ pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
     let cmd = format!(
         "{env_str}cargo {toolchain} semver-checks --target {} {}",
         pkg.target,
-        pkg.features_args.join(",")
+        pkg.features_args.join(" ")
     );
     Resolve::new(pkg, CheckerTool::SemverChecks, cmd, expr)
 }
