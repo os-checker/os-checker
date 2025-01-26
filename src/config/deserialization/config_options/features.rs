@@ -117,5 +117,8 @@ where
 }
 
 fn split_features(features: &str) -> Vec<String> {
+    if features.is_empty() {
+        return Vec::new();
+    }
     features.split(',').map(String::from).collect()
 }
