@@ -13,7 +13,8 @@ use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
-use indexmap::{IndexMap, IndexSet};
+use eyre::ContextCompat;
+use indexmap::IndexMap;
 use std::{fmt, rc::Rc};
 
 #[cfg(test)]
@@ -208,21 +209,35 @@ impl Layout {
         // 路径，或者对同名 package 进行检查，必须包含额外的路径。
         // 无论如何，这都带来复杂性，目前来看并不值得。
 
-        let libs = lib_pkgs(&self.workspaces);
+        let mut libs = lib_pkgs(&self.workspaces);
         let audit = CargoAudit::new_for_pkgs(self.workspaces.keys())?;
 
         let map: IndexMap<_, _> = self
             .packages_info
             .iter()
             .map(|info| {
+                let features_islib = libs
+                    .swap_remove(&info.pkg_name)
+                    .with_context(|| {
+                        // it's almost unlikely to reach here if duplicated package
+                        // name exist, because inserting the second package to libs
+                        // will causes assert! panic.
+                        format!(
+                            "The vec features of package `{}` has been taken out.\n
+                             Maybe there is a duplicated lib crate name?",
+                            info.pkg_name
+                        )
+                    })
+                    .unwrap();
                 (
                     info.pkg_name.clone(),
                     PackageInfoShared {
                         pkg_dir: info.pkg_dir.clone(),
                         targets: info.targets.keys().cloned().collect(),
+                        features: features_islib.features,
                         toolchain: info.toolchain,
                         audit: audit.get(&info.pkg_name).cloned(),
-                        is_lib: libs.contains(&info.pkg_name),
+                        is_lib: features_islib.is_lib,
                     },
                 )
             })
@@ -383,6 +398,7 @@ impl Packages {
                         PackageInfoShared {
                             pkg_dir: Utf8PathBuf::new(),
                             targets: vec![host.clone()],
+                            features: vec![],
                             toolchain: Some(0),
                             audit: None,
                             is_lib: true,
@@ -441,6 +457,7 @@ pub struct PackageInfoShared {
     /// manifest_dir, i.e. manifest_path without Cargo.toml
     pkg_dir: Utf8PathBuf,
     targets: Vec<String>,
+    features: Vec<String>,
     toolchain: Option<usize>,
     audit: Audit,
     /// cargo-semver-checks only works for lib crate
@@ -478,6 +495,10 @@ impl PackageInfoShared {
     pub fn targets(&self) -> Vec<String> {
         self.targets.clone()
     }
+
+    pub fn features(&self) -> &[String] {
+        &self.features
+    }
 }
 
 #[derive(Debug)]
@@ -491,19 +512,39 @@ pub struct Pkg<'a> {
     pub is_lib: bool,
 }
 
-fn lib_pkgs(workspaces: &Workspaces) -> IndexSet<XString> {
-    let mut set = IndexSet::new();
+#[derive(Debug)]
+struct PkgFeaturesLib {
+    features: Vec<String>,
+    is_lib: bool,
+}
+
+fn lib_pkgs(workspaces: &Workspaces) -> IndexMap<XString, PkgFeaturesLib> {
+    let mut map = IndexMap::new();
     for ws in workspaces.values() {
         'p: for p in ws.workspace_packages() {
+            let features: Vec<String> = p.features.keys().cloned().collect();
+            let old = map.insert(
+                XString::new(&*p.name),
+                PkgFeaturesLib {
+                    features,
+                    is_lib: false,
+                },
+            );
+            assert!(
+                old.is_none(),
+                "Package `{}` already exists.\nOld={old:?}",
+                p.name
+            );
             for target in &p.targets {
                 for kind in &target.kind {
                     if kind == "lib" {
-                        set.insert(XString::new(&*p.name));
+                        // The package is inserted above just now.
+                        map.get_mut(&*p.name).unwrap().is_lib = true;
                         continue 'p;
                     }
                 }
             }
         }
     }
-    set
+    map
 }

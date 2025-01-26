@@ -93,6 +93,10 @@ impl RepoConfig {
                 self.meta.as_ref().map(|m| &m.target_env),
             );
 
+            // check features
+            let merged_targets: Vec<_> = pkgs.iter().map(|pkg| pkg.target).collect();
+            self.validate_features(info.features(), &merged_targets, pkg_name)?;
+
             resolve_for_single_pkg(&cmds, &pkgs, &mut v)?;
 
             // default to enable all checkers for next package
@@ -193,7 +197,20 @@ impl RepoConfig {
         Ok(())
     }
 
-    // TODO: validate features
+    // self is a pkg config
+    pub fn validate_features(
+        &self,
+        pkg_features: &[String],
+        pkg_targets: &[&str],
+        pkg: &str,
+    ) -> Result<()> {
+        if let Some(v_features) = &self.features {
+            for features in v_features {
+                features.validate(pkg_features, pkg_targets, pkg)?;
+            }
+        }
+        Ok(())
+    }
 
     // TODO: validate targets
 
