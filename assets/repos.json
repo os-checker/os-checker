@@ -1,11 +1,3 @@
 {
-  "guoweikang/osl": {
-    "packages": {
-      "osl": {
-        "features": [
-          "arceos"
-        ]
-      }
-    }
-  }
+  "guoweikang/osl": {}
 }
