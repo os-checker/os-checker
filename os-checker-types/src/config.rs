@@ -10,7 +10,7 @@ pub struct RepoConfig {
     pub targets: Option<Targets>,
     pub no_install_targets: Option<Targets>,
     #[musli(with = musli::serde)]
-    pub features: Option<Features>,
+    pub features: Option<Vec<Features>>,
     #[musli(with = musli::serde)]
     pub env: Option<IndexMap<String, String>>,
     #[musli(with = musli::serde)]
