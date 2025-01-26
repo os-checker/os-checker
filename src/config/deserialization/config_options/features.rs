@@ -142,8 +142,8 @@ fn str_to_features<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
-    let features = <&str>::deserialize(deserializer)?;
-    Ok(split_features(features))
+    let features = String::deserialize(deserializer)?;
+    Ok(split_features(&features))
 }
 
 #[allow(clippy::ptr_arg)]
