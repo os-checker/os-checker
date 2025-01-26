@@ -16,7 +16,7 @@ pub enum Features {
 
 impl Features {
     /// Validate feature names and targets.
-    pub fn validate(&self, features: &[String], targets: &[&str], pkg: &str) -> Result<()> {
+    pub fn validate(&self, features: &[String], targets: &[String], pkg: &str) -> Result<()> {
         let exist = |features_comma: &FeaturesWithCommas| {
             for feature in &features_comma.features {
                 ensure!(

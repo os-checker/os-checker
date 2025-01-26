@@ -15,8 +15,8 @@ use std::fmt::Debug;
 mod tests;
 
 mod config_options;
-pub use config_options::TargetEnv;
-use config_options::{Cmds, Features, Meta, Setup, Targets};
+use config_options::{Cmds, Meta, Setup, Targets};
+pub use config_options::{Features, TargetEnv};
 
 mod misc;
 pub use misc::TargetsSpecifed;
@@ -85,17 +85,20 @@ impl RepoConfig {
                 targets_for_all_pkgs
             };
 
+            let features = self
+                .packages
+                .get(pkg_name)
+                .and_then(|config| config.features.as_deref())
+                .unwrap_or_default();
+
             // if targets is empty, pick candidates detected from repo
             let pkgs = info.pkgs(
                 pkg_name,
                 targets,
+                features,
                 self.env.as_ref(),
                 self.meta.as_ref().map(|m| &m.target_env),
-            );
-
-            // check features
-            let merged_targets: Vec<_> = pkgs.iter().map(|pkg| pkg.target).collect();
-            self.validate_features(info.features(), &merged_targets, pkg_name)?;
+            )?;
 
             resolve_for_single_pkg(&cmds, &pkgs, &mut v)?;
 
@@ -193,21 +196,6 @@ impl RepoConfig {
         if let Some(meta) = &self.meta {
             meta.check_skip_pkg_dir_globs()
                 .with_context(|| format!("{repo}'s meta.skip_pkg_dir_globs value is invalid."))?;
-        }
-        Ok(())
-    }
-
-    // self is a pkg config
-    pub fn validate_features(
-        &self,
-        pkg_features: &[String],
-        pkg_targets: &[&str],
-        pkg: &str,
-    ) -> Result<()> {
-        if let Some(v_features) = &self.features {
-            for features in v_features {
-                features.validate(pkg_features, pkg_targets, pkg)?;
-            }
         }
         Ok(())
     }

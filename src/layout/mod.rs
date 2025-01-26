@@ -1,7 +1,7 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
 use crate::{
-    config::{Resolve, TargetEnv, TargetsSpecifed},
+    config::{Features, Resolve, TargetEnv, TargetsSpecifed},
     db::out::{CacheLayout, CachePackageInfo, CacheResolve, CargoMetaData},
     output::{get_channel, install_toolchain_idx, remove_targets, uninstall_toolchains},
     run_checker::DbRepo,
@@ -465,39 +465,65 @@ pub struct PackageInfoShared {
 }
 
 impl PackageInfoShared {
+    /// Generate a list of targets and features for the same package.
     pub fn pkgs<'a>(
         &'a self,
         name: &'a str,
         targets: Option<&'a [String]>,
+        features: &[Features],
         env: Option<&'a IndexMap<String, String>>,
         target_env: Option<&TargetEnv>,
-    ) -> Vec<Pkg<'a>> {
-        targets
-            .unwrap_or(&self.targets)
-            .iter()
-            .map(|target| Pkg {
-                name,
-                dir: &self.pkg_dir,
-                target,
-                toolchain: self.toolchain,
-                env: match (env, target_env) {
-                    (None, None) => IndexMap::default(),
-                    (None, Some(t)) => t.merge(target, &IndexMap::default()),
-                    (Some(g), None) => g.clone(),
-                    (Some(g), Some(t)) => t.merge(target, g),
-                },
-                audit: self.audit.as_ref(),
-                is_lib: self.is_lib,
-            })
-            .collect()
+    ) -> Result<Vec<Pkg<'a>>> {
+        let merged_targets = targets.unwrap_or(&self.targets);
+
+        for feat in features {
+            feat.validate(&self.features, merged_targets, name)?;
+        }
+
+        let feats_len = if features.is_empty() {
+            1
+        } else {
+            features.len()
+        };
+        let cap = merged_targets.len() * feats_len;
+        let mut pkgs = Vec::<Pkg>::with_capacity(cap);
+
+        for target in merged_targets {
+            let env = match (env, target_env) {
+                (None, None) => IndexMap::default(),
+                (None, Some(t)) => t.merge(target, &IndexMap::default()),
+                (Some(g), None) => g.clone(),
+                (Some(g), Some(t)) => t.merge(target, g),
+            };
+
+            let v_features_args = if features.is_empty() {
+                vec![vec![]]
+            } else {
+                features
+                    .iter()
+                    .map(|feat| feat.to_argument(target))
+                    .collect()
+            };
+
+            for features_args in v_features_args {
+                pkgs.push(Pkg {
+                    name,
+                    dir: &self.pkg_dir,
+                    target,
+                    features_args,
+                    toolchain: self.toolchain,
+                    env: env.clone(),
+                    audit: self.audit.as_ref(),
+                    is_lib: self.is_lib,
+                });
+            }
+        }
+
+        Ok(pkgs)
     }
 
     pub fn targets(&self) -> Vec<String> {
         self.targets.clone()
-    }
-
-    pub fn features(&self) -> &[String] {
-        &self.features
     }
 }
 
@@ -506,6 +532,7 @@ pub struct Pkg<'a> {
     pub name: &'a str,
     pub dir: &'a Utf8Path,
     pub target: &'a str,
+    pub features_args: Vec<String>,
     pub toolchain: Option<usize>,
     pub env: IndexMap<String, String>,
     pub audit: Option<&'a Rc<CargoAudit>>,
