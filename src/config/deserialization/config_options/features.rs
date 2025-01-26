@@ -36,6 +36,10 @@ impl Features {
                         "Target `{target}` isn't found or specified for package `{pkg}"
                     )
                 }
+                ensure!(
+                    [complete.no_default_features, complete.all_features] != [true; 2], 
+                    "`no_default_features` and `all_features` can't be both true in package `{pkg}`"
+                );
             }
             Features::Simple(simple) => exist(simple)?,
         }
