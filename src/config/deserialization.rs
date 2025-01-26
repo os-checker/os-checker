@@ -15,8 +15,8 @@ use std::fmt::Debug;
 mod tests;
 
 mod config_options;
-pub use config_options::TargetEnv;
 use config_options::{Cmds, Meta, Setup, Targets};
+pub use config_options::{Features, TargetEnv};
 
 mod misc;
 pub use misc::TargetsSpecifed;
@@ -28,18 +28,28 @@ pub struct RepoConfig {
     #[serde(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
     meta: Option<Meta>,
+
+    // TODO: not actually implemented yet
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup: Option<Setup>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub targets: Option<Targets>,
+
     /// 暂时只作用于 repo
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_install_targets: Option<Targets>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub features: Option<Vec<Features>>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub env: Option<IndexMap<String, String>>,
+
     #[serde(default)]
     #[serde(skip_serializing_if = "Cmds::is_empty")]
     pub cmds: Cmds,
+
     #[serde(default)]
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
     pub packages: IndexMap<String, RepoConfig>,
@@ -75,13 +85,20 @@ impl RepoConfig {
                 targets_for_all_pkgs
             };
 
+            let features = self
+                .packages
+                .get(pkg_name)
+                .and_then(|config| config.features.as_deref())
+                .unwrap_or_default();
+
             // if targets is empty, pick candidates detected from repo
             let pkgs = info.pkgs(
                 pkg_name,
                 targets,
+                features,
                 self.env.as_ref(),
                 self.meta.as_ref().map(|m| &m.target_env),
-            );
+            )?;
 
             resolve_for_single_pkg(&cmds, &pkgs, &mut v)?;
 

@@ -1,3 +1,6 @@
+//! 配置文件的合并转换成 JSON 的操作应在 os-checker CLI 中执行，而不应该使用这里的类型。
+//! 因为 os-checker 中的类型具有额外的 serde 属性，但这里的类型不使用 serde 属性。
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, Default, Clone)]
@@ -6,6 +9,8 @@ pub struct RepoConfig {
     pub setup: Option<Setup>,
     pub targets: Option<Targets>,
     pub no_install_targets: Option<Targets>,
+    #[musli(with = musli::serde)]
+    pub features: Option<Vec<Features>>,
     #[musli(with = musli::serde)]
     pub env: Option<IndexMap<String, String>>,
     #[musli(with = musli::serde)]
@@ -51,6 +56,25 @@ pub struct Targets(pub MaybeMulti);
 
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, Clone)]
 pub struct Setup(pub MaybeMulti);
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum Features {
+    Complete(FeaturesCompleteState),
+    Simple(FeaturesWithCommas),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FeaturesWithCommas {
+    pub features: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FeaturesCompleteState {
+    pub f: FeaturesWithCommas,
+    pub no_default_features: bool,
+    pub all_features: bool,
+    pub targets: Vec<String>,
+}
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Cmds {

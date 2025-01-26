@@ -26,6 +26,7 @@ pub struct Resolve {
     pub target: String,
     /// 仅当自定义检查命令出现 --target 时为 true
     pub target_overridden: bool,
+    pub features_args: Vec<String>,
     pub env: IndexMap<String, String>,
     pub toolchain: Option<usize>,
     pub checker: CheckerTool,
@@ -46,6 +47,7 @@ impl Resolve {
             pkg_dir: pkg.dir.to_owned(),
             target: pkg.target.to_owned(),
             target_overridden: false,
+            features_args: pkg.features_args.clone(),
             toolchain: pkg.toolchain,
             env: pkg.env.clone(),
             checker,
@@ -68,6 +70,7 @@ impl Resolve {
             pkg_dir: pkg.dir.to_owned(),
             target,
             target_overridden: true,
+            features_args: pkg.features_args.clone(),
             toolchain: pkg.toolchain,
             env: pkg.env.clone(),
             checker,
@@ -84,6 +87,7 @@ impl Resolve {
             pkg_dir: self.pkg_dir.clone(),
             target: self.target.clone(),
             target_overridden: self.target_overridden, // 无实际含义
+            features_args: vec![],
             toolchain: self.toolchain,
             env: IndexMap::default(),
             checker: CheckerTool::Cargo,
@@ -100,6 +104,7 @@ impl Resolve {
             pkg_dir: repo_root,        // 无实际含义
             target: host_target_triple().to_owned(),
             target_overridden: false, // 无实际含义
+            features_args: vec![],
             toolchain: None,
             env: IndexMap::default(),
             checker: CheckerTool::Cargo,
@@ -223,9 +228,11 @@ impl Resolve {
         // This timestamp is a bit later than the actual start/end time of checking.
         // But for simplicity, let's keep it this way without timestamp argument requred.
         let now = OffsetDateTime::now_utc().to_offset(time::macros::offset!(+8));
+        let features = self.features_args.join(" ");
         format!(
             "pkg={pkg_name}, checker={checker:?}\n\
             toolchain={toolchain}, target={target}\n\
+            features={features}\n\
             pkg_dir={pkg_dir}\ncmd={cmd}\ntimestamp={now}\n\n",
         )
     }

@@ -2,6 +2,9 @@ use super::*;
 use eyre::Context;
 use CheckerTool::*;
 
+mod features;
+pub use self::features::Features;
+
 mod type_conversion;
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]

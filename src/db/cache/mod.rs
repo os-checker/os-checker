@@ -34,8 +34,8 @@ impl CacheRepoKeyCmd {
                 target: resolve.target.clone(),
                 channel: get_channel(resolve.toolchain.unwrap_or(0)),
                 env: resolve.env.clone(),
+                features: resolve.features_args.iter().map(|s| s.into()).collect(),
                 // TODO: 待支持
-                features: vec![],
                 flags: vec![],
             },
         }

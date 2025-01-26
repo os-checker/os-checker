@@ -22,7 +22,7 @@ fn add_env(mut expr: Expression, env: &IndexMap<String, String>) -> (Expression,
 }
 
 /// 默认运行 cargo fmt 的命令
-// NOTE: cargo fmt 不支持 --target 参数，但依然会在不同的 target_triple 上运行，
+// NOTE: cargo fmt 不支持 --target 和 -F 参数，但依然会在不同的 target_triple 上运行，
 // 尽管这会造成报告重复。
 //
 // $ cargo fmt --target x86_64-unknown-linux-gnu
@@ -37,108 +37,117 @@ pub fn cargo_fmt(pkg: &Pkg) -> Resolve {
     let expr = cmd!("cargo", &toolchain, "fmt", "--", "--emit=json").dir(pkg.dir);
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
-    let cmd = format!("{env_str}cargo {toolchain} fmt -- --emit=json");
+    let cmd = format!("{env_str}cargo {toolchain} fmt");
     Resolve::new(pkg, CheckerTool::Fmt, cmd, expr)
 }
 
 /// 默认运行 cargo clippy 的命令
 pub fn cargo_clippy(pkg: &Pkg) -> Resolve {
-    let target = pkg.target;
     // 只分析传入 toml path 指向的 package，不分析其依赖
-    let expr = cmd!(
-        "cargo",
+    let mut args = vec![
         "clippy",
         "--target",
-        target,
+        pkg.target,
         "--no-deps",
-        "--message-format=json"
-    )
-    .dir(pkg.dir);
+        "--message-format=json",
+    ];
+    args.extend(pkg.features_args.iter().map(|s| &**s));
+    let expr = cmd("cargo", args).dir(pkg.dir);
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
-    let cmd = format!("{env_str}cargo clippy --target {target} --no-deps --message-format=json");
+    let cmd = format!(
+        "{env_str}cargo clippy --target {} {} --no-deps",
+        pkg.target,
+        pkg.features_args.join(" ")
+    );
     Resolve::new(pkg, CheckerTool::Clippy, cmd, expr)
 }
 
 /// 默认运行 cargo lockbud 的命令
 pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
-    let target = pkg.target;
-
     // // 由于 cargo build 进行增量编译时，不输出旧 MIR，
     // // lockbud 无法检查。因此要么不增量编译，要么 cargo clean，要么
     // // 单独放置编译目录放置来不影响别的检查的增量编译。
     // let mut lockbud_dir = pkg.dir.to_owned();
     // lockbud_dir.extend(["__lockbud__", pkg.target]);
 
-    let expr = cmd!(
-        "cargo",
+    let mut args = vec![
         PLUS_TOOLCHAIN_LOCKBUD,
         "lockbud",
         "-k",
         "all",
         "--",
         "--target",
-        target,
-        // "--target-dir",
-        // &lockbud_dir
-    )
-    .dir(pkg.dir);
+        pkg.target,
+    ];
+    args.extend(pkg.features_args.iter().map(|s| &**s));
+    let expr = cmd("cargo", args).dir(pkg.dir);
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
-    let cmd =
-        format!("{env_str}cargo {PLUS_TOOLCHAIN_LOCKBUD} lockbud -k all -- --target {target}");
+    let cmd = format!(
+        "{env_str}cargo {PLUS_TOOLCHAIN_LOCKBUD} lockbud -k all -- --target {} {}",
+        pkg.target,
+        pkg.features_args.join(" ")
+    );
     Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
 }
 
 /// 默认运行 cargo mirai 的命令
 pub fn cargo_mirai(pkg: &Pkg) -> Resolve {
-    let target = pkg.target;
-
-    let expr = cmd!(
-        "cargo",
+    let mut args = vec![
         PLUS_TOOLCHAIN_MIRAI,
         "mirai",
         "--target",
-        target,
-        "--message-format=json"
-    )
-    .dir(pkg.dir);
+        pkg.target,
+        "--message-format=json",
+    ];
+    args.extend(pkg.features_args.iter().map(|s| &**s));
+    let expr = cmd("cargo", args).dir(pkg.dir);
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!(
-        "{env_str}cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {target} --message-format=json"
+        "{env_str}cargo {PLUS_TOOLCHAIN_MIRAI} mirai --target {} {}",
+        pkg.target,
+        pkg.features_args.join(" ")
     );
     Resolve::new(pkg, CheckerTool::Mirai, cmd, expr)
 }
 
 pub fn cargo_rap(pkg: &Pkg) -> Resolve {
-    let target = pkg.target;
-
-    let expr = cmd!(
-        "cargo",
+    let mut args = vec![
         PLUS_TOOLCHAIN_RAP,
         "rapx",
         "-F",
         "-M",
         "--",
         "--target",
-        target,
-        "--color=never"
-    )
-    .env("RAP_LOG", "WARN")
-    .dir(pkg.dir);
+        pkg.target,
+        "--color=never",
+    ];
+    args.extend(pkg.features_args.iter().map(|s| &**s));
+    let expr = cmd("cargo", args).env("RAP_LOG", "WARN").dir(pkg.dir);
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
-    let cmd = format!("{env_str}cargo {PLUS_TOOLCHAIN_RAP} rapx -F -M -- --target {target}");
+    let cmd = format!(
+        "{env_str}cargo {PLUS_TOOLCHAIN_RAP} rapx -F -M -- --target {} {}",
+        pkg.target,
+        pkg.features_args.join(" ")
+    );
     Resolve::new(pkg, CheckerTool::Rapx, cmd, expr)
 }
 
 // FIXME: check how cargo check arguments are supported by rudra
 pub fn cargo_rudra(pkg: &Pkg) -> Resolve {
-    let expr = cmd!("cargo", PLUS_TOOLCHAIN_RUDRA, "rudra",).dir(pkg.dir);
+    let mut args = vec![PLUS_TOOLCHAIN_RUDRA, "rudra", "--target", pkg.target];
+    args.extend(pkg.features_args.iter().map(|s| &**s));
+    let expr = cmd("cargo", args).dir(pkg.dir);
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
-    let cmd = format!("{env_str}cargo {PLUS_TOOLCHAIN_RUDRA} rudra");
+    let cmd = format!(
+        "{env_str}cargo {PLUS_TOOLCHAIN_RUDRA} rudra --target {} {}",
+        pkg.target,
+        pkg.features_args.join(" ")
+    );
     Resolve::new(pkg, CheckerTool::Rudra, cmd, expr)
 }
 
@@ -179,20 +188,21 @@ pub fn cargo_outdated(pkg: &Pkg) -> Resolve {
 
 pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
     let toolchain = host_toolchain();
-    let expr = cmd!(
-        "cargo",
+    let mut args = vec![
         &toolchain,
         "semver-checks",
         "--target",
         pkg.target,
-        "--color=never"
-    )
-    .dir(pkg.dir);
+        "--color=never",
+    ];
+    args.extend(pkg.features_args.iter().map(|s| &**s));
+    let expr = cmd("cargo", args).dir(pkg.dir);
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!(
-        "{env_str}cargo {toolchain} semver-checks --target {}",
-        pkg.target
+        "{env_str}cargo {toolchain} semver-checks --target {} {}",
+        pkg.target,
+        pkg.features_args.join(" ")
     );
     Resolve::new(pkg, CheckerTool::SemverChecks, cmd, expr)
 }
