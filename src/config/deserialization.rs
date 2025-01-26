@@ -16,7 +16,7 @@ mod tests;
 
 mod config_options;
 pub use config_options::TargetEnv;
-use config_options::{Cmds, Meta, Setup, Targets};
+use config_options::{Cmds, Features, Meta, Setup, Targets};
 
 mod misc;
 pub use misc::TargetsSpecifed;
@@ -28,6 +28,7 @@ pub struct RepoConfig {
     #[serde(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
     meta: Option<Meta>,
+    // TODO: not actually implemented yet
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup: Option<Setup>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -35,6 +36,8 @@ pub struct RepoConfig {
     /// 暂时只作用于 repo
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_install_targets: Option<Targets>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub features: Option<Features>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub env: Option<IndexMap<String, String>>,
     #[serde(default)]
@@ -182,6 +185,8 @@ impl RepoConfig {
         }
         Ok(())
     }
+
+    // TODO: validate features
 
     // TODO: validate targets
 

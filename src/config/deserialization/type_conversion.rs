@@ -1,5 +1,5 @@
 use super::{
-    config_options::{EnableOrCustom, MaybeMulti},
+    config_options::{EnableOrCustom, Features, MaybeMulti},
     RepoConfig,
 };
 use os_checker_types::config as out;
@@ -13,6 +13,7 @@ impl From<RepoConfig> for out::RepoConfig {
             setup,
             targets,
             no_install_targets,
+            features,
             env,
             cmds,
             packages,
@@ -22,6 +23,7 @@ impl From<RepoConfig> for out::RepoConfig {
             setup: setup.map(|s| s.into()),
             targets: targets.map(|t| t.into()),
             no_install_targets: no_install_targets.map(|t| t.into()),
+            features: features.map(|f| f.into()),
             env,
             cmds: cmds.into(),
             packages: packages.into_iter().map(|(k, v)| (k, v.into())).collect(),
@@ -48,6 +50,15 @@ impl From<MaybeMulti> for out::MaybeMulti {
     }
 }
 
+impl From<Features> for out::Features {
+    fn from(value: Features) -> Self {
+        match value {
+            Features::Complete(c) => Self::Complete(c.into()),
+            Features::Simple(s) => Self::Simple(s.into()),
+        }
+    }
+}
+
 // ********** os_checker_types => CLI **********
 
 impl From<out::RepoConfig> for RepoConfig {
@@ -57,6 +68,7 @@ impl From<out::RepoConfig> for RepoConfig {
             setup,
             targets,
             no_install_targets,
+            features,
             env,
             cmds,
             packages,
@@ -66,6 +78,7 @@ impl From<out::RepoConfig> for RepoConfig {
             setup: setup.map(|s| s.into()),
             targets: targets.map(|t| t.into()),
             no_install_targets: no_install_targets.map(|t| t.into()),
+            features: features.map(|f| f.into()),
             env,
             cmds: cmds.into(),
             packages: packages.into_iter().map(|(k, v)| (k, v.into())).collect(),
@@ -88,6 +101,15 @@ impl From<out::MaybeMulti> for MaybeMulti {
         match value {
             out::MaybeMulti::Single(s) => Self::Single(s),
             out::MaybeMulti::Multi(v) => Self::Multi(v),
+        }
+    }
+}
+
+impl From<out::Features> for Features {
+    fn from(value: out::Features) -> Self {
+        match value {
+            out::Features::Complete(c) => Self::Complete(c.into()),
+            out::Features::Simple(s) => Self::Simple(s.into()),
         }
     }
 }
