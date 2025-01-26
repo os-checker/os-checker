@@ -339,6 +339,7 @@ impl Layout {
                     pkg_name: r.pkg_name.clone(),
                     target: r.target.clone(),
                     target_overridden: r.target_overridden,
+                    features_args: r.features_args.clone(),
                     channel: get_channel(r.toolchain.unwrap_or(0)),
                     checker: r.checker.into(),
                     cmd: r.cmd.clone(),
