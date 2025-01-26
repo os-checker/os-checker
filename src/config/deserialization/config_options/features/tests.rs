@@ -1,6 +1,5 @@
 use super::*;
 
-#[cfg(test)]
 impl FeaturesWithCommas {
     fn new(features: &str) -> Self {
         Self {
@@ -9,7 +8,26 @@ impl FeaturesWithCommas {
     }
 }
 
-#[cfg(test)]
+impl Features {
+    fn new_simple(features: &str) -> Self {
+        Features::Simple(FeaturesWithCommas::new(features))
+    }
+
+    fn new_complete(
+        features: &str,
+        no_default_features: bool,
+        all_features: bool,
+        targets: Vec<String>,
+    ) -> Self {
+        Features::Complete(FeaturesCompleteState {
+            f: FeaturesWithCommas::new(features),
+            no_default_features,
+            all_features,
+            targets,
+        })
+    }
+}
+
 fn ser_de(features: &[Features], expect: expect_test::Expect) -> Result<()> {
     let json = serde_json::to_string_pretty(features)?;
     expect.assert_eq(&json);
@@ -29,8 +47,8 @@ fn ser_de(features: &[Features], expect: expect_test::Expect) -> Result<()> {
 
 #[test]
 fn features_simple() -> Result<()> {
-    let set1 = Features::Simple(FeaturesWithCommas::new("feat1,feat2"));
-    let set2 = Features::Simple(FeaturesWithCommas::new("feat3"));
+    let set1 = Features::new_simple("feat1,feat2");
+    let set2 = Features::new_simple("feat3");
     ser_de(
         &[set1, set2],
         expect_test::expect![[r#"
@@ -44,26 +62,11 @@ fn features_simple() -> Result<()> {
 #[test]
 fn features_complete() -> Result<()> {
     // -F feat1,feat2
-    let set1 = Features::Complete(FeaturesCompleteState {
-        f: FeaturesWithCommas::new("feat1,feat2"),
-        no_default_features: false,
-        all_features: false,
-        targets: vec![],
-    });
+    let set1 = Features::new_complete("feat1,feat2", false, false, vec![]);
     // -F feat3 --no-default-features
-    let set2 = Features::Complete(FeaturesCompleteState {
-        f: FeaturesWithCommas::new("feat3"),
-        no_default_features: true,
-        all_features: false,
-        targets: vec![],
-    });
+    let set2 = Features::new_complete("feat3", true, false, vec![]);
     // --all-features
-    let set3 = Features::Complete(FeaturesCompleteState {
-        f: FeaturesWithCommas::new(""),
-        no_default_features: false,
-        all_features: true,
-        targets: vec![],
-    });
+    let set3 = Features::new_complete("", false, true, vec![]);
     match &set3 {
         Features::Complete(c) => {
             ensure!(c.f.features.is_empty(), "{:?} is not empty", c.f.features)
@@ -84,6 +87,27 @@ fn features_complete() -> Result<()> {
               {
                 "F": "",
                 "all-features": true
+              }
+            ]"#]],
+    )
+}
+
+#[test]
+fn features_hybrid() -> Result<()> {
+    let set1 = Features::new_simple("feat1");
+    let set2 = Features::new_complete("feat2", false, false, vec![]);
+    let set3 = Features::new_complete("", true, false, vec![]);
+    ser_de(
+        &[set1, set2, set3],
+        expect_test::expect![[r#"
+            [
+              "feat1",
+              {
+                "F": "feat2"
+              },
+              {
+                "F": "",
+                "no-default-features": true
               }
             ]"#]],
     )
