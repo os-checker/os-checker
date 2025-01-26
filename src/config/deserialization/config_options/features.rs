@@ -1,3 +1,8 @@
+use crate::Result;
+use os_checker_types::config as out;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(untagged)]
 pub enum Features {
@@ -28,7 +33,7 @@ impl Features {
                     )
                 }
             }
-            Features::Simple(simple) => exist(&simple.features)?,
+            Features::Simple(simple) => exist(simple)?,
         }
         Ok(())
     }
@@ -73,7 +78,7 @@ pub struct FeaturesCompleteState {
 /// -F feat1,feat2,...
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(transparent)]
-struct FeaturesWithCommas {
+pub struct FeaturesWithCommas {
     /// vec!["feat1", "feat2", ...]
     #[serde(deserialize_with = "str_to_features")]
     features: Vec<String>,
@@ -86,4 +91,58 @@ where
 {
     let features = <&str>::deserialize(deserializer)?;
     Ok(features.split(',').map(String::from).collect())
+}
+
+// ******************** type conversion ********************
+
+impl From<FeaturesCompleteState> for out::FeaturesCompleteState {
+    fn from(
+        FeaturesCompleteState {
+            f,
+            no_default_features,
+            all_features,
+            targets,
+        }: FeaturesCompleteState,
+    ) -> Self {
+        Self {
+            f: f.into(),
+            no_default_features,
+            all_features,
+            targets,
+        }
+    }
+}
+
+impl From<FeaturesWithCommas> for out::FeaturesWithCommas {
+    fn from(value: FeaturesWithCommas) -> Self {
+        Self {
+            features: value.features,
+        }
+    }
+}
+
+impl From<out::FeaturesCompleteState> for FeaturesCompleteState {
+    fn from(
+        out::FeaturesCompleteState {
+            f,
+            no_default_features,
+            all_features,
+            targets,
+        }: out::FeaturesCompleteState,
+    ) -> Self {
+        Self {
+            f: f.into(),
+            no_default_features,
+            all_features,
+            targets,
+        }
+    }
+}
+
+impl From<out::FeaturesWithCommas> for FeaturesWithCommas {
+    fn from(value: out::FeaturesWithCommas) -> Self {
+        Self {
+            features: value.features,
+        }
+    }
 }

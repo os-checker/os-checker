@@ -55,21 +55,21 @@ pub struct Targets(pub MaybeMulti);
 pub struct Setup(pub MaybeMulti);
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged)]
 pub enum Features {
     Complete(FeaturesCompleteState),
-    Simple(MaybeMulti),
+    Simple(FeaturesWithCommas),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FeaturesWithCommas {
+    pub features: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FeaturesCompleteState {
-    #[serde(rename = "F")]
-    pub f: String,
-    #[serde(rename = "no-default-features", default)]
+    pub f: FeaturesWithCommas,
     pub no_default_features: bool,
-    #[serde(rename = "all-features", default)]
     pub all_features: bool,
-    #[serde(default)]
     pub targets: Vec<String>,
 }
 

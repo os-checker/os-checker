@@ -1,4 +1,4 @@
-use super::{Cmds, Env, FeaturesCompleteState, Meta, Setup, TargetEnv, Targets};
+use super::{Cmds, Env, Meta, Setup, TargetEnv, Targets};
 use os_checker_types::config as out;
 
 // ********** CLI => os_checker_types **********
@@ -54,24 +54,6 @@ impl From<Env> for out::Env {
     }
 }
 
-impl From<FeaturesCompleteState> for out::FeaturesCompleteState {
-    fn from(
-        FeaturesCompleteState {
-            f,
-            no_default_features,
-            all_features,
-            targets,
-        }: FeaturesCompleteState,
-    ) -> Self {
-        Self {
-            f,
-            no_default_features,
-            all_features,
-            targets,
-        }
-    }
-}
-
 // ********** os_checker_types => CLI **********
 
 impl From<out::Targets> for Targets {
@@ -122,22 +104,5 @@ impl From<out::TargetEnv> for TargetEnv {
 impl From<out::Env> for Env {
     fn from(value: out::Env) -> Self {
         Env { map: value.map }
-    }
-}
-impl From<out::FeaturesCompleteState> for FeaturesCompleteState {
-    fn from(
-        out::FeaturesCompleteState {
-            f,
-            no_default_features,
-            all_features,
-            targets,
-        }: out::FeaturesCompleteState,
-    ) -> Self {
-        Self {
-            f,
-            no_default_features,
-            all_features,
-            targets,
-        }
     }
 }
