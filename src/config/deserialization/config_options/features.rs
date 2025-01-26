@@ -45,6 +45,32 @@ impl Features {
         }
         Ok(())
     }
+
+    pub fn to_argument(&self, target: &str) -> Vec<String> {
+        let mut args = Vec::new();
+        match self {
+            Features::Complete(c)
+                if c.targets.is_empty() || c.targets.iter().any(|t| t == target) =>
+            {
+                if c.no_default_features {
+                    args.push("--no-default-features".to_owned());
+                }
+                if c.all_features {
+                    args.push("--all-features".to_owned());
+                }
+                if !c.f.is_empty() {
+                    args.push("-F".to_owned());
+                    args.push(c.f.features.join(","));
+                }
+            }
+            Features::Simple(s) if !s.is_empty() => {
+                args.push("-F".to_owned());
+                args.push(s.features.join(","));
+            }
+            Features::Complete(_) | Features::Simple(_) => (),
+        }
+        args
+    }
 }
 
 // {

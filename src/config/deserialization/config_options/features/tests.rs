@@ -145,3 +145,81 @@ fn features_empty_string() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn features_arguments_empty() -> Result<()> {
+    ensure!(
+        Features::new_simple("").to_argument("").is_empty(),
+        "empty features should yields empty arguments"
+    );
+    ensure!(
+        Features::new_complete("", false, false, vec![])
+            .to_argument("")
+            .is_empty(),
+        "empty features should yields empty arguments"
+    );
+
+    ensure!(
+        Features::new_complete(
+            "",
+            false,
+            false,
+            vec!["x86_64-unknown-linux-gnu".to_owned()]
+        )
+        .to_argument("x86_64-unknown-linux-gnu")
+        .is_empty(),
+        "empty features should yields empty arguments"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn features_arguments() -> Result<()> {
+    assert_eq!(
+        Features::new_simple("feat1").to_argument(""),
+        ["-F", "feat1"]
+    );
+    assert_eq!(
+        Features::new_simple("feat1,feat2").to_argument(""),
+        ["-F", "feat1,feat2"]
+    );
+
+    assert_eq!(
+        Features::new_complete("feat1,feat2", true, false, vec![]).to_argument(""),
+        ["--no-default-features", "-F", "feat1,feat2"]
+    );
+
+    assert_eq!(
+        Features::new_complete("", false, true, vec![]).to_argument(""),
+        ["--all-features"]
+    );
+
+    Ok(())
+}
+
+#[test]
+fn features_target() -> Result<()> {
+    let targets = vec![
+        "x86_64-unknown-linux-gnu".to_owned(),
+        "riscv64gc-unknown-none-elf".to_owned(),
+    ];
+
+    assert_eq!(
+        Features::new_complete("", false, true, targets.clone())
+            .to_argument("x86_64-unknown-linux-gnu"),
+        ["--all-features"]
+    );
+
+    assert!(Features::new_complete("", false, true, targets.clone())
+        .to_argument("unsupported target")
+        .is_empty());
+
+    assert_eq!(
+        Features::new_complete("feat1", true, false, targets.clone())
+            .to_argument("riscv64gc-unknown-none-elf"),
+        ["--no-default-features", "-F", "feat1"]
+    );
+
+    Ok(())
+}
