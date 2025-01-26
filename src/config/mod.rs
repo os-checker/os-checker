@@ -263,3 +263,24 @@ impl TryFrom<Value> for Configs {
 }
 
 const PARSE_JSON_ERROR: &str = r#"Should be an object like `{"user/repo": {...}}`"#;
+
+#[test]
+fn de_features() -> Result<()> {
+    let json = r#"
+{
+  "guoweikang/osl": {
+    "packages": {
+      "osl": {
+        "features": [
+          "arceos",
+          ""
+        ]
+      }
+    }
+  }
+}"#;
+    let config: Config = serde_json::from_str(json)?;
+    dbg!(&config);
+
+    Ok(())
+}
