@@ -59,12 +59,12 @@ impl Features {
                     args.push("--all-features".to_owned());
                 }
                 if !c.f.is_empty() {
-                    args.push("-F".to_owned());
+                    args.push("--features".to_owned());
                     args.push(c.f.features.join(","));
                 }
             }
             Features::Simple(s) if !s.is_empty() => {
-                args.push("-F".to_owned());
+                args.push("--features".to_owned());
                 args.push(s.features.join(","));
             }
             Features::Complete(_) | Features::Simple(_) => (),

@@ -26,6 +26,7 @@ pub struct Resolve {
     pub target: String,
     /// 仅当自定义检查命令出现 --target 时为 true
     pub target_overridden: bool,
+    pub features_args: Vec<String>,
     pub env: IndexMap<String, String>,
     pub toolchain: Option<usize>,
     pub checker: CheckerTool,
@@ -46,6 +47,7 @@ impl Resolve {
             pkg_dir: pkg.dir.to_owned(),
             target: pkg.target.to_owned(),
             target_overridden: false,
+            features_args: pkg.features_args.clone(),
             toolchain: pkg.toolchain,
             env: pkg.env.clone(),
             checker,
@@ -68,6 +70,7 @@ impl Resolve {
             pkg_dir: pkg.dir.to_owned(),
             target,
             target_overridden: true,
+            features_args: pkg.features_args.clone(),
             toolchain: pkg.toolchain,
             env: pkg.env.clone(),
             checker,
@@ -84,6 +87,7 @@ impl Resolve {
             pkg_dir: self.pkg_dir.clone(),
             target: self.target.clone(),
             target_overridden: self.target_overridden, // 无实际含义
+            features_args: vec![],
             toolchain: self.toolchain,
             env: IndexMap::default(),
             checker: CheckerTool::Cargo,
@@ -100,6 +104,7 @@ impl Resolve {
             pkg_dir: repo_root,        // 无实际含义
             target: host_target_triple().to_owned(),
             target_overridden: false, // 无实际含义
+            features_args: vec![],
             toolchain: None,
             env: IndexMap::default(),
             checker: CheckerTool::Cargo,
