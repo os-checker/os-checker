@@ -69,7 +69,9 @@ impl Features {
 // --target aarch64-unknown-none --all-features
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct FeaturesCompleteState {
-    #[serde(rename = "F")]
+    // {"F": ""} is the same as {}
+    #[serde(rename = "F", default)]
+    #[serde(skip_serializing_if = "FeaturesWithCommas::is_empty")]
     f: FeaturesWithCommas,
 
     #[serde(rename = "no-default-features", default)]
@@ -90,13 +92,19 @@ fn skip_false(b: &bool) -> bool {
 }
 
 /// -F feat1,feat2,...
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
 #[serde(transparent)]
 pub struct FeaturesWithCommas {
     /// vec!["feat1", "feat2", ...]
     #[serde(deserialize_with = "str_to_features")]
     #[serde(serialize_with = "features_string")]
     features: Vec<String>,
+}
+
+impl FeaturesWithCommas {
+    fn is_empty(&self) -> bool {
+        self.features.is_empty()
+    }
 }
 
 /// Convert feat1,feat2 to ["feat1", "feat2"].

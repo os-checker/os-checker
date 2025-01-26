@@ -26,6 +26,13 @@ impl Features {
             targets,
         })
     }
+
+    fn is_empty(&self) -> bool {
+        match self {
+            Features::Complete(c) => c.f.features.is_empty(),
+            Features::Simple(s) => s.features.is_empty(),
+        }
+    }
 }
 
 fn ser_de(features: &[Features], expect: expect_test::Expect) -> Result<()> {
@@ -67,12 +74,7 @@ fn features_complete() -> Result<()> {
     let set2 = Features::new_complete("feat3", true, false, vec![]);
     // --all-features
     let set3 = Features::new_complete("", false, true, vec![]);
-    match &set3 {
-        Features::Complete(c) => {
-            ensure!(c.f.features.is_empty(), "{:?} is not empty", c.f.features)
-        }
-        Features::Simple(_) => unreachable!(),
-    }
+    ensure!(set3.is_empty(), "features in {set3:?} is not empty");
     ser_de(
         &[set1, set2, set3],
         expect_test::expect![[r#"
@@ -85,7 +87,6 @@ fn features_complete() -> Result<()> {
                 "no-default-features": true
               },
               {
-                "F": "",
                 "all-features": true
               }
             ]"#]],
@@ -106,9 +107,41 @@ fn features_hybrid() -> Result<()> {
                 "F": "feat2"
               },
               {
-                "F": "",
                 "no-default-features": true
               }
             ]"#]],
     )
+}
+
+// {"F": ""} is the same as {} and ""
+#[test]
+fn features_empty_string() -> Result<()> {
+    let set1 = Features::new_simple("");
+    ensure!(set1.is_empty(), "Features in {set1:?} is not empty");
+    ser_de(
+        &[set1],
+        expect_test::expect![[r#"
+        [
+          ""
+        ]"#]],
+    )?;
+
+    let set2 = Features::new_complete("", false, false, vec![]);
+    ensure!(set2.is_empty(), "Features in {set2:?} is not empty");
+    ser_de(
+        &[set2.clone()],
+        expect_test::expect![[r#"
+        [
+          {}
+        ]"#]],
+    )?;
+
+    let empty1: Features = serde_json::from_str("{}")?;
+    let empty2: Features = serde_json::from_str(r#"{"F": ""}"#)?;
+    ensure!(empty1.is_empty(), "Features in {empty1:?} is not empty");
+    ensure!(empty2.is_empty(), "Features in {empty2:?} is not empty");
+    assert_eq!(format!("{empty1:?}"), format!("{empty2:?}"));
+    assert_eq!(format!("{set2:?}"), format!("{empty2:?}"));
+
+    Ok(())
 }
