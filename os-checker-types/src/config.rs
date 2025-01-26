@@ -1,3 +1,6 @@
+//! 配置文件的合并转换成 JSON 的操作应在 os-checker CLI 中执行，而不应该使用这里的类型。
+//! 因为 os-checker 中的类型具有额外的 serde 属性，但这里的类型不使用 serde 属性。
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, Default, Clone)]
