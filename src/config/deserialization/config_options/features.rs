@@ -2,6 +2,9 @@ use crate::Result;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+#[cfg(test)]
+mod tests;
+
 mod type_conversion;
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
@@ -68,12 +71,22 @@ impl Features {
 pub struct FeaturesCompleteState {
     #[serde(rename = "F")]
     f: FeaturesWithCommas,
+
     #[serde(rename = "no-default-features", default)]
+    #[serde(skip_serializing_if = "skip_false")]
     no_default_features: bool,
+
     #[serde(rename = "all-features", default)]
+    #[serde(skip_serializing_if = "skip_false")]
     all_features: bool,
+
     #[serde(default)]
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     targets: Vec<String>,
+}
+
+fn skip_false(b: &bool) -> bool {
+    !*b
 }
 
 /// -F feat1,feat2,...
@@ -82,6 +95,7 @@ pub struct FeaturesCompleteState {
 pub struct FeaturesWithCommas {
     /// vec!["feat1", "feat2", ...]
     #[serde(deserialize_with = "str_to_features")]
+    #[serde(serialize_with = "features_string")]
     features: Vec<String>,
 }
 
@@ -91,10 +105,17 @@ where
     D: serde::Deserializer<'de>,
 {
     let features = <&str>::deserialize(deserializer)?;
-    Ok(features.split(',').map(String::from).collect())
-}
-}
-
+    Ok(split_features(features))
 }
 
+#[allow(clippy::ptr_arg)]
+fn features_string<S>(val: &Vec<String>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    val.join(",").serialize(serializer)
+}
+
+fn split_features(features: &str) -> Vec<String> {
+    features.split(',').map(String::from).collect()
 }
