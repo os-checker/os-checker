@@ -178,16 +178,16 @@ fn features_arguments_empty() -> Result<()> {
 fn features_arguments() -> Result<()> {
     assert_eq!(
         Features::new_simple("feat1").to_argument(""),
-        ["-F", "feat1"]
+        ["--features", "feat1"]
     );
     assert_eq!(
         Features::new_simple("feat1,feat2").to_argument(""),
-        ["-F", "feat1,feat2"]
+        ["--features", "feat1,feat2"]
     );
 
     assert_eq!(
         Features::new_complete("feat1,feat2", true, false, vec![]).to_argument(""),
-        ["--no-default-features", "-F", "feat1,feat2"]
+        ["--no-default-features", "--features", "feat1,feat2"]
     );
 
     assert_eq!(
@@ -218,7 +218,7 @@ fn features_target() -> Result<()> {
     assert_eq!(
         Features::new_complete("feat1", true, false, targets.clone())
             .to_argument("riscv64gc-unknown-none-elf"),
-        ["--no-default-features", "-F", "feat1"]
+        ["--no-default-features", "--features", "feat1"]
     );
 
     Ok(())
