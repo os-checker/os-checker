@@ -1,3 +1,10 @@
+# v0.6.0
+
+Features
+
+* 更新工具和工具链；RAP 改名为 RAPx (#259)
+* 配置文件支持指定 features (#269)
+
 # v0.5.0
 
 Features
