@@ -19,11 +19,11 @@ env:
   PUSH: true
   toolchain: nightly-2025-01-26
   # push to which database branch 
-  DATABASE: debug
+  DATABASE: main
   # cache.redb tag in database release
   TAG_CACHE: cache-v14.redb
   # force downloading repos to run check 
-  FORCE_REPO_CHECK: true
+  FORCE_REPO_CHECK: false
   # force running checks after downloading repos
   FORCE_RUN_CHECK: false
   # use which configs
