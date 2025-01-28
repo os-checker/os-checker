@@ -136,5 +136,15 @@
   },
   "ZR233/arm-gic-driver": {
     "targets": "aarch64-unknown-none-softfloat"
+  },
+  "guoweikang/osl": {
+    "packages": {
+      "osl": {
+        "features": [
+          "arceos"
+        ]
+      }
+    }
+  },
   }
 }
