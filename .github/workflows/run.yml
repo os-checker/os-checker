@@ -76,6 +76,7 @@ jobs:
 
       - name: Extra building environment required by OS libs
         run: |
+          sudo apt update
           sudo apt install libudev-dev -y # ZR233/ostool requires
           sudo apt install libfuse-dev fuse3 libfuse3-dev -y # yuoo655/ext4libtest requires
 
