@@ -57,61 +57,8 @@ os-checker 目前设计为检查 Github 上的仓库代码，并且采用 Github
 
 `os-checker` 生成最常见的 Rust 代码检查工具的运行结果报告。
 
-| checker 类别 |    子类别    | 工具       | 重要程度 | 亮点/论文             | issue  | 说明                                    |
-|:------------:|:------------:|------------|----------|-----------------------|--------|-----------------------------------------|
-| 程序分析工具 |              |            |          |                       |        |                                         |
-|      👉      | 静态检查工具 |            |          |                       |        |                                         |
-|              |              | [clippy]   | ⭐⭐⭐   | 社区实践标准          |        | 捕获常见的编码错误，并使代码更加地道    |
-|              |              | [mirai]    | ⭐⭐     | [论文][mirai-paper]   | [#36]  | 具有非标注和标注两种检查方式            |
-|              |              | [lockbud]  | ⭐⭐     | [论文][lockbud-paper] | [#34]  | 检查常见内存和并发错误                  |
-|              |              | [rap]      | ⭐⭐     | [RAP book][rap-book]  | [#138] | 检查 UAF 和内存泄露                     |
-|              |              | [rudra]    | ⭐⭐     | [论文][rudra-paper]   | [#161] | 检查 panic safety 和 Send/Sync Variance |
-|      👉      | 动态检查工具 |            |          |                       |        |                                         |
-|              |              | 测试       | ⭐⭐⭐   | 工程实践标准          |        | `cargo test` 或者自定义测试?            |
-|              |              | [miri]     | ⭐⭐⭐   | 社区实践标准          | [#12]  | 最高质量的 UB 检查结果                  |
-| 辅助检查工具 |              |            |          |                       |        |                                         |
-|      👉      |  格式化检查  | [fmt]      | ⭐⭐⭐   | 社区实践标准          | [#4]   | 检查未格式化的代码                      |
-|      👉      |  供应链审查  |            |          |                       |        |                                         |
-|              |              | [audit]    | ⭐⭐⭐   | 社区实践标准          | [#42]  | 检查是否存在已报告安全漏洞的依赖版本    |
-|              |              | [outdated] | ⭐       |                       | [#131] | 尽可能使用最新的依赖                    |
-|      👉      |   代码统计   | [geiger]   | ⭐       |                       | [#154] | 尽可能警惕不安全代码                    |
-|      👉      | 版本语义检查 | [semver]   | ⭐⭐     | 社区实践标准          |        | 一个严肃的发版应该遵循语义化版本控制    |
 
-[fmt]: https://github.com/rust-lang/rustfmt
-[#4]: https://github.com/os-checker/os-checker/issues/4
-
-[audit]: https://github.com/RustSec/rustsec/tree/main/cargo-audit
-[#42]: https://github.com/os-checker/os-checker/issues/42
-
-[outdated]: https://github.com/kbknapp/cargo-outdated
-[#131]: https://github.com/os-checker/os-checker/issues/131
-
-[geiger]: https://github.com/geiger-rs/cargo-geiger
-[#154]: https://github.com/os-checker/os-checker/issues/154
-
-[clippy]: https://github.com/rust-lang/rust-clippy
-
-[mirai]: https://github.com/endorlabs/MIRAI
-[mirai-paper]: https://alastairreid.github.io/papers/hatra2020.pdf
-[#36]: https://github.com/os-checker/os-checker/issues/36
-
-[lockbud]: https://github.com/BurtonQin/lockbud
-[lockbud-paper]: https://burtonqin.github.io/publication/2020-03-11-rustdetector-tse-8
-[#34]: https://github.com/os-checker/os-checker/issues/34
-
-[rap]: https://github.com/Artisan-Lab/RAP
-[rap-book]: https://artisan-lab.github.io/RAP-Book
-[#138]: https://github.com/os-checker/os-checker/issues/138
-
-[rudra]: https://github.com/sslab-gatech/Rudra
-[rudra-paper]: https://github.com/sslab-gatech/Rudra/blob/master/rudra-sosp21.pdf
-[#161]: https://github.com/os-checker/os-checker/issues/161
-
-[miri]: https://github.com/rust-lang/miri
-[#12]: https://github.com/os-checker/os-checker/issues/12
-
-[semver]: https://github.com/obi1kenobi/cargo-semver-checks
-[checker-list]: https://burtonqin.github.io/posts/2024/07/rustcheckers/
+[![checkers](https://github.com/user-attachments/assets/2c488c58-ff69-42e5-aa20-0b8e174f416f)](https://os-checker.github.io/book/checkers.html)
 
 此外，os-checker 还应包括基础信息：
 * Cargo.toml：Package 维度；由许多工具读取和使用，应该正确维护
