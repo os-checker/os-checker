@@ -1,7 +1,7 @@
 use crate::utils::{group_by, new_map_with_cap, pkg_cmdidx};
 use os_checker_types::{Cmd, JsonOutput};
 use serde::{Deserialize, Serialize};
-use std::{cmp::Ordering, collections::HashMap};
+use std::{borrow::Cow, cmp::Ordering, collections::HashMap};
 
 // ******************* Pkgs & Pkg *******************
 
@@ -55,7 +55,7 @@ impl Targets {
     where
         I: IntoIterator<Item = &'a Cmd>,
     {
-        Targets::from_map(cmds, |cmd| &*cmd.target_triple)
+        Self::from_map(cmds, |cmd| &*cmd.target_triple)
     }
 }
 
@@ -89,6 +89,49 @@ impl BasicItem for Target {
     }
 }
 
+// ******************* Features & Feature *******************
+
+pub type FeaturesSets = Aggregate<Features>;
+
+impl FeaturesSets {
+    pub fn new<'a, I>(cmds: I) -> Self
+    where
+        I: IntoIterator<Item = &'a Cmd>,
+    {
+        Self::from_map(cmds, |cmd| cmd.features.join(" "))
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Features {
+    features: String,
+    count: usize,
+}
+
+impl BasicItem for Features {
+    const ALL: &str = "All-Features-Sets";
+
+    fn name(&self) -> &str {
+        &self.features
+    }
+
+    fn count(&self) -> usize {
+        self.count
+    }
+
+    fn count_mut(&mut self) -> &mut usize {
+        &mut self.count
+    }
+
+    fn split(self) -> (String, usize) {
+        (self.features, self.count)
+    }
+
+    fn new(features: String, count: usize) -> Self {
+        Self { features, count }
+    }
+}
+
 // ******************* Aggregate<T> *******************
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -105,20 +148,21 @@ impl<T: BasicItem> Aggregate<T> {
         Aggregate { inner }
     }
 
-    pub fn push(&mut self, item: &str, cmds: &[&Cmd]) {
+    pub fn push(&mut self, item: String, cmds: &[&Cmd]) {
         let ele = T::new_from_cmd(item, cmds);
         self.inner[0].increment_all(ele.count());
         self.inner.push(ele);
     }
 
-    fn from_map<'a, I>(cmds: I, mut f: impl FnMut(&&'a Cmd) -> &'a str) -> Self
+    fn from_map<'a, I, K>(cmds: I, mut f: impl FnMut(&&'a Cmd) -> K) -> Self
     where
         I: IntoIterator<Item = &'a Cmd>,
+        K: Into<Cow<'a, str>>,
     {
-        let map = group_by(cmds, f);
+        let map = group_by(cmds, |cmd| f(cmd).into());
         let mut targets = Self::with_capacity(map.len());
         for (triple, cmds) in map {
-            targets.push(triple, &cmds);
+            targets.push(triple.into_owned(), &cmds);
         }
         // 降序排列
         targets.inner.sort_unstable_by(T::sort_descending);
@@ -161,8 +205,8 @@ pub trait BasicItem: Sized {
     }
 
     /// normal item construction
-    fn new_from_cmd(item: &str, cmds: &[&Cmd]) -> Self {
-        Self::new(item.to_owned(), cmds.iter().map(|c| c.count).sum())
+    fn new_from_cmd(item: String, cmds: &[&Cmd]) -> Self {
+        Self::new(item, cmds.iter().map(|c| c.count).sum())
     }
 
     fn name(&self) -> &str;
