@@ -72,8 +72,8 @@ impl Basic {
 /// 所有仓库的架构统计
 pub fn all(json: &JsonOutput) -> Basic {
     let kinds = Kinds::new(json);
-    let pkgs = Pkgs::from_map(&json.cmd, |cmd| pkg_cmdidx(json, cmd.package_idx).pkg);
-    let targets = Targets::from_map(&json.cmd, |cmd| &*cmd.target_triple);
+    let pkgs = Pkgs::new(&json.cmd, json);
+    let targets = Targets::new(&json.cmd);
     Basic {
         pkgs,
         targets,
@@ -88,8 +88,9 @@ pub fn by_repo(json: &JsonOutput) -> Vec<(UserRepo, Basic)> {
     let mut v = Vec::<(UserRepo, Basic)>::with_capacity(map.len());
 
     for (user_repo, cmds) in map {
-        let pkgs = Pkgs::from_map(&json.cmd, |cmd| pkg_cmdidx(json, cmd.package_idx).pkg);
-        let targets = Targets::from_map(&json.cmd, |cmd| &*cmd.target_triple);
+        let iter = cmds.iter().copied();
+        let pkgs = Pkgs::new(iter.clone(), json);
+        let targets = Targets::new(iter);
 
         v.push((
             user_repo,

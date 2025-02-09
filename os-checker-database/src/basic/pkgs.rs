@@ -1,11 +1,18 @@
+use crate::utils::{group_by, new_map_with_cap, pkg_cmdidx};
+use os_checker_types::{Cmd, JsonOutput};
+use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, collections::HashMap};
 
-use os_checker_types::Cmd;
-use serde::{Deserialize, Serialize};
-
-use crate::utils::{group_by, new_map_with_cap};
-
 pub type Pkgs = Aggregate<Pkg>;
+
+impl Pkgs {
+    pub fn new<'a, I>(cmds: I, json: &'a JsonOutput) -> Self
+    where
+        I: IntoIterator<Item = &'a Cmd>,
+    {
+        Self::from_map(cmds, |cmd| pkg_cmdidx(json, cmd.package_idx).pkg)
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Pkg {
@@ -59,7 +66,10 @@ impl<T: BasicItem> Aggregate<T> {
         self.inner.push(ele);
     }
 
-    pub fn from_map<'a>(cmds: &'a [Cmd], mut f: impl FnMut(&&'a Cmd) -> &'a str) -> Self {
+    fn from_map<'a, I>(cmds: I, mut f: impl FnMut(&&'a Cmd) -> &'a str) -> Self
+    where
+        I: IntoIterator<Item = &'a Cmd>,
+    {
         let map = group_by(cmds, f);
         let mut targets = Self::with_capacity(map.len());
         for (triple, cmds) in map {
@@ -124,6 +134,15 @@ pub trait BasicItem: Sized {
 
 pub type Targets = Aggregate<Target>;
 
+impl Targets {
+    pub fn new<'a, I>(cmds: I) -> Self
+    where
+        I: IntoIterator<Item = &'a Cmd>,
+    {
+        Targets::from_map(cmds, |cmd| &*cmd.target_triple)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Target {
     triple: String,
@@ -153,20 +172,3 @@ impl BasicItem for Target {
         Self { triple, count }
     }
 }
-
-//
-// impl Target {
-//     fn all_targets_with_0count() -> Self {
-//         Target {
-//             triple: "All-Targets".to_owned(),
-//             count: 0,
-//         }
-//     }
-//
-//     fn new(triple: &str, cmds: &[&Cmd]) -> Self {
-//         Target {
-//             triple: triple.to_owned(),
-//             count: cmds.iter().map(|c| c.count).sum(),
-//         }
-//     }
-// }
