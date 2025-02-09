@@ -73,7 +73,9 @@ pub trait BasicItem: Sized {
     const ALL: &str;
 
     /// default zero count on All-
-    fn all_with_0count() -> Self;
+    fn all_with_0count() -> Self {
+        Self::new(Self::ALL.to_owned(), 0)
+    }
 
     /// increment All- by 1
     fn incremente_all(&mut self) {
@@ -103,19 +105,12 @@ pub type Targets = Aggregate<Target>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Target {
-    pub triple: String,
-    pub count: usize,
+    triple: String,
+    count: usize,
 }
 
 impl BasicItem for Target {
     const ALL: &str = "All-Targets";
-
-    fn all_with_0count() -> Self {
-        Target {
-            triple: "All-Targets".to_owned(),
-            count: 0,
-        }
-    }
 
     fn name(&self) -> &str {
         &self.triple
