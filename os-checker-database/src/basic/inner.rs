@@ -46,6 +46,49 @@ impl BasicItem for Pkg {
     }
 }
 
+// ******************* Checkers & Checker *******************
+
+pub type Checkers = Aggregate<Checker>;
+
+impl Checkers {
+    pub fn new<'a, I>(cmds: I) -> Self
+    where
+        I: IntoIterator<Item = &'a Cmd>,
+    {
+        Self::from_map(cmds, |cmd| cmd.tool.as_str())
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Checker {
+    checker: String,
+    count: usize,
+}
+
+impl BasicItem for Checker {
+    const ALL: &str = "All-Checkers";
+
+    fn name(&self) -> &str {
+        &self.checker
+    }
+
+    fn count(&self) -> usize {
+        self.count
+    }
+
+    fn count_mut(&mut self) -> &mut usize {
+        &mut self.count
+    }
+
+    fn split(self) -> (String, usize) {
+        (self.checker, self.count)
+    }
+
+    fn new(checker: String, count: usize) -> Self {
+        Self { checker, count }
+    }
+}
+
 // ******************* Targets & Target *******************
 
 pub type Targets = Aggregate<Target>;
@@ -89,7 +132,7 @@ impl BasicItem for Target {
     }
 }
 
-// ******************* Features & Feature *******************
+// ******************* FeaturesSets & Features *******************
 
 pub type FeaturesSets = Aggregate<Features>;
 
