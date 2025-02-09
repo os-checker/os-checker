@@ -35,7 +35,7 @@ impl<T: BasicItem> Aggregate<T> {
 
     pub fn push(&mut self, item: &str, cmds: &[&Cmd]) {
         let ele = T::new_from_cmd(item, cmds);
-        self.inner[0].incremente_all();
+        self.inner[0].increment_all(ele.count());
         self.inner.push(ele);
     }
 
@@ -78,8 +78,8 @@ pub trait BasicItem: Sized {
     }
 
     /// increment All- by 1
-    fn incremente_all(&mut self) {
-        *self.count_mut() += 1;
+    fn increment_all(&mut self, new_count: usize) {
+        *self.count_mut() += new_count;
     }
 
     /// normal item construction
