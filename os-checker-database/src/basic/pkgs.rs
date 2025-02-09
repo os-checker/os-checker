@@ -3,18 +3,38 @@ use std::{cmp::Ordering, collections::HashMap};
 use os_checker_types::Cmd;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::new_map_with_cap;
+use crate::utils::{group_by, new_map_with_cap};
+
+pub type Pkgs = Aggregate<Pkg>;
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct Pkgs {
-    inner: Vec<Pkg>,
+pub struct Pkg {
+    pkg: String,
+    count: usize,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Pkg {
-    pub pkg: String,
-    pub count: usize,
+impl BasicItem for Pkg {
+    const ALL: &str = "All-Pkgs";
+
+    fn name(&self) -> &str {
+        &self.pkg
+    }
+
+    fn count(&self) -> usize {
+        self.count
+    }
+
+    fn count_mut(&mut self) -> &mut usize {
+        &mut self.count
+    }
+
+    fn split(self) -> (String, usize) {
+        (self.pkg, self.count)
+    }
+
+    fn new(pkg: String, count: usize) -> Self {
+        Self { pkg, count }
+    }
 }
 
 // *******************
@@ -39,7 +59,8 @@ impl<T: BasicItem> Aggregate<T> {
         self.inner.push(ele);
     }
 
-    pub fn from_map(map: HashMap<&str, Vec<&Cmd>>) -> Self {
+    pub fn from_map<'a>(cmds: &'a [Cmd], mut f: impl FnMut(&&'a Cmd) -> &'a str) -> Self {
+        let map = group_by(cmds, f);
         let mut targets = Self::with_capacity(map.len());
         for (triple, cmds) in map {
             targets.push(triple, &cmds);

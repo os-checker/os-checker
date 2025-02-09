@@ -1,4 +1,4 @@
-use crate::utils::{group_by, new_map_with_cap, repo_pkgidx, UserRepo};
+use crate::utils::{group_by, new_map_with_cap, pkg_cmdidx, repo_pkgidx, UserRepo};
 use camino::Utf8Path;
 use indexmap::IndexMap;
 use os_checker_types::{Cmd, JsonOutput, Kind};
@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 mod pkgs;
-use pkgs::Targets;
+use pkgs::{Pkgs, Targets};
 
 #[cfg(test)]
 mod tests;
@@ -30,8 +30,20 @@ pub fn write_batch(src_dir: &Utf8Path, target_dir: &Utf8Path) -> crate::Result<(
     }
 
     let kinds = batch[0].kinds.clone();
-    let targets = Targets::merge_batch(batch.into_iter().map(|basic| basic.targets).collect());
-    let merged = Basic { targets, kinds };
+
+    let len = batch.len();
+    let (mut batch_pkgs, mut batch_targets) = (Vec::with_capacity(len), Vec::with_capacity(len));
+    for b in batch {
+        batch_pkgs.push(b.pkgs);
+        batch_targets.push(b.targets);
+    }
+    let pkgs = Pkgs::merge_batch(batch_pkgs);
+    let targets = Targets::merge_batch(batch_targets);
+    let merged = Basic {
+        pkgs,
+        targets,
+        kinds,
+    };
 
     let path = target_dir.join("basic.json");
     let file = std::fs::File::create(&path)?;
@@ -44,7 +56,7 @@ pub fn write_batch(src_dir: &Utf8Path, target_dir: &Utf8Path) -> crate::Result<(
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Basic {
-    // pkgs: Pkgs,
+    pkgs: Pkgs,
     targets: Targets,
     // features: Features,
     // checkers: Checkers,
@@ -60,9 +72,13 @@ impl Basic {
 /// 所有仓库的架构统计
 pub fn all(json: &JsonOutput) -> Basic {
     let kinds = Kinds::new(json);
-    let map = group_by(&json.cmd, |cmd| &*cmd.target_triple);
-    let targets = Targets::from_map(map);
-    Basic { targets, kinds }
+    let pkgs = Pkgs::from_map(&json.cmd, |cmd| pkg_cmdidx(json, cmd.package_idx).pkg);
+    let targets = Targets::from_map(&json.cmd, |cmd| &*cmd.target_triple);
+    Basic {
+        pkgs,
+        targets,
+        kinds,
+    }
 }
 
 /// 按仓库的架构统计
@@ -72,12 +88,13 @@ pub fn by_repo(json: &JsonOutput) -> Vec<(UserRepo, Basic)> {
     let mut v = Vec::<(UserRepo, Basic)>::with_capacity(map.len());
 
     for (user_repo, cmds) in map {
-        let map_target = group_by(cmds, |cmd| &*cmd.target_triple);
-        let targets = Targets::from_map(map_target);
+        let pkgs = Pkgs::from_map(&json.cmd, |cmd| pkg_cmdidx(json, cmd.package_idx).pkg);
+        let targets = Targets::from_map(&json.cmd, |cmd| &*cmd.target_triple);
 
         v.push((
             user_repo,
             Basic {
+                pkgs,
                 targets,
                 kinds: kinds.clone(),
             },
