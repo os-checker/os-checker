@@ -5,8 +5,8 @@ use os_checker_types::{Cmd, JsonOutput, Kind};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-mod pkgs;
-use pkgs::{Pkgs, Targets};
+mod inner;
+use inner::{Pkgs, Targets};
 
 #[cfg(test)]
 mod tests;
@@ -104,79 +104,6 @@ pub fn by_repo(json: &JsonOutput) -> Vec<(UserRepo, Basic)> {
 
     v
 }
-
-// #[derive(Debug, Serialize, Deserialize)]
-// #[serde(transparent)]
-// struct Targets {
-//     inner: Vec<Target>,
-// }
-//
-// impl Targets {
-//     fn with_capacity(cap: usize) -> Self {
-//         let mut inner = Vec::<Target>::with_capacity(cap + 1);
-//         inner.push(Target::all_targets_with_0count());
-//         Targets { inner }
-//     }
-//
-//     fn push(&mut self, triple: &str, cmds: &[&Cmd]) {
-//         let target = Target::new(triple, cmds);
-//         self.inner[0].count += target.count;
-//         self.inner.push(target);
-//     }
-//
-//     fn from_map(map: HashMap<&str, Vec<&Cmd>>) -> Self {
-//         let mut targets = Targets::with_capacity(map.len());
-//         for (triple, cmds) in map {
-//             targets.push(triple, &cmds);
-//         }
-//         // 降序排列
-//         targets
-//             .inner
-//             .sort_unstable_by(|a, b| (b.count, &*a.triple).cmp(&(a.count, &*b.triple)));
-//         targets
-//     }
-//
-//     fn merge_batch(v: Vec<Self>) -> Self {
-//         let mut map = new_map_with_cap::<String, usize>(24);
-//         for targets in v {
-//             for Target { triple, count } in targets.inner {
-//                 map.entry(triple)
-//                     .and_modify(|c| *c += count)
-//                     .or_insert(count);
-//             }
-//         }
-//         // 降序排列
-//         map.sort_unstable_by(|k1, &v1, k2, &v2| (v2, &**k2).cmp(&(v1, &**k1)));
-//
-//         let inner = map
-//             .into_iter()
-//             .map(|(triple, count)| Target { triple, count })
-//             .collect();
-//         Self { inner }
-//     }
-// }
-//
-// #[derive(Debug, Serialize, Deserialize)]
-// struct Target {
-//     pub triple: String,
-//     pub count: usize,
-// }
-//
-// impl Target {
-//     fn all_targets_with_0count() -> Self {
-//         Target {
-//             triple: "All-Targets".to_owned(),
-//             count: 0,
-//         }
-//     }
-//
-//     fn new(triple: &str, cmds: &[&Cmd]) -> Self {
-//         Target {
-//             triple: triple.to_owned(),
-//             count: cmds.iter().map(|c| c.count).sum(),
-//         }
-//     }
-// }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Kinds {

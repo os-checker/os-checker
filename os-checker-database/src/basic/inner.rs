@@ -3,6 +3,8 @@ use os_checker_types::{Cmd, JsonOutput};
 use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, collections::HashMap};
 
+// ******************* Pkgs & Pkg *******************
+
 pub type Pkgs = Aggregate<Pkg>;
 
 impl Pkgs {
@@ -44,7 +46,50 @@ impl BasicItem for Pkg {
     }
 }
 
-// *******************
+// ******************* Targets & Target *******************
+
+pub type Targets = Aggregate<Target>;
+
+impl Targets {
+    pub fn new<'a, I>(cmds: I) -> Self
+    where
+        I: IntoIterator<Item = &'a Cmd>,
+    {
+        Targets::from_map(cmds, |cmd| &*cmd.target_triple)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Target {
+    triple: String,
+    count: usize,
+}
+
+impl BasicItem for Target {
+    const ALL: &str = "All-Targets";
+
+    fn name(&self) -> &str {
+        &self.triple
+    }
+
+    fn count(&self) -> usize {
+        self.count
+    }
+
+    fn count_mut(&mut self) -> &mut usize {
+        &mut self.count
+    }
+
+    fn split(self) -> (String, usize) {
+        (self.triple, self.count)
+    }
+
+    fn new(triple: String, count: usize) -> Self {
+        Self { triple, count }
+    }
+}
+
+// ******************* Aggregate<T> *******************
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -99,6 +144,8 @@ impl<T: BasicItem> Aggregate<T> {
     }
 }
 
+// ******************* BasicItem for T in Aggregate<T> *******************
+
 pub trait BasicItem: Sized {
     /// name of All-*
     const ALL: &str;
@@ -130,45 +177,4 @@ pub trait BasicItem: Sized {
     fn split(self) -> (String, usize);
     /// construct from name and count
     fn new(name: String, count: usize) -> Self;
-}
-
-pub type Targets = Aggregate<Target>;
-
-impl Targets {
-    pub fn new<'a, I>(cmds: I) -> Self
-    where
-        I: IntoIterator<Item = &'a Cmd>,
-    {
-        Targets::from_map(cmds, |cmd| &*cmd.target_triple)
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Target {
-    triple: String,
-    count: usize,
-}
-
-impl BasicItem for Target {
-    const ALL: &str = "All-Targets";
-
-    fn name(&self) -> &str {
-        &self.triple
-    }
-
-    fn count(&self) -> usize {
-        self.count
-    }
-
-    fn count_mut(&mut self) -> &mut usize {
-        &mut self.count
-    }
-
-    fn split(self) -> (String, usize) {
-        (self.triple, self.count)
-    }
-
-    fn new(triple: String, count: usize) -> Self {
-        Self { triple, count }
-    }
 }
