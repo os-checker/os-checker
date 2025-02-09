@@ -1,7 +1,7 @@
 use crate::utils::{group_by, new_map_with_cap, pkg_cmdidx, repo_pkgidx, UserRepo};
 use camino::Utf8Path;
 use indexmap::IndexMap;
-use os_checker_types::{Cmd, JsonOutput, Kind};
+use os_checker_types::{Cmd, JsonOutput, Kinds};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -79,7 +79,6 @@ impl Basic {
 
 /// 所有仓库的架构统计
 pub fn all(json: &JsonOutput) -> Basic {
-    let kinds = Kinds::new(json);
     let pkgs = Pkgs::new(&json.cmd, json);
     let checkers = Checkers::new(&json.cmd);
     let targets = Targets::new(&json.cmd);
@@ -89,13 +88,12 @@ pub fn all(json: &JsonOutput) -> Basic {
         checkers,
         targets,
         features_sets,
-        kinds,
+        kinds: json.env.kinds.clone(),
     }
 }
 
 /// 按仓库的架构统计
 pub fn by_repo(json: &JsonOutput) -> Vec<(UserRepo, Basic)> {
-    let kinds = Kinds::new(json);
     let map = group_by(&json.cmd, |cmd| repo_pkgidx(json, cmd.package_idx));
     let mut v = Vec::<(UserRepo, Basic)>::with_capacity(map.len());
 
@@ -113,52 +111,10 @@ pub fn by_repo(json: &JsonOutput) -> Vec<(UserRepo, Basic)> {
                 checkers,
                 targets,
                 features_sets,
-                kinds: kinds.clone(),
+                kinds: json.env.kinds.clone(),
             },
         ));
     }
 
     v
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Kinds {
-    // #[serde(flatten)]
-    // pub raw: RawKinds,
-    pub columns: Vec<Column>,
-}
-
-impl Kinds {
-    fn new(json: &JsonOutput) -> Self {
-        Kinds {
-            columns: columns(&json.env.kinds.order),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Column {
-    pub field: Kind,
-    pub header: String,
-}
-
-fn columns(order: &[Kind]) -> Vec<Column> {
-    let rename = indexmap::indexmap! {
-        Kind::Unformatted => "Unformatted",
-        Kind::ClippyWarn => "Clippy (Warn)",
-        Kind::ClippyError => "Clippy (Error)",
-        Kind::LockbudPossibly => "Lockbud (Possibly)",
-        Kind::LockbudProbably => "Lockbud (Probably)",
-    };
-    let mut checkers = IndexMap::<_, _, ahash::RandomState>::from_iter(
-        order.iter().map(|kind| (*kind, kind.as_str())),
-    );
-    checkers.extend(rename);
-    checkers
-        .into_iter()
-        .map(|(field, header)| Column {
-            field,
-            header: header.to_owned(),
-        })
-        .collect()
 }
