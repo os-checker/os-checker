@@ -198,21 +198,20 @@ pub enum CheckerTool {
 }
 
 impl CheckerTool {
-    /// should be the same as serde's kebab-case
     pub fn as_str(self) -> &'static str {
         match self {
-            Self::Cargo => "cargo",
-            Self::Clippy => "clippy",
-            Self::Miri => "miri",
-            Self::SemverChecks => "semver-checks",
-            Self::Audit => "audit",
-            Self::Mirai => "mirai",
-            Self::Lockbud => "lockbud",
-            Self::Rapx => "rapx",
-            Self::Rudra => "rudra",
-            Self::Outdated => "outdated",
-            Self::Geiger => "geiger",
-            Self::Fmt => "fmt",
+            Self::Cargo => "Cargo",
+            Self::Clippy => "Clippy",
+            Self::Miri => "Miri",
+            Self::SemverChecks => "SemverChecks",
+            Self::Audit => "Audit",
+            Self::Mirai => "Mirai",
+            Self::Lockbud => "Lockbud",
+            Self::Rapx => "Rapx",
+            Self::Rudra => "Rudra",
+            Self::Outdated => "Outdated",
+            Self::Geiger => "Geiger",
+            Self::Fmt => "Fmt",
         }
     }
 }
