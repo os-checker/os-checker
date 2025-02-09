@@ -228,7 +228,7 @@ fn write_to_file<T: Serialize>(dir: &str, target: &str, t: &T) -> Result<()> {
 
     path.push(format!("{target}.json"));
     let file = fs::File::create(&path)?;
-    serde_json::to_writer(BufWriter::new(file), t)?;
+    serde_json::to_writer_pretty(BufWriter::new(file), t)?;
 
     info!("{path} 写入成功");
 

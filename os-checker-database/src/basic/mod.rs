@@ -36,7 +36,7 @@ pub fn write_batch(src_dir: &Utf8Path, target_dir: &Utf8Path) -> crate::Result<(
     let path = target_dir.join("basic.json");
     let file = std::fs::File::create(&path)?;
     let writer = std::io::BufWriter::new(file);
-    serde_json::to_writer(writer, &merged)?;
+    serde_json::to_writer_pretty(writer, &merged)?;
 
     info!("成功把 batch config 合并: src_dir={src_dir} merged={path}");
     Ok(())
