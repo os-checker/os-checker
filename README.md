@@ -1,4 +1,4 @@
-# os checker
+# os-checker 工具集
 
 [<img alt="github" src="https://img.shields.io/github/license/os-checker/os-checker" height="20">](https://github.com/os-checker/os-checker)
 [<img alt="github" src="https://img.shields.io/crates/v/os-checker" height="20">](https://crates.io/crates/os-checker)
@@ -51,16 +51,13 @@ os-checker 由以下部分组成：
 
 os-checker 目前设计为检查 Github 上的仓库代码，并且采用 Github Action 进行自动化检查。
 
-已推出自己的 Github Action Workflow 和 Docker 镜像，来对上述工具进行自动化部署。
+已支持 [Github Action Workflow][os-checker-action] 和 [Docker 镜像][zjpzjp/os-checker]，来对上述工具进行自动化部署。
 
-## 二进制工具：`os-checker`
-
-`os-checker` 生成最常见的 Rust 代码检查工具的运行结果报告。
-
+已集成 [以下检查工具](https://os-checker.github.io/book/checkers.html)：
 
 [![checkers](https://github.com/user-attachments/assets/2c488c58-ff69-42e5-aa20-0b8e174f416f)](https://os-checker.github.io/book/checkers.html)
 
-此外，os-checker 还应包括基础信息：
+此外，os-checker 生成包括基础信息：
 * Cargo.toml：Package 维度；由许多工具读取和使用，应该正确维护
 * Github API：仓库维度
 
