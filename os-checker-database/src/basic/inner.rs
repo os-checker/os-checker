@@ -12,7 +12,7 @@ impl Pkgs {
     where
         I: IntoIterator<Item = &'a Cmd>,
     {
-        Self::from_map(cmds, |cmd| pkg_cmdidx(json, cmd.package_idx).pkg)
+        Self::from_map(cmds, |cmd| dbg!(pkg_cmdidx(json, cmd.package_idx).pkg))
     }
 }
 
