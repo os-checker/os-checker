@@ -13,7 +13,8 @@ impl Pkgs {
         I: IntoIterator<Item = &'a Cmd>,
     {
         Self::from_map(cmds, |cmd| {
-            dbg!(pkg_cmdidx(json, dbg!(cmd.package_idx))).pkg
+            let pkg_idx = dbg!(cmd.package_idx);
+            dbg!(&json.env.packages[pkg_idx].name)
         })
     }
 }
