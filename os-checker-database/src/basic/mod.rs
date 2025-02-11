@@ -1,9 +1,7 @@
-use crate::utils::{group_by, new_map_with_cap, pkg_cmdidx, repo_pkgidx, UserRepo};
+use crate::utils::{group_by, repo_pkgidx, UserRepo};
 use camino::Utf8Path;
-use indexmap::IndexMap;
-use os_checker_types::{Cmd, JsonOutput, Kinds};
+use os_checker_types::{JsonOutput, Kinds};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 mod inner;
 use inner::{Checkers, FeaturesSets, Pkgs, Targets};
@@ -69,12 +67,6 @@ pub struct Basic {
     targets: Targets,
     features_sets: FeaturesSets,
     kinds: Kinds,
-}
-
-impl Basic {
-    pub fn print(&self) {
-        info!("{}", serde_json::to_string_pretty(self).unwrap());
-    }
 }
 
 /// 所有仓库的架构统计

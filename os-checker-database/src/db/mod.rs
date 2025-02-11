@@ -1,37 +1,30 @@
-use crate::{
-    utils::{new_map_with_cap, IndexMap},
-    Result,
-};
+use crate::Result;
 use eyre::ContextCompat;
 use os_checker_types::db::*;
-use redb::{
-    Key, ReadOnlyTable, ReadTransaction, ReadableTable, ReadableTableMetadata, TableDefinition,
-    Value,
-};
-use std::{fmt::Debug, hash::Hash};
+use redb::{ReadOnlyTable, ReadTransaction, ReadableTable};
 
 // TODO: move this to os_checker_types crate
 // FIXME: this should be to read the latest checking results, not all results.
-pub fn read_table<K, V>(
-    txn: &ReadTransaction,
-    table: TableDefinition<K, V>,
-    mut f: impl FnMut(K, V) -> Result<()>,
-) -> Result<()>
-where
-    K: for<'a> Key<SelfType<'a> = K>,
-    V: for<'a> Value<SelfType<'a> = V>,
-{
-    let table = txn.open_table(table)?;
-
-    for ele in table.iter()? {
-        let (guard_k, guard_v) = ele?;
-        let key = guard_k.value();
-        let value = guard_v.value();
-        f(key, value);
-    }
-
-    Ok(())
-}
+// pub fn read_table<K, V>(
+//     txn: &ReadTransaction,
+//     table: TableDefinition<K, V>,
+//     mut f: impl FnMut(K, V) -> Result<()>,
+// ) -> Result<()>
+// where
+//     K: for<'a> Key<SelfType<'a> = K>,
+//     V: for<'a> Value<SelfType<'a> = V>,
+// {
+//     let table = txn.open_table(table)?;
+//
+//     for ele in table.iter()? {
+//         let (guard_k, guard_v) = ele?;
+//         let key = guard_k.value();
+//         let value = guard_v.value();
+//         f(key, value)?;
+//     }
+//
+//     Ok(())
+// }
 
 pub fn read_last_checks(txn: &ReadTransaction) -> Result<(u32, CheckValue)> {
     let table = txn.open_table(CHECKS)?;
@@ -43,6 +36,7 @@ pub fn read_last_checks(txn: &ReadTransaction) -> Result<(u32, CheckValue)> {
     Ok((idx, last_checks.1.value()))
 }
 
+#[allow(dead_code)]
 pub struct LastChecks<'txn> {
     txn: &'txn ReadTransaction,
     checks: CheckValue,

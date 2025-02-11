@@ -1,7 +1,7 @@
-use crate::utils::{group_by, new_map_with_cap, pkg_cmdidx};
+use crate::utils::{group_by, new_map_with_cap};
 use os_checker_types::{Cmd, JsonOutput};
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, cmp::Ordering, collections::HashMap};
+use std::{borrow::Cow, cmp::Ordering};
 
 // ******************* Pkgs & Pkg *******************
 

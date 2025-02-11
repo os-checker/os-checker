@@ -1,4 +1,3 @@
-#![allow(unused)]
 use camino::{Utf8Path, Utf8PathBuf};
 use itertools::Itertools;
 use os_checker_types::JsonOutput;
@@ -10,8 +9,6 @@ use std::{
 
 #[macro_use]
 extern crate tracing;
-#[macro_use]
-extern crate eyre;
 
 /// 架构下拉框之类每个页面的基础信息
 mod basic;
@@ -210,6 +207,7 @@ fn write_filetree(json: &JsonOutput) -> Result<()> {
     Ok(())
 }
 
+#[cfg(test)]
 fn print(t: &impl Serialize) {
     info!("{}", serde_json::to_string_pretty(t).unwrap());
 }

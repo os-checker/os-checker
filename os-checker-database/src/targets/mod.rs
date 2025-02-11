@@ -1,11 +1,10 @@
 use crate::{
-    db::{read_table, LastChecks},
+    db::LastChecks,
     utils::{new_map_with_cap, IndexMap},
     write_to_file, Result,
 };
-use camino::{Utf8Path, Utf8PathBuf};
-use eyre::ensure;
-use os_checker_types::{db::*, CheckerTool, XString};
+use camino::Utf8Path;
+use os_checker_types::{db::*, CheckerTool};
 use serde::Serialize;
 
 #[derive(Debug, Serialize, PartialEq, Eq, PartialOrd, Ord)]

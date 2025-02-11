@@ -14,3 +14,16 @@ fn print() -> Result<()> {
 
     Ok(())
 }
+
+impl Basic {
+    fn print(&self) {
+        info!("{}", serde_json::to_string_pretty(self).unwrap());
+    }
+}
+
+impl UserRepo<'_> {
+    fn print(self) {
+        let Self { user, repo } = self;
+        info!("{user}/{repo}");
+    }
+}
