@@ -32,10 +32,10 @@ fn inner<'a>(json: &'a JsonOutput, data: &[&'a RawData]) -> FileTree<'a> {
     for (pkg, data) in group_by_pkg {
         let count_pkg = data.len();
 
-        let group_by_file = group_by(&data, |d| &*d.file);
-        let mut reports = Vec::with_capacity(group_by_file.len());
+        let group_by_file_feat = group_by(&data, |d| (&*d.file, &*json.cmd[d.cmd_idx].features));
+        let mut reports = Vec::with_capacity(group_by_file_feat.len());
 
-        for (file, data_file) in group_by_file {
+        for ((file, feat), data_file) in group_by_file_feat {
             let group_by_kind = group_by(data_file, |d| d.kind);
             let mut kinds = new_map_with_cap(group_by_kind.len());
 
@@ -44,7 +44,13 @@ fn inner<'a>(json: &'a JsonOutput, data: &[&'a RawData]) -> FileTree<'a> {
             }
 
             let count = kinds.values().map(|v: &Vec<_>| v.len()).sum();
-            reports.push(RawReport { file, count, kinds });
+            let features = feat.join(" ");
+            reports.push(RawReport {
+                file,
+                features,
+                count,
+                kinds,
+            });
         }
 
         v.push(Data {
@@ -103,6 +109,7 @@ struct Data<'a> {
 #[derive(Clone, Debug, Serialize)]
 struct RawReport<'a> {
     file: &'a Utf8Path,
+    features: String,
     count: usize,
     kinds: IndexMap<Kind, Vec<&'a str>>,
 }
