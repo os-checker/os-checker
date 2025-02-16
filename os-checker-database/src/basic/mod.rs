@@ -4,7 +4,7 @@ use os_checker_types::{JsonOutput, Kinds};
 use serde::{Deserialize, Serialize};
 
 mod inner;
-use inner::{Checkers, FeaturesSets, Pkgs, Targets};
+use inner::{Checkers, Pkgs, Targets};
 
 #[cfg(test)]
 mod tests;
@@ -31,23 +31,19 @@ pub fn write_batch(src_dir: &Utf8Path, target_dir: &Utf8Path) -> crate::Result<(
 
     let len = batch.len();
     let (mut batch_pkgs, mut batch_checkers) = (Vec::with_capacity(len), Vec::with_capacity(len));
-    let (mut batch_targets, mut batch_features_sets) =
-        (Vec::with_capacity(len), Vec::with_capacity(len));
+    let mut batch_targets = Vec::with_capacity(len);
     for b in batch {
         batch_pkgs.push(b.pkgs);
         batch_checkers.push(b.checkers);
         batch_targets.push(b.targets);
-        batch_features_sets.push(b.features_sets);
     }
     let pkgs = Pkgs::merge_batch(batch_pkgs);
     let checkers = Checkers::merge_batch(batch_checkers);
     let targets = Targets::merge_batch(batch_targets);
-    let features_sets = FeaturesSets::merge_batch(batch_features_sets);
     let merged = Basic {
         pkgs,
         checkers,
         targets,
-        features_sets,
         kinds,
     };
 
@@ -65,7 +61,7 @@ pub struct Basic {
     pkgs: Pkgs,
     checkers: Checkers,
     targets: Targets,
-    features_sets: FeaturesSets,
+    // features_sets: FeaturesSets,
     kinds: Kinds,
 }
 
@@ -74,12 +70,10 @@ pub fn all(json: &JsonOutput) -> Basic {
     let pkgs = Pkgs::new(&json.cmd, json);
     let checkers = Checkers::new(&json.cmd);
     let targets = Targets::new(&json.cmd);
-    let features_sets = FeaturesSets::new(&json.cmd);
     Basic {
         pkgs,
         checkers,
         targets,
-        features_sets,
         kinds: json.env.kinds.clone(),
     }
 }
@@ -94,7 +88,6 @@ pub fn by_repo(json: &JsonOutput) -> Vec<(UserRepo, Basic)> {
         let pkgs = Pkgs::new(iter.clone(), json);
         let checkers = Checkers::new(iter.clone());
         let targets = Targets::new(iter.clone());
-        let features_sets = FeaturesSets::new(iter);
 
         v.push((
             user_repo,
@@ -102,7 +95,6 @@ pub fn by_repo(json: &JsonOutput) -> Vec<(UserRepo, Basic)> {
                 pkgs,
                 checkers,
                 targets,
-                features_sets,
                 kinds: json.env.kinds.clone(),
             },
         ));

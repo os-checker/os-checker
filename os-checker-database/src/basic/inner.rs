@@ -135,49 +135,6 @@ impl BasicItem for Target {
     }
 }
 
-// ******************* FeaturesSets & Features *******************
-
-pub type FeaturesSets = Aggregate<Features>;
-
-impl FeaturesSets {
-    pub fn new<'a, I>(cmds: I) -> Self
-    where
-        I: IntoIterator<Item = &'a Cmd>,
-    {
-        Self::from_map(cmds, |cmd| cmd.features.join(" "))
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Features {
-    features: String,
-    count: usize,
-}
-
-impl BasicItem for Features {
-    const ALL: &str = "All-Features-Sets";
-
-    fn name(&self) -> &str {
-        &self.features
-    }
-
-    fn count(&self) -> usize {
-        self.count
-    }
-
-    fn count_mut(&mut self) -> &mut usize {
-        &mut self.count
-    }
-
-    fn split(self) -> (String, usize) {
-        (self.features, self.count)
-    }
-
-    fn new(features: String, count: usize) -> Self {
-        Self { features, count }
-    }
-}
-
 // ******************* Aggregate<T> *******************
 
 #[derive(Debug, Serialize, Deserialize)]
