@@ -19,7 +19,7 @@ env:
   PUSH: true
   toolchain: nightly-2025-01-26
   # push to which database branch 
-  DATABASE: debug
+  DATABASE: main
   # cache.redb tag in database release
   TAG_CACHE: cache-v14.redb
   # force downloading repos to run check 
@@ -27,8 +27,8 @@ env:
   # force running checks after downloading repos
   FORCE_RUN_CHECK: false
   # use which configs
-  OS_CHECKER_CONFIGS: repos.json # for debug single repo
-  # OS_CHECKER_CONFIGS: repos-default.json repos-ui.json # full repo list
+  # OS_CHECKER_CONFIGS: repos.json # for debug single repo
+  OS_CHECKER_CONFIGS: repos-default.json repos-ui.json # full repo list
 
 jobs:
   run:
