@@ -3,7 +3,7 @@ use ahash::{AHashMap, AHashSet};
 use os_checker_types::JsonOutput;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{group_by, repo_cmdidx};
+use crate::utils::group_by;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct PassCountRepo {

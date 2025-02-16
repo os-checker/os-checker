@@ -149,7 +149,7 @@ pub enum Kind {
 }
 
 impl Kind {
-    /// 这是序列化的内容
+    /// should be the same as serde's kebab-case
     pub fn as_str(self) -> &'static str {
         match self {
             Kind::Unformatted => "Unformatted",
@@ -195,4 +195,24 @@ pub enum CheckerTool {
     Outdated,
     Geiger,
     Fmt,
+}
+
+impl CheckerTool {
+    /// should be the same as serde's kebab-case
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Cargo => "cargo",
+            Self::Clippy => "clippy",
+            Self::Miri => "miri",
+            Self::SemverChecks => "semver-checks",
+            Self::Audit => "audit",
+            Self::Mirai => "mirai",
+            Self::Lockbud => "lockbud",
+            Self::Rapx => "rapx",
+            Self::Rudra => "rudra",
+            Self::Outdated => "outdated",
+            Self::Geiger => "geiger",
+            Self::Fmt => "fmt",
+        }
+    }
 }

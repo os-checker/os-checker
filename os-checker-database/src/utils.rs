@@ -5,10 +5,6 @@ use serde::{Deserialize, Serialize};
 pub use eyre::Result;
 pub type IndexMap<K, V> = indexmap::IndexMap<K, V, ahash::RandomState>;
 
-pub fn new_map<K, V>() -> IndexMap<K, V> {
-    IndexMap::<_, _>::with_hasher(ahash::RandomState::new())
-}
-
 pub fn new_map_with_cap<K, V>(cap: usize) -> IndexMap<K, V> {
     IndexMap::<_, _>::with_capacity_and_hasher(cap, ahash::RandomState::new())
 }
@@ -26,13 +22,6 @@ where
 pub struct UserRepo<'a> {
     pub user: &'a str,
     pub repo: &'a str,
-}
-
-impl UserRepo<'_> {
-    pub fn print(self) {
-        let Self { user, repo } = self;
-        info!("{user}/{repo}");
-    }
 }
 
 pub fn repo_pkgidx(json: &JsonOutput, pkg_idx: usize) -> UserRepo {
@@ -71,11 +60,6 @@ pub struct UserRepoPkg<'a> {
 }
 
 impl<'a> UserRepoPkg<'a> {
-    pub fn print(self) {
-        let Self { user, repo, pkg } = self;
-        info!("{user}/{repo}#{pkg}");
-    }
-
     pub fn into_repo(self) -> UserRepo<'a> {
         let Self { user, repo, .. } = self;
         UserRepo { user, repo }
