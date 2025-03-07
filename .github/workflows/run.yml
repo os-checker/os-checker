@@ -19,16 +19,16 @@ env:
   PUSH: true
   toolchain: nightly-2025-01-26
   # push to which database branch 
-  DATABASE: main
+  DATABASE: debug
   # cache.redb tag in database release
   TAG_CACHE: cache-v14.redb
   # force downloading repos to run check 
-  FORCE_REPO_CHECK: false
+  FORCE_REPO_CHECK: true
   # force running checks after downloading repos
   FORCE_RUN_CHECK: false
   # use which configs
-  # OS_CHECKER_CONFIGS: repos.json # for debug single repo
-  OS_CHECKER_CONFIGS: repos-default.json repos-ui.json # full repo list
+  OS_CHECKER_CONFIGS: repos.json # for debug single repo
+  # OS_CHECKER_CONFIGS: repos-default.json repos-ui.json # full repo list
 
 jobs:
   run:
@@ -68,8 +68,8 @@ jobs:
           cargo outdated --version
           cargo geiger --version
           cargo semver-checks --version
-          rustup default nightly-2025-01-04 && cargo mirai --help
-          rustup default nightly-2024-12-01 && cargo lockbud --help
+          rustup default nightly-2025-01-10 && cargo mirai --help
+          rustup default nightly-2025-02-01 && cargo lockbud --help
           rustup default nightly-2024-10-12 && cargo rapx --help
           rustup default nightly-2021-10-21 && cargo rudra --help
           rustup default ${{ env.toolchain }}
