@@ -1,12 +1,3 @@
 {
-  "qclic/sparreal-os": {},
-  "guoweikang/osl": {
-    "packages": {
-      "osl": {
-        "features": [
-          "arceos"
-        ]
-      }
-    }
-  }
+  "Azure-stars/kernel_elf_parser": {}
 }
