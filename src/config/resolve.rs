@@ -179,7 +179,7 @@ impl Resolve {
 
     /// force checking even if a cache exists
     pub fn force_check(&self) -> bool {
-        matches!(self.checker, CheckerTool::SemverChecks)
+        matches!(self.checker, CheckerTool::Mirai | CheckerTool::Lockbud)
     }
 
     pub fn outdated(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
