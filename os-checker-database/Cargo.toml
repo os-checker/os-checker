@@ -1,12 +1,17 @@
 [package]
 name = "os-checker-database"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
-license = "MIT"
 rust-version = "1.80"
 exclude = ["assets", ".github", "repos", "tests", "examples", "Makefile"]
 repository = "https://github.com/os-checker/os-checker"
 description = "The output transformer of os-checker CLI, used to generate static data for os-checker WebUI."
+
+# dual licensing: "GPL-3.0 OR MulanPubL"
+# MulanPubL is not listed by SPDX, failing to be published to crates.io.
+# Thus use a license and another license-file as a workaround,
+license = "GPL-3.0"
+license-file = "../LICENSE.MulanPubL"
 
 [dependencies]
 ahash = { workspace = true }

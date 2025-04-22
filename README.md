@@ -63,5 +63,7 @@ os-checker 目前设计为检查 Github 上的仓库代码，并且采用 Github
 * Cargo.toml：Package 维度；由许多工具读取和使用，应该正确维护
 * Github API：仓库维度
 
+# Licenses
 
+This project is under dual licensing `GPL-3.0 OR MulanPubL`.
 

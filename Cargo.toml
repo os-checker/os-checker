@@ -1,12 +1,17 @@
 [package]
 name = "os-checker"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
-license = "MIT"
 rust-version = "1.80"
 exclude = ["assets", ".github", "repos", "tests", "examples", "Makefile", "dist-workspace.toml"]
 repository = "https://github.com/os-checker/os-checker"
 description = "Run a collection of checkers targeting Rust crates, and report bad checking results and statistics."
+
+# dual licensing: "GPL-3.0 OR MulanPubL"
+# MulanPubL is not listed by SPDX, failing to be published to crates.io.
+# Thus use a license and another license-file as a workaround,
+license = "GPL-3.0"
+license-file = "./LICENSE.MulanPubL"
 
 [dependencies]
 argh = "0.1.12"   # cli argument parser

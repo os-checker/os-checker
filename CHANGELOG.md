@@ -1,3 +1,7 @@
+# v0.6.1
+
+Change license from MIT to `GPL-3.0 OR MulanPubL`.
+
 # v0.6.0
 
 Features
