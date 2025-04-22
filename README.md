@@ -7,7 +7,7 @@
 
 虽然工具名称暗示与操作系统相关，但仅仅是以它为背景而起的名字。也就是说， os-checker 适用于任何 Rust 代码库。
 
-详细文档见： [os-checker book](https://os-checker.github.io/book/checkers.html) | [PPT](https://docs.qq.com/slide/DTEdZdFhMSFR5QVBZ)。
+详细文档见： [os-checker book](https://os-checker.github.io/book/checkers.html) | [工作原理](https://os-checker.github.io/book/under-the-hood.html)。
 
 os-checker 由以下部分组成：
 
@@ -26,7 +26,9 @@ os-checker 由以下部分组成：
 | Docker 容器             | [zjpzjp/os-checker]           |                                                                                                        | 基于 Docker 容器自动化部署上述工具                |
 | 文档                    | [book]                        |                                                                                                        | 介绍 os-checker                                   |
 
+上述仓库统一作为子模块放到 [os-checker-repertoire] 仓库。
 
+[os-checker-repertoire]: https://github.com/os-checker/os-checker-repertoire
 
 [os-checker]: https://github.com/os-checker/os-checker
 [1]: https://crates.io/crates/os-checker
