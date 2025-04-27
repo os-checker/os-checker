@@ -7,7 +7,7 @@
 
 虽然工具名称暗示与操作系统相关，但仅仅是以它为背景而起的名字。也就是说， os-checker 适用于任何 Rust 代码库。
 
-详细文档见： [os-checker book](https://os-checker.github.io/book/checkers.html) | [工作原理](https://os-checker.github.io/book/under-the-hood.html)。
+详细文档见： [os-checker book](https://os-checker.github.io/book/checkers.html) | [工作原理](https://os-checker.github.io/book/under-the-hood.html) | [DeepWiki by Devin AI](https://deepwiki.com/os-checker/os-checker)。
 
 os-checker 由以下部分组成：
 
