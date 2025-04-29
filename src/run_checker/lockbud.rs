@@ -1,7 +1,7 @@
 use super::CargoMessage;
 
 pub fn parse_lockbud_result(stderr: &[u8]) -> String {
-    let tag = "[2024"; // 目前只能通过日志识别
+    let tag = "[2025"; // 目前只能通过日志识别
     let mut count = 0usize;
     let mut v = Vec::new();
     for mes in CargoMessage::parse_stream(stderr).flatten() {
