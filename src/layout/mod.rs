@@ -54,12 +54,12 @@ fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
     let mut map = IndexMap::new();
     for cargo_toml in cargo_tomls {
         // NOTE: 一旦支持 features，这里可能需要传递它们
-        let Ok(metadata) = MetadataCommand::new()
-            .manifest_path(cargo_toml)
-            .exec()
-            .map_err(|err| error!("无法读取 cargo metadata 的结果：{err}"))
-        else {
-            return Ok(Default::default());
+        let metadata = match MetadataCommand::new().manifest_path(cargo_toml).exec() {
+            Ok(metadata) => metadata,
+            Err(err) => {
+                error!("无法读取 cargo metadata 的结果：{err}");
+                continue;
+            }
         };
         let root = &metadata.workspace_root;
         // 每个 member package 解析的 workspace_root 和 members 是一样的
