@@ -57,7 +57,7 @@ fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
         let metadata = match MetadataCommand::new().manifest_path(cargo_toml).exec() {
             Ok(metadata) => metadata,
             Err(err) => {
-                error!("无法读取 cargo metadata 的结果：{err}");
+                error!("无法从 {cargo_toml} 中读取 cargo metadata 的结果：\n{err}");
                 continue;
             }
         };
