@@ -127,7 +127,7 @@ struct ArgsLayout {
     #[argh(option)]
     base_dir: Option<Utf8PathBuf>,
     /// exit if any layout error happens
-    #[argh(option)]
+    #[argh(option, default = "false")]
     no_layout_error: bool,
     /// display targets of packages for a given repos. The packages are filterred out as specified
     /// in the config.
