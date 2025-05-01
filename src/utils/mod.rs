@@ -7,6 +7,9 @@ use std::{path::Path, time::Instant};
 mod scan_for_targets;
 pub use scan_for_targets::scan_scripts_for_target;
 
+/// Dirs or files to be excluded.
+mod exlucded;
+
 mod installation;
 pub use installation::{
     init as installation_init, install_toolchain, rustup_target_add, rustup_target_add_for_checkers,
@@ -103,4 +106,14 @@ pub fn cmd_run(bin: &str, args: &[&str], dir: &Utf8Path, ignore_fail: bool) -> R
     }
 
     String::from_utf8(output.stdout).with_context(|| "stdout contains invalid UTF-8 chars")
+}
+
+#[test]
+fn test_walk_dir() {
+    let cargo_tomls = walk_dir(".", 3, &["**/os-checker-database/**"], |file| {
+        (file.file_name() == Some("Cargo.toml")).then_some(file)
+    });
+    assert!(!cargo_tomls
+        .iter()
+        .any(|p| p.as_str().contains("os-checker-database")));
 }
