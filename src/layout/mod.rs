@@ -1,6 +1,7 @@
 //! 启发式了解项目的 Rust packages 组织结构。
 
 use crate::{
+    cli::no_layout_error,
     config::{Features, Resolve, TargetEnv, TargetsSpecifed},
     db::out::{CacheLayout, CachePackageInfo, CacheResolve, CargoMetaData},
     output::{get_channel, install_toolchain_idx, remove_targets, uninstall_toolchains},
@@ -54,10 +55,17 @@ fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
     let mut map = IndexMap::new();
     for cargo_toml in cargo_tomls {
         // NOTE: 一旦支持 features，这里可能需要传递它们
-        let metadata = MetadataCommand::new()
-            .manifest_path(cargo_toml)
-            .exec()
-            .map_err(|err| eyre!("无法读取 cargo metadata 的结果：{err}"))?;
+        let metadata = match MetadataCommand::new().manifest_path(cargo_toml).exec() {
+            Ok(metadata) => metadata,
+            Err(err) => {
+                if no_layout_error() {
+                    error!("无法从 {cargo_toml} 中读取 cargo metadata 的结果：\n{err}");
+                    continue;
+                } else {
+                    bail!("无法从 {cargo_toml} 中读取 cargo metadata 的结果：\n{err}");
+                }
+            }
+        };
         let root = &metadata.workspace_root;
         // 每个 member package 解析的 workspace_root 和 members 是一样的
         if !map.contains_key(root) {
