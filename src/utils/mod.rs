@@ -9,6 +9,7 @@ pub use scan_for_targets::scan_scripts_for_target;
 
 /// Dirs or files to be excluded.
 mod exlucded;
+use exlucded::Exclude;
 
 mod installation;
 pub use installation::{
@@ -52,10 +53,10 @@ pub fn git_clone(dir: &Utf8Path, url: &str) -> Result<(std::process::Output, u64
 /// 遍历一个目录及其子目录的所有文件（但不进入 .git 和 target 目录）：
 /// * 需要设置一个最大递归深度（虽然可以不设置这个条件，但大部分情况下，os-checker 不需要深度递归）
 /// * op_on_file 为一个回调函数，其参数保证为一个文件路径，且返回值为 Some 时表示把它的值推到 Vec
-pub fn walk_dir<T>(
+pub fn walk_dir<T, E: Exclude>(
     dir: impl AsRef<Path>,
     max_depth: usize,
-    dirs_excluded: &[&str],
+    dirs_excluded: E,
     mut op_on_file: impl FnMut(Utf8PathBuf) -> Option<T>,
 ) -> Vec<T> {
     walkdir::WalkDir::new(dir.as_ref())
@@ -64,9 +65,9 @@ pub fn walk_dir<T>(
         .filter_entry(move |entry| {
             // 别进入这些文件夹（适用于子目录递归）
             const NO_JUMP_IN: &[&str] = &[".git", "target"];
-            let filename = entry.file_name();
-            let excluded = &mut NO_JUMP_IN.iter().chain(dirs_excluded);
-            !excluded.any(|&dir| dir == filename)
+            let filename = entry.file_name().to_str().unwrap();
+            let exclude = NO_JUMP_IN.exclude(filename) || dirs_excluded.exclude(filename);
+            !exclude
         })
         .filter_map(|entry| {
             let entry = entry.ok()?;
@@ -110,10 +111,12 @@ pub fn cmd_run(bin: &str, args: &[&str], dir: &Utf8Path, ignore_fail: bool) -> R
 
 #[test]
 fn test_walk_dir() {
-    let cargo_tomls = walk_dir(".", 3, &["**/os-checker-database/**"], |file| {
+    let dirs_excluded = [exlucded::pat("**/os-checker*")];
+    let cargo_tomls = walk_dir(".", 3, dirs_excluded, |file| {
         (file.file_name() == Some("Cargo.toml")).then_some(file)
     });
+    dbg!(&cargo_tomls);
     assert!(!cargo_tomls
         .iter()
-        .any(|p| p.as_str().contains("os-checker-database")));
+        .any(|p| p.as_str().contains("os-checker")));
 }

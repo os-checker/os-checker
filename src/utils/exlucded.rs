@@ -34,6 +34,12 @@ impl<T: Exclude> Exclude for [T] {
     }
 }
 
+impl<T: Exclude, const N: usize> Exclude for [T; N] {
+    fn exclude(&self, s: &str) -> bool {
+        <[T] as Exclude>::exclude(self, s)
+    }
+}
+
 #[test]
 fn test_str() {
     assert!(".github".exclude(".github"));
@@ -46,7 +52,7 @@ fn test_str() {
 }
 
 #[cfg(test)]
-fn pat(s: &str) -> Pattern {
+pub fn pat(s: &str) -> Pattern {
     Pattern::new(s).unwrap()
 }
 
