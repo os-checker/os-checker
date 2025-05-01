@@ -105,6 +105,10 @@ impl Config {
             })
             .collect())
     }
+
+    pub fn skip_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
+        self.config.skip_pkg_dir_globs()
+    }
 }
 
 impl TryFrom<Value> for Config {

@@ -40,6 +40,18 @@ impl<T: Exclude, const N: usize> Exclude for [T; N] {
     }
 }
 
+impl<T: Exclude> Exclude for Box<[T]> {
+    fn exclude(&self, s: &str) -> bool {
+        <[T] as Exclude>::exclude(self, s)
+    }
+}
+
+/// An empty filter, indicating don't exclude anything matched against,
+/// i.e. accept anything matched against.
+pub fn empty() -> [&'static str; 0] {
+    []
+}
+
 #[test]
 fn test_str() {
     assert!(".github".exclude(".github"));

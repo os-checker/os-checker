@@ -9,7 +9,7 @@ pub use scan_for_targets::scan_scripts_for_target;
 
 /// Dirs or files to be excluded.
 mod exlucded;
-use exlucded::Exclude;
+pub use exlucded::{empty, Exclude};
 
 mod installation;
 pub use installation::{
@@ -111,6 +111,9 @@ pub fn cmd_run(bin: &str, args: &[&str], dir: &Utf8Path, ignore_fail: bool) -> R
 
 #[test]
 fn test_walk_dir() {
+    // NOTE: `**/os-checker-database/**` means all contents under os-checker-database dir,
+    // but not including os-checker-database itself.
+    // To exclude `os-checker-database` dir, specify `**/os-checker-database`.
     let dirs_excluded = [exlucded::pat("**/os-checker*")];
     let cargo_tomls = walk_dir(".", 3, dirs_excluded, |file| {
         (file.file_name() == Some("Cargo.toml")).then_some(file)
