@@ -126,6 +126,9 @@ struct ArgsLayout {
     /// base folder in which a repo locates. e.g. `--base-dir /tmp` means `user/repo` will locate in `/tmp/user/repo`.
     #[argh(option)]
     base_dir: Option<Utf8PathBuf>,
+    /// exit if any layout error happens
+    #[argh(option)]
+    no_layout_error: bool,
     /// display targets of packages for a given repos. The packages are filterred out as specified
     /// in the config.
     ///
@@ -340,13 +343,15 @@ static SETUP: AtomicBool = AtomicBool::new(true);
 
 /// 是否安装工具链和检查工具；仅在 layout 子命令时为 false
 pub fn is_not_layout() -> bool {
-    SETUP.load(Ordering::Relaxed)
+    SETUP.load(Ordering::SeqCst)
 }
 
 impl ArgsLayout {
     #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
-        SETUP.store(false, Ordering::Relaxed);
+        SETUP.store(false, Ordering::SeqCst);
+
+        NO_LAYOUT_ERROR.store(self.no_layout_error, Ordering::SeqCst);
 
         // FIXME: 我们需要支持 repos 为 None 的情况吗？它代表所有仓库，有意义，但没有需求。
         if self.list_targets.is_some() {
@@ -443,4 +448,11 @@ impl ArgsDb {
             Ok(())
         }
     }
+}
+
+/// Only for layout subcommand.
+static NO_LAYOUT_ERROR: AtomicBool = AtomicBool::new(false);
+
+pub fn no_layout_error() -> bool {
+    NO_LAYOUT_ERROR.load(Ordering::SeqCst)
 }
