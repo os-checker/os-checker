@@ -31,7 +31,6 @@ mod targets;
 
 mod db;
 
-#[cfg(any(feature = "batch", feature = "clear_batch"))]
 fn main() -> Result<()> {
     logger::init();
 
@@ -162,30 +161,6 @@ fn clear_base_dir() -> Result<()> {
         error!("{err:?}");
     }
     info!("清理 {BASE_DIR}");
-    Ok(())
-}
-
-#[cfg(feature = "single")]
-#[instrument(level = "trace")]
-fn main() -> Result<()> {
-    let json = read_json("ui.json")?;
-
-    clear_base_dir()?;
-
-    // Write basic JSON
-    write_to_file("", "basic", &basic::all(&json))?;
-    for (repo, b) in basic::by_repo(&json) {
-        write_to_file(&format!("repos/{}/{}", repo.user, repo.repo), "basic", &b)?;
-    }
-
-    // Write home JSON
-    write_to_file(HOME_DIR, ALL_TARGETS, &home::all_targets(&json))?;
-    for (target, nodes) in home::split_by_target(&json) {
-        write_to_file(HOME_DIR, target, &nodes)?;
-    }
-
-    write_filetree(&json)?;
-
     Ok(())
 }
 
