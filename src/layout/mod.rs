@@ -223,7 +223,7 @@ impl Layout {
                 Ok(audit) => audit,
                 Err(err) => {
                     if no_layout_error() {
-                        error!(?err);
+                        error!(?err, "skip the error by setting empty audit result");
                         Default::default()
                     } else {
                         return Err(err);
