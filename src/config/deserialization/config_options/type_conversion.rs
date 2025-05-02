@@ -30,10 +30,12 @@ impl From<Cmds> for out::Cmds {
 impl From<Meta> for out::Meta {
     fn from(value: Meta) -> Self {
         let Meta {
+            only_pkg_dir_globs,
             skip_pkg_dir_globs,
             target_env,
         } = value;
         Self {
+            only_pkg_dir_globs: only_pkg_dir_globs.into(),
             skip_pkg_dir_globs: skip_pkg_dir_globs.into(),
             target_env: target_env.into(),
         }
@@ -83,10 +85,12 @@ impl From<out::Cmds> for Cmds {
 impl From<out::Meta> for Meta {
     fn from(value: out::Meta) -> Self {
         let out::Meta {
+            only_pkg_dir_globs,
             skip_pkg_dir_globs,
             target_env,
         } = value;
         Self {
+            only_pkg_dir_globs: only_pkg_dir_globs.into(),
             skip_pkg_dir_globs: skip_pkg_dir_globs.into(),
             target_env: target_env.into(),
         }

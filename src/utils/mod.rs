@@ -57,6 +57,7 @@ pub fn walk_dir<T, E: Exclude>(
     dir: impl AsRef<Path>,
     max_depth: usize,
     dirs_excluded: E,
+    only_dirs: &[glob::Pattern],
     mut op_on_file: impl FnMut(Utf8PathBuf) -> Option<T>,
 ) -> Vec<T> {
     walkdir::WalkDir::new(dir.as_ref())
@@ -67,7 +68,18 @@ pub fn walk_dir<T, E: Exclude>(
             const NO_JUMP_IN: &[&str] = &[".git", "target"];
             let filename = entry.file_name().to_str().unwrap();
             let exclude = NO_JUMP_IN.exclude(filename) || dirs_excluded.exclude(filename);
-            !exclude
+            if exclude {
+                // excluding a path is prior
+                return false;
+            }
+
+            // empty only dir means accepting all paths
+            if only_dirs.is_empty() {
+                return true;
+            }
+
+            // only accept these matched path
+            only_dirs.iter().any(|pat| pat.matches(filename))
         })
         .filter_map(|entry| {
             let entry = entry.ok()?;
@@ -115,7 +127,7 @@ fn test_walk_dir() {
     // but not including os-checker-database itself.
     // To exclude `os-checker-database` dir, specify `**/os-checker-database`.
     let dirs_excluded = [exlucded::pat("**/os-checker*")];
-    let cargo_tomls = walk_dir(".", 3, dirs_excluded, |file| {
+    let cargo_tomls = walk_dir(".", 3, dirs_excluded, &[], |file| {
         (file.file_name() == Some("Cargo.toml")).then_some(file)
     });
     dbg!(&cargo_tomls);

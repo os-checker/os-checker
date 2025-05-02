@@ -212,6 +212,13 @@ impl RepoConfig {
             .unwrap_or_default()
     }
 
+    pub fn only_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
+        self.meta
+            .as_ref()
+            .map(|m| m.only_pkg_dir_globs())
+            .unwrap_or_default()
+    }
+
     /// 将 packages 按名称排序
     pub fn sort_packages(&mut self) {
         self.packages.sort_unstable_keys();
