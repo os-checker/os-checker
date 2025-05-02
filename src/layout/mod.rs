@@ -217,7 +217,20 @@ impl Layout {
         // 无论如何，这都带来复杂性，目前来看并不值得。
 
         let mut libs = lib_pkgs(&self.workspaces);
-        let audit = CargoAudit::new_for_pkgs(self.workspaces.keys())?;
+        let audit = {
+            let res = CargoAudit::new_for_pkgs(self.workspaces.keys());
+            match res {
+                Ok(audit) => audit,
+                Err(err) => {
+                    if no_layout_error() {
+                        error!(?err);
+                        Default::default()
+                    } else {
+                        return Err(err);
+                    }
+                }
+            }
+        };
 
         let map: IndexMap<_, _> = self
             .packages_info
