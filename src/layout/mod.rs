@@ -586,9 +586,13 @@ fn lib_pkgs(workspaces: &Workspaces) -> IndexMap<XString, PkgFeaturesLib> {
                     is_lib: false,
                 },
             );
-            if no_layout_error() {
+            if no_layout_error() && old.is_some() {
                 // solana-foundation/anchor: Package `crank` already exists.
-                error!("Package `{}` already exists.\nOld={old:?}", p.name);
+                error!(
+                    "Package `{}` already exists.\nOld={:?}",
+                    p.name,
+                    old.unwrap()
+                );
             } else {
                 assert!(
                     old.is_none(),
