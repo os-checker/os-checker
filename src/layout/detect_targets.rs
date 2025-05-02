@@ -17,7 +17,7 @@ use super::targets::Targets;
 use crate::{
     cli::is_not_layout,
     utils::{
-        install_toolchain, rustup_target_add, rustup_target_add_for_checkers,
+        empty, install_toolchain, rustup_target_add, rustup_target_add_for_checkers,
         scan_scripts_for_target, walk_dir, PECULIAR_TARGETS,
     },
     Result, XString,
@@ -142,7 +142,7 @@ pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
     })?;
 
     let github_dir = Utf8Path::new(repo_root).join(".github");
-    let github_files = walk_dir(&github_dir, 4, &[], Some);
+    let github_files = walk_dir(&github_dir, 4, empty(), Some);
     debug!(%repo_root, ?github_files);
 
     scan_scripts_for_target(&github_files, |target, path| {
@@ -154,7 +154,7 @@ pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
 }
 
 fn scripts_in_dir(dir: &Utf8Path, f: impl FnMut(&str, Utf8PathBuf)) -> Result<()> {
-    let scripts = walk_dir(dir, 4, &[".github"], |file_path| {
+    let scripts = walk_dir(dir, 4, [".github"], |file_path| {
         let file_stem = file_path.file_stem()?;
 
         if file_stem.starts_with("Makefile")

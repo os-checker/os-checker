@@ -205,7 +205,7 @@ impl RepoConfig {
     // TODO: setup environment for repo
     // pub fn setup(&self) {}
 
-    fn skip_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
+    pub fn skip_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
         self.meta
             .as_ref()
             .map(|m| m.skip_pkg_dir_globs())

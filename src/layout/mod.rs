@@ -6,7 +6,7 @@ use crate::{
     db::out::{CacheLayout, CachePackageInfo, CacheResolve, CargoMetaData},
     output::{get_channel, install_toolchain_idx, remove_targets, uninstall_toolchains},
     run_checker::DbRepo,
-    utils::walk_dir,
+    utils::{empty, walk_dir, Exclude},
     Result, XString,
 };
 use audit::CargoAudit;
@@ -32,7 +32,7 @@ pub use detect_targets::RustToolchain;
 mod audit;
 
 /// 寻找仓库内所有 Cargo.toml 所在的路径
-fn find_all_cargo_toml_paths(repo_root: &str, dirs_excluded: &[&str]) -> Vec<Utf8PathBuf> {
+fn find_all_cargo_toml_paths<E: Exclude>(repo_root: &str, dirs_excluded: E) -> Vec<Utf8PathBuf> {
     let mut cargo_tomls = walk_dir(repo_root, 10, dirs_excluded, |file_path| {
         let file_name = file_path.file_name()?;
         // 只搜索 Cargo.toml 文件
@@ -137,8 +137,7 @@ impl fmt::Debug for Layout {
 }
 
 impl Layout {
-    #[instrument(level = "trace")]
-    pub fn parse(repo_root: &str, dirs_excluded: &[&str]) -> Result<Layout> {
+    pub fn parse<E: Exclude>(repo_root: &str, dirs_excluded: E) -> Result<Layout> {
         let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
 
         let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded);
@@ -188,7 +187,7 @@ impl Layout {
         let parse_error = strip_ansi_escapes::strip_str(err).into_boxed_str();
 
         let root_path = Utf8PathBuf::from(repo_root);
-        let cargo_tomls = find_all_cargo_toml_paths(repo_root, &[]);
+        let cargo_tomls = find_all_cargo_toml_paths(repo_root, empty());
         let (workspaces, packages_info, installation) = Default::default();
         Layout {
             root_path,
