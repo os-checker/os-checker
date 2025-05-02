@@ -87,6 +87,10 @@ pub fn walk_dir<T, E: Exclude>(
                 .to_str()
                 .unwrap();
             debug!(?dir, ?path, ?only_dirs);
+            if path.is_empty() {
+                // enter root
+                return true;
+            }
             only_dirs.iter().any(|pat| pat.matches(path))
         })
         .filter_map(|entry| {
