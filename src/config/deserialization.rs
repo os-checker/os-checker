@@ -196,6 +196,8 @@ impl RepoConfig {
         if let Some(meta) = &self.meta {
             meta.check_skip_pkg_dir_globs()
                 .with_context(|| format!("{repo}'s meta.skip_pkg_dir_globs value is invalid."))?;
+            meta.check_only_pkg_dir_globs()
+                .with_context(|| format!("{repo}'s meta.only_pkg_dir_globs value is invalid."))?;
         }
         Ok(())
     }

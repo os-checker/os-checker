@@ -228,6 +228,13 @@ impl Meta {
             .collect()
     }
 
+    pub fn check_only_pkg_dir_globs(&self) -> Result<()> {
+        for s in self.only_pkg_dir_globs.as_slice() {
+            glob_pattern(s)?;
+        }
+        Ok(())
+    }
+
     pub fn skip_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
         self.skip_pkg_dir_globs
             .as_slice()
