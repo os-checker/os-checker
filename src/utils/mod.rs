@@ -86,7 +86,7 @@ pub fn walk_dir<T, E: Exclude>(
                 .unwrap_or(entry.path())
                 .to_str()
                 .unwrap();
-            debug!(?dir, ?path, ?only_dirs);
+            trace!(?dir, ?path, ?only_dirs);
             if path.is_empty() {
                 // enter root
                 return true;
@@ -153,4 +153,14 @@ fn test_walk() {
     // file path depends on the given path on relative or absolute aspect
     let files = walk_dir(".", 2, empty(), &[], Some);
     dbg!(files);
+}
+
+#[test]
+fn test_glob() {
+    use exlucded::pat;
+
+    let pat_a = pat("a*");
+    assert!(pat_a.matches("a"));
+    let pat_a_rec = pat("a/**");
+    assert!(pat_a_rec.matches("a/b"));
 }
