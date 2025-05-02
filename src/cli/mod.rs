@@ -161,6 +161,10 @@ pub struct ArgsRun {
     #[argh(switch)]
     keep_repo: bool,
 
+    /// exit if any layout error happens
+    #[argh(option, default = "false")]
+    no_layout_error: bool,
+
     /// redb file path. If not specified, no cache for checking.
     #[argh(option)]
     db: Option<Utf8PathBuf>,
@@ -293,6 +297,8 @@ fn repos_outputs(
 impl ArgsRun {
     #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
+        NO_LAYOUT_ERROR.store(self.no_layout_error, Ordering::SeqCst);
+
         let db = self.db.as_deref().map(Db::new).transpose()?;
         let start = SystemTime::now();
         let outs = repos_outputs(&self.config, db.clone())?
