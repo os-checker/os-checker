@@ -60,7 +60,8 @@ pub fn walk_dir<T, E: Exclude>(
     only_dirs: &[glob::Pattern],
     mut op_on_file: impl FnMut(Utf8PathBuf) -> Option<T>,
 ) -> Vec<T> {
-    walkdir::WalkDir::new(dir.as_ref())
+    let dir = dir.as_ref();
+    walkdir::WalkDir::new(dir)
         .max_depth(max_depth) // 目录递归上限
         .into_iter()
         .filter_entry(move |entry| {
@@ -79,7 +80,13 @@ pub fn walk_dir<T, E: Exclude>(
             }
 
             // only accept these matched path
-            only_dirs.iter().any(|pat| pat.matches(filename))
+            let path = entry
+                .path()
+                .strip_prefix(dir)
+                .unwrap_or(entry.path())
+                .to_str()
+                .unwrap();
+            only_dirs.iter().any(|pat| pat.matches(path))
         })
         .filter_map(|entry| {
             let entry = entry.ok()?;
@@ -134,4 +141,11 @@ fn test_walk_dir() {
     assert!(!cargo_tomls
         .iter()
         .any(|p| p.as_str().contains("os-checker")));
+}
+
+#[test]
+fn test_walk() {
+    // file path depends on the given path on relative or absolute aspect
+    let files = walk_dir(".", 2, empty(), &[], Some);
+    dbg!(files);
 }
