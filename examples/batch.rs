@@ -15,6 +15,9 @@ struct Batch {
     /// forward --size
     #[argh(option)]
     size: String,
+    /// don't upload the cache.redb to githhub
+    #[argh(switch)]
+    no_upload: bool,
 }
 
 const DB: &str = "cache.redb";
@@ -66,7 +69,9 @@ fn main() -> Result<()> {
             );
             info!(cmd = ?expr);
             expr.run()?;
-            upload_cache()?;
+            if !batch.no_upload {
+                upload_cache()?;
+            }
             count_json_file += 1;
             count_repos += repos.len();
         }

@@ -34,6 +34,7 @@ mod db;
 fn main() -> Result<()> {
     logger::init();
 
+    // Search all json in batch dir.
     let paths = json_paths("batch")?;
 
     clear_base_dir()?;
