@@ -112,8 +112,13 @@ pub struct Repo {
 }
 
 impl Repo {
-    fn new_or_empty<E: Exclude>(repo_root: &str, dirs_excluded: E, config: Config) -> Repo {
-        let layout = Layout::parse(repo_root, dirs_excluded)
+    fn new_or_empty<E: Exclude>(
+        repo_root: &str,
+        dirs_excluded: E,
+        only_dirs: &[glob::Pattern],
+        config: Config,
+    ) -> Repo {
+        let layout = Layout::parse(repo_root, dirs_excluded, only_dirs)
             .with_context(|| eyre!("无法解析 `{repo_root}` 内的 Rust 项目布局"));
         match layout {
             Ok(layout) => Self { layout, config },
@@ -210,7 +215,13 @@ impl TryFrom<Config> for Repo {
     fn try_from(mut config: Config) -> Result<Repo> {
         let repo_root = config.local_root_path_with_git_clone()?;
         let skip_dir = config.skip_pkg_dir_globs();
-        Ok(Repo::new_or_empty(repo_root.as_str(), skip_dir, config))
+        let only_dir = config.only_pkg_dir_globs();
+        Ok(Repo::new_or_empty(
+            repo_root.as_str(),
+            skip_dir,
+            &only_dir,
+            config,
+        ))
     }
 }
 

@@ -89,6 +89,7 @@ impl Cmds {
 
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, Clone)]
 pub struct Meta {
+    pub only_pkg_dir_globs: MaybeMulti,
     pub skip_pkg_dir_globs: MaybeMulti,
     /// { "target1": { "ENV1": "val" } }
     #[serde(default)]

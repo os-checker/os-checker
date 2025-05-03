@@ -25,7 +25,7 @@ strip-ansi-escapes = "0.2"
 jsonxf = "1"
 # wait for https://github.com/gamache/jsonxf/pull/10 to merge
 # jsonxf = {git="https://github.com/os-checker/jsonxf.git", branch="make-getopts-optional", default-features = false}
-rustsec = { version = "0.30.0-rc.0", default-features = false, features = ["dependency-tree"] }
+rustsec = { version = "0.30.2", default-features = false, features = ["dependency-tree"] }
 # replace_with = "0.1"
 
 # error handling

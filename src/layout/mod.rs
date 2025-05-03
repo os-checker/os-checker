@@ -32,8 +32,12 @@ pub use detect_targets::RustToolchain;
 mod audit;
 
 /// 寻找仓库内所有 Cargo.toml 所在的路径
-fn find_all_cargo_toml_paths<E: Exclude>(repo_root: &str, dirs_excluded: E) -> Vec<Utf8PathBuf> {
-    let mut cargo_tomls = walk_dir(repo_root, 10, dirs_excluded, |file_path| {
+fn find_all_cargo_toml_paths<E: Exclude>(
+    repo_root: &str,
+    dirs_excluded: E,
+    only_dirs: &[glob::Pattern],
+) -> Vec<Utf8PathBuf> {
+    let mut cargo_tomls = walk_dir(repo_root, 10, dirs_excluded, only_dirs, |file_path| {
         let file_name = file_path.file_name()?;
         // 只搜索 Cargo.toml 文件
         if file_name == "Cargo.toml" {
@@ -137,10 +141,14 @@ impl fmt::Debug for Layout {
 }
 
 impl Layout {
-    pub fn parse<E: Exclude>(repo_root: &str, dirs_excluded: E) -> Result<Layout> {
+    pub fn parse<E: Exclude>(
+        repo_root: &str,
+        dirs_excluded: E,
+        only_dirs: &[glob::Pattern],
+    ) -> Result<Layout> {
         let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
 
-        let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded);
+        let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded, only_dirs);
         ensure!(
             !cargo_tomls.is_empty(),
             "repo_root `{repo_root}` (规范路径为 `{root_path}`) 不是 Rust \
@@ -187,7 +195,7 @@ impl Layout {
         let parse_error = strip_ansi_escapes::strip_str(err).into_boxed_str();
 
         let root_path = Utf8PathBuf::from(repo_root);
-        let cargo_tomls = find_all_cargo_toml_paths(repo_root, empty());
+        let cargo_tomls = find_all_cargo_toml_paths(repo_root, empty(), &[]);
         let (workspaces, packages_info, installation) = Default::default();
         Layout {
             root_path,
@@ -217,7 +225,20 @@ impl Layout {
         // 无论如何，这都带来复杂性，目前来看并不值得。
 
         let mut libs = lib_pkgs(&self.workspaces);
-        let audit = CargoAudit::new_for_pkgs(self.workspaces.keys())?;
+        let audit = {
+            let res = CargoAudit::new_for_pkgs(self.workspaces.keys());
+            match res {
+                Ok(audit) => audit,
+                Err(err) => {
+                    if no_layout_error() {
+                        error!(?err, "skip the error by setting empty audit result");
+                        Default::default()
+                    } else {
+                        return Err(err);
+                    }
+                }
+            }
+        };
 
         let map: IndexMap<_, _> = self
             .packages_info
@@ -565,11 +586,20 @@ fn lib_pkgs(workspaces: &Workspaces) -> IndexMap<XString, PkgFeaturesLib> {
                     is_lib: false,
                 },
             );
-            assert!(
-                old.is_none(),
-                "Package `{}` already exists.\nOld={old:?}",
-                p.name
-            );
+            if no_layout_error() && old.is_some() {
+                // solana-foundation/anchor: Package `crank` already exists.
+                error!(
+                    "Package `{}` already exists.\nOld={:?}",
+                    p.name,
+                    old.unwrap()
+                );
+            } else {
+                assert!(
+                    old.is_none(),
+                    "Package `{}` already exists.\nOld={old:?}",
+                    p.name
+                );
+            }
             for target in &p.targets {
                 for kind in &target.kind {
                     if kind == "lib" {

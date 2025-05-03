@@ -127,7 +127,7 @@ struct ArgsLayout {
     #[argh(option)]
     base_dir: Option<Utf8PathBuf>,
     /// exit if any layout error happens
-    #[argh(option, default = "false")]
+    #[argh(switch)]
     no_layout_error: bool,
     /// display targets of packages for a given repos. The packages are filterred out as specified
     /// in the config.
@@ -160,6 +160,10 @@ pub struct ArgsRun {
     /// keep the repo once the checks on it are done
     #[argh(switch)]
     keep_repo: bool,
+
+    /// exit if any layout error happens
+    #[argh(switch)]
+    no_layout_error: bool,
 
     /// redb file path. If not specified, no cache for checking.
     #[argh(option)]
@@ -293,6 +297,8 @@ fn repos_outputs(
 impl ArgsRun {
     #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
+        NO_LAYOUT_ERROR.store(self.no_layout_error, Ordering::SeqCst);
+
         let db = self.db.as_deref().map(Db::new).transpose()?;
         let start = SystemTime::now();
         let outs = repos_outputs(&self.config, db.clone())?
