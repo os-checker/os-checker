@@ -23,7 +23,7 @@ mod checker;
 pub use checker::{CheckerTool, TOOLS};
 
 mod deserialization;
-pub use deserialization::{gen_schema, Features, RepoConfig, TargetEnv, TargetsSpecifed};
+pub use deserialization::{gen_schema, Features, RepoConfig, Setup, TargetEnv, TargetsSpecifed};
 
 #[cfg(test)]
 mod tests;
@@ -116,6 +116,11 @@ impl Config {
 
     pub fn rerun(&self) -> bool {
         self.config.rerun()
+    }
+
+    /// A series of setup cmds to be run before analyzing the repo.
+    pub fn setup(&self) -> Option<&Setup> {
+        self.config.setup()
     }
 }
 
