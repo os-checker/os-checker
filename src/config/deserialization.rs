@@ -225,6 +225,11 @@ impl RepoConfig {
     pub fn sort_packages(&mut self) {
         self.packages.sort_unstable_keys();
     }
+
+    /// Rerun checks for a repo.
+    pub fn rerun(&self) -> bool {
+        self.meta.as_ref().map(|meta| meta.rerun).unwrap_or(false)
+    }
 }
 
 /// TODO: 其他工具待完成

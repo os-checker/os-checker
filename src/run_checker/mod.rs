@@ -238,7 +238,7 @@ impl RepoOutput {
 
         let info = config.new_info()?;
 
-        if utils::force_repo_check() {
+        if utils::force_repo_check() || config.rerun() {
             warn!("强制运行检查（不影响已有的检查缓存结果）");
         } else if let Some(db) = config.db() {
             match info.get_from_db(db) {
