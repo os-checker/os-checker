@@ -187,9 +187,13 @@ pub struct Meta {
 
     #[serde(default = "defalt_skip_pkg_dir_globs")]
     skip_pkg_dir_globs: MaybeMulti,
+
     /// { "target1": { "ENV1": "val" } }
     #[serde(default)]
     pub target_env: TargetEnv,
+
+    #[serde(default)]
+    pub rerun: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
@@ -265,6 +269,7 @@ impl Default for Meta {
             only_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
             skip_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
             target_env: TargetEnv::default(),
+            rerun: false,
         }
     }
 }
