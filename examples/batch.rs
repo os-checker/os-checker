@@ -61,7 +61,8 @@ fn main() -> Result<()> {
                 "--emit",
                 emit.as_str(),
                 "--db",
-                DB
+                DB,
+                "--no-layout-error"
             );
             info!(cmd = ?expr);
             expr.run()?;
