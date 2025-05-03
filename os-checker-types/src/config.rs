@@ -42,6 +42,12 @@ pub enum MaybeMulti {
     Multi(Vec<String>),
 }
 
+impl Default for MaybeMulti {
+    fn default() -> Self {
+        MaybeMulti::Multi(Vec::new())
+    }
+}
+
 impl fmt::Debug for MaybeMulti {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -89,12 +95,16 @@ impl Cmds {
 
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, Clone)]
 pub struct Meta {
+    #[serde(default)]
     pub only_pkg_dir_globs: MaybeMulti,
+    #[serde(default)]
     pub skip_pkg_dir_globs: MaybeMulti,
     /// { "target1": { "ENV1": "val" } }
     #[serde(default)]
     #[musli(with = musli::serde)]
     pub target_env: TargetEnv,
+    #[serde(default)]
+    pub rerun: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]

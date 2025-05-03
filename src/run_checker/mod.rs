@@ -238,7 +238,7 @@ impl RepoOutput {
 
         let info = config.new_info()?;
 
-        if utils::force_repo_check() {
+        if utils::force_repo_check() || config.rerun() {
             warn!("强制运行检查（不影响已有的检查缓存结果）");
         } else if let Some(db) = config.db() {
             match info.get_from_db(db) {
@@ -320,6 +320,30 @@ impl std::fmt::Debug for Output {
 }
 
 impl Output {
+    fn new_cargo_from_tool(
+        tool: CheckerTool,
+        err: eyre::Report,
+        now_utc: OffsetDateTime,
+        duration_ms: u64,
+        resolve: Resolve,
+    ) -> Self {
+        Output {
+            raw: RawOutput {
+                status: std::process::ExitStatus::default(),
+                stdout: Vec::new(),
+                stderr: Vec::new(),
+            },
+            parsed: OutputParsed::Cargo {
+                source: CargoSource::Checker(tool),
+                stderr: format!("{err:?}"),
+            },
+            count: 1,
+            now_utc,
+            duration_ms,
+            resolve,
+        }
+    }
+
     /// NOTE: &self 应该为非 Cargo checker，即来自实际检查工具的输出
     fn new_cargo_from_checker(&self, stderr_parsed: String) -> Self {
         Output {
@@ -397,8 +421,9 @@ fn run_check(
     let stdout: &[_] = &raw.stdout;
     let stderr: &[_] = &raw.stderr;
     let parsed = match resolve.checker {
-        CheckerTool::Fmt => {
-            let fmt = serde_json::from_slice(stdout).with_context(|| {
+        CheckerTool::Fmt => serde_json::from_slice(stdout)
+            .map(OutputParsed::Fmt)
+            .with_context(|| {
                 format!(
                     "无法解析 rustfmt 的标准输出：stdout={}\n原始命令为：\
                     `{}`（即 `{:?}`）\ntoolchain={}\nstderr={}",
@@ -408,68 +433,71 @@ fn run_check(
                     resolve.toolchain(),
                     String::from_utf8_lossy(stderr),
                 )
-            })?;
-            OutputParsed::Fmt(fmt)
-        }
-        CheckerTool::Clippy => OutputParsed::Clippy(
-            CargoMessage::parse_stream(stdout)
-                .map(|mes| {
-                    mes.map(RustcMessage::from).with_context(|| {
-                        format!(
-                            "解析 Clippy Json 输出失败：stdout={}\n原始命令为：\
+            })
+            .map_err(|err| (CheckerTool::Fmt, err)),
+        CheckerTool::Clippy => CargoMessage::parse_stream(stdout)
+            .map(|mes| {
+                mes.map(RustcMessage::from).with_context(|| {
+                    format!(
+                        "解析 Clippy Json 输出失败：stdout={}\n原始命令为：\
                             `{}`（即 `{:?}`）\ntoolchain={}\nstderr={}",
-                            String::from_utf8_lossy(stdout),
-                            resolve.cmd,
-                            resolve.expr,
-                            resolve.toolchain(),
-                            String::from_utf8_lossy(stderr),
-                        )
-                    })
+                        String::from_utf8_lossy(stdout),
+                        resolve.cmd,
+                        resolve.expr,
+                        resolve.toolchain(),
+                        String::from_utf8_lossy(stderr),
+                    )
                 })
-                .collect::<Result<_>>()?,
-        ),
-        CheckerTool::Mirai => OutputParsed::Mirai(
-            CargoMessage::parse_stream(stdout)
-                .map(|mes| {
-                    mes.map(RustcMessage::from).with_context(|| {
-                        format!(
-                            "解析 Mirai Json 输出失败：stdout={}\n原始命令为：\
+            })
+            .collect::<Result<_>>()
+            .map(OutputParsed::Clippy)
+            .map_err(|err| (CheckerTool::Clippy, err)),
+        CheckerTool::Mirai => CargoMessage::parse_stream(stdout)
+            .map(|mes| {
+                mes.map(RustcMessage::from).with_context(|| {
+                    format!(
+                        "解析 Mirai Json 输出失败：stdout={}\n原始命令为：\
                             `{}`（即 `{:?}`）\ntoolchain={}\nstderr={}",
-                            String::from_utf8_lossy(stdout),
-                            resolve.cmd,
-                            resolve.expr,
-                            resolve.toolchain(),
-                            String::from_utf8_lossy(stderr),
-                        )
-                    })
+                        String::from_utf8_lossy(stdout),
+                        resolve.cmd,
+                        resolve.expr,
+                        resolve.toolchain(),
+                        String::from_utf8_lossy(stderr),
+                    )
                 })
-                .collect::<Result<_>>()?,
-        ),
-        CheckerTool::Lockbud => OutputParsed::Lockbud(lockbud::parse_lockbud_result(stderr)),
-        CheckerTool::Rapx => OutputParsed::Rap(rap::rap_output(stderr, stdout, &resolve)),
-        CheckerTool::Rudra => OutputParsed::Rudra(rudra::parse(stderr, &resolve)),
-        CheckerTool::Audit => OutputParsed::Audit(resolve.audit.clone()),
-        CheckerTool::Outdated => OutputParsed::Outdated(outdated::parse_outdated(&raw, &resolve)),
-        CheckerTool::Geiger => OutputParsed::Geiger(geiger::parse(&raw, &resolve)),
+            })
+            .collect::<Result<_>>()
+            .map(OutputParsed::Mirai)
+            .map_err(|err| (CheckerTool::Mirai, err)),
+        CheckerTool::Lockbud => Ok(OutputParsed::Lockbud(lockbud::parse_lockbud_result(stderr))),
+        CheckerTool::Rapx => Ok(OutputParsed::Rap(rap::rap_output(stderr, stdout, &resolve))),
+        CheckerTool::Rudra => Ok(OutputParsed::Rudra(rudra::parse(stderr, &resolve))),
+        CheckerTool::Audit => Ok(OutputParsed::Audit(resolve.audit.clone())),
+        CheckerTool::Outdated => Ok(OutputParsed::Outdated(outdated::parse_outdated(
+            &raw, &resolve,
+        ))),
+        CheckerTool::Geiger => Ok(OutputParsed::Geiger(geiger::parse(&raw, &resolve))),
         CheckerTool::Miri => todo!(),
-        CheckerTool::SemverChecks => {
-            OutputParsed::SemverChecks(semver_checks::parse(&raw, &resolve))
-        }
+        CheckerTool::SemverChecks => Ok(OutputParsed::SemverChecks(semver_checks::parse(
+            &raw, &resolve,
+        ))),
         // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
         CheckerTool::Cargo => panic!("Don't specify cargo as a checker. It's a virtual one."),
     };
-    let count = parsed.count();
-    let output = Output {
-        raw,
-        parsed,
-        count,
-        now_utc,
-        duration_ms,
-        resolve,
+
+    let output = match parsed {
+        Ok(parsed) => Output {
+            raw,
+            count: parsed.count(),
+            parsed,
+            now_utc,
+            duration_ms,
+            resolve,
+        },
+        Err((tool, err)) => Output::new_cargo_from_tool(tool, err, now_utc, duration_ms, resolve),
     };
 
     outputs.push_output_with_cargo(output, db_repo, now_utc);
-
     Ok(())
 }
 

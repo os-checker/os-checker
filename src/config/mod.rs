@@ -113,6 +113,10 @@ impl Config {
     pub fn skip_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
         self.config.skip_pkg_dir_globs()
     }
+
+    pub fn rerun(&self) -> bool {
+        self.config.rerun()
+    }
 }
 
 impl TryFrom<Value> for Config {
