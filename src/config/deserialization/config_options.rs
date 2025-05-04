@@ -91,11 +91,31 @@ impl Targets {
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Setup(MaybeMulti);
 
-// impl Setup {
-//     pub fn as_slice(&self) -> &[String] {
-//         self.0.as_slice()
-//     }
-// }
+impl Setup {
+    pub fn as_slice(&self) -> &[String] {
+        self.0.as_slice()
+    }
+
+    /// Run a setup cmd through bash
+    /// * -l logins to respect .bashrc, and -c takes a cmd string to execute
+    /// * handle bash errors
+    pub fn run(&self) {
+        for cmd in self.as_slice() {
+            match duct::cmd!("bash", "-lc", cmd).run() {
+                Ok(output) => {
+                    let stdout = &*String::from_utf8_lossy(&output.stdout);
+                    let stderr = &*String::from_utf8_lossy(&output.stderr);
+                    if !output.status.success() {
+                        error!(?cmd, stdout, stderr, "setup didn't succeed");
+                    } else {
+                        debug!(stdout, stderr, "setup succeeded");
+                    }
+                }
+                Err(err) => error!(?err, "failed to a setup cmd"),
+            }
+        }
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 #[serde(transparent)]

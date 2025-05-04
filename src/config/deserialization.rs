@@ -15,8 +15,8 @@ use std::fmt::Debug;
 mod tests;
 
 mod config_options;
-use config_options::{Cmds, Meta, Setup, Targets};
-pub use config_options::{Features, TargetEnv};
+use config_options::{Cmds, Meta, Targets};
+pub use config_options::{Features, Setup, TargetEnv};
 
 mod misc;
 pub use misc::TargetsSpecifed;
@@ -204,8 +204,10 @@ impl RepoConfig {
 
     // TODO: validate targets
 
-    // TODO: setup environment for repo
-    // pub fn setup(&self) {}
+    // Commands that are run before analyzing a repo.
+    pub fn setup(&self) -> Option<&Setup> {
+        self.setup.as_ref()
+    }
 
     pub fn skip_pkg_dir_globs(&self) -> Box<[glob::Pattern]> {
         self.meta

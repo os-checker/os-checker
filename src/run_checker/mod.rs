@@ -266,6 +266,10 @@ impl RepoOutput {
             }
         }
 
+        if let Some(setup) = config.setup() {
+            setup.run()
+        }
+
         // 初始化工具链和检查工具安装
         crate::utils::installation_init();
 
