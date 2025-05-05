@@ -169,14 +169,14 @@ fn clear_base_dir() -> Result<()> {
 fn write_filetree(json: &JsonOutput) -> Result<()> {
     let file_tree_all = file_tree::all_targets(json);
     write_to_file(FILETREE_DIR, ALL_TARGETS, &file_tree_all)?;
-    for filetree in file_tree_all.split_by_repo() {
+    for filetree in file_tree::split_by_repo(file_tree_all) {
         write_to_file(filetree.dir().as_str(), ALL_TARGETS, &filetree)?;
     }
     for (target, filetree) in file_tree::split_by_target(json) {
         write_to_file(FILETREE_DIR, target, &filetree)?;
 
         // repo & targets
-        for ftree in filetree.split_by_repo() {
+        for ftree in file_tree::split_by_repo(filetree) {
             write_to_file(ftree.dir().as_str(), target, &ftree)?;
         }
     }

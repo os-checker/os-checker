@@ -26,6 +26,8 @@ pub mod db {
     pub use crate::table::*;
 }
 
+pub mod out_json;
+
 #[cfg(test)]
 mod tests;
 
