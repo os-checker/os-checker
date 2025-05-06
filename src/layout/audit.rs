@@ -15,7 +15,7 @@
 //! * target is not used with cargo-audit, so the pkg audit result
 //!   will repeat for each target.
 
-use crate::{utils::cmd_run, Result, XString};
+use crate::{utils::cmd_run_with, Result, XString};
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
 use eyre::Context;
@@ -88,7 +88,7 @@ impl CargoAudit {
     pub fn cmd_expr(&self) -> duct::Expression {
         let mut path = self.lock_file.clone();
         path.pop();
-        cmd!("cargo", "audit").dir(path)
+        cmd!("cargo", "audit").dir(path).env("RUST_LOG", "off")
     }
 
     /// returns the map where the key is pkg name and the value is audit result
@@ -117,11 +117,12 @@ fn cargo_audit(workspace_dir: &Utf8Path) -> Result<CargoAudit> {
         generate_lockfile(workspace_dir)?;
     }
 
-    let json = cmd_run(
+    let json = cmd_run_with(
         "cargo",
         &["audit", "--json", "-c", "never"],
         workspace_dir,
         true,
+        |cmd| cmd.env("RUST_LOG", "off"),
     )?;
 
     let report: rustsec::Report = serde_json::from_str(&json)
@@ -137,7 +138,13 @@ fn cargo_audit(workspace_dir: &Utf8Path) -> Result<CargoAudit> {
         });
     }
 
-    let tree = cmd_run("cargo", &["audit", "-c", "never"], workspace_dir, true)?;
+    let tree = cmd_run_with(
+        "cargo",
+        &["audit", "-c", "never"],
+        workspace_dir,
+        true,
+        |cmd| cmd.env("RUST_LOG", "off"),
+    )?;
 
     let mut problematic = IndexSet::<Dependency>::new();
     let vulnerable = &report.vulnerabilities.list;
