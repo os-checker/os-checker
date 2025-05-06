@@ -129,20 +129,9 @@ fn main() -> Result<()> {
             for diagosis in set {
                 diagosis.update_raw_reports(&mut data.raw_reports);
             }
-
-            // restore order by (count, file)
-            data.raw_reports
-                .sort_by(|a, b| (b.count, &*a.file).cmp(&(a.count, &*b.file)));
-            // sort lockbud's all diagnoses by string
-            for report in &mut data.raw_reports {
-                for (&kind, diagnoses) in &mut report.kinds {
-                    match kind {
-                        Kind::LockbudPossibly | Kind::LockbudProbably => diagnoses.sort(),
-                        _ => (),
-                    }
-                }
-            }
         }
+
+        json.recount_and_sort();
 
         emit.emit(&path, json)?;
     }

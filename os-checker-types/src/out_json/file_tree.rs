@@ -10,6 +10,13 @@ pub struct FileTreeRepo {
 }
 
 impl FileTreeRepo {
+    /// Recompute all counts, and sort.
+    pub fn recount_and_sort(&mut self) {
+        recount_and_sort(&mut self.data);
+    }
+}
+
+impl FileTreeRepo {
     pub fn dir(&self) -> Utf8PathBuf {
         Utf8PathBuf::from_iter(["repos", &self.repo.user, &self.repo.repo])
     }
@@ -35,4 +42,27 @@ pub struct RawReport {
 pub struct FileTree {
     pub data: Vec<Data>,
     pub kinds_order: Vec<Kind>,
+}
+
+/// Sort a vec of Data by count, pkg, and then file.
+pub fn recount_and_sort(v: &mut Vec<Data>) {
+    for data in &mut *v {
+        let mut count = 0;
+        for raw_reports in &data.raw_reports {
+            for reports in raw_reports.kinds.values() {
+                count += reports.len();
+            }
+        }
+        data.count = count;
+    }
+
+    // FIXME: sort by features?
+
+    // 对 pkg 的计数排序
+    v.sort_unstable_by(|a, b| (b.count, &*a.pkg.pkg).cmp(&(a.count, &*b.pkg.pkg)));
+    // 对文件的计数和文件名排序
+    for pkg in v {
+        pkg.raw_reports
+            .sort_unstable_by(|a, b| (b.count, &*a.file).cmp(&(a.count, &*b.file)));
+    }
 }

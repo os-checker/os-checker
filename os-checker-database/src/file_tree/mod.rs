@@ -58,17 +58,7 @@ fn inner<'a>(json: &'a JsonOutput, data: &[&'a RawData]) -> FileTree {
             raw_reports: reports,
         });
     }
-
-    // FIXME: sort by features?
-
-    // 对 pkg 的计数排序
-    v.sort_unstable_by(|a, b| (b.count, &*a.pkg.pkg).cmp(&(a.count, &*b.pkg.pkg)));
-    // 对文件的计数和文件名排序
-    for pkg in &mut v {
-        pkg.raw_reports
-            .sort_unstable_by(|a, b| (b.count, &*a.file).cmp(&(a.count, &*b.file)));
-    }
-
+    recount_and_sort(&mut v);
     FileTree {
         data: v,
         kinds_order: kinds_order.to_owned(),
@@ -80,9 +70,11 @@ pub fn split_by_repo(this: FileTree) -> Vec<FileTreeRepo> {
     let mut v = Vec::with_capacity(group_by_repo.len());
 
     for (repo, data) in group_by_repo {
+        let mut data = vec_ref_to_vec_owned(data);
+        recount_and_sort(&mut data);
         v.push(FileTreeRepo {
             repo,
-            data: vec_ref_to_vec_owned(data),
+            data,
             kinds_order: this.kinds_order.clone(),
         });
     }
