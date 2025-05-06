@@ -30,11 +30,7 @@ fn pattern_target_list() -> String {
 // e.g. static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(?-u:\b)(x86_64-unknown-linux-gnu)(?-u:\b)"));
 static RE: LazyLock<Regex> = LazyLock::new(|| {
     let pattern = pattern_target_list();
-    Regex::new(&pattern)
-        .inspect(|r| {
-            debug!(static_captures_len = r.static_captures_len(), %pattern);
-        })
-        .unwrap()
+    Regex::new(&pattern).unwrap()
 });
 
 fn extract(src: &[u8]) -> impl Iterator<Item = &'_ str> {
