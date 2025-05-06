@@ -817,6 +817,7 @@ name = "os-checker-database"
 version = "0.6.1"
 dependencies = [
  "ahash",
+ "argh",
  "camino",
  "color-eyre",
  "eyre",
@@ -826,11 +827,13 @@ dependencies = [
  "musli",
  "os-checker-types",
  "redb",
+ "regex",
  "serde",
  "serde_json",
  "tracing",
  "tracing-error",
  "tracing-subscriber",
+ "walkdir",
 ]
 
 [[package]]
