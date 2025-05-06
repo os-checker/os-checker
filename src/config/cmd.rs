@@ -76,6 +76,9 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
         "lockbud",
         "-k",
         "all",
+        "-b",
+        "-l",
+        "regex-automata,parking_lot_core,tokio,tokio_util",
         "--",
         "--target",
         pkg.target,
@@ -84,6 +87,8 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
     let expr = cmd("cargo", args).dir(pkg.dir);
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
+    // NOTE: add -b -l to the cmd string?; but -b -l seems not working as expected:
+    // these crates are still reported with the option.
     let cmd = format!(
         "{env_str}cargo {PLUS_TOOLCHAIN_LOCKBUD} lockbud -k all -- --target {} {}",
         pkg.target,

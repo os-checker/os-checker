@@ -1,4 +1,4 @@
-use os_checker_types::JsonOutput;
+use os_checker_types::{out_json, JsonOutput};
 use serde::{Deserialize, Serialize};
 
 // pub type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
@@ -22,6 +22,15 @@ where
 pub struct UserRepo<'a> {
     pub user: &'a str,
     pub repo: &'a str,
+}
+
+impl<'a> From<UserRepo<'a>> for out_json::UserRepo {
+    fn from(UserRepo { user, repo }: UserRepo<'a>) -> Self {
+        Self {
+            user: user.into(),
+            repo: repo.into(),
+        }
+    }
 }
 
 pub fn repo_pkgidx(json: &JsonOutput, pkg_idx: usize) -> UserRepo {
@@ -64,6 +73,20 @@ impl<'a> UserRepoPkg<'a> {
         let Self { user, repo, .. } = self;
         UserRepo { user, repo }
     }
+}
+
+impl<'a> From<UserRepoPkg<'a>> for out_json::UserRepoPkg {
+    fn from(UserRepoPkg { user, repo, pkg }: UserRepoPkg<'a>) -> Self {
+        Self {
+            user: user.into(),
+            repo: repo.into(),
+            pkg: pkg.into(),
+        }
+    }
+}
+
+pub fn vec_ref_to_vec_owned<T: Clone>(v: Vec<&T>) -> Vec<T> {
+    v.into_iter().cloned().collect()
 }
 
 #[cfg(test)]

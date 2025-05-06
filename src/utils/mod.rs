@@ -113,17 +113,44 @@ pub fn execution_time_ms<T>(op: impl FnOnce() -> T) -> (time::OffsetDateTime, u6
     (now_utc, duration_ms, value)
 }
 
-/// ignore_fail means when the cmd returns error, still reads stdout.
-/// It must be set to true when a checker use exit code to indicate bad diagnostics.
-pub fn cmd_run(bin: &str, args: &[&str], dir: &Utf8Path, ignore_fail: bool) -> Result<String> {
+// ignore_fail means when the cmd returns error, still reads stdout.
+// It must be set to true when a checker use exit code to indicate bad diagnostics.
+// pub fn cmd_run(bin: &str, args: &[&str], dir: &Utf8Path, ignore_fail: bool) -> Result<String> {
+//     let _span = error_span!("cmd_run", bin, ?args).entered();
+//
+//     let output = cmd(bin, args)
+//         .dir(dir)
+//         .unchecked()
+//         .stdout_capture()
+//         .stderr_capture()
+//         .run()?;
+//
+//     if !ignore_fail && !output.status.success() {
+//         let raw_err = String::from_utf8_lossy(&output.stderr);
+//         bail!("raw_err={raw_err}");
+//     }
+//
+//     String::from_utf8(output.stdout).with_context(|| "stdout contains invalid UTF-8 chars")
+// }
+
+/// Same as `cmd_run`, but takes a callback to modify the cmd.
+pub fn cmd_run_with(
+    bin: &str,
+    args: &[&str],
+    dir: &Utf8Path,
+    ignore_fail: bool,
+    with: impl FnOnce(duct::Expression) -> duct::Expression,
+) -> Result<String> {
     let _span = error_span!("cmd_run", bin, ?args).entered();
 
-    let output = cmd(bin, args)
-        .dir(dir)
-        .unchecked()
-        .stdout_capture()
-        .stderr_capture()
-        .run()?;
+    let output = with(
+        cmd(bin, args)
+            .dir(dir)
+            .unchecked()
+            .stdout_capture()
+            .stderr_capture(),
+    )
+    .run()?;
 
     if !ignore_fail && !output.status.success() {
         let raw_err = String::from_utf8_lossy(&output.stderr);

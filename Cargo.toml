@@ -14,10 +14,7 @@ license = "GPL-3.0"
 license-file = "./LICENSE.MulanPubL"
 
 [dependencies]
-argh = "0.1.12"   # cli argument parser
-walkdir = "2.5.0" # recursively search Cargo.toml for finding packages
 basic-toml = "0.1"
-regex = "1.10.5"
 prettydiff = { version = "0.7.0", default-features = false }
 either = "1"
 schemars = { version = "1.0.0-alpha.15", features = ["preserve_order", "indexmap2"] }
@@ -38,6 +35,7 @@ tracing-subscriber = { workspace = true }
 tracing-error = { workspace = true }
 
 # general
+argh = { workspace = true }
 cargo_metadata = { workspace = true }
 indexmap = { workspace = true }
 hashbrown = { workspace = true }
@@ -51,6 +49,8 @@ time = { workspace = true }
 camino = { workspace = true }
 os-checker-types = { workspace = true }
 glob = { workspace = true }
+regex = { workspace = true }
+walkdir = { workspace = true }
 
 # shell commands
 duct = { workspace = true }
@@ -66,6 +66,7 @@ duct = { workspace = true } # better subprocess, pipe, redirct
 color-eyre = "0.6.3"
 
 [workspace.dependencies]
+argh = "0.1.12"   # cli argument parser
 ahash = "0.8.11"
 camino = { version = "1.1.9", features = ["serde1"] } # Utf8 Path
 compact_str = { version = "0.8.0", features = ["serde"] }
@@ -76,6 +77,8 @@ itertools = "0.13.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1.0.125", features = ["preserve_order"] }
 glob = "0.3"
+regex = "1.10.5"
+walkdir = "2.5.0" # recursively search Cargo.toml for finding packages
 
 # error handling
 eyre = "0.6.12"

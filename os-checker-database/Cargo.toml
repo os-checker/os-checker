@@ -36,6 +36,11 @@ tracing-error = { workspace = true }
 redb = { workspace = true }
 musli = { workspace = true }
 
+[dev-dependencies]
+argh = { workspace = true }
+regex = { workspace = true }
+walkdir = { workspace = true }
+
 [features]
 default = ["clear_batch"]
 clear_batch = [] # 清除 BASE_DIR/batch 目录
