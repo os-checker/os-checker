@@ -192,12 +192,16 @@ impl RepoConfig {
         Ok(())
     }
 
-    pub fn validate_skip_pkg_dir_globs(&self, repo: &str) -> Result<()> {
+    pub fn validate_meta(&self, repo: &str) -> Result<()> {
         if let Some(meta) = &self.meta {
             meta.check_skip_pkg_dir_globs()
-                .with_context(|| format!("{repo}'s meta.skip_pkg_dir_globs value is invalid."))?;
+                .with_context(|| format!("{repo:?}'s meta.skip_pkg_dir_globs value is invalid."))?;
             meta.check_only_pkg_dir_globs()
-                .with_context(|| format!("{repo}'s meta.only_pkg_dir_globs value is invalid."))?;
+                .with_context(|| format!("{repo:?}'s meta.only_pkg_dir_globs value is invalid."))?;
+            ensure!(
+                !(meta.rerun && meta.use_last_cache),
+                "meta.rerun and meta.use_last_cache can't be both true in {repo:?}"
+            );
         }
         Ok(())
     }
