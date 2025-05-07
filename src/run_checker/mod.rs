@@ -11,6 +11,7 @@ use cargo_metadata::{
     diagnostic::DiagnosticLevel,
     Message as CargoMessage,
 };
+use color_eyre::owo_colors::OwoColorize;
 use either::Either;
 use eyre::Context;
 use itertools::Itertools;
@@ -185,13 +186,13 @@ impl Repo {
                     let len_checker_resolves = checker_resolves.len();
                     for (idx_resolve, resolve) in checker_resolves.into_iter().enumerate() {
                         debug!(
-                            len_resolves,
-                            len_finished_resolves,
-                            len_group_by_checker,
-                            idx_checker,
-                            current = ?checker,
-                            len_checker_resolves,
-                            idx_resolve
+                            len_resolves = %(len_resolves.red().bold()),
+                            len_finished_resolves = %(len_finished_resolves.red()),
+                            len_group_by_checker = %(len_group_by_checker.yellow().bold()),
+                            idx_checker = %(idx_checker.yellow()),
+                            current = ?(checker.blue().bold()),
+                            len_checker_resolves = %(len_checker_resolves.blue().bold()),
+                            idx_resolve = %(idx_resolve.blue())
                         );
                         run_check(resolve, &mut outputs, db_repo)?;
                         len_finished_resolves += 1;
