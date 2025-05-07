@@ -18,6 +18,7 @@ pub use resolve::Resolve;
 
 mod merge_from_json;
 mod uri;
+pub use uri::Uri;
 
 mod checker;
 pub use checker::{CheckerTool, TOOLS};
@@ -71,10 +72,9 @@ impl Config {
     }
 
     pub fn new_info(&self) -> Result<Box<InfoKeyValue>> {
-        let user = self.user_name();
-        let repo = self.repo_name();
+        let uri = &self.uri;
         let config = &*self.config;
-        get_info(user, repo, config.clone()).map(Box::new)
+        get_info(uri, config.clone()).map(Box::new)
     }
 
     /// 解析该仓库所有 package 的检查执行命令

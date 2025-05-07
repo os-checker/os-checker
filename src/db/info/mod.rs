@@ -1,11 +1,15 @@
 use super::{out::CacheLayout, CacheRepo, CacheRepoKey, CacheValue, Db};
-use crate::{config::RepoConfig, Result, XString};
+use crate::{
+    config::{RepoConfig, Uri},
+    Result, XString,
+};
 use duct::cmd;
 use eyre::Context;
 use os_checker_types::db as out;
 use serde::Deserialize;
 use std::{cell::RefCell, fmt};
 
+mod local;
 mod type_conversion;
 
 /// Needs CLIs like gh and jq.
@@ -136,12 +140,20 @@ fn info_repo(user: &str, repo: &str) -> Result<(String, LatestCommit)> {
 }
 
 /// Query latest commit sha via `gh api`, and return the key and value with empty caches.
-pub fn get_info(user: &str, repo: &str, config: RepoConfig) -> Result<InfoKeyValue> {
-    let (branch, latest_commit) = info_repo(user, repo)?;
+pub fn get_info(uri: &Uri, config: RepoConfig) -> Result<InfoKeyValue> {
+    let [user, repo] = [uri.user_name(), uri.repo_name()];
+    let (branch, latest_commit) = if let Some(path) = uri.local_source() {
+        info!(?uri, "Get info from local project");
+        local::info_repo(path)?
+    } else {
+        info!(?uri, "Get info from Github API");
+        info_repo(user, repo)?
+    };
     let key = InfoKey {
         repo: CacheRepo::new_with_sha(user, repo, &latest_commit.sha, branch),
         config,
     };
+    debug!(?key);
     let val = Info {
         complete: false,
         caches: vec![],
@@ -190,6 +202,7 @@ impl InfoKeyValue {
             info.complete = true;
             info.to_db_value()
         };
+        debug!(?self.key);
         db.set_info(&self.key.to_db_key(), &info)
     }
 
