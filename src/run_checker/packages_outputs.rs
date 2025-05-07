@@ -172,16 +172,16 @@ fn cargo_stderr_stripped(output: &Output, now_utc: OffsetDateTime) -> Option<Str
     let raw_stderr = output.raw.stderr.as_slice();
     let stderr = String::from_utf8_lossy(raw_stderr);
 
-    debug!(%resolve.pkg_name, %resolve.pkg_dir);
     debug!(
+        %resolve.pkg_name, %resolve.pkg_dir,
         success = %(if output.raw.status.success() {
             "true".bright_green().to_string()
         } else {
             "false".bright_red().to_string()
         }),
-        resolve.cmd = %resolve.cmd.bright_black().italic()
+        resolve.cmd = %resolve.cmd.bright_black().italic(),
+        stderr=%(stderr.on_bright_black())
     );
-    debug!("stderr=\n{stderr}\n");
 
     let stderr_stripped = strip_ansi_escapes::strip(raw_stderr);
     let stderr = String::from_utf8_lossy(&stderr_stripped);

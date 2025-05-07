@@ -11,6 +11,7 @@ use cargo_metadata::{
     diagnostic::DiagnosticLevel,
     Message as CargoMessage,
 };
+use color_eyre::owo_colors::OwoColorize;
 use either::Either;
 use eyre::Context;
 use itertools::Itertools;
@@ -145,7 +146,6 @@ impl Repo {
     ) -> Result<PackagesOutputs> {
         let user = self.config.user_name();
         let repo = self.config.repo_name();
-        let _span = debug_span!("run_check", user, repo).entered();
 
         let mut outputs = PackagesOutputs::new();
 
@@ -168,10 +168,34 @@ impl Repo {
                 self.layout.set_layout_cache(&resolves, db_repo);
 
                 resolves.sort_by_key(|r| r.checker);
-                for (checker, v) in &resolves.into_iter().chunk_by(|r| r.checker) {
+                let len_resolves = resolves.len();
+
+                let group_by_checker = resolves
+                    .into_iter()
+                    .chunk_by(|r| r.checker)
+                    .into_iter()
+                    .map(|(checker, group)| (checker, group.collect_vec()))
+                    .collect_vec();
+                let len_group_by_checker = group_by_checker.len();
+                let mut len_finished_resolves = 0;
+
+                for (idx_checker, (checker, checker_resolves)) in
+                    group_by_checker.into_iter().enumerate()
+                {
                     checker.cargo_clean(&self.layout.workspace_dirs());
-                    for resolve in v {
+                    let len_checker_resolves = checker_resolves.len();
+                    for (idx_resolve, resolve) in checker_resolves.into_iter().enumerate() {
+                        debug!(
+                            len_resolves = %(len_resolves.red().bold()),
+                            len_finished_resolves = %(len_finished_resolves.red()),
+                            len_group_by_checker = %(len_group_by_checker.yellow().bold()),
+                            idx_checker = %(idx_checker.yellow()),
+                            current = ?(checker.blue().bold()),
+                            len_checker_resolves = %(len_checker_resolves.blue().bold()),
+                            idx_resolve = %(idx_resolve.blue())
+                        );
                         run_check(resolve, &mut outputs, db_repo)?;
+                        len_finished_resolves += 1;
                     }
                 }
             }
@@ -210,7 +234,6 @@ impl Repo {
 impl TryFrom<Config> for Repo {
     type Error = eyre::Error;
 
-    #[instrument(level = "trace")]
     fn try_from(mut config: Config) -> Result<Repo> {
         let repo_root = config.local_root_path_with_git_clone()?;
         let skip_dir = config.skip_pkg_dir_globs();
@@ -227,13 +250,9 @@ impl TryFrom<Config> for Repo {
 pub type FullOrFastOutputs = Either<RepoOutput, FastOutputs>;
 
 impl RepoOutput {
-    pub fn try_new(config: Config) -> Result<FullOrFastOutputs> {
-        let _span = error_span!(
-            "try_new",
-            user = config.user_name(),
-            repo = config.repo_name()
-        )
-        .entered();
+    pub fn run(config: Config) -> Result<FullOrFastOutputs> {
+        let _span =
+            error_span!("run", user = config.user_name(), repo = config.repo_name()).entered();
 
         let info = config.new_info()?;
 

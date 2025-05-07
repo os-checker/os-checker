@@ -290,7 +290,7 @@ fn repos_outputs(
         .into_iter()
         .map(move |mut config| {
             config.set_db(db.clone());
-            RepoOutput::try_new(config)
+            RepoOutput::run(config)
         }))
 }
 
