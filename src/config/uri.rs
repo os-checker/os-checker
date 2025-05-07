@@ -81,6 +81,9 @@ impl Uri {
     }
 
     fn repo_dir(&self) -> Utf8PathBuf {
+        if let Some(path) = self.local_source() {
+            return Utf8PathBuf::from(path).canonicalize_utf8().unwrap();
+        }
         let mut dir = repos_base_dir();
         // 为了防止 repo 名在本地造成冲突，目录加上 user
         dir.extend([&*self.user, &*self.repo]);
@@ -89,6 +92,10 @@ impl Uri {
 
     #[instrument(level = "trace")]
     pub fn clean_repo_dir(&self) -> Result<()> {
+        if self.local_source().is_some() {
+            // don't delete local project for now
+            return Ok(());
+        }
         let repo_dir = self.repo_dir();
         trace!(?repo_dir, "正在删除仓库目录");
         std::fs::remove_dir_all(&repo_dir)
@@ -107,6 +114,14 @@ impl Uri {
 
     pub fn key(&self) -> &str {
         &self.key
+    }
+
+    /// Only returns Some if Uri::Local
+    pub fn local_source(&self) -> Option<&str> {
+        if let UriTag::Local(path) = &self.tag {
+            return Some(path.as_str());
+        }
+        None
     }
 }
 

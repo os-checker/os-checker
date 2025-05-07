@@ -193,7 +193,6 @@ impl PackageInfo {
         } = pkg;
         targets.merge_more(&pkg_dir, repo_targets)?;
 
-        debug!(?targets);
         Ok(PackageInfo {
             pkg_name,
             pkg_dir,

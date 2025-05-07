@@ -99,7 +99,6 @@ impl RepoOutput {
     }
 
     /// 提前删除仓库目录
-    #[instrument(level = "trace")]
     pub fn clean_repo_dir(&self) -> Result<()> {
         self.repo.config.clean_repo_dir()
     }
