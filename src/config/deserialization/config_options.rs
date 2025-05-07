@@ -214,6 +214,9 @@ pub struct Meta {
 
     #[serde(default)]
     pub rerun: bool,
+
+    #[serde(default)]
+    pub use_last_cache: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
@@ -290,6 +293,7 @@ impl Default for Meta {
             skip_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
             target_env: TargetEnv::default(),
             rerun: false,
+            use_last_cache: false,
         }
     }
 }

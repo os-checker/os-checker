@@ -34,12 +34,14 @@ impl From<Meta> for out::Meta {
             skip_pkg_dir_globs,
             target_env,
             rerun,
+            use_last_cache,
         } = value;
         Self {
             only_pkg_dir_globs: only_pkg_dir_globs.into(),
             skip_pkg_dir_globs: skip_pkg_dir_globs.into(),
             target_env: target_env.into(),
             rerun,
+            use_last_cache,
         }
     }
 }
@@ -91,12 +93,14 @@ impl From<out::Meta> for Meta {
             skip_pkg_dir_globs,
             target_env,
             rerun,
+            use_last_cache,
         } = value;
         Self {
             only_pkg_dir_globs: only_pkg_dir_globs.into(),
             skip_pkg_dir_globs: skip_pkg_dir_globs.into(),
             target_env: target_env.into(),
             rerun,
+            use_last_cache,
         }
     }
 }

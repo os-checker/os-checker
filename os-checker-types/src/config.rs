@@ -105,6 +105,8 @@ pub struct Meta {
     pub target_env: TargetEnv,
     #[serde(default)]
     pub rerun: bool,
+    #[serde(default)]
+    pub use_last_cache: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
