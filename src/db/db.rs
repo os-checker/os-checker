@@ -1,10 +1,11 @@
+use super::info::read_cache::CachedAllInfoKeyValue;
 use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;
 use os_checker_types::db::{
     CacheLayout, CacheRepoKey, CacheValue, CheckValue, Info, InfoKey, CHECKS, DATA, INFO, LAYOUT,
 };
-use redb::{Database, Key, ReadableTable, Table, TableDefinition, Value};
+use redb::{Database, Key, ReadableTable, ReadableTableMetadata, Table, TableDefinition, Value};
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -37,6 +38,19 @@ impl Db {
 
     pub fn get_info(&self, key: &InfoKey) -> Result<Option<Info>> {
         self.read(INFO, key)
+    }
+
+    /// Get all (InfoKey, Info) in the db.
+    pub fn get_all_cached_info_key_and_value(&self) -> Result<CachedAllInfoKeyValue> {
+        let table = self.db.begin_read()?.open_table(INFO)?;
+        let mut cached = CachedAllInfoKeyValue::with_capacity(table.len()? as usize);
+
+        for item in table.iter()? {
+            let (guard_key, guard_val) = item?;
+            cached.push(guard_key.value().into(), guard_val.value().into());
+        }
+
+        Ok(cached)
     }
 
     pub fn get_cache(&self, key: &CacheRepoKey) -> Result<Option<CacheValue>> {
