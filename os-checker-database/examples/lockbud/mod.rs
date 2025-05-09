@@ -71,6 +71,7 @@ impl Lockbud {
 pub enum BugKind {
     DoubleLock,
     ConflictLock,
+    #[serde(rename = "Deadlock before Condvar::wait and notify")]
     CondvarDeadlock,
     AtomicityViolation,
     InvalidFree,
