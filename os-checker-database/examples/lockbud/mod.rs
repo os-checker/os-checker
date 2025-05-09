@@ -58,7 +58,9 @@ impl Lockbud {
         match self.bug_kind {
             BugKind::DoubleLock => DeadlockDiagnosis::double_lock(val).1,
             BugKind::ConflictLock => DeadlockDiagnosis::conflict_lock(val).1,
-            BugKind::CondvarDeadlock | BugBugKind::CondvarDeadlockDesciption => CondvarDeadlockDiagnosis::new(val).1,
+            BugKind::CondvarDeadlock | BugKind::CondvarDeadlockDesciption => {
+                CondvarDeadlockDiagnosis::new(val).1
+            }
             BugKind::AtomicityViolation => AtomicityViolationDiagnosis::new(val).1,
             BugKind::InvalidFree | BugKind::UseAfterFree => {
                 RE.parse_file_paths(val.as_str().unwrap())
