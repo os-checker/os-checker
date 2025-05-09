@@ -1,9 +1,11 @@
 use crate::{
+    cli::use_last_cache,
     db::{get_info, Db, InfoKeyValue},
     layout::Packages,
     Result,
 };
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
+use color_eyre::owo_colors::OwoColorize;
 use eyre::Context;
 use indexmap::IndexSet;
 use itertools::Itertools;
@@ -72,10 +74,12 @@ impl Config {
     }
 
     pub fn new_info(&self) -> Result<Box<InfoKeyValue>> {
-        if self.use_last_cache() {
+        if self.use_last_cache() || use_last_cache() {
+            info!("{}", "Try to get last cache.".yellow());
             if let Some(db) = self.db() {
                 let opt = db.get_cached_info_key_and_value(self.user_name(), self.repo_name())?;
                 if let Some(info_key_value) = opt {
+                    info!("{}", "Succeessful to get last cache.".green().bold());
                     // If use_last_cache is set to true, there is db, the cache
                     // exists and succeeds to be fetched, then return Ok.
                     return Ok(Box::new(info_key_value));

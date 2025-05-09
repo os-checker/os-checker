@@ -168,6 +168,10 @@ pub struct ArgsRun {
     /// redb file path. If not specified, no cache for checking.
     #[argh(option)]
     db: Option<Utf8PathBuf>,
+
+    /// enable meta.use_last_cache for all repos
+    #[argh(switch)]
+    use_last_cache: bool,
 }
 
 /// Merge configs and split it into batches.
@@ -295,9 +299,9 @@ fn repos_outputs(
 }
 
 impl ArgsRun {
-    #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
         NO_LAYOUT_ERROR.store(self.no_layout_error, Ordering::SeqCst);
+        USE_LAST_CACHE.store(self.use_last_cache, Ordering::SeqCst);
 
         let db = self.db.as_deref().map(Db::new).transpose()?;
         let start = SystemTime::now();
@@ -461,4 +465,11 @@ static NO_LAYOUT_ERROR: AtomicBool = AtomicBool::new(false);
 
 pub fn no_layout_error() -> bool {
     NO_LAYOUT_ERROR.load(Ordering::SeqCst)
+}
+
+/// Only for layout subcommand.
+static USE_LAST_CACHE: AtomicBool = AtomicBool::new(false);
+
+pub fn use_last_cache() -> bool {
+    USE_LAST_CACHE.load(Ordering::SeqCst)
 }
