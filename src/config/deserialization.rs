@@ -232,9 +232,10 @@ impl RepoConfig {
         self.packages.sort_unstable_keys();
     }
 
-    /// Rerun checks for a repo.
-    pub fn rerun(&self) -> bool {
-        self.meta.as_ref().map(|meta| meta.rerun).unwrap_or(false)
+    /// Get data from meta field.
+    /// Directly returns None value if meta is None.
+    pub fn get_meta<T>(&self, f: impl FnOnce(&Meta) -> T) -> Option<T> {
+        self.meta.as_ref().map(f)
     }
 }
 

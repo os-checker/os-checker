@@ -72,6 +72,16 @@ impl Config {
     }
 
     pub fn new_info(&self) -> Result<Box<InfoKeyValue>> {
+        if self.use_last_cache() {
+            if let Some(db) = self.db() {
+                let opt = db.get_cached_info_key_and_value(self.user_name(), self.repo_name())?;
+                if let Some(info_key_value) = opt {
+                    // If use_last_cache is set to true, there is db, the cache
+                    // exists and succeeds to be fetched, then return Ok.
+                    return Ok(Box::new(info_key_value));
+                }
+            }
+        }
         let uri = &self.uri;
         let config = &*self.config;
         get_info(uri, config.clone()).map(Box::new)
@@ -114,8 +124,16 @@ impl Config {
         self.config.skip_pkg_dir_globs()
     }
 
+    /// Rerun checks for a repo.
     pub fn rerun(&self) -> bool {
-        self.config.rerun()
+        self.config.get_meta(|meta| meta.rerun).unwrap_or(false)
+    }
+
+    /// Use last cache for a repo.
+    pub fn use_last_cache(&self) -> bool {
+        self.config
+            .get_meta(|meta| meta.use_last_cache)
+            .unwrap_or(false)
     }
 
     /// A series of setup cmds to be run before analyzing the repo.
