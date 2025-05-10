@@ -58,7 +58,9 @@ impl Lockbud {
         match self.bug_kind {
             BugKind::DoubleLock => DeadlockDiagnosis::double_lock(val).1,
             BugKind::ConflictLock => DeadlockDiagnosis::conflict_lock(val).1,
-            BugKind::CondvarDeadlock => CondvarDeadlockDiagnosis::new(val).1,
+            BugKind::CondvarDeadlock | BugKind::CondvarDeadlockDesciption => {
+                CondvarDeadlockDiagnosis::new(val).1
+            }
             BugKind::AtomicityViolation => AtomicityViolationDiagnosis::new(val).1,
             BugKind::InvalidFree | BugKind::UseAfterFree => {
                 RE.parse_file_paths(val.as_str().unwrap())
@@ -71,6 +73,10 @@ impl Lockbud {
 pub enum BugKind {
     DoubleLock,
     ConflictLock,
+    /// This variant is only for bug_kind field, not map key.
+    /// cc https://github.com/os-checker/os-checker/issues/348
+    #[serde(rename = "Deadlock before Condvar::wait and notify")]
+    CondvarDeadlockDesciption,
     CondvarDeadlock,
     AtomicityViolation,
     InvalidFree,

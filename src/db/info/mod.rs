@@ -5,11 +5,12 @@ use crate::{
 };
 use duct::cmd;
 use eyre::Context;
-use os_checker_types::db as out;
+use os_checker_types::{db as out, out_json::UserRepo};
 use serde::Deserialize;
 use std::{cell::RefCell, fmt};
 
 mod local;
+pub mod read_cache;
 mod type_conversion;
 
 /// Needs CLIs like gh and jq.
@@ -39,6 +40,13 @@ impl InfoKey {
 
     pub fn to_db_key(&self) -> out::InfoKey {
         self.clone().into()
+    }
+
+    fn user_repo(&self) -> UserRepo {
+        UserRepo {
+            user: self.repo.user.clone(),
+            repo: self.repo.repo.clone(),
+        }
     }
 }
 
@@ -165,6 +173,7 @@ pub fn get_info(uri: &Uri, config: RepoConfig) -> Result<InfoKeyValue> {
     })
 }
 
+#[derive(Debug)]
 pub struct InfoKeyValue {
     key: InfoKey,
     /// 目前所有检查是单线程的，并且每个仓库是独立检查的
@@ -184,6 +193,8 @@ impl InfoKeyValue {
             .map(|opt| opt.map(Info::from))
     }
 
+    /// Add a CacheRepoKey to the vec of info.caches.
+    /// This function is usually called when a checking result is written to db.
     pub fn append_cache_key(&self, cache_key: &CacheRepoKey, db: &Db) -> Result<()> {
         let _span = self.key.span();
         let info = {

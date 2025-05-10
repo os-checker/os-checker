@@ -1,11 +1,12 @@
+use super::info::read_cache::{CachedAllInfoKeyValue, RcCachedInfoKeyValue};
 use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;
 use os_checker_types::db::{
     CacheLayout, CacheRepoKey, CacheValue, CheckValue, Info, InfoKey, CHECKS, DATA, INFO, LAYOUT,
 };
-use redb::{Database, Key, ReadableTable, Table, TableDefinition, Value};
-use std::sync::Arc;
+use redb::{Database, Key, ReadableTable, ReadableTableMetadata, Table, TableDefinition, Value};
+use std::{cell::RefCell, sync::Arc};
 
 #[derive(Clone)]
 pub struct Db {
@@ -36,7 +37,54 @@ impl Db {
     }
 
     pub fn get_info(&self, key: &InfoKey) -> Result<Option<Info>> {
+        debug!(target: "get_info", ?key);
         self.read(INFO, key)
+    }
+
+    fn get_all_cached_info_key_and_value(&self) -> Result<CachedAllInfoKeyValue> {
+        let table = self.db.begin_read()?.open_table(INFO)?;
+        let mut cached_info = CachedAllInfoKeyValue::with_capacity(table.len()? as usize);
+
+        for item in table.iter()? {
+            let (guard_key, guard_val) = item?;
+            let info = guard_val.value();
+            let mut max_ts = None;
+            for cache_key in &info.caches {
+                let Some(cache_value) = self.read(DATA, cache_key)? else {
+                    bail!("{cache_key:?} doesn't points to a CacheValue in {DATA}");
+                };
+                let unix_timestamp_milli = cache_value.unix_timestamp_milli;
+                match max_ts {
+                    // keep old ts if it's already greater
+                    Some(ts) if ts > unix_timestamp_milli => (),
+                    _ => max_ts = Some(unix_timestamp_milli),
+                }
+            }
+            // max_ts is None if no cheching result
+            cached_info.push(guard_key.value().into(), info.into(), max_ts);
+        }
+        Ok(cached_info)
+    }
+
+    /// Get a user/repo's InfoKeyValue in the db.
+    /// The Result::Err indicates a db operation failure, while the Option::None
+    /// indicates a repo can have no cache.
+    pub fn get_cached_info_key_and_value(
+        &self,
+        user: &str,
+        repo: &str,
+    ) -> Result<Option<RcCachedInfoKeyValue>> {
+        thread_local! {
+            static CACHE: RefCell<Option<CachedAllInfoKeyValue>> = Default::default();
+        }
+        CACHE.with(|cache| {
+            let cache = &mut *cache.borrow_mut();
+            if cache.is_none() {
+                *cache = Some(self.get_all_cached_info_key_and_value()?);
+            }
+            let cache = cache.as_ref().unwrap();
+            Ok(cache.get(user, repo))
+        })
     }
 
     pub fn get_cache(&self, key: &CacheRepoKey) -> Result<Option<CacheValue>> {

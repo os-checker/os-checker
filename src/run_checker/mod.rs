@@ -254,7 +254,25 @@ impl RepoOutput {
         let _span =
             error_span!("run", user = config.user_name(), repo = config.repo_name()).entered();
 
-        let info = config.new_info()?;
+        let info = match config.new_info()? {
+            Either::Left(info) => info,
+            Either::Right(cached_info) => {
+                if let Some(db) = config.db() {
+                    match cached_info.info_value().get_cache_values(db) {
+                        Ok(caches) => {
+                            return Ok(Either::Right(FastOutputs {
+                                config,
+                                outputs: caches.into(),
+                            }));
+                        }
+                        Err(err) => {
+                            error!(?err, "Failed to get values from cached_info.")
+                        }
+                    };
+                }
+                cached_info.to_info_key_value()
+            }
+        };
 
         if utils::force_repo_check() || config.rerun() {
             warn!("强制运行检查（不影响已有的检查缓存结果）");
