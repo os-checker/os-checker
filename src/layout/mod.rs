@@ -280,6 +280,7 @@ impl Layout {
             })
             .collect();
 
+        debug!(pkgs = ?map.keys().collect::<Vec<_>>());
         let repo_root = self.repo_root().to_owned();
         Ok(Packages { repo_root, map })
     }

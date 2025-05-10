@@ -168,7 +168,6 @@ fn scripts_in_dir(dir: &Utf8Path, f: impl FnMut(&str, Utf8PathBuf)) -> Result<()
         }
         None
     });
-    debug!(%dir, ?scripts);
     scan_scripts_for_target(&scripts, f)
 }
 
