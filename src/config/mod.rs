@@ -1,11 +1,12 @@
 use crate::{
     cli::use_last_cache,
-    db::{get_info, Db, InfoKeyValue},
+    db::{get_info, Db, InfoKeyValue, RcCachedInfoKeyValue},
     layout::Packages,
     Result,
 };
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use color_eyre::owo_colors::OwoColorize;
+use either::Either;
 use eyre::Context;
 use indexmap::IndexSet;
 use itertools::Itertools;
@@ -73,26 +74,22 @@ impl Config {
         self.db.as_ref()
     }
 
-    pub fn new_info(&self) -> Result<Box<InfoKeyValue>> {
+    pub fn new_info(&self) -> Result<Either<Box<InfoKeyValue>, RcCachedInfoKeyValue>> {
         if self.use_last_cache() || use_last_cache() {
             info!("{}", "Try to get last cache.".yellow());
             if let Some(db) = self.db() {
                 let opt = db.get_cached_info_key_and_value(self.user_name(), self.repo_name())?;
                 if let Some(info_key_value) = opt {
-                    info!(
-                        ?info_key_value,
-                        "{}",
-                        "Succeessful to get last cache.".green().bold()
-                    );
+                    info!("{}", "Succeessful to get last cache.".green().bold());
                     // If use_last_cache is set to true, there is db, the cache
                     // exists and succeeds to be fetched, then return Ok.
-                    return Ok(Box::new(info_key_value));
+                    return Ok(Either::Right(info_key_value));
                 }
             }
         }
         let uri = &self.uri;
         let config = &*self.config;
-        get_info(uri, config.clone()).map(Box::new)
+        get_info(uri, config.clone()).map(|val| Either::Left(Box::new(val)))
     }
 
     /// 解析该仓库所有 package 的检查执行命令

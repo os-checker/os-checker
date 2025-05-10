@@ -1,4 +1,4 @@
-use super::{info::read_cache::CachedAllInfoKeyValue, InfoKeyValue};
+use super::info::read_cache::{CachedAllInfoKeyValue, RcCachedInfoKeyValue};
 use crate::Result;
 use camino::Utf8Path;
 use eyre::Context;
@@ -73,7 +73,7 @@ impl Db {
         &self,
         user: &str,
         repo: &str,
-    ) -> Result<Option<InfoKeyValue>> {
+    ) -> Result<Option<RcCachedInfoKeyValue>> {
         thread_local! {
             static CACHE: RefCell<Option<CachedAllInfoKeyValue>> = Default::default();
         }
@@ -83,7 +83,7 @@ impl Db {
                 *cache = Some(self.get_all_cached_info_key_and_value()?);
             }
             let cache = cache.as_ref().unwrap();
-            Ok(cache.get(user, repo).map(|pair| pair.to_info_key_value()))
+            Ok(cache.get(user, repo))
         })
     }
 

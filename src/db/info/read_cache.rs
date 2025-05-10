@@ -43,12 +43,12 @@ impl CachedAllInfoKeyValue {
         self.all.push(rc);
     }
 
-    pub fn get(&self, user: &str, repo: &str) -> Option<&InfoKeyValuePair> {
+    pub fn get(&self, user: &str, repo: &str) -> Option<RcCachedInfoKeyValue> {
         let key = UserRepo {
             user: user.into(),
             repo: repo.into(),
         };
-        self.latest_commit.get(&key).map(|pair| &*pair.inner)
+        self.latest_commit.get(&key).cloned()
     }
 }
 
@@ -98,6 +98,14 @@ impl RcCachedInfoKeyValue {
 
     fn committer_datetime(&self) -> u64 {
         self.inner.val.latest_commit.committer.datetime
+    }
+
+    pub fn info_value(&self) -> &Info {
+        &self.inner.val
+    }
+
+    pub fn to_info_key_value(&self) -> Box<InfoKeyValue> {
+        Box::new(self.inner.to_info_key_value())
     }
 }
 
