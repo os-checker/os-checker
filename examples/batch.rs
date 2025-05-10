@@ -9,7 +9,7 @@ use color_eyre::Result;
 use duct::cmd;
 use std::env::var;
 
-#[derive(FromArgs)]
+#[derive(FromArgs, Debug)]
 /// Run os-checker in batch.
 struct Batch {
     /// forward --size
@@ -18,6 +18,9 @@ struct Batch {
     /// don't upload the cache.redb to githhub
     #[argh(switch)]
     no_upload: bool,
+    /// args (i.e. `-- arg1 arg2 ...`) that will be passed to os-checker
+    #[argh(positional)]
+    os_checker_args: Vec<String>,
 }
 
 const DB: &str = "cache.redb";
@@ -27,6 +30,7 @@ const OS_CHECKER_CONFIGS: &str = "OS_CHECKER_CONFIGS";
 fn main() -> Result<()> {
     logger::init();
     let batch: Batch = argh::from_env();
+    info!(?batch);
 
     let base_dir = base_dir();
     std::env::set_current_dir(&base_dir)?;
@@ -56,8 +60,7 @@ fn main() -> Result<()> {
             let repos: Vec<_> = json.as_object().unwrap().keys().collect();
             let emit = batch_dir.join(path.file_name().unwrap());
             info!(?repos, "checking");
-            let expr = cmd!(
-                "os-checker",
+            let mut args = vec![
                 "run",
                 "--config",
                 path.as_str(),
@@ -65,8 +68,9 @@ fn main() -> Result<()> {
                 emit.as_str(),
                 "--db",
                 DB,
-                "--no-layout-error"
-            );
+            ];
+            args.extend(batch.os_checker_args.iter().map(|arg| arg.as_str()));
+            let expr = cmd("os-checker", &args);
             info!(cmd = ?expr);
             expr.run()?;
             if !batch.no_upload {
