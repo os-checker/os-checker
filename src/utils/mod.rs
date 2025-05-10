@@ -69,11 +69,7 @@ pub fn walk_dir<T, E: Exclude>(
             const NO_JUMP_IN: &[&str] = &[".git", "target"];
             let filename = entry.file_name().to_str().unwrap();
             let exclude = NO_JUMP_IN.exclude(filename) || dirs_excluded.exclude(filename);
-            if exclude {
-                false
-            } else {
-                true
-            }
+            !exclude
         })
         .filter_map(|entry| {
             let entry = entry.ok()?;
@@ -82,12 +78,15 @@ pub fn walk_dir<T, E: Exclude>(
             }
 
             let path = Utf8PathBuf::try_from(entry.into_path()).ok()?;
-            let path_str = path.as_str();
 
             // Empty only dir means accepting all paths.
             // Since any returns false for empty iterator,
             // need to check emptiness skip.
-            if only_dirs.is_empty() || only_dirs.iter().any(|pat| pat.matches(path_str)) {
+            if only_dirs.is_empty() || {
+                // only accept these matched path
+                let path_str = path.strip_prefix(dir).unwrap_or(&*path).as_str();
+                only_dirs.iter().any(|pat| pat.matches(path_str))
+            } {
                 op_on_file(path)
             } else {
                 None
