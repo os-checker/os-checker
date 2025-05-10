@@ -37,6 +37,7 @@ impl Db {
     }
 
     pub fn get_info(&self, key: &InfoKey) -> Result<Option<Info>> {
+        debug!(target: "get_info", ?key);
         self.read(INFO, key)
     }
 

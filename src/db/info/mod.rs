@@ -173,6 +173,7 @@ pub fn get_info(uri: &Uri, config: RepoConfig) -> Result<InfoKeyValue> {
     })
 }
 
+#[derive(Debug)]
 pub struct InfoKeyValue {
     key: InfoKey,
     /// 目前所有检查是单线程的，并且每个仓库是独立检查的

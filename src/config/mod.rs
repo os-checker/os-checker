@@ -79,7 +79,11 @@ impl Config {
             if let Some(db) = self.db() {
                 let opt = db.get_cached_info_key_and_value(self.user_name(), self.repo_name())?;
                 if let Some(info_key_value) = opt {
-                    info!("{}", "Succeessful to get last cache.".green().bold());
+                    info!(
+                        ?info_key_value,
+                        "{}",
+                        "Succeessful to get last cache.".green().bold()
+                    );
                     // If use_last_cache is set to true, there is db, the cache
                     // exists and succeeds to be fetched, then return Ok.
                     return Ok(Box::new(info_key_value));
