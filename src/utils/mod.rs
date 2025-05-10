@@ -70,36 +70,28 @@ pub fn walk_dir<T, E: Exclude>(
             let filename = entry.file_name().to_str().unwrap();
             let exclude = NO_JUMP_IN.exclude(filename) || dirs_excluded.exclude(filename);
             if exclude {
-                // excluding a path is prior
-                return false;
+                false
+            } else {
+                true
             }
-
-            // empty only dir means accepting all paths
-            if only_dirs.is_empty() {
-                return true;
-            }
-
-            // only accept these matched path
-            let path = entry
-                .path()
-                .strip_prefix(dir)
-                .unwrap_or(entry.path())
-                .to_str()
-                .unwrap();
-            trace!(?dir, ?path, ?only_dirs);
-            if path.is_empty() {
-                // enter root
-                return true;
-            }
-            only_dirs.iter().any(|pat| pat.matches(path))
         })
         .filter_map(|entry| {
             let entry = entry.ok()?;
             if !entry.file_type().is_file() {
                 return None;
             }
+
             let path = Utf8PathBuf::try_from(entry.into_path()).ok()?;
-            op_on_file(path)
+            let path_str = path.as_str();
+
+            // Empty only dir means accepting all paths.
+            // Since any returns false for empty iterator,
+            // need to check emptiness skip.
+            if only_dirs.is_empty() || only_dirs.iter().any(|pat| pat.matches(path_str)) {
+                op_on_file(path)
+            } else {
+                None
+            }
         })
         .collect()
 }
@@ -188,6 +180,25 @@ fn test_glob() {
 
     let pat_a = pat("a*");
     assert!(pat_a.matches("a"));
+    assert!(pat_a.matches("a/b"));
     let pat_a_rec = pat("a/**");
     assert!(pat_a_rec.matches("a/b"));
+}
+
+#[test]
+fn test_pat() {
+    use exlucded::pat;
+
+    let pat1 = pat("crates/a/b*");
+
+    assert!(!pat1.matches("crates/a"));
+    assert!(pat1.matches("crates/a/b"));
+    assert!(pat1.matches("crates/a/bc"));
+    assert!(pat1.matches("crates/a/b/c"));
+    let pat2 = pat("*test*");
+    assert!(pat2.matches("test"));
+    assert!(pat2.matches("tests"));
+    assert!(pat2.matches("a-tests"));
+    assert!(pat2.matches("a/tests"));
+    assert!(pat2.matches("a/test/b"));
 }
