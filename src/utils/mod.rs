@@ -192,15 +192,21 @@ fn test_pat() {
     use exlucded::pat;
 
     let pat1 = pat("crates/a/b*");
-
     assert!(!pat1.matches("crates/a"));
     assert!(pat1.matches("crates/a/b"));
     assert!(pat1.matches("crates/a/bc"));
     assert!(pat1.matches("crates/a/b/c"));
-    let pat2 = pat("*test*");
-    assert!(pat2.matches("test"));
-    assert!(pat2.matches("tests"));
-    assert!(pat2.matches("a-tests"));
-    assert!(pat2.matches("a/tests"));
-    assert!(pat2.matches("a/test/b"));
+
+    let pat2 = pat("crates/a/*");
+    assert!(!pat2.matches("crates/a"));
+    assert!(pat2.matches("crates/a/"));
+    assert!(pat2.matches("crates/a/b"));
+    assert!(pat2.matches("crates/a/b/c"));
+
+    let pat3 = pat("*test*");
+    assert!(pat3.matches("test"));
+    assert!(pat3.matches("tests"));
+    assert!(pat3.matches("a-tests"));
+    assert!(pat3.matches("a/tests"));
+    assert!(pat3.matches("a/test/b"));
 }
