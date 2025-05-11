@@ -36,7 +36,13 @@ pub struct Targets {
 
 impl fmt::Debug for Targets {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_list().entries(self.keys()).finish()
+        // Only display single string if only one target,
+        // otherwise display a list of targets.
+        if self.len() == 1 {
+            f.write_str(self.get_index(0).unwrap().0)
+        } else {
+            f.debug_list().entries(self.keys()).finish()
+        }
     }
 }
 
