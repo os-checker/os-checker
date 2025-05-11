@@ -143,7 +143,6 @@ pub fn scripts_and_github_dir_in_repo(repo_root: &Utf8Path) -> Result<Targets> {
 
     let github_dir = Utf8Path::new(repo_root).join(".github");
     let github_files = walk_dir(&github_dir, 4, empty(), &[], Some);
-    debug!(%repo_root, ?github_files);
 
     scan_scripts_for_target(&github_files, |target, path| {
         targets.detected_by_repo_github(target, path);

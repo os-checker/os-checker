@@ -3,6 +3,7 @@ use crate::{utils::PECULIAR_TARGETS, Result, XString};
 use cargo_metadata::camino::{Utf8Path, Utf8PathBuf};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 mod type_conversion;
 
@@ -28,9 +29,15 @@ pub enum TargetSource {
 
 /// A list of target triples obtained from multiple sources.
 /// The orders in key and value demonstrates how they shape.
-#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(Default, Serialize, Deserialize, Clone)]
 pub struct Targets {
     map: IndexMap<String, Vec<TargetSource>>,
+}
+
+impl fmt::Debug for Targets {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_list().entries(self.keys()).finish()
+    }
 }
 
 impl std::ops::Deref for Targets {
