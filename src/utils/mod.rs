@@ -53,6 +53,9 @@ pub fn git_clone(dir: &Utf8Path, url: &str) -> Result<(std::process::Output, u64
 /// 遍历一个目录及其子目录的所有文件（但不进入 .git 和 target 目录）：
 /// * 需要设置一个最大递归深度（虽然可以不设置这个条件，但大部分情况下，os-checker 不需要深度递归）
 /// * op_on_file 为一个回调函数，其参数保证为一个文件路径，且返回值为 Some 时表示把它的值推到 Vec
+///
+/// NOTE: all the given paths and output paths are relative to repo root.
+/// Be carefult when using it by comparing with absolute paths.
 pub fn walk_dir<T, E: Exclude>(
     dir: impl AsRef<Path>,
     max_depth: usize,
