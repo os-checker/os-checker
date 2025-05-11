@@ -53,6 +53,9 @@ pub fn git_clone(dir: &Utf8Path, url: &str) -> Result<(std::process::Output, u64
 /// 遍历一个目录及其子目录的所有文件（但不进入 .git 和 target 目录）：
 /// * 需要设置一个最大递归深度（虽然可以不设置这个条件，但大部分情况下，os-checker 不需要深度递归）
 /// * op_on_file 为一个回调函数，其参数保证为一个文件路径，且返回值为 Some 时表示把它的值推到 Vec
+///
+/// NOTE: all the given paths and output paths are relative to repo root.
+/// Be carefult when using it by comparing with absolute paths.
 pub fn walk_dir<T, E: Exclude>(
     dir: impl AsRef<Path>,
     max_depth: usize,
@@ -69,37 +72,28 @@ pub fn walk_dir<T, E: Exclude>(
             const NO_JUMP_IN: &[&str] = &[".git", "target"];
             let filename = entry.file_name().to_str().unwrap();
             let exclude = NO_JUMP_IN.exclude(filename) || dirs_excluded.exclude(filename);
-            if exclude {
-                // excluding a path is prior
-                return false;
-            }
-
-            // empty only dir means accepting all paths
-            if only_dirs.is_empty() {
-                return true;
-            }
-
-            // only accept these matched path
-            let path = entry
-                .path()
-                .strip_prefix(dir)
-                .unwrap_or(entry.path())
-                .to_str()
-                .unwrap();
-            trace!(?dir, ?path, ?only_dirs);
-            if path.is_empty() {
-                // enter root
-                return true;
-            }
-            only_dirs.iter().any(|pat| pat.matches(path))
+            !exclude
         })
         .filter_map(|entry| {
             let entry = entry.ok()?;
             if !entry.file_type().is_file() {
                 return None;
             }
+
             let path = Utf8PathBuf::try_from(entry.into_path()).ok()?;
-            op_on_file(path)
+
+            // Empty only dir means accepting all paths.
+            // Since any returns false for empty iterator,
+            // need to check emptiness skip.
+            if only_dirs.is_empty() || {
+                // only accept these matched path
+                let path_str = path.strip_prefix(dir).unwrap_or(&*path).as_str();
+                only_dirs.iter().any(|pat| pat.matches(path_str))
+            } {
+                op_on_file(path)
+            } else {
+                None
+            }
         })
         .collect()
 }
@@ -188,6 +182,31 @@ fn test_glob() {
 
     let pat_a = pat("a*");
     assert!(pat_a.matches("a"));
+    assert!(pat_a.matches("a/b"));
     let pat_a_rec = pat("a/**");
     assert!(pat_a_rec.matches("a/b"));
+}
+
+#[test]
+fn test_pat() {
+    use exlucded::pat;
+
+    let pat1 = pat("crates/a/b*");
+    assert!(!pat1.matches("crates/a"));
+    assert!(pat1.matches("crates/a/b"));
+    assert!(pat1.matches("crates/a/bc"));
+    assert!(pat1.matches("crates/a/b/c"));
+
+    let pat2 = pat("crates/a/*");
+    assert!(!pat2.matches("crates/a"));
+    assert!(pat2.matches("crates/a/"));
+    assert!(pat2.matches("crates/a/b"));
+    assert!(pat2.matches("crates/a/b/c"));
+
+    let pat3 = pat("*test*");
+    assert!(pat3.matches("test"));
+    assert!(pat3.matches("tests"));
+    assert!(pat3.matches("a-tests"));
+    assert!(pat3.matches("a/tests"));
+    assert!(pat3.matches("a/test/b"));
 }

@@ -14,7 +14,7 @@ use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
-use eyre::ContextCompat;
+use eyre::Context;
 use indexmap::IndexMap;
 use std::{fmt, rc::Rc};
 
@@ -148,7 +148,13 @@ impl Layout {
     ) -> Result<Layout> {
         let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
 
-        let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded, only_dirs);
+        let cargo_tomls: Vec<_> = find_all_cargo_toml_paths(repo_root, dirs_excluded, only_dirs)
+            .into_iter()
+            .map(|path| {
+                path.canonicalize_utf8()
+                    .with_context(|| format!("{path} are not able to canonicalize"))
+            })
+            .collect::<Result<_>>()?;
         ensure!(
             !cargo_tomls.is_empty(),
             "repo_root `{repo_root}` (规范路径为 `{root_path}`) 不是 Rust \
@@ -223,10 +229,32 @@ impl Layout {
         // 从根本上解决这个问题，必须不允许同名 package，比如统一成
         // 路径，或者对同名 package 进行检查，必须包含额外的路径。
         // 无论如何，这都带来复杂性，目前来看并不值得。
+        //
+        // NOTE: 这里对 package 进行了筛选，因为 cargo_tomls 结合了配置文件
+        // 中的筛选方式，而不再指向全部 package 的 Cargo.toml.
 
-        let mut libs = lib_pkgs(&self.workspaces);
+        let libs = lib_pkgs(&self.workspaces, &self.cargo_tomls);
         let audit = {
-            let res = CargoAudit::new_for_pkgs(self.workspaces.keys());
+            // query cargo audit with less pkgs
+            let pkg_dirs: Vec<_> = if self.workspaces.len() > self.cargo_tomls.len() {
+                self.cargo_tomls
+                    .iter()
+                    .map(|path| {
+                        let mut path = path.to_owned();
+                        // remove trailling Cargo.toml
+                        assert_eq!(
+                            path.file_name(),
+                            Some("Cargo.toml"),
+                            "{path} must be a Cargo.toml path"
+                        );
+                        path.pop();
+                        path
+                    })
+                    .collect()
+            } else {
+                self.workspaces.keys().cloned().collect()
+            };
+            let res = CargoAudit::new_for_pkgs(pkg_dirs);
             match res {
                 Ok(audit) => audit,
                 Err(err) => {
@@ -243,41 +271,23 @@ impl Layout {
         let map: IndexMap<_, _> = self
             .packages_info
             .iter()
-            .map(|info| {
-                let features_islib = libs
-                    .swap_remove(&info.pkg_name)
-                    .with_context(|| {
-                        // it's almost unlikely to reach here if duplicated package
-                        // name exist, because inserting the second package to libs
-                        // will causes assert! panic.
-                        format!(
-                            "The vec features of package `{}` has been taken out.\n
-                             Maybe there is a duplicated lib crate name?",
-                            info.pkg_name
-                        )
-                    })
-                    .unwrap();
-                (
+            .filter_map(|info| {
+                let features_islib = libs.get(&info.pkg_name)?;
+                Some((
                     info.pkg_name.clone(),
                     PackageInfoShared {
                         pkg_dir: info.pkg_dir.clone(),
                         targets: info.targets.keys().cloned().collect(),
-                        features: features_islib.features,
+                        features: features_islib.features.clone(),
                         toolchain: info.toolchain,
                         audit: audit.get(&info.pkg_name).cloned(),
                         is_lib: features_islib.is_lib,
                     },
-                )
+                ))
             })
             .collect();
-        if map.len() != self.packages_info.len() {
-            let mut count = IndexMap::with_capacity(map.len());
-            for name in self.packages_info.iter().map(|info| &*info.pkg_name) {
-                count.entry(name).and_modify(|c| *c += 1).or_insert(1);
-            }
-            let duplicates: Vec<_> = count.iter().filter(|(_, c)| **c != 1).collect();
-            bail!("暂不支持一个代码仓库中出现同名 packages：{duplicates:?}");
-        }
+
+        debug!(pkgs = ?map.keys().collect::<Vec<_>>());
         let repo_root = self.repo_root().to_owned();
         Ok(Packages { repo_root, map })
     }
@@ -574,10 +584,21 @@ struct PkgFeaturesLib {
     is_lib: bool,
 }
 
-fn lib_pkgs(workspaces: &Workspaces) -> IndexMap<XString, PkgFeaturesLib> {
+/// Only extract pkgs from the given cargo_tomls.
+/// By default, cargo_tomls points to the same pkg in Workspaces.
+/// But if filtering, like only_pkg_dir_globs or skip_pkg_dir_globs, is set,
+/// we only want the specifed ones.
+fn lib_pkgs(
+    workspaces: &Workspaces,
+    cargo_tomls: &[Utf8PathBuf],
+) -> IndexMap<XString, PkgFeaturesLib> {
     let mut map = IndexMap::new();
     for ws in workspaces.values() {
         'p: for p in ws.workspace_packages() {
+            if !cargo_tomls.contains(&p.manifest_path) {
+                // skip if the package Cargo.toml is not specifed
+                continue;
+            }
             let features: Vec<String> = p.features.keys().cloned().collect();
             let old = map.insert(
                 XString::new(&*p.name),

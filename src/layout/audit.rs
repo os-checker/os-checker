@@ -92,12 +92,10 @@ impl CargoAudit {
     }
 
     /// returns the map where the key is pkg name and the value is audit result
-    pub fn new_for_pkgs<'a>(
-        dirs: impl Iterator<Item = &'a Utf8PathBuf>,
-    ) -> Result<IndexMap<XString, Rc<Self>>> {
+    pub fn new_for_pkgs(dirs: Vec<Utf8PathBuf>) -> Result<IndexMap<XString, Rc<Self>>> {
         let mut map = IndexMap::new();
         for dir in dirs {
-            let audit = Self::new(dir)?;
+            let audit = Self::new(&dir)?;
             for pkg in &audit.problematic_pkgs {
                 // NOTE: there is supposed to be no pkg name aliasing.
                 map.insert(pkg.clone(), audit.clone());

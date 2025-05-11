@@ -108,17 +108,3 @@ impl RcCachedInfoKeyValue {
         Box::new(self.inner.to_info_key_value())
     }
 }
-
-#[test]
-fn get_all_cached_info_key_and_value() {
-    use std::mem::size_of;
-    dbg!(
-        size_of::<InfoKeyValuePair>(),
-        size_of::<InfoKey>(),
-        size_of::<Info>(),
-    );
-
-    let db = crate::db::Db::new("tmp/cache.redb".into()).unwrap();
-    // let cached = db.get_all_cached_info_key_and_value().unwrap();
-    // dbg!(cached);
-}
