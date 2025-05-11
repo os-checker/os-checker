@@ -135,44 +135,32 @@ impl JsonSchema for Cmds {
 }
 
 const ENABLED: EnableOrCustom = EnableOrCustom::Enable(true);
+fn default_enabled_checkers() -> IndexMap<CheckerTool, EnableOrCustom> {
+    indexmap::indexmap! {
+        Fmt => ENABLED,
+        Clippy => ENABLED,
+        SemverChecks => ENABLED,
+        Lockbud => ENABLED,
+        Mirai => ENABLED,
+        Audit => ENABLED,
+        Rapx => ENABLED,
+        Rudra => ENABLED,
+        Outdated => ENABLED,
+        Geiger => ENABLED,
+    }
+}
 
 impl Cmds {
     /// TODO: 其他工具待完成
     pub fn new_with_all_checkers_enabled() -> Self {
         Self {
-            map: indexmap::indexmap! {
-                Fmt => ENABLED,
-                Clippy => ENABLED,
-                SemverChecks => ENABLED,
-                Lockbud => ENABLED,
-                Mirai => ENABLED,
-                Audit => ENABLED,
-                Rapx => ENABLED,
-                Rudra => ENABLED,
-                Outdated => ENABLED,
-                Geiger => ENABLED,
-            },
+            map: default_enabled_checkers(),
         }
     }
 
     /// TODO: 其他工具待完成
     pub fn enable_all_checkers(&mut self) {
-        for checker in [
-            Fmt,
-            Clippy,
-            SemverChecks,
-            Lockbud,
-            Mirai,
-            Audit,
-            Rapx,
-            Rudra,
-            Outdated,
-            Geiger,
-        ] {
-            self.entry(checker)
-                .and_modify(|cmd| *cmd = ENABLED)
-                .or_insert(ENABLED);
-        }
+        self.map = default_enabled_checkers();
     }
 
     /// Override self by setting values from the other,
