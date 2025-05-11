@@ -135,32 +135,36 @@ impl JsonSchema for Cmds {
 }
 
 const ENABLED: EnableOrCustom = EnableOrCustom::Enable(true);
-fn default_enabled_checkers() -> IndexMap<CheckerTool, EnableOrCustom> {
+const DISABLE: EnableOrCustom = EnableOrCustom::Enable(false);
+
+// The map must contain checker key to validate the JSON config.
+fn default_checkers(run_all_checkers: bool) -> IndexMap<CheckerTool, EnableOrCustom> {
+    let state = || if run_all_checkers { ENABLED } else { DISABLE };
     indexmap::indexmap! {
-        Fmt => ENABLED,
-        Clippy => ENABLED,
-        SemverChecks => ENABLED,
-        Lockbud => ENABLED,
-        Mirai => ENABLED,
-        Audit => ENABLED,
-        Rapx => ENABLED,
-        Rudra => ENABLED,
-        Outdated => ENABLED,
-        Geiger => ENABLED,
+        Fmt => state(),
+        Clippy => state(),
+        SemverChecks => state(),
+        Lockbud => state(),
+        Mirai => state(),
+        Audit => state(),
+        Rapx => state(),
+        Rudra => state(),
+        Outdated => state(),
+        Geiger => state(),
     }
 }
 
 impl Cmds {
     /// TODO: 其他工具待完成
-    pub fn new_with_all_checkers_enabled() -> Self {
+    pub fn new_with_all_checkers_enabled(run_all_checkers: bool) -> Self {
         Self {
-            map: default_enabled_checkers(),
+            map: default_checkers(run_all_checkers),
         }
     }
 
     /// TODO: 其他工具待完成
-    pub fn enable_all_checkers(&mut self) {
-        self.map = default_enabled_checkers();
+    pub fn enable_all_checkers(&mut self, run_all_checkers: bool) {
+        self.map = default_checkers(run_all_checkers);
     }
 
     /// Override self by setting values from the other,
@@ -207,7 +211,7 @@ pub struct Meta {
     pub use_last_cache: bool,
 
     #[serde(default = "run_all_checkers")]
-    run_all_checkers: bool,
+    pub run_all_checkers: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
@@ -277,7 +281,7 @@ fn empty_globs() -> MaybeMulti {
     MaybeMulti::Multi(vec![])
 }
 
-fn run_all_checkers() -> bool {
+pub fn run_all_checkers() -> bool {
     true
 }
 

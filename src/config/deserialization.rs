@@ -62,7 +62,12 @@ impl RepoConfig {
 
         let selected_pkgs = self.selected_pkgs(packages)?;
 
-        let mut cmds = Cmds::new_with_all_checkers_enabled();
+        let run_all_checkers = self
+            .meta
+            .as_ref()
+            .map(|meta| meta.run_all_checkers)
+            .unwrap_or_else(config_options::run_all_checkers);
+        let mut cmds = Cmds::new_with_all_checkers_enabled(run_all_checkers);
 
         // validate checkers in cmds
         self.validate_checker(repo, &cmds)?;
@@ -103,7 +108,7 @@ impl RepoConfig {
             resolve_for_single_pkg(&cmds, &pkgs, &mut v)?;
 
             // default to enable all checkers for next package
-            cmds.enable_all_checkers();
+            cmds.enable_all_checkers(run_all_checkers);
         }
 
         v.sort_unstable_by(|a, b| (&a.pkg_name, a.checker).cmp(&(&b.pkg_name, b.checker)));
