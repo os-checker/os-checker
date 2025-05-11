@@ -107,11 +107,18 @@ pub struct Meta {
     pub rerun: bool,
     #[serde(default)]
     pub use_last_cache: bool,
+    #[serde(default = "run_all_checkers")]
+    pub run_all_checkers: bool,
 }
 
 fn empty_globs() -> MaybeMulti {
     MaybeMulti::Multi(vec![])
 }
+
+fn run_all_checkers() -> bool {
+    true
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(transparent)]
 pub struct TargetEnv {

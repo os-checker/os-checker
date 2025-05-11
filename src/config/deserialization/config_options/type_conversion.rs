@@ -35,6 +35,7 @@ impl From<Meta> for out::Meta {
             target_env,
             rerun,
             use_last_cache,
+            run_all_checkers,
         } = value;
         Self {
             only_pkg_dir_globs: only_pkg_dir_globs.into(),
@@ -42,6 +43,7 @@ impl From<Meta> for out::Meta {
             target_env: target_env.into(),
             rerun,
             use_last_cache,
+            run_all_checkers,
         }
     }
 }
@@ -94,6 +96,7 @@ impl From<out::Meta> for Meta {
             target_env,
             rerun,
             use_last_cache,
+            run_all_checkers,
         } = value;
         Self {
             only_pkg_dir_globs: only_pkg_dir_globs.into(),
@@ -101,6 +104,7 @@ impl From<out::Meta> for Meta {
             target_env: target_env.into(),
             rerun,
             use_last_cache,
+            run_all_checkers,
         }
     }
 }

@@ -205,6 +205,9 @@ pub struct Meta {
 
     #[serde(default)]
     pub use_last_cache: bool,
+
+    #[serde(default = "run_all_checkers")]
+    run_all_checkers: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
@@ -274,6 +277,10 @@ fn empty_globs() -> MaybeMulti {
     MaybeMulti::Multi(vec![])
 }
 
+fn run_all_checkers() -> bool {
+    true
+}
+
 impl Default for Meta {
     fn default() -> Self {
         Self {
@@ -282,6 +289,7 @@ impl Default for Meta {
             target_env: TargetEnv::default(),
             rerun: false,
             use_last_cache: false,
+            run_all_checkers: run_all_checkers(),
         }
     }
 }
