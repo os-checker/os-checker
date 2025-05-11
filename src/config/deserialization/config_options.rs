@@ -190,10 +190,10 @@ impl std::ops::DerefMut for Cmds {
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Meta {
-    #[serde(default = "defalt_skip_pkg_dir_globs")]
+    #[serde(default = "empty_globs")]
     only_pkg_dir_globs: MaybeMulti,
 
-    #[serde(default = "defalt_skip_pkg_dir_globs")]
+    #[serde(default = "empty_globs")]
     skip_pkg_dir_globs: MaybeMulti,
 
     /// { "target1": { "ENV1": "val" } }
@@ -270,15 +270,15 @@ fn glob_pattern(s: &str) -> Result<glob::Pattern> {
     glob::Pattern::new(s).with_context(|| format!("{s} is not a valid glob pattern."))
 }
 
-fn defalt_skip_pkg_dir_globs() -> MaybeMulti {
+fn empty_globs() -> MaybeMulti {
     MaybeMulti::Multi(vec![])
 }
 
 impl Default for Meta {
     fn default() -> Self {
         Self {
-            only_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
-            skip_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
+            only_pkg_dir_globs: empty_globs(),
+            skip_pkg_dir_globs: empty_globs(),
             target_env: TargetEnv::default(),
             rerun: false,
             use_last_cache: false,
