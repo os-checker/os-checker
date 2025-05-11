@@ -227,6 +227,7 @@ impl Layout {
         // 中的筛选方式，而不再指向全部 package 的 Cargo.toml.
 
         let libs = lib_pkgs(&self.workspaces, &self.cargo_tomls);
+        info!(?libs);
         let audit = {
             // query cargo audit with less pkgs
             let pkg_dirs: Vec<_> = if self.workspaces.len() > self.cargo_tomls.len() {
