@@ -14,6 +14,7 @@ use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
     Metadata, MetadataCommand,
 };
+use eyre::Context;
 use indexmap::IndexMap;
 use std::{fmt, rc::Rc};
 
@@ -147,7 +148,13 @@ impl Layout {
     ) -> Result<Layout> {
         let root_path = Utf8PathBuf::from(repo_root).canonicalize_utf8()?;
 
-        let cargo_tomls = find_all_cargo_toml_paths(repo_root, dirs_excluded, only_dirs);
+        let cargo_tomls: Vec<_> = find_all_cargo_toml_paths(repo_root, dirs_excluded, only_dirs)
+            .into_iter()
+            .map(|path| {
+                path.canonicalize_utf8()
+                    .with_context(|| format!("{path} are not able to canonicalize"))
+            })
+            .collect::<Result<_>>()?;
         ensure!(
             !cargo_tomls.is_empty(),
             "repo_root `{repo_root}` (规范路径为 `{root_path}`) 不是 Rust \
