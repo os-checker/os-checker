@@ -95,9 +95,9 @@ impl Cmds {
 
 #[derive(Debug, Serialize, Deserialize, Encode, Decode, Clone)]
 pub struct Meta {
-    #[serde(default)]
+    #[serde(default = "empty_globs")]
     pub only_pkg_dir_globs: MaybeMulti,
-    #[serde(default)]
+    #[serde(default = "empty_globs")]
     pub skip_pkg_dir_globs: MaybeMulti,
     /// { "target1": { "ENV1": "val" } }
     #[serde(default)]
@@ -107,6 +107,16 @@ pub struct Meta {
     pub rerun: bool,
     #[serde(default)]
     pub use_last_cache: bool,
+    #[serde(default = "run_all_checkers")]
+    pub run_all_checkers: bool,
+}
+
+fn empty_globs() -> MaybeMulti {
+    MaybeMulti::Multi(vec![])
+}
+
+fn run_all_checkers() -> bool {
+    true
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]

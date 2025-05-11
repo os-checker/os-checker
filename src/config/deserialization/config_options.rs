@@ -135,44 +135,36 @@ impl JsonSchema for Cmds {
 }
 
 const ENABLED: EnableOrCustom = EnableOrCustom::Enable(true);
+const DISABLE: EnableOrCustom = EnableOrCustom::Enable(false);
+
+// The map must contain checker key to validate the JSON config.
+fn default_checkers(run_all_checkers: bool) -> IndexMap<CheckerTool, EnableOrCustom> {
+    let state = || if run_all_checkers { ENABLED } else { DISABLE };
+    indexmap::indexmap! {
+        Fmt => state(),
+        Clippy => state(),
+        SemverChecks => state(),
+        Lockbud => state(),
+        Mirai => state(),
+        Audit => state(),
+        Rapx => state(),
+        Rudra => state(),
+        Outdated => state(),
+        Geiger => state(),
+    }
+}
 
 impl Cmds {
     /// TODO: 其他工具待完成
-    pub fn new_with_all_checkers_enabled() -> Self {
+    pub fn new_with_all_checkers_enabled(run_all_checkers: bool) -> Self {
         Self {
-            map: indexmap::indexmap! {
-                Fmt => ENABLED,
-                Clippy => ENABLED,
-                SemverChecks => ENABLED,
-                Lockbud => ENABLED,
-                Mirai => ENABLED,
-                Audit => ENABLED,
-                Rapx => ENABLED,
-                Rudra => ENABLED,
-                Outdated => ENABLED,
-                Geiger => ENABLED,
-            },
+            map: default_checkers(run_all_checkers),
         }
     }
 
     /// TODO: 其他工具待完成
-    pub fn enable_all_checkers(&mut self) {
-        for checker in [
-            Fmt,
-            Clippy,
-            SemverChecks,
-            Lockbud,
-            Mirai,
-            Audit,
-            Rapx,
-            Rudra,
-            Outdated,
-            Geiger,
-        ] {
-            self.entry(checker)
-                .and_modify(|cmd| *cmd = ENABLED)
-                .or_insert(ENABLED);
-        }
+    pub fn enable_all_checkers(&mut self, run_all_checkers: bool) {
+        self.map = default_checkers(run_all_checkers);
     }
 
     /// Override self by setting values from the other,
@@ -202,10 +194,10 @@ impl std::ops::DerefMut for Cmds {
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
 pub struct Meta {
-    #[serde(default = "defalt_skip_pkg_dir_globs")]
+    #[serde(default = "empty_globs")]
     only_pkg_dir_globs: MaybeMulti,
 
-    #[serde(default = "defalt_skip_pkg_dir_globs")]
+    #[serde(default = "empty_globs")]
     skip_pkg_dir_globs: MaybeMulti,
 
     /// { "target1": { "ENV1": "val" } }
@@ -217,6 +209,9 @@ pub struct Meta {
 
     #[serde(default)]
     pub use_last_cache: bool,
+
+    #[serde(default = "run_all_checkers")]
+    pub run_all_checkers: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
@@ -282,18 +277,23 @@ fn glob_pattern(s: &str) -> Result<glob::Pattern> {
     glob::Pattern::new(s).with_context(|| format!("{s} is not a valid glob pattern."))
 }
 
-fn defalt_skip_pkg_dir_globs() -> MaybeMulti {
+fn empty_globs() -> MaybeMulti {
     MaybeMulti::Multi(vec![])
+}
+
+pub fn run_all_checkers() -> bool {
+    true
 }
 
 impl Default for Meta {
     fn default() -> Self {
         Self {
-            only_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
-            skip_pkg_dir_globs: defalt_skip_pkg_dir_globs(),
+            only_pkg_dir_globs: empty_globs(),
+            skip_pkg_dir_globs: empty_globs(),
             target_env: TargetEnv::default(),
             rerun: false,
             use_last_cache: false,
+            run_all_checkers: run_all_checkers(),
         }
     }
 }
