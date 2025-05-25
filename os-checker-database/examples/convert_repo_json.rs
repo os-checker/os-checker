@@ -203,9 +203,11 @@ impl Diagnosis {
         for report in &mut *v {
             if report.file == self.file && report.features == self.features {
                 // the file exists in lockbud kind, then append the diag
-                report.kinds.get_mut(&self.kind).unwrap().push(self.diag);
-                report.count += 1;
-                return;
+                if let Some(kind) = report.kinds.get_mut(&self.kind) {
+                    kind.push(self.diag);
+                    report.count += 1;
+                    return;
+                }
             }
         }
         // create a diag
