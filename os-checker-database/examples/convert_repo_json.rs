@@ -164,31 +164,25 @@ fn rewrite_lockbud(
     diagnoses: &[String],
     set: &mut IndexSet<Diagnosis>,
 ) {
-    assert_eq!(
-        diagnoses.len(),
-        1,
-        "Lockbud must have one disanosis.\nreport={report:?}"
-    );
-    // file and count are virtual and meaningless
-    let diagnosis = &*diagnoses[0];
-    // println!("{diagnosis}");
-
-    for cap in RE.lockbud.captures_iter(diagnosis) {
-        let matched = cap.get(0).unwrap().as_str();
-        let v_map: Vec<indexmap::IndexMap<lockbud::BugKind, lockbud::Lockbud>> =
-            serde_json::from_str(matched).unwrap();
-        for map in &v_map {
-            for (bug_kind, val) in map {
-                let file_paths = val.file_paths();
-                println!("{bug_kind:?}: {file_paths:?}");
-                for file in file_paths {
-                    // dedup by diag: never emit two identical diags for the same file, kind, feature
-                    set.insert(Diagnosis {
-                        features: report.features.clone(),
-                        kind,
-                        file,
-                        diag: serde_json::to_string_pretty(&val).unwrap(),
-                    });
+    println!("  Lockbud has {} disanosis.", diagnoses.len());
+    for diagnosis in diagnoses {
+        for cap in RE.lockbud.captures_iter(diagnosis) {
+            let matched = cap.get(0).unwrap().as_str();
+            let v_map: Vec<indexmap::IndexMap<lockbud::BugKind, lockbud::Lockbud>> =
+                serde_json::from_str(matched).unwrap();
+            for map in &v_map {
+                for (bug_kind, val) in map {
+                    let file_paths = val.file_paths();
+                    println!("{bug_kind:?}: {file_paths:?}");
+                    for file in file_paths {
+                        // dedup by diag: never emit two identical diags for the same file, kind, feature
+                        set.insert(Diagnosis {
+                            features: report.features.clone(),
+                            kind,
+                            file,
+                            diag: serde_json::to_string_pretty(&val).unwrap(),
+                        });
+                    }
                 }
             }
         }
