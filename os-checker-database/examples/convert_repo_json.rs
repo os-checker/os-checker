@@ -169,7 +169,11 @@ fn rewrite_lockbud(
         for cap in RE.lockbud.captures_iter(diagnosis) {
             let matched = cap.get(0).unwrap().as_str();
             let v_map: Vec<indexmap::IndexMap<lockbud::BugKind, lockbud::Lockbud>> =
-                serde_json::from_str(matched).unwrap();
+                serde_json::from_str(matched).unwrap_or_else(|err| {
+                    // FIXME: https://github.com/os-checker/os-checker/issues/362
+                    eprintln!("Unable to parse data:\nerr={err:?}\nmatched=\n{matched}");
+                    Vec::new()
+                });
             for map in &v_map {
                 for (bug_kind, val) in map {
                     let file_paths = val.file_paths();
