@@ -86,6 +86,10 @@ jobs:
       - name: Install os-checker batch
         run: cargo install --path . --force --example batch
 
+      # Rewrite lockbud dignostics.
+      - name: Install convert_repo_json
+        run: cargo install --path os-checker-database --force --example convert_repo_json
+
       - name: Run All Checkers
         run: |
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
