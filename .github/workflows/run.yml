@@ -81,14 +81,14 @@ jobs:
           sudo apt install libfuse-dev fuse3 libfuse3-dev -y # yuoo655/ext4libtest requires
 
       - name: Install os-checker
-        run: cargo install --path . --force
+        run: cargo install --path . --force --locked
 
       - name: Install os-checker batch
-        run: cargo install --path . --force --example batch
+        run: cargo install --path . --force --example batch --locked
 
       # Rewrite lockbud dignostics.
       - name: Install convert_repo_json
-        run: cargo install --path os-checker-database --force --example convert_repo_json
+        run: cargo install --path os-checker-database --force --example convert_repo_json --locked
 
       - name: Run All Checkers
         run: |
@@ -121,7 +121,7 @@ jobs:
 
       - name: Update cache.redb
         run: |
-          cargo install --path os-checker-database
+          cargo install --path os-checker-database --locked
           cd ~/check
           df -alh
           make upload
