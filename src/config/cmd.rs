@@ -228,7 +228,11 @@ pub fn cargo_udeps(pkg: &Pkg) -> Resolve {
 
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
-    let cmd = format!("{env_str}cargo {toolchain} udeps");
+    let cmd = format!(
+        "{env_str}cargo {toolchain} udeps --target {} {}",
+        pkg.target,
+        pkg.features_args.join(" ")
+    );
     Resolve::new(pkg, CheckerTool::Udeps, cmd, expr)
 }
 /// 自定义检查命令。
