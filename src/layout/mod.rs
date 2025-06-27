@@ -12,7 +12,7 @@ use crate::{
 use audit::CargoAudit;
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
-    Metadata, MetadataCommand,
+    Metadata, MetadataCommand, TargetKind,
 };
 use eyre::Context;
 use indexmap::IndexMap;
@@ -622,9 +622,9 @@ fn lib_pkgs(
             }
             for target in &p.targets {
                 for kind in &target.kind {
-                    if kind == "lib" {
+                    if *kind == TargetKind::Lib {
                         // The package is inserted above just now.
-                        map.get_mut(&*p.name).unwrap().is_lib = true;
+                        map.get_mut(p.name.as_str()).unwrap().is_lib = true;
                         continue 'p;
                     }
                 }

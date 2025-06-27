@@ -94,7 +94,7 @@ time = { version = "0.3", features = ["parsing", "macros"] }
 
 os-checker-types = { version = "0.7.0", path = "os-checker-types" }
 
-cargo_metadata = "0.18.1" # parse metadata for knowing project layout
+cargo_metadata = "0.20.0" # parse metadata for knowing project layout
 # [workspace.dependencies.cargo_metadata]
 # git = "https://github.com/os-checker/cargo_metadata.git"
 # # branch = "workspace_default_members-serde-default"
