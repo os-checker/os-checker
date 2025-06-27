@@ -1,6 +1,6 @@
 [package]
 name = "os-checker"
-version = "0.6.1"
+version = "0.7.0"
 edition = "2021"
 rust-version = "1.80"
 exclude = ["assets", ".github", "repos", "tests", "examples", "Makefile", "dist-workspace.toml"]
@@ -93,7 +93,7 @@ redb = "2"
 musli = { version = "0.0.124", features = ["storage", "serde"] }
 time = { version = "0.3", features = ["parsing", "macros"] }
 
-os-checker-types = { version = "0.6.0", path = "os-checker-types" }
+os-checker-types = { version = "0.7.0", path = "os-checker-types" }
 
 cargo_metadata = "0.18.1" # parse metadata for knowing project layout
 # [workspace.dependencies.cargo_metadata]

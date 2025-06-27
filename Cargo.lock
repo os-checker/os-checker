@@ -776,7 +776,7 @@ checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
 
 [[package]]
 name = "os-checker"
-version = "0.6.1"
+version = "0.7.0"
 dependencies = [
  "argh",
  "basic-toml",
@@ -814,7 +814,7 @@ dependencies = [
 
 [[package]]
 name = "os-checker-database"
-version = "0.6.1"
+version = "0.7.0"
 dependencies = [
  "ahash",
  "argh",
@@ -838,7 +838,7 @@ dependencies = [
 
 [[package]]
 name = "os-checker-types"
-version = "0.6.1"
+version = "0.7.0"
 dependencies = [
  "camino",
  "cargo_metadata",
