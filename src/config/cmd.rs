@@ -213,7 +213,6 @@ pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
 }
 
 /// 自定义检查命令。
-#[instrument(level = "trace")]
 pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
     let (input, mut words) = parse_cmd(line)?;
     ensure!(

@@ -26,7 +26,6 @@ struct Batch {
 const DB: &str = "cache.redb";
 const OS_CHECKER_CONFIGS: &str = "OS_CHECKER_CONFIGS";
 
-#[instrument(level = "trace")]
 fn main() -> Result<()> {
     logger::init();
     let batch: Batch = argh::from_env();

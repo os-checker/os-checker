@@ -150,7 +150,6 @@ impl Config {
 impl TryFrom<Value> for Config {
     type Error = eyre::Error;
 
-    #[instrument(level = "trace")]
     fn try_from(value: Value) -> Result<Self> {
         if let Value::Object(obj) = value {
             // assert_eq!(config.len(), 1);
@@ -186,13 +185,11 @@ impl Serialize for Config {
 pub struct Configs(Vec<Config>);
 
 impl Configs {
-    #[instrument(level = "trace")]
     pub fn from_json(json: &str) -> Result<Self> {
         Ok(serde_json::from_str(json)?)
     }
 
     /// 序列化一个仓库配置
-    #[instrument(level = "trace")]
     pub fn from_json_path(path: &Utf8Path) -> Result<Self> {
         let json = std::fs::read_to_string(path)
             .with_context(|| format!("从 `{path}` 读取仓库列表失败！请输入正确的 json 路径。"))?;
@@ -215,7 +212,6 @@ impl Configs {
             .collect()
     }
 
-    #[instrument(level = "trace")]
     pub fn batch(self, size: usize, dir: &Utf8Path) -> Result<()> {
         use std::fmt::Write;
         let mut path = Utf8PathBuf::from(dir);
@@ -276,7 +272,6 @@ impl Serialize for Configs {
 impl TryFrom<Value> for Configs {
     type Error = eyre::Error;
 
-    #[instrument(level = "trace")]
     fn try_from(value: Value) -> Result<Self> {
         if let Value::Object(obj) = value {
             // assert_eq!(config.len(), 1);

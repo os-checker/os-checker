@@ -191,7 +191,7 @@ impl Rustc {
     // host: x86_64-unknown-linux-gnu
     // release: 1.82.0-nightly
     // LLVM version: 19.1.0
-    #[instrument(level = "trace")]
+
     fn new() -> Result<Rustc> {
         fn parse(pat: &str, src: &str) -> Result<String> {
             let f = || format!("`{src:?}` doesn't contain `{pat}` pattern to get a value");
@@ -218,7 +218,7 @@ impl Rustc {
 }
 
 #[test]
-#[instrument(level = "trace")]
+
 fn rustc_verbose() -> Result<()> {
     expect_test::expect![[r#"
         Rustc {
@@ -250,7 +250,6 @@ impl RustupList {
 }
 
 /// arg: target or component
-#[instrument(level = "trace")]
 fn get_installed(arg: RustupList) -> Result<Vec<String>> {
     let list = cmd!("rustup", arg.name(), "list").read()?;
     Ok(list
@@ -260,7 +259,6 @@ fn get_installed(arg: RustupList) -> Result<Vec<String>> {
         .collect())
 }
 
-#[instrument(level = "trace")]
 fn host_rust_toolchain() -> Result<(RustToolchain, Rustc)> {
     let channel = cmd!("rustup", "default").read()?;
     // e.g. nightly-x86_64-unknown-linux-gnu (default)
@@ -288,7 +286,7 @@ fn host_rust_toolchain() -> Result<(RustToolchain, Rustc)> {
 }
 
 #[test]
-#[instrument(level = "trace")]
+
 fn test_host_rust_toolchain() -> Result<()> {
     dbg!(host_rust_toolchain()?);
     Ok(())

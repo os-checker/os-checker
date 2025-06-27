@@ -129,7 +129,7 @@ fn features_empty_string() -> Result<()> {
     let set2 = Features::new_complete("", false, false, vec![]);
     ensure!(set2.is_empty(), "Features in {set2:?} is not empty");
     ser_de(
-        &[set2.clone()],
+        std::slice::from_ref(&set2),
         expect_test::expect![[r#"
         [
           {}

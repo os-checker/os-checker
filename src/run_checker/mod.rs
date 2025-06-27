@@ -220,11 +220,10 @@ impl Repo {
         outputs.push_cargo_layout_parse_error(pkg_name, output, db_repo);
     }
 
-    /// 提前删除仓库目录
-    #[instrument(level = "trace")]
-    pub fn clean_repo_dir(&self) -> Result<()> {
-        self.config.clean_repo_dir()
-    }
+    // 提前删除仓库目录
+    // pub fn clean_repo_dir(&self) -> Result<()> {
+    //     self.config.clean_repo_dir()
+    // }
 
     pub fn list_targets(&self) -> Result<Vec<ListTargets>> {
         self.config.list_targets(&self.layout.packages()?)

@@ -139,7 +139,7 @@ fn update_key_and_idx(nodes: &mut [NodeRepo]) {
 
 /// 读取 src_dir 的所有 JSON，合并成一个新的 JSON，并写到 target_dir。
 /// 新 JSON 的文件名取自 src_dir 的目录名。
-#[instrument(level = "trace")]
+
 pub fn write_batch(src_dir: &Utf8Path, target_dir: &Utf8Path) -> Result<()> {
     let vec_bytes = crate::json_paths(src_dir.as_str())?
         .into_iter()

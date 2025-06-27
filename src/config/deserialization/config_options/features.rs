@@ -36,7 +36,7 @@ impl Features {
                     )
                 }
                 ensure!(
-                    [complete.no_default_features, complete.all_features] != [true; 2], 
+                    [complete.no_default_features, complete.all_features] != [true; 2],
                     "`no_default_features` and `all_features` can't be both true in package `{pkg}`"
                 );
             }

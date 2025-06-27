@@ -32,7 +32,6 @@ pub const PLUS_TOOLCHAIN_RAP: &str = "+nightly-2024-10-12";
 
 /// git clone 一个仓库到一个 dir。
 /// 如果该仓库已存在，则 git pull 拉取最新的代码。
-#[instrument(level = "trace")]
 pub fn git_clone(dir: &Utf8Path, url: &str) -> Result<(std::process::Output, u64)> {
     let now = std::time::Instant::now();
     let output = if dir.exists() {

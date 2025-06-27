@@ -24,7 +24,6 @@ mod run_checker;
 /// some helper functions
 mod utils;
 
-#[instrument(level = "trace")]
 fn main() -> Result<()> {
     logger::init();
     cli::args().execute()

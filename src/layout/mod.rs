@@ -54,7 +54,6 @@ fn find_all_cargo_toml_paths<E: Exclude>(
 pub type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
 
 /// 解析所有 Cargo.toml 所在的 Package 的 metadata 来获取仓库所有的 Workspaces
-#[instrument(level = "trace")]
 fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
     let mut map = IndexMap::new();
     for cargo_toml in cargo_tomls {
