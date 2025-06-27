@@ -1,5 +1,4 @@
 use crate::Result;
-use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[cfg(test)]
@@ -7,7 +6,7 @@ mod tests;
 
 mod type_conversion;
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum Features {
     Complete(FeaturesCompleteState),
@@ -97,7 +96,7 @@ impl Features {
 // --target aarch64-unknown-none -F feat1,feat2
 // --target aarch64-unknown-none -F feat1,feat2 --no-default-features
 // --target aarch64-unknown-none --all-features
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FeaturesCompleteState {
     // {"F": ""} is the same as {}
     #[serde(rename = "F", default)]
@@ -122,7 +121,7 @@ fn skip_false(b: &bool) -> bool {
 }
 
 /// -F feat1,feat2,...
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(transparent)]
 pub struct FeaturesWithCommas {
     /// vec!["feat1", "feat2", ...]

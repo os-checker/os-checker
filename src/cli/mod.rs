@@ -1,5 +1,5 @@
 use crate::{
-    config::{gen_schema, Configs},
+    config::Configs,
     db::Db,
     output::JsonOutput,
     run_checker::{FullOrFastOutputs, Repo, RepoOutput},
@@ -55,7 +55,6 @@ impl Args {
             }
             SubArgs::Batch(batch) => batch.execute()?,
             SubArgs::Config(config) => config.execute()?,
-            SubArgs::Schema(schema) => gen_schema(&schema.path)?,
             SubArgs::Db(db) => db.execute()?,
         }
         Ok(())
@@ -86,7 +85,6 @@ impl Args {
             SubArgs::Run(run) => &mut run.config,
             SubArgs::Batch(batch) => &mut batch.config,
             SubArgs::Config(config) => &mut config.config,
-            SubArgs::Schema(_) => return Ok(()),
             SubArgs::Db(_) => return Ok(()),
         };
         if mut_config.is_empty() {
@@ -110,7 +108,6 @@ enum SubArgs {
     Run(ArgsRun),
     Batch(ArgsBatch),
     Config(arg_config::ArgsConfig),
-    Schema(ArgsSchema),
     Db(ArgsDb),
 }
 
