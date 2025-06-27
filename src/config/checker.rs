@@ -1,6 +1,5 @@
 use camino::Utf8Path;
 use musli::{Decode, Encode};
-use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use CheckerTool::*;
 
@@ -8,19 +7,7 @@ pub const TOOLS: usize = 11; // 目前支持的检查工具数量
 
 /// 检查工具
 #[derive(
-    Debug,
-    Serialize,
-    Deserialize,
-    PartialEq,
-    Eq,
-    Clone,
-    Copy,
-    PartialOrd,
-    Ord,
-    Hash,
-    JsonSchema,
-    Encode,
-    Decode,
+    Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, Encode, Decode,
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum CheckerTool {

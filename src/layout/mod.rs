@@ -12,7 +12,7 @@ use crate::{
 use audit::CargoAudit;
 use cargo_metadata::{
     camino::{Utf8Path, Utf8PathBuf},
-    Metadata, MetadataCommand,
+    Metadata, MetadataCommand, TargetKind,
 };
 use eyre::Context;
 use indexmap::IndexMap;
@@ -54,7 +54,6 @@ fn find_all_cargo_toml_paths<E: Exclude>(
 pub type Workspaces = IndexMap<Utf8PathBuf, Metadata>;
 
 /// 解析所有 Cargo.toml 所在的 Package 的 metadata 来获取仓库所有的 Workspaces
-#[instrument(level = "trace")]
 fn parse(cargo_tomls: &[Utf8PathBuf]) -> Result<Workspaces> {
     let mut map = IndexMap::new();
     for cargo_toml in cargo_tomls {
@@ -623,9 +622,9 @@ fn lib_pkgs(
             }
             for target in &p.targets {
                 for kind in &target.kind {
-                    if kind == "lib" {
+                    if *kind == TargetKind::Lib {
                         // The package is inserted above just now.
-                        map.get_mut(&*p.name).unwrap().is_lib = true;
+                        map.get_mut(p.name.as_str()).unwrap().is_lib = true;
                         continue 'p;
                     }
                 }

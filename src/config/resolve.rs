@@ -186,7 +186,6 @@ impl Resolve {
         resolved.extend(pkgs.iter().map(cargo_outdated));
     }
 
-    #[instrument(level = "trace")]
     pub fn custom(
         pkgs: &[Pkg],
         lines: &[String],

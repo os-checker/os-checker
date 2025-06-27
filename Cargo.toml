@@ -15,9 +15,8 @@ license-file = "./LICENSE.MulanPubL"
 
 [dependencies]
 basic-toml = "0.1"
-prettydiff = { version = "0.7.0", default-features = false }
+prettydiff = { version = "0.8.0", default-features = false }
 either = "1"
-schemars = { version = "1.0.0-alpha.15", features = ["preserve_order", "indexmap2"] }
 strip-ansi-escapes = "0.2"
 jsonxf = "1"
 # wait for https://github.com/gamache/jsonxf/pull/10 to merge
@@ -54,11 +53,11 @@ walkdir = { workspace = true }
 
 # shell commands
 duct = { workspace = true }
-yash-syntax = "0.12.0" # shell lang parsing
+yash-syntax = "0.15.0" # shell lang parsing
 
 [dev-dependencies]
 expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
-dirs = "5"
+dirs = "6"
 # tempfile = "3"
 
 [build-dependencies]
@@ -69,11 +68,11 @@ color-eyre = "0.6.3"
 argh = "0.1.12"   # cli argument parser
 ahash = "0.8.11"
 camino = { version = "1.1.9", features = ["serde1"] } # Utf8 Path
-compact_str = { version = "0.8.0", features = ["serde"] }
-duct = "0.13.7" # better subprocess, pipe, redirct
+compact_str = { version = "0.9.0", features = ["serde"] }
+duct = "1" # better subprocess, pipe, redirct
 hashbrown = { version = "0.15", features = ["default"]}
 indexmap = { version = "2.4.0", features = ["serde"] }
-itertools = "0.13.0"
+itertools = "0.14.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1.0.125", features = ["preserve_order"] }
 glob = "0.3"
@@ -90,12 +89,12 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tracing-error = "0.2"
 
 redb = "2"
-musli = { version = "0.0.124", features = ["storage", "serde"] }
+musli = { version = "0.0.131", features = ["storage", "serde"] }
 time = { version = "0.3", features = ["parsing", "macros"] }
 
 os-checker-types = { version = "0.7.0", path = "os-checker-types" }
 
-cargo_metadata = "0.18.1" # parse metadata for knowing project layout
+cargo_metadata = "0.20.0" # parse metadata for knowing project layout
 # [workspace.dependencies.cargo_metadata]
 # git = "https://github.com/os-checker/cargo_metadata.git"
 # # branch = "workspace_default_members-serde-default"

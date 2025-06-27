@@ -1,5 +1,5 @@
 use crate::{
-    config::{gen_schema, Configs},
+    config::Configs,
     db::Db,
     output::JsonOutput,
     run_checker::{FullOrFastOutputs, Repo, RepoOutput},
@@ -37,7 +37,6 @@ pub struct Args {
 }
 
 impl Args {
-    #[instrument(level = "trace")]
     pub fn execute(mut self) -> Result<()> {
         self.set_configs()?;
         init_repos_base_dir(self.base_dir());
@@ -55,7 +54,6 @@ impl Args {
             }
             SubArgs::Batch(batch) => batch.execute()?,
             SubArgs::Config(config) => config.execute()?,
-            SubArgs::Schema(schema) => gen_schema(&schema.path)?,
             SubArgs::Db(db) => db.execute()?,
         }
         Ok(())
@@ -86,7 +84,6 @@ impl Args {
             SubArgs::Run(run) => &mut run.config,
             SubArgs::Batch(batch) => &mut batch.config,
             SubArgs::Config(config) => &mut config.config,
-            SubArgs::Schema(_) => return Ok(()),
             SubArgs::Db(_) => return Ok(()),
         };
         if mut_config.is_empty() {
@@ -110,7 +107,6 @@ enum SubArgs {
     Run(ArgsRun),
     Batch(ArgsBatch),
     Config(arg_config::ArgsConfig),
-    Schema(ArgsSchema),
     Db(ArgsDb),
 }
 
@@ -249,7 +245,6 @@ impl Emit {
 impl std::str::FromStr for Emit {
     type Err = eyre::Error;
 
-    #[instrument(level = "trace")]
     fn from_str(s: &str) -> Result<Emit> {
         match s.trim() {
             "json" => Ok(Emit::Json),
@@ -262,7 +257,6 @@ impl std::str::FromStr for Emit {
 /// 从配置文件路径中读取配置。
 /// 如果指定多个配置文件，则合并成一个大的配置文件。
 /// 返回值表示每个仓库的合并之后的配置信息。
-#[instrument(level = "trace")]
 fn configurations(configs: &[String]) -> Result<Configs> {
     Ok(match configs {
         [] => bail!("No configuration JSON is given."),
@@ -284,7 +278,6 @@ fn configurations(configs: &[String]) -> Result<Configs> {
 ///
 /// 由于 rustup 不是并发安全的，这里的检查（尤其是安装）必须串行执行。
 /// https://github.com/rust-lang/rustup/issues/2417
-#[instrument(level = "trace")]
 fn repos_outputs(
     configs: &[String],
     db: Option<Db>,
@@ -338,7 +331,6 @@ impl ArgsRun {
 }
 
 /// 生成 Repo（比如下载、解析布局、校验配置等）和工具链信息。
-#[instrument(level = "trace")]
 fn norun(configs: &[String]) -> Result<Vec<Repo>> {
     let repos: Vec<_> = configurations(configs)?
         .into_inner()
@@ -357,7 +349,6 @@ pub fn is_not_layout() -> bool {
 }
 
 impl ArgsLayout {
-    #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
         SETUP.store(false, Ordering::SeqCst);
 
@@ -401,7 +392,6 @@ impl ArgsLayout {
 
 impl ArgsBatch {
     /// 只生成分批的配置文件
-    #[instrument(level = "trace")]
     fn execute(&self) -> Result<()> {
         let configs = configurations(&self.config)?;
         configs.batch(self.size, &self.out_dir)?;

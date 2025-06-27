@@ -4,15 +4,10 @@ use crate::{
     layout::{PackageInfoShared, Packages, Pkg},
     Result,
 };
-use cargo_metadata::camino::Utf8Path;
 use eyre::Context;
 use indexmap::IndexMap;
-use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-
-#[cfg(test)]
-mod tests;
 
 mod config_options;
 use config_options::{Cmds, Meta, Targets};
@@ -23,7 +18,7 @@ pub use misc::TargetsSpecifed;
 
 mod type_conversion;
 
-#[derive(Debug, Serialize, Deserialize, Default, JsonSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct RepoConfig {
     #[serde(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -267,22 +262,5 @@ fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Re
         }
     }
 
-    Ok(())
-}
-
-/// Generate JSON schema
-#[instrument(level = "trace")]
-pub fn gen_schema(path: &Utf8Path) -> Result<()> {
-    use schemars::generate::SchemaSettings;
-    use std::io::Write;
-
-    let settings = SchemaSettings::draft07().with(|s| {
-        s.option_nullable = true;
-        s.option_add_null_type = false;
-    });
-    let generator = settings.into_generator();
-    let schema = generator.into_root_schema_for::<IndexMap<String, RepoConfig>>();
-    let json = serde_json::to_string_pretty(&schema)?;
-    std::fs::File::create(path)?.write_all(json.as_bytes())?;
     Ok(())
 }

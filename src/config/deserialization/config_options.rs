@@ -7,7 +7,7 @@ pub use self::features::Features;
 
 mod type_conversion;
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum EnableOrCustom {
     Enable(bool),
@@ -29,7 +29,6 @@ impl EnableOrCustom {
     /// 检查自定义命令是否包含 checker name：
     /// 当返回值为 Some 时，表示不包含，并返回这个 checker name；
     /// 当返回值为 None 时，表示检查通过，该命令包含 checker name。
-    #[instrument(level = "trace")]
     pub fn validate_checker_name(&self, checker: &str) -> Result<(), &str> {
         match self {
             EnableOrCustom::Single(s) if !s.contains(checker) => Err(s),
@@ -54,7 +53,7 @@ impl EnableOrCustom {
     }
 }
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum MaybeMulti {
     Single(String),
@@ -79,7 +78,7 @@ impl Debug for MaybeMulti {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Targets(MaybeMulti);
 
 impl Targets {
@@ -88,7 +87,7 @@ impl Targets {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Setup(MaybeMulti);
 
 impl Setup {
@@ -121,17 +120,6 @@ impl Setup {
 #[serde(transparent)]
 pub struct Cmds {
     map: IndexMap<CheckerTool, EnableOrCustom>,
-}
-
-// TODO: remove me
-impl JsonSchema for Cmds {
-    fn schema_name() -> std::borrow::Cow<'static, str> {
-        std::borrow::Cow::Borrowed("Cmds")
-    }
-
-    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
-        serde_json::Map::<String, serde_json::Value>::json_schema(generator)
-    }
 }
 
 const ENABLED: EnableOrCustom = EnableOrCustom::Enable(true);
@@ -192,7 +180,7 @@ impl std::ops::DerefMut for Cmds {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Meta {
     #[serde(default = "empty_globs")]
     only_pkg_dir_globs: MaybeMulti,
@@ -214,7 +202,7 @@ pub struct Meta {
     pub run_all_checkers: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(transparent)]
 pub struct TargetEnv {
     map: IndexMap<String, Env>,
@@ -235,7 +223,7 @@ impl TargetEnv {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(transparent)]
 struct Env {
     map: IndexMap<String, String>,

@@ -6,13 +6,11 @@ use indexmap::IndexMap;
 
 #[allow(dead_code)]
 impl Config {
-    #[instrument(level = "trace")]
     pub fn from_json(json: &str) -> Result<Config> {
         Ok(serde_json::from_str(json)?)
     }
 
     /// 序列化一个仓库配置
-    #[instrument(level = "trace")]
     pub fn from_json_path(json: &Utf8Path) -> Result<Config> {
         let json = std::fs::read_to_string(json)
             .with_context(|| format!("从 `{json}` 读取仓库列表失败！请输入正确的 json 路径。"))?;
