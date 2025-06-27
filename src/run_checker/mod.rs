@@ -521,8 +521,12 @@ fn run_check(
             &raw, &resolve,
         ))),
         CheckerTool::Udeps => {
-            let stdout = resolve.expr.read()?;
-            Ok(OutputParsed::Udeps(stdout))
+            let s = resolve
+                .expr
+                .unchecked()
+                .read()
+                .unwrap_or_else(|err| format!("{err:?}"));
+            Ok(OutputParsed::Udeps(s))
         }
         // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
         CheckerTool::Cargo => panic!("Don't specify cargo as a checker. It's a virtual one."),
