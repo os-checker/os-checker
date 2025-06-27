@@ -17,11 +17,11 @@ env:
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
   PUSH: true
-  toolchain: nightly-2025-01-26
+  toolchain: nightly-2025-06-26
   # push to which database branch 
   DATABASE: main
   # cache.redb tag in database release
-  TAG_CACHE: cache-os-checker-v0.7.0.redb
+  TAG_CACHE: cache-os-checker-v0.8.0.redb
   # force downloading repos to run check 
   FORCE_REPO_CHECK: false
   # force running checks after downloading repos
