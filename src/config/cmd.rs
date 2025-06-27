@@ -214,7 +214,18 @@ pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
 
 pub fn cargo_udeps(pkg: &Pkg) -> Resolve {
     let toolchain = host_toolchain();
-    let expr = cmd!("cargo", &toolchain, "udeps", "--color=never").dir(pkg.dir);
+    let mut args = vec![
+        "cargo",
+        &toolchain,
+        "udeps",
+        "--color=never",
+        "--target",
+        pkg.target,
+    ];
+    args.extend(pkg.features_args.iter().map(|s| &**s));
+
+    let expr = cmd("cargo", args).dir(pkg.dir);
+
     let (expr, env_str) = add_env(expr, &pkg.env);
     debug!(?expr);
     let cmd = format!("{env_str}cargo {toolchain} udeps");
