@@ -2,7 +2,7 @@ BASE_DIR ?= ~/check
 BATCH_DIR ?= $(BASE_DIR)/batch
 # CONFIG_DIR ?= $(BASE_DIR)/config
 OS_CHECKER_CONFIGS ?= repos-default.json repos-ui.json
-TAG_PRECOMPILED_CHECKERS ?= precompiled-checkers
+# TAG_PRECOMPILED_CHECKERS ?= precompiled-checkers
 
 ifeq ($(PUSH),true)
 	# push to database with 

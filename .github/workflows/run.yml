@@ -22,6 +22,8 @@ env:
   DATABASE: main
   # cache.redb tag in database release
   TAG_CACHE: cache-os-checker-v0.8.0.redb
+  # checkers in database release
+  TAG_PRECOMPILED_CHECKERS: cache-os-checker-v0.8.0.redb
   # force downloading repos to run check 
   FORCE_REPO_CHECK: false
   # force running checks after downloading repos
@@ -62,7 +64,7 @@ jobs:
       - name: Install Checkers
         run: |
           rustup default
-          gh release download --clobber -R os-checker/database precompiled-checkers -p checkers.tar.xz
+          gh release download --clobber -R os-checker/database ${{ env.TAG_PRECOMPILED_CHECKERS }} -p checkers.tar.xz
           tar -xvJf checkers.tar.xz -C ~/.cargo/bin/
           cargo audit --version
           cargo outdated --version
