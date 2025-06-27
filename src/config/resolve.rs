@@ -186,6 +186,10 @@ impl Resolve {
         resolved.extend(pkgs.iter().map(cargo_outdated));
     }
 
+    pub fn udeps(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
+        resolved.extend(pkgs.iter().map(cargo_udeps));
+    }
+
     pub fn custom(
         pkgs: &[Pkg],
         lines: &[String],

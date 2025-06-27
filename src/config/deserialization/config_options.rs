@@ -139,6 +139,7 @@ fn default_checkers(run_all_checkers: bool) -> IndexMap<CheckerTool, EnableOrCus
         Rudra => state(),
         Outdated => state(),
         Geiger => state(),
+        Udeps => state(),
     }
 }
 

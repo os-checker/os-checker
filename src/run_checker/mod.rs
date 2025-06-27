@@ -520,6 +520,8 @@ fn run_check(
         CheckerTool::SemverChecks => Ok(OutputParsed::SemverChecks(semver_checks::parse(
             &raw, &resolve,
         ))),
+        // reuse semver_checks::parse for udeps, since they are likewise.
+        CheckerTool::Udeps => Ok(OutputParsed::Udeps(semver_checks::parse(&raw, &resolve))),
         // 由于 run_check 只输出单个 Ouput，而其他检查工具可能会利用 cargo，因此导致发出两类诊断
         CheckerTool::Cargo => panic!("Don't specify cargo as a checker. It's a virtual one."),
     };
@@ -553,6 +555,7 @@ enum OutputParsed {
     Outdated(String),
     Geiger(String),
     SemverChecks(String),
+    Udeps(String),
     Cargo { source: CargoSource, stderr: String },
 }
 
@@ -594,7 +597,8 @@ impl OutputParsed {
             | OutputParsed::Rudra(s)
             | OutputParsed::Outdated(s)
             | OutputParsed::Geiger(s)
-            | OutputParsed::SemverChecks(s) => {
+            | OutputParsed::SemverChecks(s)
+            | OutputParsed::Udeps(s) => {
                 if s.is_empty() {
                     0
                 } else {

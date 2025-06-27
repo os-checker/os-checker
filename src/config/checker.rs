@@ -22,6 +22,7 @@ pub enum CheckerTool {
     Rudra,
     Outdated,
     Geiger,
+    Udeps,
     /// 这是一个虚拟的检查工具，它表示 stderr 中含 `^error:` 的情况
     Cargo,
 }
@@ -41,6 +42,7 @@ impl CheckerTool {
             Rudra => "rudra",
             Outdated => "outdated",
             Geiger => "geiger",
+            Udeps => "udeps",
             Cargo => "cargo",
         }
     }

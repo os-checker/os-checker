@@ -185,6 +185,8 @@ pub enum Kind {
     Rudra,
     Outdated,
     Geiger,
+    #[serde(rename = "Unused Deps")]
+    Udeps,
     Cargo,
 }
 
@@ -212,6 +214,7 @@ impl Kinds {
                 LockbudPossibly,
                 Outdated,
                 Geiger,
+                Udeps,
                 Unformatted,
             ],
             mapping: serde_json::json!({
@@ -225,6 +228,7 @@ impl Kinds {
                 "lockbud": [LockbudProbably, LockbudPossibly],
                 "outdated": [Outdated],
                 "geiger": [Geiger],
+                "udeps": [Udeps],
                 "fmt": [Unformatted]
             }),
         }
