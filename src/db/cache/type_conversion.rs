@@ -130,6 +130,7 @@ impl From<CheckerTool> for os_checker_types::CheckerTool {
             CheckerTool::Rudra => Self::Rudra,
             CheckerTool::Outdated => Self::Outdated,
             CheckerTool::Geiger => Self::Geiger,
+            CheckerTool::Udeps => Self::Udeps,
             CheckerTool::Cargo => Self::Cargo,
         }
     }
@@ -151,6 +152,7 @@ impl From<Kind> for os_checker_types::Kind {
             Kind::Rudra => Self::Rudra,
             Kind::Outdated => Self::Outdated,
             Kind::Geiger => Self::Geiger,
+            Kind::Udeps => Self::Udeps,
             Kind::Cargo => Self::Cargo,
         }
     }
@@ -281,6 +283,7 @@ impl From<os_checker_types::CheckerTool> for CheckerTool {
             os_checker_types::CheckerTool::Rudra => Self::Rudra,
             os_checker_types::CheckerTool::Outdated => Self::Outdated,
             os_checker_types::CheckerTool::Geiger => Self::Geiger,
+            os_checker_types::CheckerTool::Udeps => Self::Udeps,
             os_checker_types::CheckerTool::Cargo => Self::Cargo,
         }
     }
@@ -302,6 +305,7 @@ impl From<os_checker_types::Kind> for Kind {
             os_checker_types::Kind::Rudra => Self::Rudra,
             os_checker_types::Kind::Outdated => Self::Outdated,
             os_checker_types::Kind::Geiger => Self::Geiger,
+            os_checker_types::Kind::Udeps => Self::Udeps,
             os_checker_types::Kind::Cargo => Self::Cargo,
         }
     }

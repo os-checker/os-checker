@@ -212,6 +212,14 @@ pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
     Resolve::new(pkg, CheckerTool::SemverChecks, cmd, expr)
 }
 
+pub fn cargo_udeps(pkg: &Pkg) -> Resolve {
+    let toolchain = host_toolchain();
+    let expr = cmd!("cargo", &toolchain, "udeps", "--color=never").dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, &pkg.env);
+    debug!(?expr);
+    let cmd = format!("{env_str}cargo {toolchain} udeps");
+    Resolve::new(pkg, CheckerTool::Outdated, cmd, expr)
+}
 /// 自定义检查命令。
 pub fn custom(line: &str, pkg: &Pkg, checker: CheckerTool) -> Result<Resolve> {
     let (input, mut words) = parse_cmd(line)?;

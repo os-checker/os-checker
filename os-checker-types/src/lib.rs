@@ -147,6 +147,7 @@ pub enum Kind {
     Rudra,
     Outdated,
     Geiger,
+    Udeps,
     Cargo,
 }
 
@@ -167,6 +168,7 @@ impl Kind {
             Kind::Rudra => "Rudra",
             Kind::Outdated => "Outdated",
             Kind::Geiger => "Geiger",
+            Kind::Udeps => "Udeps",
             Kind::Cargo => "Cargo",
         }
     }
@@ -197,6 +199,7 @@ pub enum CheckerTool {
     Outdated,
     Geiger,
     Fmt,
+    Udeps,
 }
 
 impl CheckerTool {
@@ -215,6 +218,7 @@ impl CheckerTool {
             Self::Outdated => "outdated",
             Self::Geiger => "geiger",
             Self::Fmt => "fmt",
+            Self::Udeps => "udeps",
         }
     }
 }

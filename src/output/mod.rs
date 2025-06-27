@@ -185,6 +185,7 @@ pub enum Kind {
     Rudra,
     Outdated,
     Geiger,
+    Udeps,
     Cargo,
 }
 
