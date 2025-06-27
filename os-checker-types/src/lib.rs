@@ -147,6 +147,7 @@ pub enum Kind {
     Rudra,
     Outdated,
     Geiger,
+    #[serde(rename = "Unused Deps")]
     Udeps,
     Cargo,
 }
