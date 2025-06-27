@@ -214,14 +214,7 @@ pub fn cargo_semver_checks(pkg: &Pkg) -> Resolve {
 
 pub fn cargo_udeps(pkg: &Pkg) -> Resolve {
     let toolchain = host_toolchain();
-    let mut args = vec![
-        "cargo",
-        &toolchain,
-        "udeps",
-        "--color=never",
-        "--target",
-        pkg.target,
-    ];
+    let mut args = vec![&toolchain, "udeps", "--color=never", "--target", pkg.target];
     args.extend(pkg.features_args.iter().map(|s| &**s));
 
     let expr = cmd("cargo", args).dir(pkg.dir);
