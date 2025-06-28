@@ -1,6 +1,3 @@
 {
-  "os-checker/os-checker-test-suite": {
-    "meta": { "run_all_checkers": false },
-    "cmds": { "atomvchecker": true }
-  }
+  "os-checker/os-checker-test-suite": {}
 }
