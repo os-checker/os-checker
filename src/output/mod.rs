@@ -181,6 +181,7 @@ pub enum Kind {
     LockbudProbably,
     #[serde(rename = "Lockbud(Possibly)")]
     LockbudPossibly,
+    AtomVChecker,
     Rapx,
     Rudra,
     Outdated,
@@ -212,6 +213,7 @@ impl Kinds {
                 Rudra,
                 LockbudProbably,
                 LockbudPossibly,
+                AtomVChecker,
                 Outdated,
                 Geiger,
                 Udeps,
@@ -226,6 +228,7 @@ impl Kinds {
                 "rapx": [Rapx],
                 "rudra": [Rudra],
                 "lockbud": [LockbudProbably, LockbudPossibly],
+                "atomvchecker": [AtomVChecker],
                 "outdated": [Outdated],
                 "geiger": [Geiger],
                 "udeps": [Udeps],

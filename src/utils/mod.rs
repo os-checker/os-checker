@@ -28,6 +28,7 @@ pub const PLUS_TOOLCHAIN_HOST: &str = "+nightly";
 pub const PLUS_TOOLCHAIN_RUDRA: &str = "+nightly-2021-10-21";
 pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2025-01-10";
 pub const PLUS_TOOLCHAIN_LOCKBUD: &str = "+nightly-2025-02-01";
+pub const PLUS_TOOLCHAIN_ATOMVCHECKER: &str = "+nightly-2023-03-09";
 pub const PLUS_TOOLCHAIN_RAP: &str = "+nightly-2024-10-12";
 
 /// git clone 一个仓库到一个 dir。

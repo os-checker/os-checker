@@ -1,6 +1,6 @@
 {
   "os-checker/os-checker-test-suite": {
     "meta": { "run_all_checkers": false },
-    "cmds": { "udeps": true }
+    "cmds": { "atomvchecker": true }
   }
 }

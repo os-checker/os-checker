@@ -3,7 +3,8 @@ use crate::{
     layout::Pkg,
     output::host_toolchain,
     utils::{
-        PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI, PLUS_TOOLCHAIN_RAP, PLUS_TOOLCHAIN_RUDRA,
+        PLUS_TOOLCHAIN_ATOMVCHECKER, PLUS_TOOLCHAIN_LOCKBUD, PLUS_TOOLCHAIN_MIRAI,
+        PLUS_TOOLCHAIN_RAP, PLUS_TOOLCHAIN_RUDRA,
     },
     Result,
 };
@@ -76,9 +77,6 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
         "lockbud",
         "-k",
         "all",
-        "-b",
-        "-l",
-        "regex-automata,parking_lot_core,tokio,tokio_util",
         "--",
         "--target",
         pkg.target,
@@ -95,6 +93,28 @@ pub fn cargo_lockbud(pkg: &Pkg) -> Resolve {
         pkg.features_args.join(" ")
     );
     Resolve::new(pkg, CheckerTool::Lockbud, cmd, expr)
+}
+
+pub fn cargo_atomvchecker(pkg: &Pkg) -> Resolve {
+    let mut args = vec![
+        PLUS_TOOLCHAIN_ATOMVCHECKER,
+        "atomvchecker",
+        "-k",
+        "atomicity_violation",
+        "--",
+        "--target",
+        pkg.target,
+    ];
+    args.extend(pkg.features_args.iter().map(|s| &**s));
+    let expr = cmd("cargo", args).dir(pkg.dir);
+    let (expr, env_str) = add_env(expr, &pkg.env);
+    debug!(?expr);
+    let cmd = format!(
+        "{env_str}cargo {PLUS_TOOLCHAIN_ATOMVCHECKER} atomvchecker -k atomicity_violation -- --target {} {}",
+        pkg.target,
+        pkg.features_args.join(" ")
+    );
+    Resolve::new(pkg, CheckerTool::AtomVChecker, cmd, expr)
 }
 
 /// 默认运行 cargo mirai 的命令

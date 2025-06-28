@@ -75,6 +75,7 @@ jobs:
           rustup default nightly-2025-02-01 && cargo lockbud --help
           rustup default nightly-2024-10-12 && cargo rapx --help
           rustup default nightly-2021-10-21 && cargo rudra --help
+          rustup default nightly-2023-03-09 && cargo atomvchecker --help
           rustup default ${{ env.toolchain }}
 
       - name: Extra building environment required by OS libs

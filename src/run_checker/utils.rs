@@ -69,6 +69,7 @@ impl RawOutput {
             OutputParsed::Audit(a) => data_audit(a, root),
             OutputParsed::Mirai(v) => data_rustc(CheckerTool::Mirai, v, root),
             OutputParsed::Lockbud(s) => data_lockbud(s),
+            OutputParsed::AtomVChecker(s) => data_atomvchecker(s),
             OutputParsed::Rap(s) => data_rap(s),
             OutputParsed::Rudra(s) => data_rudra(s),
             OutputParsed::Outdated(s) => data_outdated(s),
@@ -153,9 +154,19 @@ fn data_lockbud(s: &str) -> Vec<OutputDataInner> {
         } else {
             Kind::LockbudProbably
         };
+        let data = OutputDataInner::new("[Lockbud] deadlock detection".into(), kind, s.to_owned());
+        vec![data]
+    }
+}
+
+fn data_atomvchecker(s: &str) -> Vec<OutputDataInner> {
+    if s.is_empty() {
+        Vec::new()
+    } else {
+        // FIXME: 目前 atomvchecker 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
         let data = OutputDataInner::new(
-            "[lockbud] Not supported to display yet.".into(),
-            kind,
+            "[AtomVChecker] memory ordering misuse detection".into(),
+            Kind::Rapx,
             s.to_owned(),
         );
         vec![data]
