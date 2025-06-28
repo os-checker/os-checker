@@ -250,6 +250,7 @@ fn resolve_for_single_pkg(cmds: &Cmds, pkgs: &[Pkg], v: &mut Vec<Resolve>) -> Re
             (Fmt, Left(true)) => Resolve::fmt(pkgs, v),
             (Clippy, Left(true)) => Resolve::clippy(pkgs, v),
             (Lockbud, Left(true)) => Resolve::lockbud(pkgs, v),
+            (Atomvchecker, Left(true)) => Resolve::atomvchecker(pkgs, v),
             (Mirai, Left(true)) => Resolve::mirai(pkgs, v),
             (Audit, Left(true)) => Resolve::audit(pkgs, v),
             (Rapx, Left(true)) => Resolve::rap(pkgs, v),

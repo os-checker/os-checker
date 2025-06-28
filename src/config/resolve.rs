@@ -126,6 +126,10 @@ impl Resolve {
         resolved.extend(pkgs.iter().map(cargo_lockbud));
     }
 
+    pub fn atomvchecker(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
+        resolved.extend(pkgs.iter().map(cargo_atomvchecker));
+    }
+
     /// 由于 mirai 检查需要配备高规格的机器，Github Action 的机器不太能满足，
     /// 因此只在某些条件下开启。
     pub fn mirai(pkgs: &[Pkg], resolved: &mut Vec<Self>) {

@@ -69,6 +69,7 @@ impl RawOutput {
             OutputParsed::Audit(a) => data_audit(a, root),
             OutputParsed::Mirai(v) => data_rustc(CheckerTool::Mirai, v, root),
             OutputParsed::Lockbud(s) => data_lockbud(s),
+            OutputParsed::Atomvchecker(s) => data_atomvchecker(s),
             OutputParsed::Rap(s) => data_rap(s),
             OutputParsed::Rudra(s) => data_rudra(s),
             OutputParsed::Outdated(s) => data_outdated(s),
@@ -153,9 +154,19 @@ fn data_lockbud(s: &str) -> Vec<OutputDataInner> {
         } else {
             Kind::LockbudProbably
         };
+        let data = OutputDataInner::new("[Lockbud] deadlock detection".into(), kind, s.to_owned());
+        vec![data]
+    }
+}
+
+fn data_atomvchecker(s: &str) -> Vec<OutputDataInner> {
+    if s.is_empty() {
+        Vec::new()
+    } else {
+        // FIXME: 目前 atomvchecker 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
         let data = OutputDataInner::new(
-            "[lockbud] Not supported to display yet.".into(),
-            kind,
+            "[AtomVChecker] memory ordering misuse detection".into(),
+            Kind::Atomvchecker,
             s.to_owned(),
         );
         vec![data]
@@ -168,7 +179,7 @@ fn data_rap(s: &str) -> Vec<OutputDataInner> {
     } else {
         // FIXME: 目前 rap 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
         let data = OutputDataInner::new(
-            "[rap] Not supported to display yet.".into(),
+            "[Rapx] memory safety detection".into(),
             Kind::Rapx,
             s.to_owned(),
         );
@@ -182,7 +193,7 @@ fn data_rudra(s: &str) -> Vec<OutputDataInner> {
     } else {
         // FIXME: 目前 rudra 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
         let data = OutputDataInner::new(
-            "[rudra] Not supported to display yet.".into(),
+            "[Rudra] Send/Sync and destructor safety detection".into(),
             Kind::Rudra,
             s.to_owned(),
         );
@@ -208,7 +219,7 @@ fn data_semver_checks(s: &str) -> Vec<OutputDataInner> {
         Vec::new()
     } else {
         let data = OutputDataInner::new(
-            "[semver checks]".into(),
+            "[semver checks violation]".into(),
             Kind::SemverViolation,
             s.to_owned(),
         );
@@ -221,7 +232,7 @@ fn data_geiger(s: &str) -> Vec<OutputDataInner> {
         Vec::new()
     } else {
         let data = OutputDataInner::new(
-            "[geiger] Unsafe Code statistics".into(),
+            "[Geiger] Unsafe code statistics".into(),
             Kind::Geiger,
             s.to_owned(),
         );
@@ -234,7 +245,7 @@ fn data_udeps(s: &str) -> Vec<OutputDataInner> {
         Vec::new()
     } else {
         let data = OutputDataInner::new(
-            "[udeps] Unused dependencies".into(),
+            "[Udeps] Unused dependencies".into(),
             Kind::Udeps,
             s.to_owned(),
         );
