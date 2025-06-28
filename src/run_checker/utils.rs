@@ -166,7 +166,7 @@ fn data_atomvchecker(s: &str) -> Vec<OutputDataInner> {
         // FIXME: 目前 atomvchecker 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
         let data = OutputDataInner::new(
             "[AtomVChecker] memory ordering misuse detection".into(),
-            Kind::Rapx,
+            Kind::Atomvchecker,
             s.to_owned(),
         );
         vec![data]
