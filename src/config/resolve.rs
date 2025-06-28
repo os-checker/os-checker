@@ -189,7 +189,7 @@ impl Resolve {
         match force_run_check() {
             ForceRunCheck::False => false,
             ForceRunCheck::All => true,
-            ForceRunCheck::Partial(v) => v.iter().any(|tool| self.checker == *tool),
+            ForceRunCheck::Partial(v) => v.contains(&self.checker),
         }
     }
 
