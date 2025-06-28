@@ -38,7 +38,7 @@ impl ForceRunCheck {
     ///
     /// Invalid value will just panic.
     fn new() -> Self {
-        match var(FORCE_REPO_CHECK).map(|s| s.trim().to_ascii_lowercase()) {
+        match var(FORCE_RUN_CHECK).map(|s| s.trim().to_ascii_lowercase()) {
             Ok(var) if !var.is_empty() => {
                 let sep = ',';
                 if var.contains(sep) {
@@ -56,6 +56,8 @@ impl ForceRunCheck {
                     ForceRunCheck::Partial(vec![tool])
                 } else if var == "true" || var == "all" {
                     ForceRunCheck::All
+                } else if var == "false" {
+                    ForceRunCheck::False
                 } else {
                     panic!("{var} is invalid: only accept false, true, or a set of checkers.")
                 }
