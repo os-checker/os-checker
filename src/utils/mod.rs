@@ -4,6 +4,8 @@ use duct::cmd;
 use eyre::Context;
 use std::{path::Path, time::Instant};
 
+pub mod env_var;
+
 mod scan_for_targets;
 pub use scan_for_targets::scan_scripts_for_target;
 

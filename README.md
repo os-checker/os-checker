@@ -57,7 +57,7 @@ os-checker 目前设计为检查 Github 上的仓库代码，并且采用 Github
 
 已集成 [以下检查工具](https://os-checker.github.io/book/checkers.html)：
 
-[![checkers](https://github.com/user-attachments/assets/2c488c58-ff69-42e5-aa20-0b8e174f416f)](https://os-checker.github.io/book/checkers.html)
+[![Image](https://github.com/user-attachments/assets/67ca6f1f-967c-4eea-8050-5678fc1fa59c)](https://os-checker.github.io/book/checkers.html)
 
 此外，os-checker 生成包括基础信息：
 * Cargo.toml：Package 维度；由许多工具读取和使用，应该正确维护

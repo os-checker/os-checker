@@ -49,6 +49,7 @@ pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
     install_targets(super::PLUS_TOOLCHAIN_HOST)?;
 
     install_targets(super::PLUS_TOOLCHAIN_LOCKBUD)?;
+    install_targets(super::PLUS_TOOLCHAIN_ATOMVCHECKER)?;
     install_targets(super::PLUS_TOOLCHAIN_MIRAI)?;
     install_targets(super::PLUS_TOOLCHAIN_RAP)?;
 
@@ -84,6 +85,7 @@ fn detect_checker_if_exists(checker_bin: &str) -> Result<()> {
 fn detect_checkers() -> Result<()> {
     detect_checker_if_exists("rapx")?;
     detect_checker_if_exists("lockbud")?;
+    detect_checker_if_exists("atomvchecker")?;
     detect_checker_if_exists("mirai")?;
     detect_checker_if_exists("rudra")?;
     Ok(())

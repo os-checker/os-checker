@@ -49,6 +49,26 @@ impl CheckerTool {
         }
     }
 
+    pub fn from_str(s: &str) -> Option<Self> {
+        Some(match s {
+            "fmt" => Fmt,
+            "clippy" => Clippy,
+            "miri" => Miri,
+            "semver-checks" => SemverChecks,
+            "audit" => Audit,
+            "mirai" => Mirai,
+            "lockbud" => Lockbud,
+            "atomvchecker" => Atomvchecker,
+            "rapx" => Rapx,
+            "rudra" => Rudra,
+            "outdated" => Outdated,
+            "geiger" => Geiger,
+            "udeps" => Udeps,
+            "cargo" => Cargo,
+            _ => return None,
+        })
+    }
+
     /// To reduce outdated artifacts of other checkers,
     /// call cargo clean before some checkers start.
     pub fn cargo_clean(self, workspace_dirs: &[&Utf8Path]) {

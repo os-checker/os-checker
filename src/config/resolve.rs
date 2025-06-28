@@ -10,7 +10,10 @@ use super::{cmd::*, CheckerTool};
 use crate::{
     layout::{Audit, Pkg},
     output::{get_toolchain, host_target_triple},
-    utils::HOST_TARGET,
+    utils::{
+        env_var::{force_run_check, ForceRunCheck},
+        HOST_TARGET,
+    },
     Result, XString,
 };
 use cargo_metadata::camino::Utf8PathBuf;
@@ -183,7 +186,11 @@ impl Resolve {
 
     /// force checking even if a cache exists
     pub fn force_check(&self) -> bool {
-        matches!(self.checker, CheckerTool::Mirai | CheckerTool::Lockbud)
+        match force_run_check() {
+            ForceRunCheck::False => false,
+            ForceRunCheck::All => true,
+            ForceRunCheck::Partial(v) => v.contains(&self.checker),
+        }
     }
 
     pub fn outdated(pkgs: &[Pkg], resolved: &mut Vec<Self>) {
