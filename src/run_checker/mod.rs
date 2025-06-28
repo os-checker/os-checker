@@ -3,7 +3,7 @@ use crate::{
     db::{CacheRepo, InfoKeyValue},
     layout::{Audit, Layout},
     output::JsonOutput,
-    utils::Exclude,
+    utils::{env_var::force_repo_check, Exclude},
     Result, XString,
 };
 use cargo_metadata::{
@@ -273,7 +273,7 @@ impl RepoOutput {
             }
         };
 
-        if utils::force_repo_check() || config.rerun() {
+        if force_repo_check() || config.rerun() {
             warn!("强制运行检查（不影响已有的检查缓存结果）");
         } else if let Some(db) = config.db() {
             match info.get_from_db(db) {
@@ -446,8 +446,8 @@ fn run_check(
 ) -> Result<()> {
     // 从缓存中获取结果，如果获取成功，则不执行实际的检查
     // FIXME: 当 force_check 后如果 Cargo 不再有诊断，那么下次读取缓存的话，那么会看到旧的 Cargo 诊断？
-    // if !utils::force_run_check() && !resolve.force_check() && outputs.fetch_cache(&resolve, db_repo)     {
-    if !utils::force_run_check() && outputs.fetch_cache(&resolve, db_repo) {
+    if !resolve.force_check() && outputs.fetch_cache(&resolve, db_repo) {
+        // if !utils::force_run_check() && outputs.fetch_cache(&resolve, db_repo) {
         return Ok(());
     }
 
