@@ -179,7 +179,7 @@ fn data_rap(s: &str) -> Vec<OutputDataInner> {
     } else {
         // FIXME: 目前 rap 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
         let data = OutputDataInner::new(
-            "[rap] Not supported to display yet.".into(),
+            "[Rapx] memory safety detection".into(),
             Kind::Rapx,
             s.to_owned(),
         );
@@ -193,7 +193,7 @@ fn data_rudra(s: &str) -> Vec<OutputDataInner> {
     } else {
         // FIXME: 目前 rudra 无法良好地解析，需要等它实现 JSON 输出才能更可靠地区分哪种
         let data = OutputDataInner::new(
-            "[rudra] Not supported to display yet.".into(),
+            "[Rudra] Send/Sync and destructor safety detection".into(),
             Kind::Rudra,
             s.to_owned(),
         );
@@ -219,7 +219,7 @@ fn data_semver_checks(s: &str) -> Vec<OutputDataInner> {
         Vec::new()
     } else {
         let data = OutputDataInner::new(
-            "[semver checks]".into(),
+            "[semver checks violation]".into(),
             Kind::SemverViolation,
             s.to_owned(),
         );
@@ -232,7 +232,7 @@ fn data_geiger(s: &str) -> Vec<OutputDataInner> {
         Vec::new()
     } else {
         let data = OutputDataInner::new(
-            "[geiger] Unsafe Code statistics".into(),
+            "[Geiger] Unsafe code statistics".into(),
             Kind::Geiger,
             s.to_owned(),
         );
@@ -245,7 +245,7 @@ fn data_udeps(s: &str) -> Vec<OutputDataInner> {
         Vec::new()
     } else {
         let data = OutputDataInner::new(
-            "[udeps] Unused dependencies".into(),
+            "[Udeps] Unused dependencies".into(),
             Kind::Udeps,
             s.to_owned(),
         );
