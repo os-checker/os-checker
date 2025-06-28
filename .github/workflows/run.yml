@@ -25,7 +25,7 @@ env:
   # checkers in database release
   TAG_PRECOMPILED_CHECKERS: cache-os-checker-v0.8.0.redb
   # force downloading repos to run check 
-  FORCE_REPO_CHECK: false
+  FORCE_REPO_CHECK: true
   # force running checks after downloading repos
   FORCE_RUN_CHECK: atomvchecker
   # use which configs
