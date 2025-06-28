@@ -34,7 +34,9 @@ pub enum ForceRunCheck {
 impl ForceRunCheck {
     /// * FORCE_RUN_CHECK=tool or tool,tool2,... => Partial
     /// * FORCE_RUN_CHECK=true or all => All
-    /// * FORCE_RUN_CHECK=anything-else or unset => False
+    /// * FORCE_RUN_CHECK=false or unset => False
+    ///
+    /// Invalid value will just panic.
     fn new() -> Self {
         match var(FORCE_REPO_CHECK).map(|s| s.trim().to_ascii_lowercase()) {
             Ok(var) if !var.is_empty() => {
@@ -55,7 +57,7 @@ impl ForceRunCheck {
                 } else if var == "true" || var == "all" {
                     ForceRunCheck::All
                 } else {
-                    ForceRunCheck::False
+                    panic!("{var} is invalid: only accept false, true, or a set of checkers.")
                 }
             }
             _ => ForceRunCheck::False,
