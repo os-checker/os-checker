@@ -133,7 +133,7 @@ fn default_checkers(run_all_checkers: bool) -> IndexMap<CheckerTool, EnableOrCus
         Clippy => state(),
         SemverChecks => state(),
         Lockbud => state(),
-        AtomVChecker => state(),
+        Atomvchecker => state(),
         Mirai => state(),
         Audit => state(),
         Rapx => state(),

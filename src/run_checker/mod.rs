@@ -510,7 +510,7 @@ fn run_check(
             .map_err(|err| (CheckerTool::Mirai, err)),
         CheckerTool::Lockbud => Ok(OutputParsed::Lockbud(lockbud::parse_lockbud_result(stderr))),
         // AtomVChecker shares the same output with lockbud.
-        CheckerTool::AtomVChecker => Ok(OutputParsed::AtomVChecker(lockbud::parse_lockbud_result(
+        CheckerTool::Atomvchecker => Ok(OutputParsed::Atomvchecker(lockbud::parse_lockbud_result(
             stderr,
         ))),
         CheckerTool::Rapx => Ok(OutputParsed::Rap(rap::rap_output(stderr, stdout, &resolve))),
@@ -554,7 +554,7 @@ enum OutputParsed {
     Mirai(Box<[RustcMessage]>),
     // TODO: a good type for Lockbud and Rap output is Option<String>
     Lockbud(String),
-    AtomVChecker(String),
+    Atomvchecker(String),
     Rap(String),
     Rudra(String),
     Outdated(String),
@@ -598,7 +598,7 @@ impl OutputParsed {
                 })
                 .sum(),
             OutputParsed::Lockbud(s)
-            | OutputParsed::AtomVChecker(s)
+            | OutputParsed::Atomvchecker(s)
             | OutputParsed::Rap(s)
             | OutputParsed::Rudra(s)
             | OutputParsed::Outdated(s)

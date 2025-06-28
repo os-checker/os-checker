@@ -69,7 +69,7 @@ impl RawOutput {
             OutputParsed::Audit(a) => data_audit(a, root),
             OutputParsed::Mirai(v) => data_rustc(CheckerTool::Mirai, v, root),
             OutputParsed::Lockbud(s) => data_lockbud(s),
-            OutputParsed::AtomVChecker(s) => data_atomvchecker(s),
+            OutputParsed::Atomvchecker(s) => data_atomvchecker(s),
             OutputParsed::Rap(s) => data_rap(s),
             OutputParsed::Rudra(s) => data_rudra(s),
             OutputParsed::Outdated(s) => data_outdated(s),

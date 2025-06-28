@@ -114,7 +114,7 @@ pub fn cargo_atomvchecker(pkg: &Pkg) -> Resolve {
         pkg.target,
         pkg.features_args.join(" ")
     );
-    Resolve::new(pkg, CheckerTool::AtomVChecker, cmd, expr)
+    Resolve::new(pkg, CheckerTool::Atomvchecker, cmd, expr)
 }
 
 /// 默认运行 cargo mirai 的命令
