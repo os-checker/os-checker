@@ -1,6 +1,7 @@
 //! This program rewrites ui/repos/user/repo/*.json (except basic.json) in these ways:
 //! * parse lockbud outputs via Regex to know which file has what diagnostics
-//! * same for RAPx, but need another parsing
+//! * same for AtomVChecker, but need slightly adjusting parsing
+//! * same for RAPx, but need another parsing (haven't done yet)
 
 use eyre::Result;
 use indexmap::IndexSet;
@@ -16,6 +17,7 @@ use std::{
 #[macro_use]
 extern crate eyre;
 
+mod atomvchecker;
 mod lockbud;
 
 /// rewrites ui/repos/user/repo/*.json (except basic.json)
@@ -122,6 +124,9 @@ fn main() -> Result<()> {
                         Kind::LockbudPossibly | Kind::LockbudProbably => {
                             rewrite_lockbud(kind, report, diagnoses, &mut set);
                         }
+                        Kind::Atomvchecker => {
+                            rewrite_atomvchecker(kind, report, diagnoses, &mut set)
+                        }
                         _ => (),
                     }
                 }
@@ -188,6 +193,38 @@ fn rewrite_lockbud(
                         });
                     }
                 }
+            }
+        }
+    }
+}
+
+fn rewrite_atomvchecker(
+    kind: Kind,
+    report: &RawReport,
+    diagnoses: &[String],
+    set: &mut IndexSet<Diagnosis>,
+) {
+    println!("  AtomVChecker has {} disanosis.", diagnoses.len());
+    for diagnosis in diagnoses {
+        // share the same regex with lockbud
+        for cap in RE.lockbud.captures_iter(diagnosis) {
+            let matched = cap.get(0).unwrap().as_str();
+            let v_out: Vec<atomvchecker::Report> =
+                serde_json::from_str(matched).unwrap_or_else(|err| {
+                    eprintln!("Unable to parse data:\nerr={err:?}\nmatched=\n{matched}");
+                    Vec::new()
+                });
+            for out in &v_out {
+                let bug_kind = out.kind_str();
+                let file = out.file_path();
+                println!("{bug_kind:?}: {file:?}");
+                // dedup by diag: never emit two identical diags for the same file, kind, feature
+                set.insert(Diagnosis {
+                    features: report.features.clone(),
+                    kind,
+                    file,
+                    diag: out.diag(),
+                });
             }
         }
     }
