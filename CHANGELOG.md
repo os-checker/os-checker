@@ -1,18 +1,25 @@
+# v0.8.0
+
+Features:
+* support `cargo-udeps` to detect unused dependencies (#372)
+* integrate `AtomVChecker` to detect memory ordering misuse (#373)
+* adjust FORCE_RUN_CHECK to accept a list of checkers (#376)
+
 # v0.7.0
 
 Features:
 
-* add --no-layout-error layout subcommand option (#320)
-* add run --no-layout-error and JSON input's meta.only_pkg_dir_globs (#328)
-* support meta.rerun in config JSON (#330)
+* add `--no-layout-error` layout subcommand option (#320)
+* add run `--no-layout-error` and JSON input's `meta.only_pkg_dir_globs` (#328)
+* support `meta.rerun` in config JSON (#330)
 * run setup commands through bash before analyzing the repo (#334)
-* add convert_repo_json CLI to extract files from lockbud output and rewrite ui/repos JSONs (#343)
+* add `convert_repo_json` CLI to extract files from lockbud output and rewrite ui/repos JSONs (#343)
 * support local project checking and caching (#346)
-* add meta.use_last_cache in JSON config and --use-last-cache in run subcommand (#351)
-* support meta.run_all_checkers in JSON config (#356)
+* add `meta.use_last_cache` in JSON config and `--use-last-cache` in run subcommand (#351)
+* support `meta.run_all_checkers` in JSON config (#356)
 
 Fixes:
-* meta.only_pkg_dir_globs filters in Cargo.toml paths; Layout::packages respects cargo_tomls (#354)
+* `meta.only_pkg_dir_globs` filters in Cargo.toml paths; Layout::packages respects cargo_tomls (#354)
 
 # v0.6.1
 
