@@ -1,3 +1,10 @@
+# v0.8.0
+
+Features:
+* support `cargo-udeps` to detect unused dependencies (#372)
+* integrate `AtomVChecker` to detect memory ordering misuse (#373)
+* adjust FORCE_RUN_CHECK to accept a list of checkers (#376)
+
 # v0.7.0
 
 Features:
