@@ -796,7 +796,7 @@ dependencies = [
 
 [[package]]
 name = "os-checker"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "argh",
  "basic-toml",
@@ -833,7 +833,7 @@ dependencies = [
 
 [[package]]
 name = "os-checker-database"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "ahash",
  "argh",
@@ -857,7 +857,7 @@ dependencies = [
 
 [[package]]
 name = "os-checker-types"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "camino",
  "cargo_metadata",
