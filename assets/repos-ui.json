@@ -79,7 +79,7 @@
       }
     }
   },
-  "qclic/fdt-parser": {
+  "drivercraft/fdt-parser": {
     "packages": {
       "dtb-tool": {
         "targets": "x86_64-unknown-linux-gnu"
