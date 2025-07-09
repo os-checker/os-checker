@@ -86,18 +86,6 @@
       }
     }
   },
-  "rel4team/sel4_cspace": {
-    "targets": "riscv64gc-unknown-none-elf"
-  },
-  "sysones/rcore-tutorial-v3-with-hal-component": {
-    "targets": "x86_64-unknown-linux-gnu"
-  },
-  "kern-crates/zCore": {
-    "no_install_targets": "x86_64-unknown-uefi"
-  },
-  "rcore-os/rboot": {
-    "no_install_targets": "x86_64-unknown-uefi"
-  },
   "os-module/safe-virtio-drivers": {
     "cmds": {
       "mirai": false
