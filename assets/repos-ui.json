@@ -86,39 +86,6 @@
       }
     }
   },
-  "os-module/safe-virtio-drivers": {
-    "cmds": {
-      "mirai": false
-    }
-  },
-  "yuoo655/ext4_rs": {
-    "cmds": {
-      "mirai": false
-    }
-  },
-  "Godones/rCoreloongArch": {
-    "targets": "loongarch64-unknown-none",
-    "packages": {
-      "vbe": {
-        "targets": "x86_64-unknown-linux-gnu"
-      },
-      "easy-fs-fuse": {
-        "targets": "x86_64-unknown-linux-gnu"
-      }
-    }
-  },
-  "rel4team/sel4_task": {
-    "targets": "riscv64gc-unknown-none-elf"
-  },
-  "rel4team/sel4_vspace": {
-    "targets": "riscv64gc-unknown-none-elf"
-  },
-  "rel4team/sel4_common": {
-    "targets": "riscv64gc-unknown-none-elf"
-  },
-  "rel4team/sel4_ipc": {
-    "targets": "riscv64gc-unknown-none-elf"
-  },
   "Godones/loongArch64": {
     "targets": "loongarch64-unknown-none"
   },
