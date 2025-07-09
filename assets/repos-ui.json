@@ -31,7 +31,7 @@
       }
     }
   },
-  "ZR233/arm-gic-driver": {
+  "rcore-os/arm-gic-driver": {
     "targets": "aarch64-unknown-none-softfloat"
   }
 }
