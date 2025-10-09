@@ -7,7 +7,9 @@
 
 虽然工具名称暗示与操作系统相关，但仅仅是以它为背景而起的名字。也就是说， os-checker 适用于任何 Rust 代码库。
 
-详细文档见： [os-checker book](https://os-checker.github.io/book/checkers.html) | [工作原理](https://os-checker.github.io/book/under-the-hood.html) | [DeepWiki by Devin AI](https://deepwiki.com/os-checker/os-checker) (in English)。
+文档： [os-checker book](https://os-checker.github.io/book/checkers.html) | [工作原理](https://os-checker.github.io/book/under-the-hood.html) | [DeepWiki by Devin AI](https://deepwiki.com/os-checker/os-checker) (in English)。
+
+演讲：[PPT](https://docs.qq.com/slide/DTEV3Z3pIbmF3eEhG) | [RustChinaConf (20 分钟)](https://www.bilibili.com/video/BV197njzqEsS) | [开源操作系统训练营技术报告 (1 小时)](https://www.yuque.com/xyong-9fuoz/hg8kgr/orddgx677bplf6pl#d25Ew)
 
 os-checker 由以下部分组成：
 
@@ -62,6 +64,7 @@ os-checker 目前设计为检查 Github 上的仓库代码，并且采用 Github
 此外，os-checker 生成包括基础信息：
 * Cargo.toml：Package 维度；由许多工具读取和使用，应该正确维护
 * Github API：仓库维度
+* CI 情况
 
 # Licenses
 
