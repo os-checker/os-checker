@@ -29,29 +29,30 @@ pub fn rustup_target_add(targets: &[&str], dir: &Utf8Path) -> Result<()> {
     })
 }
 
-#[instrument(level = "info")]
 pub fn rustup_target_add_for_checkers(targets: &[&str]) -> Result<()> {
-    let err = |toolchain| format!("在 {toolchain} 工具链上安装如下 targets {targets:?} 失败");
-
-    let mut args: Vec<_> = ["+", "target", "add"]
-        .iter()
-        .copied()
-        .chain(targets.iter().copied())
-        .collect();
-
-    let mut install_targets = move |toolchain: &'static str| {
-        args[0] = toolchain;
-        let expr = cmd("rustup", &args);
-        run_cmd(expr, || err(toolchain))
+    let install_targets = |toolchain: &'static str, target: &str| {
+        let expr = cmd("rustup", [toolchain, "target", "add", target]);
+        run_cmd(expr, || {
+            format!("在 {toolchain} 工具链上安装 target {target:?} 失败")
+        })
     };
 
-    // FIXME: use Cow for non +nightly host toolchain?
-    install_targets(super::PLUS_TOOLCHAIN_HOST)?;
+    let toolchains = [
+        ("host", super::PLUS_TOOLCHAIN_HOST),
+        ("Lockbud", super::PLUS_TOOLCHAIN_LOCKBUD),
+        ("Atomvchecker", super::PLUS_TOOLCHAIN_ATOMVCHECKER),
+        ("Mirai", super::PLUS_TOOLCHAIN_MIRAI),
+        ("RAPx", super::PLUS_TOOLCHAIN_RAP),
+    ];
 
-    install_targets(super::PLUS_TOOLCHAIN_LOCKBUD)?;
-    install_targets(super::PLUS_TOOLCHAIN_ATOMVCHECKER)?;
-    install_targets(super::PLUS_TOOLCHAIN_MIRAI)?;
-    install_targets(super::PLUS_TOOLCHAIN_RAP)?;
+    for (checker, toolchain) in toolchains {
+        for target in targets {
+            // 针对 checker 安装编译目标，可能工具链没有配备编译目标
+            if let Err(err) = install_targets(toolchain, target) {
+                error!(checker, ?err);
+            }
+        }
+    }
 
     Ok(())
 }
