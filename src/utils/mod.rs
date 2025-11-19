@@ -25,7 +25,7 @@ pub const PECULIAR_TARGETS: &[&str] = &["x86_64-fuchsia", "avr-unknown-gnu-atmeg
 pub const HOST_TARGET: &str = "x86_64-unknown-linux-gnu";
 
 /// 检查工具固定的工具链
-pub const PLUS_TOOLCHAIN_HOST: &str = "+nightly";
+pub const PLUS_TOOLCHAIN_HOST: &str = "+nightly-2025-06-26";
 
 pub const PLUS_TOOLCHAIN_RUDRA: &str = "+nightly-2021-10-21";
 pub const PLUS_TOOLCHAIN_MIRAI: &str = "+nightly-2025-01-10";
