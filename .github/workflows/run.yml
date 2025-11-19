@@ -56,6 +56,9 @@ jobs:
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
           ls -alh
 
+      - name: View Space
+        run: df -alh && ls -alh
+
       - uses: dtolnay/rust-toolchain@nightly
         with:
           toolchain: ${{ env.toolchain }}
