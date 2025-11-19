@@ -45,7 +45,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: View Space
-        run: df -alh && ls -alh /
+        run: whoami && df -alh && ls -alh /
 
       - name: Prepare Makefile and repos JSONs
         run: |
