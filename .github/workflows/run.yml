@@ -44,6 +44,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: View Space
+        run: df -alh && ls -alh /
+
       - name: Prepare Makefile and repos JSONs
         run: |
           mkdir -p ${{ env.BASE_DIR }}/batch
@@ -58,9 +61,6 @@ jobs:
           jq 'del(."qclic/e1000e-frame")' os-checker_config.json > repos-default.json
           gh release download -R os-checker/database ${{ env.TAG_CACHE }} -p cache.redb || echo "cache.redb not found"
           ls -alh
-
-      - name: View Space
-        run: df -alh && ls -alh
 
       - uses: dtolnay/rust-toolchain@nightly
         with:
