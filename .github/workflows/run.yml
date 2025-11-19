@@ -17,7 +17,10 @@ env:
   # false: run with json stdout emitted, and no interaction with database;
   # true: run with json file emitted, and push it to database.
   PUSH: true
+  # default nightly toolchain version
   toolchain: nightly-2025-06-26
+  # /mnt has more space than root folder
+  BASE_DIR: /mnt/check
   # push to which database branch 
   DATABASE: main
   # cache.redb tag in database release
@@ -43,13 +46,13 @@ jobs:
 
       - name: Prepare Makefile and repos JSONs
         run: |
-          mkdir -p ~/check/batch
-          cp Makefile ~/check/
-          cp assets/repos.json ~/check/
-          cp assets/repos-ui.json ~/check/
-          cp assets/embassy.json ~/check/
-          cp assets/large.json ~/check/
-          cd ~/check
+          mkdir -p ${{ env.BASE_DIR }}/batch
+          cp Makefile ${{ env.BASE_DIR }}/
+          cp assets/repos.json ${{ env.BASE_DIR }}/
+          cp assets/repos-ui.json ${{ env.BASE_DIR }}/
+          cp assets/embassy.json ${{ env.BASE_DIR }}/
+          cp assets/large.json ${{ env.BASE_DIR }}/
+          cd ${{ env.BASE_DIR }}
           gh release download -R kern-crates/.github -p os-checker_config.json
           # temporarily disable qclic/e1000e-frame
           jq 'del(."qclic/e1000e-frame")' os-checker_config.json > repos-default.json
@@ -102,7 +105,7 @@ jobs:
         run: |
           git lfs install --skip-smudge # 如果 lfs 下载不了大文件，跳过下载
           df -alh
-          cd ~/check
+          cd ${{ env.BASE_DIR }}
           os-checker db --start cache.redb
 
           # make run || echo "运行所有仓库的检查失败，但依然提交已有的 cache.redb 到数据仓库"
@@ -113,7 +116,7 @@ jobs:
 
       - name: Run cache_redb test
         run: |
-          cp ~/check/cache.redb .
+          cp ${{ env.BASE_DIR }}/cache.redb .
           cargo test -p os-checker-types -- --nocapture cache_redb
 
       # - name: Run layout --list-targets test
@@ -121,7 +124,7 @@ jobs:
 
       - name: Run config --merged or --list-repos
         run: |
-          cd ~/check
+          cd ${{ env.BASE_DIR }}
           echo "os-checker config --merged"
           os-checker config --merged
           echo "os-checker config --list-repos"
@@ -130,7 +133,7 @@ jobs:
       - name: Update cache.redb
         run: |
           cargo install --path os-checker-database --locked
-          cd ~/check
+          cd ${{ env.BASE_DIR }}
           df -alh
           make upload
 
@@ -140,7 +143,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          cd ~/check
+          cd ${{ env.BASE_DIR }}
           make clone_database
           cd database
 
@@ -150,8 +153,8 @@ jobs:
           git pull --rebase # 防止二次运行 CI 时落后于远程分支
 
           rm -rf batch # 移除旧的 batch 数据
-          cp -r ~/check/batch . # 更新新的 batch 数据
-          cp ~/check/cache.redb . # 复制数据库缓存文件
+          cp -r ${{ env.BASE_DIR }}/batch . # 更新新的 batch 数据
+          cp ${{ env.BASE_DIR }}/cache.redb . # 复制数据库缓存文件
           sh push.sh
           df -alh
 
