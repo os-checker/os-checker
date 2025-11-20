@@ -1,5 +1,8 @@
 {
   "arceos-org/arceos": {
+    "targets": [
+      "x86_64-unknown-linux-gnu"
+    ],
     "packages": {
       "bwbench-client": {
         "targets": "x86_64-unknown-linux-gnu"
