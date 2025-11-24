@@ -1,29 +1,32 @@
 {
-  "arceos-org/arceos": {
-    "targets": [
-      "x86_64-unknown-linux-gnu"
-    ],
+  "arceos-org/axplat_crates": {
     "packages": {
-      "bwbench-client": {
+      "cargo-axplat": {
         "targets": "x86_64-unknown-linux-gnu"
       },
-      "deptool": {
-        "targets": "x86_64-unknown-linux-gnu"
+      "axplat-riscv64-qemu-virt": {
+        "targets": "riscv64gc-unknown-none-elf"
       },
-      "arceos-shell": {
-        "targets": "x86_64-unknown-linux-gnu"
+      "axplat-aarch64-bsta1000b": {
+        "targets": "aarch64-unknown-none"
       },
-      "arceos-httpserver": {
-        "targets": "x86_64-unknown-linux-gnu"
+      "axplat-aarch64-phytium-pi": {
+        "targets": "aarch64-unknown-none"
       },
-      "arceos-httpclient": {
-        "targets": "x86_64-unknown-linux-gnu"
+      "axplat-aarch64-qemu-virt": {
+        "targets": "aarch64-unknown-none"
       },
-      "arceos-helloworld": {
-        "targets": "x86_64-unknown-linux-gnu"
+      "axplat-aarch64-raspi": {
+        "targets": "aarch64-unknown-none"
       },
-      "mingo": {
-        "targets": "aarch64-unknown-none-softfloat"
+      "axplat-aarch64-peripherals": {
+        "targets": "aarch64-unknown-none"
+      },
+      "axplat-loongarch64-qemu-virt": {
+        "targets": "loongarch64-unknown-none"
+      },
+      "axplat-x86-pc": {
+        "targets": "x86_64-unknown-none"
       }
     }
   }
