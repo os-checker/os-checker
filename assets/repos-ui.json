@@ -27,6 +27,37 @@
       }
     }
   },
+  "arceos-org/axplat_crates": {
+    "packages": {
+      "cargo-axplat": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "axplat-riscv64-qemu-virt": {
+        "targets": "riscv64gc-unknown-none-elf"
+      },
+      "axplat-aarch64-bsta1000b": {
+        "targets": "aarch64-unknown-none"
+      },
+      "axplat-aarch64-phytium-pi": {
+        "targets": "aarch64-unknown-none"
+      },
+      "axplat-aarch64-qemu-virt": {
+        "targets": "aarch64-unknown-none"
+      },
+      "axplat-aarch64-raspi": {
+        "targets": "aarch64-unknown-none"
+      },
+      "axplat-aarch64-peripherals": {
+        "targets": "aarch64-unknown-none"
+      },
+      "axplat-loongarch64-qemu-virt": {
+        "targets": "loongarch64-unknown-none"
+      },
+      "axplat-x86-pc": {
+        "targets": "x86_64-unknown-none"
+      }
+    }
+  },
   "drivercraft/fdt-parser": {
     "packages": {
       "dtb-tool": {
