@@ -2,7 +2,8 @@
   "asterinas/asterinas": {
     "meta": {
       "skip_pkg_dir_globs": [
-        "comp-sys*"
+        "comp-sys*",
+        "examples_in_book*"
       ]
     }
   }
