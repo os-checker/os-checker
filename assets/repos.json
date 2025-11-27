@@ -2,7 +2,7 @@
   "asterinas/asterinas": {
     "meta": {
       "skip_pkg_dir_globs": [
-        "kernel/libs/comp-sys*"
+        "comp-sys*"
       ]
     }
   }
