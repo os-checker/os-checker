@@ -5,8 +5,7 @@
       "make build"
     ],
     "env": {
-      "VDSO_LIBRARY_DIR": "/tmp/linux_vdso",
-      "RUSTFLAGS": "--check-cfg cfg(ktest) --cfg ktest"
+      "VDSO_LIBRARY_DIR": "/tmp/linux_vdso"
     },
     "meta": {
       "skip_pkg_dir_globs": [
