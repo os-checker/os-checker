@@ -9,6 +9,9 @@
     "packages": {
       "cargo-osdk": {
         "targets": "x86_64-unknown-linux-gnu"
+      },
+      "sctrace": {
+        "targets": "x86_64-unknown-linux-gnu"
       }
     }
   }
