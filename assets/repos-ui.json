@@ -67,5 +67,31 @@
   },
   "rcore-os/arm-gic-driver": {
     "targets": "aarch64-unknown-none-softfloat"
+  },
+  "asterinas/asterinas": {
+    "setup": [
+      "git clone https://github.com/asterinas/linux_vdso /tmp/linux_vdso",
+      "make build"
+    ],
+    "env": {
+      "VDSO_LIBRARY_DIR": "/tmp/linux_vdso"
+    },
+    "meta": {
+      "skip_pkg_dir_globs": [
+        "comp-sys*",
+        "examples_in_book*"
+      ]
+    },
+    "packages": {
+      "cargo-osdk": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "sctrace": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "linux-bzimage-builder": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
+    }
   }
 }
