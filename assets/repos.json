@@ -5,6 +5,11 @@
         "comp-sys*",
         "examples_in_book*"
       ]
+    },
+    "packages": {
+      "cargo-osdk": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
     }
   }
 }
