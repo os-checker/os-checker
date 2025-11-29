@@ -1,5 +1,11 @@
 {
   "asterinas/asterinas": {
+    "setup": [
+      "git clone https://github.com/asterinas/linux_vdso /tmp/linux_vdso"
+    ],
+    "env": {
+      "VDSO_LIBRARY_DIR": "/tmp/linux_vdso"
+    },
     "meta": {
       "skip_pkg_dir_globs": [
         "comp-sys*",
