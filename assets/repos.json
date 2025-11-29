@@ -19,6 +19,9 @@
       },
       "sctrace": {
         "targets": "x86_64-unknown-linux-gnu"
+      },
+      "linux-bzimage-builder": {
+        "targets": "x86_64-unknown-linux-gnu"
       }
     }
   }
