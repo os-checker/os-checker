@@ -4,7 +4,8 @@
       "git clone https://github.com/asterinas/linux_vdso /tmp/linux_vdso"
     ],
     "env": {
-      "VDSO_LIBRARY_DIR": "/tmp/linux_vdso"
+      "VDSO_LIBRARY_DIR": "/tmp/linux_vdso",
+      "RUSTFLAGS": "--check-cfg cfg(ktest) --cfg ktest"
     },
     "meta": {
       "skip_pkg_dir_globs": [
