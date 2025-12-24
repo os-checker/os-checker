@@ -18,15 +18,15 @@ env:
   # true: run with json file emitted, and push it to database.
   PUSH: true
   # default nightly toolchain version
-  toolchain: nightly-2025-06-26
+  toolchain: nightly-2025-12-06
   # /mnt has more space than root folder
   BASE_DIR: /mnt/check
   # push to which database branch 
   DATABASE: main
   # cache.redb tag in database release
-  TAG_CACHE: cache-os-checker-v0.8.0.redb
+  TAG_CACHE: cache-os-checker-v0.8.1.redb
   # checkers in database release
-  TAG_PRECOMPILED_CHECKERS: cache-os-checker-v0.8.0.redb
+  TAG_PRECOMPILED_CHECKERS: cache-os-checker-v0.8.1.redb
   # force downloading repos to run check 
   FORCE_REPO_CHECK: false
   # force running checks after downloading repos
@@ -79,7 +79,7 @@ jobs:
           cargo udeps --version
           rustup default nightly-2025-01-10 && cargo mirai --help
           rustup default nightly-2025-02-01 && cargo lockbud --help
-          rustup default nightly-2024-10-12 && cargo rapx --help
+          rustup default nightly-2025-12-06 && cargo rapx --help
           rustup default nightly-2021-10-21 && cargo rudra --help
           rustup default nightly-2023-03-09 && cargo atomvchecker --help
           rustup default ${{ env.toolchain }}
