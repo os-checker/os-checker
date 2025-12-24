@@ -144,6 +144,7 @@ pub fn cargo_rap(pkg: &Pkg) -> Resolve {
         "rapx",
         "-F",
         "-M",
+        "-timeout=300",
         "--",
         "--target",
         pkg.target,
