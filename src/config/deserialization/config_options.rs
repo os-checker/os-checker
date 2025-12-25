@@ -136,7 +136,7 @@ fn default_checkers(run_all_checkers: bool) -> IndexMap<CheckerTool, EnableOrCus
         Atomvchecker => state(),
         Mirai => state(),
         Audit => state(),
-        Rapx => state(),
+        Rapx => DISABLE,
         Rudra => state(),
         Outdated => state(),
         Geiger => state(),
