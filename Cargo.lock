@@ -796,7 +796,7 @@ dependencies = [
 
 [[package]]
 name = "os-checker"
-version = "0.8.0"
+version = "0.8.1"
 dependencies = [
  "argh",
  "basic-toml",
