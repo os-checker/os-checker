@@ -13,7 +13,7 @@ impl RepoConfig {
         targets(&self.targets)
     }
 
-    pub fn targets_specified(&self) -> TargetsSpecifed {
+    pub fn targets_specified(&self) -> TargetsSpecifed<'_> {
         let repo = self.targets();
         let pkgs = self
             .packages

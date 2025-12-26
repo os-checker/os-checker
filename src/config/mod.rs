@@ -99,7 +99,7 @@ impl Config {
             .with_context(|| format!("解析 `{:?}` 仓库的检查命令出错", self.uri))
     }
 
-    pub fn targets_specified(&self) -> TargetsSpecifed {
+    pub fn targets_specified(&self) -> TargetsSpecifed<'_> {
         self.config.targets_specified()
     }
 
