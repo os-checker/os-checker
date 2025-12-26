@@ -1,4 +1,4 @@
-# v0.8.1
+# v0.9.0
 
 Fixes:
 * continue when non-existing target is required for a checker (#402)
@@ -7,6 +7,7 @@ Chores:
 * update checkers and default toolchain (#418)
 * check Asterinas (#412)
 * adjust configs for ArceOS (#406), axplat_crates (#410), and more (#380)
+* update dependencies
 
 # v0.8.0
 
