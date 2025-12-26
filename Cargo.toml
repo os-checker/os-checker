@@ -1,6 +1,6 @@
 [package]
 name = "os-checker"
-version = "0.8.0"
+version = "0.8.1"
 edition = "2021"
 rust-version = "1.80"
 exclude = ["assets", ".github", "repos", "tests", "examples", "Makefile", "dist-workspace.toml"]
@@ -15,13 +15,13 @@ license-file = "./LICENSE.MulanPubL"
 
 [dependencies]
 basic-toml = "0.1"
-prettydiff = { version = "0.8.0", default-features = false }
+prettydiff = { version = "0.9.0", default-features = false }
 either = "1"
 strip-ansi-escapes = "0.2"
 jsonxf = "1"
 # wait for https://github.com/gamache/jsonxf/pull/10 to merge
 # jsonxf = {git="https://github.com/os-checker/jsonxf.git", branch="make-getopts-optional", default-features = false}
-rustsec = { version = "0.30.2", default-features = false, features = ["dependency-tree"] }
+rustsec = { version = "0.31.0", default-features = false, features = ["dependency-tree"] }
 # replace_with = "0.1"
 
 # error handling
@@ -53,7 +53,7 @@ walkdir = { workspace = true }
 
 # shell commands
 duct = { workspace = true }
-yash-syntax = "0.15.0" # shell lang parsing
+yash-syntax = "0.17.0" # shell lang parsing
 
 [dev-dependencies]
 expect-test = "1.5.0" # use `UPDATE_EXPECT=1 cargo t` to update all tests
@@ -70,7 +70,7 @@ ahash = "0.8.11"
 camino = { version = "1.1.9", features = ["serde1"] } # Utf8 Path
 compact_str = { version = "0.9.0", features = ["serde"] }
 duct = "1" # better subprocess, pipe, redirct
-hashbrown = { version = "0.15", features = ["default"]}
+hashbrown = { version = "0.16", features = ["default"]}
 indexmap = { version = "2.4.0", features = ["serde"] }
 itertools = "0.14.0"
 serde = { version = "1", features = ["derive"] }
@@ -94,7 +94,7 @@ time = { version = "0.3", features = ["parsing", "macros"] }
 
 os-checker-types = { version = "0.8.0", path = "os-checker-types" }
 
-cargo_metadata = "0.20.0" # parse metadata for knowing project layout
+cargo_metadata = "0.23.1" # parse metadata for knowing project layout
 # [workspace.dependencies.cargo_metadata]
 # git = "https://github.com/os-checker/cargo_metadata.git"
 # # branch = "workspace_default_members-serde-default"
