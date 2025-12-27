@@ -93,5 +93,18 @@
         "targets": "x86_64-unknown-linux-gnu"
       }
     }
+  },
+  "drivercraft/CrabUSB": {
+    "packages": {
+      "usb-keyboard": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "uvc-frame-parser": {
+        "targets": "x86_64-unknown-linux-gnu"
+      },
+      "test_libusb_uvc": {
+        "targets": "x86_64-unknown-linux-gnu"
+      }
+    }
   }
 }
