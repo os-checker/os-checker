@@ -28,12 +28,12 @@ env:
   # checkers in database release
   TAG_PRECOMPILED_CHECKERS: cache-os-checker-v0.8.1.redb
   # force downloading repos to run check 
-  FORCE_REPO_CHECK: true
+  FORCE_REPO_CHECK: false
   # force running checks after downloading repos
   FORCE_RUN_CHECK: false
   # use which configs
-  OS_CHECKER_CONFIGS: repos.json # for debug single repo
-  # OS_CHECKER_CONFIGS: repos-default.json repos-ui.json # full repo list
+  # OS_CHECKER_CONFIGS: repos.json # for debug single repo
+  OS_CHECKER_CONFIGS: repos-default.json repos-ui.json # full repo list
 
 jobs:
   run:
