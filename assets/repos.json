@@ -1,13 +1,26 @@
 {
-  "drivercraft/CrabUSB": {
+  "asterinas/asterinas": {
+    "setup": [
+      "git clone https://github.com/asterinas/linux_vdso /tmp/linux_vdso",
+      "make build"
+    ],
+    "env": {
+      "VDSO_LIBRARY_DIR": "/tmp/linux_vdso"
+    },
+    "meta": {
+      "skip_pkg_dir_globs": [
+        "comp-sys*",
+        "examples_in_book*"
+      ]
+    },
     "packages": {
-      "usb-keyboard": {
+      "cargo-osdk": {
         "targets": "x86_64-unknown-linux-gnu"
       },
-      "uvc-frame-parser": {
+      "sctrace": {
         "targets": "x86_64-unknown-linux-gnu"
       },
-      "test_libusb_uvc": {
+      "linux-bzimage-builder": {
         "targets": "x86_64-unknown-linux-gnu"
       }
     }
